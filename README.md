@@ -31,6 +31,23 @@ Spec v0.0:
 
 ---
 
+## Documentation / Changelog Policy（運用ルール）
+
+ドキュメント整備と変更履歴の一貫性を保つため、以下を必須ルールとします。
+
+1. 仕様・挙動・CLI・ディレクトリ構成・運用方針を変更した場合は、関連ドキュメントを同一PRで更新する。
+2. 変更を行った場合は、`docs/spec/v0.0/50_changelog.md` の `## Unreleased` に追記する。
+3. **Codex（AIエージェント）による変更でも例外なく、必ずチェンジログ追記を行う。**
+4. チェンジログ追記がない変更は、レビューで差し戻し対象とする。
+
+推奨フォーマット（例）:
+
+```md
+- docs: README の運用ルールを更新（Codex変更時のChangelog追記を必須化）
+```
+
+---
+
 ## Research Objective
 
 The goal of this project is to:
