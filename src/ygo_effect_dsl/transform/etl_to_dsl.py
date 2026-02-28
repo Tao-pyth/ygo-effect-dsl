@@ -40,7 +40,7 @@ def _pick_nested_str(obj: dict[str, Any], parents: list[str], child: str, defaul
     return default
 
 
-def to_dsl_yaml_dict(etl_card: dict[str, Any], mode: str = "skeleton") -> dict[str, Any]:
+def to_dsl_yaml_dict(etl_card: dict[str, Any], dataset_name: str = "", exported_at: str = "") -> dict[str, Any]:
     cid = _pick_int(etl_card, ["cid", "id", "card_id"], default=0)
     name_ja = _pick_str(etl_card, ["name_ja", "card_name_ja"], default="")
     name_en = _pick_str(etl_card, ["name_en", "card_name_en"], default="")
@@ -51,16 +51,13 @@ def to_dsl_yaml_dict(etl_card: dict[str, Any], mode: str = "skeleton") -> dict[s
         name_en = _pick_nested_str(etl_card, ["name", "names"], "en", default="")
 
     effect_id = f"{cid}_001" if cid else "0_001"
-
-    effects: list[dict[str, Any]] = []
-    if mode == "skeleton":
-        effects.append(
-            {
-                "id": effect_id,
-                "order": 1,
-                **EMPTY_EFFECT_BLOCK,
-            }
-        )
+    effects = [
+        {
+            "id": effect_id,
+            "order": 1,
+            **EMPTY_EFFECT_BLOCK,
+        }
+    ]
 
     return {
         "dsl_version": "0.0",
@@ -74,8 +71,8 @@ def to_dsl_yaml_dict(etl_card: dict[str, Any], mode: str = "skeleton") -> dict[s
         "effects": effects,
         "meta": {
             "source": {
-                "dataset": "",
-                "exported_at": "",
+                "dataset": dataset_name,
+                "exported_at": exported_at,
             }
         },
     }

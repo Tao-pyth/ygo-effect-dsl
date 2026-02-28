@@ -5,33 +5,61 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-
-from ygo_effect_dsl.cli.main import cmd_transform
+from ygo_effect_dsl.cli.main import cmd_ingest, cmd_transform, cmd_validate
 from ygo_effect_dsl.util.yaml_io import load_yaml
-from ygo_effect_dsl.validate.validator import validate_card_yaml
 
 
-class _Args:
-    def __init__(self, in_path: str, out_dir: str):
-        self.in_path = in_path
+class _IngestArgs:
+    def __init__(self, dataset: str):
+        self.dataset = dataset
+        self.manifest = None
+        self.jsonl = None
+
+
+class _TransformArgs:
+    def __init__(self, dataset: str, out_dir: str):
+        self.dataset = dataset
+        self.manifest = None
+        self.jsonl = None
         self.out_dir = out_dir
 
 
-def test_pipeline_smoke(tmp_path: Path) -> None:
-    out_dir = tmp_path / "dsl_out"
-    args = _Args(in_path="examples/sample_cards.jsonl", out_dir=str(out_dir))
+class _ValidateArgs:
+    def __init__(self, cards_dir: str):
+        self.cards_dir = cards_dir
 
-    rc = cmd_transform(args)
-    assert rc == 0
+
+def test_pipeline_smoke(tmp_path: Path) -> None:
+    dataset_dir = "examples/sample_dataset"
+    out_dir = tmp_path / "dsl_out"
+
+    ingest_rc = cmd_ingest(_IngestArgs(dataset=dataset_dir))
+    assert ingest_rc == 0
+
+    transform_rc = cmd_transform(_TransformArgs(dataset=dataset_dir, out_dir=str(out_dir)))
+    assert transform_rc == 0
+
+    validate_rc = cmd_validate(_ValidateArgs(cards_dir=str(out_dir)))
+    assert validate_rc == 0
 
     files = sorted(out_dir.glob("*.yaml"))
-    assert files, "transform must generate yaml files"
+    assert len(files) == 3
 
     for file in files:
         payload = load_yaml(str(file))
-        assert "dsl_version" in payload
+
+        assert payload.get("dsl_version") == "0.0"
         assert "card" in payload
         assert "effects" in payload
 
-        errs = validate_card_yaml(payload)
-        assert not errs
+        card = payload["card"]
+        assert "cid" in card
+        assert "name" in card
+        assert "en" in card["name"]
+        assert "ja" in card["name"]
+
+        effects = payload["effects"]
+        assert isinstance(effects, list)
+        for effect in effects:
+            for key in ["trigger", "restriction", "condition", "cost", "action"]:
+                assert key in effect

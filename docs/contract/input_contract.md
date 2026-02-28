@@ -1,15 +1,12 @@
 # Input Contract — ETL → CORE
 
-CORE は ETL が生成した以下の成果物のみを入力として扱う：
-- `data/export/cards.jsonl`
-- `data/export/manifest.json`
+CORE は ETL が生成した export 成果物のみを入力として扱う：
+- `manifest.json`
+- `cards.jsonl`
 
-## 必須キー（cards.jsonl）
-- cid（Konami ID）
-- name_en / card_text_en
-- name_ja / card_text_ja（空でもキーは存在）
-- card_info_en / card_info_ja
-- image_url_* / image_relpath_*（キーは存在、無い場合は空文字）
-- fetched_at / source
+## ingest時の必須検証
+- `manifest.json` を先に読み、`export_schema_version` の互換性を検証する
+- `manifest.record_count` と `cards.jsonl` 実行行数の一致を検証する
+- `manifest.fields` で定義されたキーが、`cards.jsonl` 各行にすべて存在することを検証する
 
-※ SQLite内部には依存しない。
+※ ETL の SQLite 内部には依存しない。

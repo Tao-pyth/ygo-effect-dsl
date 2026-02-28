@@ -2,77 +2,92 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
+from pathlib import Path
 from typing import Any
 
 from ygo_effect_dsl.analyze.report import build_report
-from ygo_effect_dsl.ingest.jsonl_reader import load_raw_cards_with_issues
+from ygo_effect_dsl.ingest.jsonl_reader import load_dataset, resolve_dataset_paths
 from ygo_effect_dsl.transform.dsl_writer import write_card_yaml
 from ygo_effect_dsl.transform.etl_to_dsl import to_dsl_yaml_dict
 from ygo_effect_dsl.util.yaml_io import load_yaml
 from ygo_effect_dsl.validate.validator import validate_card_yaml
 
 
-def _load_cards_from_dir(cards_dir: str) -> list[dict[str, Any]]:
-    cards: list[dict[str, Any]] = []
-    for name in sorted(os.listdir(cards_dir)):
-        if not (name.endswith(".yml") or name.endswith(".yaml")):
-            continue
-        path = os.path.join(cards_dir, name)
-        cards.append(load_yaml(path))
-    return cards
-
-
 def _load_cards_with_path(cards_dir: str) -> list[tuple[str, dict[str, Any]]]:
-    results: list[tuple[str, dict[str, Any]]] = []
-    for name in sorted(os.listdir(cards_dir)):
-        if not (name.endswith(".yml") or name.endswith(".yaml")):
-            continue
-        path = os.path.join(cards_dir, name)
-        results.append((path, load_yaml(path)))
-    return results
+    cards_path = Path(cards_dir)
+    files = sorted(p for p in cards_path.iterdir() if p.suffix in {".yml", ".yaml"})
+    return [(str(path), load_yaml(str(path))) for path in files]
+
+
+def _add_dataset_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--dataset", help="dataset directory that contains manifest.json and cards.jsonl")
+    parser.add_argument("--manifest", help="path to manifest.json")
+    parser.add_argument("--jsonl", help="path to cards.jsonl")
+
+
+def _load_from_args(args: argparse.Namespace) -> tuple[int, Any | None]:
+    if not args.dataset and not (args.manifest and args.jsonl):
+        print("dataset error: specify --dataset or both --manifest and --jsonl")
+        return 2, None
+
+    try:
+        paths = resolve_dataset_paths(args.dataset, args.manifest, args.jsonl)
+        loaded = load_dataset(paths)
+    except FileNotFoundError as exc:
+        print(f"dataset error: {exc}")
+        return 2, None
+    except ValueError as exc:
+        print(f"dataset error: {exc}")
+        return 1, None
+    return 0, loaded
 
 
 def cmd_ingest(args: argparse.Namespace) -> int:
-    cards, issues = load_raw_cards_with_issues(args.jsonl_path)
-    print(f"ingest: loaded {len(cards)} cards")
-    print(f"ingest: missing required-key records = {len(issues)}")
-    for issue in issues:
-        print(f"  line={issue.line} missing={','.join(issue.missing_keys)}")
+    rc, loaded = _load_from_args(args)
+    if rc != 0 or loaded is None:
+        return rc
+
+    print(f"ingest: schema_version={loaded.manifest.export_schema_version}")
+    print(f"ingest: record_count={loaded.manifest.record_count}")
+    print(f"ingest: loaded={len(loaded.cards)}")
+    print(f"ingest: fields={','.join(loaded.manifest.fields)}")
     return 0
 
 
 def cmd_transform(args: argparse.Namespace) -> int:
-    cards, issues = load_raw_cards_with_issues(args.in_path)
-    os.makedirs(args.out_dir, exist_ok=True)
+    rc, loaded = _load_from_args(args)
+    if rc != 0 or loaded is None:
+        return rc
+
+    Path(args.out_dir).mkdir(parents=True, exist_ok=True)
+
+    dataset_name = Path(args.dataset).name if args.dataset else ""
+    exported_at = getattr(loaded.manifest, "exported_at", "")
 
     count = 0
-    for card in cards:
-        dsl = to_dsl_yaml_dict(card, mode="skeleton")
+    for card in loaded.cards:
+        dsl = to_dsl_yaml_dict(card, dataset_name=dataset_name, exported_at=exported_at)
         write_card_yaml(dsl, args.out_dir)
         count += 1
 
-    print(f"transform: wrote {count} cards into {args.out_dir}")
-    if issues:
-        print(f"transform: warning raw contract issues = {len(issues)}")
+    print(f"transform: wrote={count}")
     return 0
 
 
 def cmd_validate(args: argparse.Namespace) -> int:
     try:
         cards = _load_cards_with_path(args.cards_dir)
-    except OSError as exc:
+    except (OSError, ValueError) as exc:
         print(f"validate: argument/config error: {exc}")
         return 2
 
     all_errors: list[tuple[str, Any]] = []
     for path, card in cards:
-        errors = validate_card_yaml(card)
-        for err in errors:
+        for err in validate_card_yaml(card):
             all_errors.append((path, err))
 
-    print(f"validate: scanned {len(cards)} files")
-    print(f"validate: errors={len(all_errors)}")
+    print(f"validate: scanned={len(cards)}")
+    print(f"validate: critical_errors={len(all_errors)}")
     for path, err in all_errors:
         print(f"  {path}: {err.path} [{err.code}] {err.message}")
 
@@ -80,20 +95,22 @@ def cmd_validate(args: argparse.Namespace) -> int:
 
 
 def cmd_analyze(args: argparse.Namespace) -> int:
-    cards = _load_cards_from_dir(args.cards_dir)
+    try:
+        cards = _load_cards_with_path(args.cards_dir)
+    except (OSError, ValueError) as exc:
+        print(f"analyze: argument/config error: {exc}")
+        return 2
 
     validate_errors = 0
-    if args.validate_report:
-        if os.path.exists(args.validate_report):
-            with open(args.validate_report, "r", encoding="utf-8") as f:
-                payload = json.load(f)
-            validate_errors = int(payload.get("error_count", 0) or 0)
+    for _, card in cards:
+        validate_errors += len(validate_card_yaml(card))
 
-    report = build_report(cards, validate_errors=validate_errors)
-    os.makedirs(args.out_dir, exist_ok=True)
-    out_path = os.path.join(args.out_dir, "analysis_report.json")
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(report, f, ensure_ascii=False, indent=2)
+    payload_cards = [card for _, card in cards]
+    report = build_report(payload_cards, validate_errors=validate_errors)
+
+    Path(args.out_dir).mkdir(parents=True, exist_ok=True)
+    out_path = Path(args.out_dir) / "analysis_report.json"
+    out_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(f"analyze: total_cards={report['quality']['total_cards']}")
     print(f"analyze: effects_empty_ratio={report['quality']['effects_empty_ratio']:.4f}")
@@ -108,23 +125,22 @@ def main() -> int:
     ap = argparse.ArgumentParser(prog="ygo-effect-dsl")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
-    p0 = sub.add_parser("ingest", help="Read ETL JSONL and check minimum contract")
-    p0.add_argument("jsonl_path", help="input JSONL path")
+    p0 = sub.add_parser("ingest", help="validate dataset manifest + read cards.jsonl")
+    _add_dataset_arguments(p0)
     p0.set_defaults(func=cmd_ingest)
 
-    p1 = sub.add_parser("transform", help="JSONL(ETL) -> DSL YAML")
-    p1.add_argument("--in", dest="in_path", required=True, help="input JSONL path")
+    p1 = sub.add_parser("transform", help="dataset -> DSL YAML")
+    _add_dataset_arguments(p1)
     p1.add_argument("--out", dest="out_dir", required=True, help="output directory for YAML cards")
     p1.set_defaults(func=cmd_transform)
 
-    p2 = sub.add_parser("validate", help="Validate DSL YAML files for spec v0.0 minimum")
+    p2 = sub.add_parser("validate", help="validate DSL YAML files for spec v0.0 minimum")
     p2.add_argument("cards_dir", help="directory that contains YAML cards")
     p2.set_defaults(func=cmd_validate)
 
-    p3 = sub.add_parser("analyze", help="Analyze DSL YAML cards and output report")
+    p3 = sub.add_parser("analyze", help="analyze DSL YAML cards and output report")
     p3.add_argument("cards_dir", help="directory that contains YAML cards")
     p3.add_argument("--out", dest="out_dir", required=True, help="report output directory")
-    p3.add_argument("--validate-report", dest="validate_report", help="optional validate report json")
     p3.set_defaults(func=cmd_analyze)
 
     args = ap.parse_args()
