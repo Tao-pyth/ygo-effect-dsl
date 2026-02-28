@@ -1,83 +1,139 @@
 from __future__ import annotations
+
 import argparse
 import json
 import os
 from typing import Any
 
-from ygo_effect_dsl.ingest.jsonl_reader import iter_jsonl
-from ygo_effect_dsl.transform.etl_to_dsl import to_dsl_yaml_dict
-from ygo_effect_dsl.transform.dsl_writer import write_card_yaml
-from ygo_effect_dsl.util.yaml_io import load_yaml
-from ygo_effect_dsl.dsl.normalize import normalize_card_dsl
 from ygo_effect_dsl.analyze.report import build_report
-from ygo_effect_dsl.ir.compiler import compile_card_yaml_to_ir
+from ygo_effect_dsl.ingest.jsonl_reader import load_raw_cards_with_issues
+from ygo_effect_dsl.transform.dsl_writer import write_card_yaml
+from ygo_effect_dsl.transform.etl_to_dsl import to_dsl_yaml_dict
+from ygo_effect_dsl.util.yaml_io import load_yaml
+from ygo_effect_dsl.validate.validator import validate_card_yaml
 
-def _dump_json(obj: Any, path: str) -> None:
-    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=2)
-
-def cmd_transform(args: argparse.Namespace) -> int:
-    count = 0
-    for card in iter_jsonl(args.in_path):
-        dsl = to_dsl_yaml_dict(card, mode=args.mode)
-        write_card_yaml(dsl, args.out_dir)
-        count += 1
-    print(f"transform: wrote {count} cards into {args.out_dir}")
-    return 0
 
 def _load_cards_from_dir(cards_dir: str) -> list[dict[str, Any]]:
     cards: list[dict[str, Any]] = []
-    for name in os.listdir(cards_dir):
+    for name in sorted(os.listdir(cards_dir)):
         if not (name.endswith(".yml") or name.endswith(".yaml")):
             continue
-        p = os.path.join(cards_dir, name)
-        d = load_yaml(p)
-        d = normalize_card_dsl(d)
-        cards.append(d)
+        path = os.path.join(cards_dir, name)
+        cards.append(load_yaml(path))
     return cards
+
+
+def _load_cards_with_path(cards_dir: str) -> list[tuple[str, dict[str, Any]]]:
+    results: list[tuple[str, dict[str, Any]]] = []
+    for name in sorted(os.listdir(cards_dir)):
+        if not (name.endswith(".yml") or name.endswith(".yaml")):
+            continue
+        path = os.path.join(cards_dir, name)
+        results.append((path, load_yaml(path)))
+    return results
+
+
+def cmd_ingest(args: argparse.Namespace) -> int:
+    cards, issues = load_raw_cards_with_issues(args.jsonl_path)
+    print(f"ingest: loaded {len(cards)} cards")
+    print(f"ingest: missing required-key records = {len(issues)}")
+    for issue in issues:
+        print(f"  line={issue.line} missing={','.join(issue.missing_keys)}")
+    return 0
+
+
+def cmd_transform(args: argparse.Namespace) -> int:
+    cards, issues = load_raw_cards_with_issues(args.in_path)
+    os.makedirs(args.out_dir, exist_ok=True)
+
+    count = 0
+    for card in cards:
+        dsl = to_dsl_yaml_dict(card, mode="skeleton")
+        write_card_yaml(dsl, args.out_dir)
+        count += 1
+
+    print(f"transform: wrote {count} cards into {args.out_dir}")
+    if issues:
+        print(f"transform: warning raw contract issues = {len(issues)}")
+    return 0
+
+
+def cmd_validate(args: argparse.Namespace) -> int:
+    try:
+        cards = _load_cards_with_path(args.cards_dir)
+    except OSError as exc:
+        print(f"validate: argument/config error: {exc}")
+        return 2
+
+    all_errors: list[tuple[str, Any]] = []
+    for path, card in cards:
+        errors = validate_card_yaml(card)
+        for err in errors:
+            all_errors.append((path, err))
+
+    print(f"validate: scanned {len(cards)} files")
+    print(f"validate: errors={len(all_errors)}")
+    for path, err in all_errors:
+        print(f"  {path}: {err.path} [{err.code}] {err.message}")
+
+    return 1 if all_errors else 0
+
 
 def cmd_analyze(args: argparse.Namespace) -> int:
     cards = _load_cards_from_dir(args.cards_dir)
-    report = build_report(cards)
-    _dump_json(report, args.out)
-    print(f"analyze: wrote report to {args.out}")
+
+    validate_errors = 0
+    if args.validate_report:
+        if os.path.exists(args.validate_report):
+            with open(args.validate_report, "r", encoding="utf-8") as f:
+                payload = json.load(f)
+            validate_errors = int(payload.get("error_count", 0) or 0)
+
+    report = build_report(cards, validate_errors=validate_errors)
+    os.makedirs(args.out_dir, exist_ok=True)
+    out_path = os.path.join(args.out_dir, "analysis_report.json")
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, ensure_ascii=False, indent=2)
+
+    print(f"analyze: total_cards={report['quality']['total_cards']}")
+    print(f"analyze: effects_empty_ratio={report['quality']['effects_empty_ratio']:.4f}")
+    for key, ratio in report["quality"]["empty_block_ratio"].items():
+        print(f"analyze: {key}_empty_ratio={ratio:.4f}")
+    print(f"analyze: validation_error_count={report['validation']['error_count']}")
+    print(f"analyze: wrote report to {out_path}")
     return 0
 
-def cmd_compile_ir(args: argparse.Namespace) -> int:
-    cards = _load_cards_from_dir(args.cards_dir)
-    os.makedirs(args.out_dir, exist_ok=True)
-    n = 0
-    for c in cards:
-        ir = compile_card_yaml_to_ir(c)
-        out_path = os.path.join(args.out_dir, f"{c.get('cid', 0)}.ir.json")
-        _dump_json(ir.__dict__ | {"effects":[e.__dict__ for e in ir.effects]}, out_path)
-        n += 1
-    print(f"compile-ir: wrote {n} IR files into {args.out_dir}")
-    return 0
 
 def main() -> int:
     ap = argparse.ArgumentParser(prog="ygo-effect-dsl")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
-    p1 = sub.add_parser("transform", help="JSONL(ETL) -> DSL YAML(cards/*.yml)")
+    p0 = sub.add_parser("ingest", help="Read ETL JSONL and check minimum contract")
+    p0.add_argument("jsonl_path", help="input JSONL path")
+    p0.set_defaults(func=cmd_ingest)
+
+    p1 = sub.add_parser("transform", help="JSONL(ETL) -> DSL YAML")
     p1.add_argument("--in", dest="in_path", required=True, help="input JSONL path")
-    p1.add_argument("--out-dir", required=True, help="output directory for YAML cards")
-    p1.add_argument("--mode", default="skeleton", choices=["skeleton"], help="transform mode")
+    p1.add_argument("--out", dest="out_dir", required=True, help="output directory for YAML cards")
     p1.set_defaults(func=cmd_transform)
 
-    p2 = sub.add_parser("analyze", help="Analyze DSL YAML cards -> report.json")
-    p2.add_argument("--cards-dir", required=True, help="directory that contains YAML cards")
-    p2.add_argument("--out", required=True, help="output report json path")
-    p2.set_defaults(func=cmd_analyze)
+    p2 = sub.add_parser("validate", help="Validate DSL YAML files for spec v0.0 minimum")
+    p2.add_argument("cards_dir", help="directory that contains YAML cards")
+    p2.set_defaults(func=cmd_validate)
 
-    p3 = sub.add_parser("compile-ir", help="Compile DSL YAML cards -> IR json files")
-    p3.add_argument("--cards-dir", required=True, help="directory that contains YAML cards")
-    p3.add_argument("--out-dir", required=True, help="output directory for IR files")
-    p3.set_defaults(func=cmd_compile_ir)
+    p3 = sub.add_parser("analyze", help="Analyze DSL YAML cards and output report")
+    p3.add_argument("cards_dir", help="directory that contains YAML cards")
+    p3.add_argument("--out", dest="out_dir", required=True, help="report output directory")
+    p3.add_argument("--validate-report", dest="validate_report", help="optional validate report json")
+    p3.set_defaults(func=cmd_analyze)
 
     args = ap.parse_args()
-    return int(args.func(args))
+    try:
+        return int(args.func(args))
+    except (ValueError, OSError) as exc:
+        print(f"error: {exc}")
+        return 2
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
