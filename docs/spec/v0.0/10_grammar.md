@@ -1,9 +1,10 @@
 # ygoEffectDSL Spec v0.0 (Draft) — Grammar
 
-> Status: Draft (Experimental)
-> 破壊的変更が起こり得る初期仕様。
-> 本文書は DSL の「構文（構造とフィールド）」のみを定義する。
-> 意味論（評価順序や状態遷移）は 20_semantics.md を参照。
+> Status: Draft (Experimental)  
+> 破壊的変更が起こり得る初期仕様。  
+> 本文書は DSL の「構文（構造とフィールド）」のみを定義する。  
+> 意味論（評価順序や状態遷移）は 20_semantics.md を参照。  
+> Last updated: 2026-03-01
 
 ---
 
@@ -16,7 +17,7 @@ v0.0 の文法設計は以下の原則に基づく：
 2. **構造優先**
    - 意味の正確性よりも、構造化可能性を優先する
 3. **最小十分構造**
-   - 将来拡張可能な余白を残す
+   - 将来拡張可能な余白を残す（ただし後方互換を壊しにくい形を優先）
 4. **DSLは宣言的**
    - 命令列ではなく、効果の構成要素を分解した宣言型表現とする
 
@@ -24,75 +25,43 @@ v0.0 の文法設計は以下の原則に基づく：
 
 # 2. ルート構造
 
-v0.0 における DSL 文書のルートは以下とする。
-
 ```yaml
 dsl_version: "0.0"
+
 card:
   cid: 0
   name:
     en: ""
     ja: ""
-effects:
-  - id: "CID_001"
-    order: 1
-    trigger: {}
-    restriction: {}
-    condition: {}
-    cost: {}
-    action: {}
-meta:
-  source:
-    dataset: ""
-    exported_at: ""
+  text:
+    en: ""   # 必須（キーは必須・中身は空でもよい）
+    ja: ""   # 推奨（枠は常に作り、空でもよい）
+  info:
+    en: ""   # 必須（キーは必須・中身は空でもよい）
+    ja: ""   # 推奨（枠は常に作り、空でもよい）
+
+effects: []
+
+meta: {}
 ```
+
 ---
 
 # 3. ルートフィールド定義
 
 ## 3.1 dsl_version (string) — 必須
-
 - 形式: "0.0"
-- 意味: DSL仕様バージョン
-- 将来は "0.1", "1.0" などへ更新
-
----
 
 ## 3.2 card (object) — 必須
-
-```yaml
-card:
-  cid: 123456
-  name:
-    en: "Example"
-    ja: "例"
-```
-### card.cid
-- 型: string または integer
-- 意味: Konami ID
-- ETL契約と一致すること
-
-### card.name.en / ja
-- 型: string
-- 欠損時は空文字
-
----
+- `card.cid`：Konami ID（int or string）
+- `card.name.en / ja`：文字列（欠損時は空文字）
+- `card.text.en`：必須（空文字でもキーは必須）
+- `card.info.en`：必須（空文字でもキーは必須）
+- `card.text.ja / card.info.ja`：推奨（v0.0運用としてはキーは常に作る）
 
 ## 3.3 effects (list) — 必須
-
-カードが持つ効果の配列。
-
-```yaml
-effects:
-  - id: "123456_001"
-    order: 1
-    trigger: {}
-    restriction: {}
-    condition: {}
-    cost: {}
-    action: {}
-```
-空配列も許可する（効果未解析など）。
+- 空配列も許可（未解析など）
+- 可能なら最低1件（Level0）を生成する
 
 ---
 
@@ -102,42 +71,71 @@ effects:
 
 | フィールド | 必須 | 型 | 説明 |
 |------------|------|----|------|
-| id | ✔ | string | `{cid}_{連番}` 推奨 |
+| id | ✔ | string | `{cid}_{3桁連番}` 推奨 |
 | order | ✔ | integer | 効果の順序 |
 | trigger | ✔ | object | 発動契機 |
 | restriction | ✔ | object | 制限条件 |
 | condition | ✔ | object | 発動条件 |
 | cost | ✔ | object | コスト |
-| action | ✔ | object | 効果解決 |
+| action | ✔ | object | 効果解決（v0.0で target / sequence を許可） |
+
+※ v0.0では trigger/restriction/condition/cost/action のキーは必ず存在させる（空オブジェクト可）。
 
 ---
 
-# 5. 各構成要素の構文（v0.0 最小定義）
+# 5. 構成要素の最小構文（v0.0）
 
-## 5.1 trigger
+## 5.1 trigger（最小 + 拡張許可）
+- v0.0は自由構造（空オブジェクト可）
+- ただし **summon等の複数モード** を表現できるよう `modes` を許可する
+
+例:
 ```yaml
-trigger: {}
+trigger:
+  type: "summon"
+  modes: ["normal", "special"]
 ```
-v0.0では自由構造。将来は列挙型を導入予定。
 
 ## 5.2 restriction
-```yaml
-restriction: {}
-```
+- v0.0は自由構造（空オブジェクト可）
+- カード全体制限は `meta.restrictions.global` を推奨（仕様は別紙 17 を参照）
 
 ## 5.3 condition
-```yaml
-condition: {}
-```
+- v0.0は自由構造（空オブジェクト可）
 
 ## 5.4 cost
+- v0.0は自由構造（空オブジェクト可）
+
+## 5.5 action（最小 + target/sequence許可）
+- v0.0は自由構造（空オブジェクト可）
+- ただし **対象指定** と **連鎖（成功時続行など）** を表現するため、以下を許可する：
+  - `action.target`（対象指定）
+  - `action.sequence`（連鎖。配列）
+
+### action.target（例）
 ```yaml
-cost: {}
+action:
+  target:
+    n: 1
+    desc: "White Forest Synchro Monster"
+    location: ["field", "GY"]
+  type: "return_to_extra"
 ```
 
-## 5.5 action
+### action.sequence（例）
 ```yaml
-action: {}
+action:
+  sequence:
+    - type: "return_to_extra"
+      target:
+        n: 1
+        desc: "White Forest Synchro Monster"
+        location: ["field", "GY"]
+    - type: "special_summon"
+      who: "self"
+      condition: "if_previous_success"
+    - type: "negate_effects"
+      target: "self"
 ```
 
 ---
@@ -156,42 +154,18 @@ action: {}
 
 # 7. 命名規則
 
-effect.id 形式:
-{cid}_{3桁連番}
+- effect.id 形式（推奨）: `{cid}_{3桁連番}`
+- effect.order: 1..N
 
 ---
 
-# 8. 将来拡張のための留保事項
-
-- 複数対象選択
-- 分岐構文
-- チェーン（stack）表現
-- 優先権
+# 8. JSON 互換性
+DSLは YAML または JSON で表現可能であること。
 
 ---
 
-# 9. JSON 互換性
+# 9. 互換性ポリシー
 
-```json
-{
-  "dsl_version": "0.0",
-  "card": { "cid": 123456, "name": { "en": "", "ja": "" } },
-  "effects": { 
-    "id": "CID_001",
-    "order": 1,
-    "trigger": {},
-    "restriction": {},
-    "condition": {},
-    "cost": {},
-    "action": {} }
-  "meta": {}
-}
-```
-
----
-
-# 10. 互換性ポリシー
-
-v0.0 は Experimental であり：
-- 破壊的変更を許容
-- 変更は 50_changelog.md に記録
+v0.0 は Experimental：
+- 破壊的変更を許容（ただし可能な限り後方互換を壊しにくい拡張を優先）
+- 変更は changelog に記録
