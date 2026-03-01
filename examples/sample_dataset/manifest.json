@@ -1,0 +1,17 @@
+{
+  "export_schema_version": "0.0",
+  "record_count": 3,
+  "fields": [
+    "cid",
+    "name_ja",
+    "name_en",
+    "card_text_ja",
+    "card_text_en",
+    "card_info_ja",
+    "card_info_en",
+    "image_path"
+  ],
+  "languages": ["ja", "en"],
+  "has_images": true,
+  "exported_at": "2026-02-01T00:00:00Z"
+}

@@ -1,0 +1,3 @@
+{"cid": 12345, "name_ja": "サンプルカード", "name_en": "Sample Card", "card_text_ja": "このカードはサンプルです。", "card_text_en": "This card is a sample.", "card_info_ja": {"type": "Monster", "sub_types": ["Effect"]}, "card_info_en": {"type": "Monster", "sub_types": ["Effect"]}, "image_path": "images/12345.jpg"}
+{"cid": 23456, "name_ja": "別サンプル", "name_en": "Another Sample", "card_text_ja": "テキスト(ja)別キー名の例。", "card_text_en": "Example with alternative text.", "card_info_ja": {"type": "Spell", "sub_types": []}, "card_info_en": {"type": "Spell", "sub_types": []}, "image_path": "images/23456.jpg"}
+{"cid": 34567, "name_ja": "空値サンプル", "name_en": "Empty Value Sample", "card_text_ja": "", "card_text_en": "", "card_info_ja": {}, "card_info_en": {}, "image_path": ""}

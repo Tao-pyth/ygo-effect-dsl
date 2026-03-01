@@ -1,31 +1,46 @@
 from __future__ import annotations
-from typing import Any, DefaultDict
-from collections import defaultdict
+
+from typing import Any
+
+
+EFFECT_KEYS = ("trigger", "restriction", "condition", "cost", "action")
+
 
 def collect_quality(cards: list[dict[str, Any]]) -> dict[str, Any]:
-    trigger_empty = 0
+    total_cards = len(cards)
     cards_effects_empty = 0
 
-    action_kind_freq: DefaultDict[str, int] = defaultdict(int)
+    total_effects = 0
+    empty_blocks = {k: 0 for k in EFFECT_KEYS}
 
-    for c in cards:
-        effects = c.get("effects") or []
-        if not effects:
+    for card in cards:
+        effects = card.get("effects")
+        if not isinstance(effects, list) or len(effects) == 0:
             cards_effects_empty += 1
             continue
 
-        for e in effects:
-            trig = (e.get("trigger") or {})
-            if not (isinstance(trig, dict) and trig.get("kind")):
-                trigger_empty += 1
+        for effect in effects:
+            total_effects += 1
+            if not isinstance(effect, dict):
+                for key in EFFECT_KEYS:
+                    empty_blocks[key] += 1
+                continue
 
-            for a in (e.get("action") or []):
-                if isinstance(a, dict):
-                    k = a.get("kind") or ""
-                    action_kind_freq[k] += 1
+            for key in EFFECT_KEYS:
+                block = effect.get(key)
+                if not isinstance(block, dict) or block == {}:
+                    empty_blocks[key] += 1
+
+    effects_empty_ratio = (cards_effects_empty / total_cards) if total_cards else 0.0
+    block_empty_ratio = {
+        key: (count / total_effects) if total_effects else 0.0 for key, count in empty_blocks.items()
+    }
 
     return {
+        "total_cards": total_cards,
+        "total_effects": total_effects,
         "effects_empty_cards": cards_effects_empty,
-        "trigger_kind_empty_effects": trigger_empty,
-        "action_kind_frequency": dict(sorted(action_kind_freq.items(), key=lambda kv: (-kv[1], kv[0]))),
+        "effects_empty_ratio": effects_empty_ratio,
+        "empty_block_counts": empty_blocks,
+        "empty_block_ratio": block_empty_ratio,
     }
