@@ -1,0 +1,294 @@
+# 31_action_rules.yaml
+# v0.0 action rules (minimum starter set: 15 rules)
+# Generated: 2026-03-01
+# Spec: docs/spec/v0.0/18_dictionary_format.md
+#
+# Notes:
+# - These patterns are designed for normalized English text (recommended: lowercased).
+# - Emits are patches; engine should merge without dropping required keys.
+
+- id: 'ACTION_ADD_FROM_DECK_TO_HAND__YOU_CAN'
+  version: '0.0'
+  priority: 220
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^you can add 【N】 (?P<desc>.+?) from your deck to your hand\.$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    action:
+      type: 'add_to_hand'
+      n: '$n'
+      from:
+        - 'deck'
+      to:
+        - 'hand'
+      desc: '$desc'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'You can add 1 "White Forest" Spell/Trap from your Deck to your hand.'
+
+- id: 'ACTION_ADD_FROM_DECK_TO_HAND'
+  version: '0.0'
+  priority: 215
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^add 【N】 (?P<desc>.+?) from your deck to your hand\.$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    action:
+      type: 'add_to_hand'
+      n: '$n'
+      from:
+        - 'deck'
+      to:
+        - 'hand'
+      desc: '$desc'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'Add 1 monster from your Deck to your hand.'
+
+- id: 'ACTION_SS_SELF__THIS_CARD'
+  version: '0.0'
+  priority: 210
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^you can special summon this card\.$'
+  emit:
+    action:
+      type: 'special_summon'
+      who: 'self'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'You can Special Summon this card.'
+
+- id: 'ACTION_SS_FROM_DECK__DESC'
+  version: '0.0'
+  priority: 205
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^special summon 【N】 (?P<desc>.+?) from your deck\.$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    action:
+      type: 'special_summon'
+      n: '$n'
+      who: '$desc'
+      from:
+        - 'deck'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'Special Summon 1 LIGHT Spellcaster Tuner from your Deck.'
+
+- id: 'ACTION_SS_FROM_DECK__YOU_CAN'
+  version: '0.0'
+  priority: 204
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^you can special summon 【N】 (?P<desc>.+?) from your deck\.$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    action:
+      type: 'special_summon'
+      n: '$n'
+      who: '$desc'
+      from:
+        - 'deck'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'You can Special Summon 1 monster from your Deck.'
+
+- id: 'ACTION_SS_FROM_GY__DESC'
+  version: '0.0'
+  priority: 203
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^special summon 【N】 (?P<desc>.+?) from your gy\.$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    action:
+      type: 'special_summon'
+      n: '$n'
+      who: '$desc'
+      from:
+        - 'GY'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'Special Summon 1 monster from your GY.'
+
+- id: 'ACTION_SS_FROM_HAND__DESC'
+  version: '0.0'
+  priority: 202
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^you can special summon 【N】 (?P<desc>.+?) from your hand\.$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    action:
+      type: 'special_summon'
+      n: '$n'
+      who: '$desc'
+      from:
+        - 'hand'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'You can Special Summon 1 monster from your hand.'
+
+- id: 'ACTION_DRAW_N'
+  version: '0.0'
+  priority: 200
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^draw 【N】 cards?\.$'
+  capture:
+    n: 'N[0]'
+  emit:
+    action:
+      type: 'draw'
+      n: '$n'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'Draw 2 cards.'
+
+- id: 'ACTION_SEND_TO_GY__DESC'
+  version: '0.0'
+  priority: 195
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^send 【N】 (?P<desc>.+?) to the gy\.$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    action:
+      type: 'send_to_gy'
+      n: '$n'
+      desc: '$desc'
+      to:
+        - 'GY'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'Send 1 monster to the GY.'
+
+- id: 'ACTION_DISCARD_N'
+  version: '0.0'
+  priority: 190
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^discard 【N】 cards?\.$'
+  capture:
+    n: 'N[0]'
+  emit:
+    action:
+      type: 'discard'
+      n: '$n'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'Discard 1 card.'
+
+- id: 'ACTION_DISCARD_N__DESC'
+  version: '0.0'
+  priority: 189
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^discard 【N】 (?P<desc>.+?)\.$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    action:
+      type: 'discard'
+      n: '$n'
+      desc: '$desc'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'Discard 1 monster.'
+
+- id: 'ACTION_DESTROY_N'
+  version: '0.0'
+  priority: 185
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^destroy 【N】 (?P<desc>.+?)\.$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    action:
+      type: 'destroy'
+      n: '$n'
+      desc: '$desc'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'Destroy 1 card on the field.'
+
+- id: 'ACTION_BANISH_N__DESC'
+  version: '0.0'
+  priority: 180
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^banish 【N】 (?P<desc>.+?)\.$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    action:
+      type: 'banish'
+      n: '$n'
+      desc: '$desc'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'Banish 1 card from your GY.'
+
+- id: 'ACTION_RETURN_IT_TO_EXTRA_DECK'
+  version: '0.0'
+  priority: 175
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^return it to the extra deck\.$'
+  emit:
+    action:
+      type: 'return_to_extra'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'Return it to the Extra Deck.'
+
+- id: 'ACTION_SHUFFLE_IT_INTO_DECK'
+  version: '0.0'
+  priority: 170
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^shuffle it into the deck\.$'
+  emit:
+    action:
+      type: 'return_to_deck'
+      mode: 'shuffle'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'Shuffle it into the Deck.'

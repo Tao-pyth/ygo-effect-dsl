@@ -1,0 +1,124 @@
+# 33_restriction_rules.yaml
+# v0.0 restriction (global) rules (minimum starter set: 6 rules)
+# Generated: 2026-03-01
+# Spec: docs/spec/v0.0/18_dictionary_format.md
+#
+# Notes:
+# - These patterns are designed for normalized English text (recommended: lowercased).
+# - v0.0 recommends storing card-wide restrictions in meta.restrictions.global.
+
+- id: 'RESTRICT_GLOBAL_EACH_EFFECT_ONCE_PER_TURN'
+  version: '0.0'
+  priority: 230
+  language: 'en'
+  applies_to: 'restriction_global'
+  pattern: '^you can only use each effect of 【CARD_NAME】 once per turn\.$'
+  capture:
+    card_name: 'CARD_NAME[0]'
+  emit:
+    meta:
+      restrictions:
+        global:
+          once_per_turn:
+            scope: 'each_effect'
+            key: 'each_effect_of_card'
+            card_name: '$card_name'
+  on_fail: 'ignore'
+  note: 'starter restriction rule (global)'
+  examples:
+    - 'You can only use each effect of "Silvy of the White Forest" once per turn.'
+
+- id: 'RESTRICT_GLOBAL_ONCE_PER_TURN_THIS_EFFECT'
+  version: '0.0'
+  priority: 220
+  language: 'en'
+  applies_to: 'restriction_global'
+  pattern: '^you can only use this effect once per turn\.$'
+  emit:
+    meta:
+      restrictions:
+        global:
+          once_per_turn:
+            scope: 'this_effect'
+            key: 'this_effect'
+  on_fail: 'ignore'
+  note: 'starter restriction rule (global)'
+  examples:
+    - 'You can only use this effect once per turn.'
+
+- id: 'RESTRICT_GLOBAL_ONCE_PER_DUEL'
+  version: '0.0'
+  priority: 215
+  language: 'en'
+  applies_to: 'restriction_global'
+  pattern: '^you can only use this effect once per duel\.$'
+  emit:
+    meta:
+      restrictions:
+        global:
+          once_per_duel:
+            scope: 'this_effect'
+            key: 'this_effect'
+  on_fail: 'ignore'
+  note: 'starter restriction rule (global)'
+  examples:
+    - 'You can only use this effect once per Duel.'
+
+- id: 'RESTRICT_GLOBAL_EXCEPT_DURING_DAMAGE_STEP'
+  version: '0.0'
+  priority: 210
+  language: 'en'
+  applies_to: 'restriction_global'
+  pattern: '^\(except during the damage step\)$'
+  emit:
+    meta:
+      restrictions:
+        global:
+          except:
+            phases:
+              - 'Damage Step'
+  on_fail: 'ignore'
+  note: 'starter restriction rule (global)'
+  examples:
+    - '(except during the Damage Step)'
+
+- id: 'RESTRICT_GLOBAL_NOT_DURING_DAMAGE_STEP'
+  version: '0.0'
+  priority: 209
+  language: 'en'
+  applies_to: 'restriction_global'
+  pattern: '^except during the damage step$'
+  emit:
+    meta:
+      restrictions:
+        global:
+          except:
+            phases:
+              - 'Damage Step'
+  on_fail: 'ignore'
+  note: 'starter restriction rule (global)'
+  examples:
+    - 'except during the Damage Step'
+
+- id: 'RESTRICT_GLOBAL_HARD_OPT_EACH_NAME_ONCE_PER_TURN'
+  version: '0.0'
+  priority: 205
+  language: 'en'
+  applies_to: 'restriction_global'
+  pattern: '^you can only use 【N】 effect\\(s\\) of 【CARD_NAME】 per turn\.$'
+  capture:
+    n: 'N[0]'
+    card_name: 'CARD_NAME[0]'
+  emit:
+    meta:
+      restrictions:
+        global:
+          once_per_turn:
+            scope: 'named_effects'
+            key: 'effects_of_card'
+            card_name: '$card_name'
+            n: '$n'
+  on_fail: 'ignore'
+  note: 'starter restriction rule (global)'
+  examples:
+    - 'You can only use 1 effect(s) of "X" per turn.'

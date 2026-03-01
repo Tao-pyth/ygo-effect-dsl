@@ -1,0 +1,29 @@
+# 00_vocab.yaml
+# v0.0 vocab dictionary (categories extraction)
+# NOTE: register in lowercase to match normalized text.
+
+zones:
+  deck: ["deck"]
+  hand: ["hand"]
+  GY: ["gy", "graveyard"]
+  field: ["field"]
+  extra_deck: ["extra deck"]
+  banished: ["banished"]
+
+attributes:
+  LIGHT: ["light"]
+  DARK: ["dark"]
+
+races:
+  Spellcaster: ["spellcaster"]
+  Dragon: ["dragon"]
+
+card_types:
+  monster: ["monster"]
+  spell: ["spell"]
+  trap: ["trap"]
+
+phases:
+  Damage Step: ["damage step"]
+  Main Phase: ["main phase"]
+  Battle Phase: ["battle phase"]

@@ -1,0 +1,160 @@
+# 30_cost_rules.yaml
+# v0.0 cost rules (minimum starter set: 8 rules)
+# Generated: 2026-03-01
+# Spec: docs/spec/v0.0/18_dictionary_format.md
+#
+# Notes:
+# - These patterns are designed for normalized English text (recommended: lowercased).
+# - Cost patterns are expected to match the LEFT side of ';' in the pipeline.
+
+- id: 'COST_SEND_N_DESC_TO_GY__YOU_CAN'
+  version: '0.0'
+  priority: 220
+  language: 'en'
+  applies_to: 'cost'
+  pattern: '^you can send 【N】 (?P<desc>.+?) to the gy;$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    cost:
+      type: 'send_to_gy'
+      n: '$n'
+      desc: '$desc'
+      to:
+        - 'GY'
+  on_fail: 'ignore'
+  note: 'starter cost rule'
+  examples:
+    - 'You can send 1 card from your hand or field to the GY;'
+
+- id: 'COST_DISCARD_N_CARDS__YOU_CAN'
+  version: '0.0'
+  priority: 215
+  language: 'en'
+  applies_to: 'cost'
+  pattern: '^you can discard 【N】 cards?;$'
+  capture:
+    n: 'N[0]'
+  emit:
+    cost:
+      type: 'discard'
+      n: '$n'
+  on_fail: 'ignore'
+  note: 'starter cost rule'
+  examples:
+    - 'You can discard 1 card;'
+
+- id: 'COST_DISCARD_N_DESC__YOU_CAN'
+  version: '0.0'
+  priority: 214
+  language: 'en'
+  applies_to: 'cost'
+  pattern: '^you can discard 【N】 (?P<desc>.+?);$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    cost:
+      type: 'discard'
+      n: '$n'
+      desc: '$desc'
+  on_fail: 'ignore'
+  note: 'starter cost rule'
+  examples:
+    - 'You can discard 1 monster;'
+
+- id: 'COST_PAY_LP_N'
+  version: '0.0'
+  priority: 210
+  language: 'en'
+  applies_to: 'cost'
+  pattern: '^pay 【N】 lp;$'
+  capture:
+    n: 'N[0]'
+  emit:
+    cost:
+      type: 'pay_lp'
+      n: '$n'
+  on_fail: 'ignore'
+  note: 'starter cost rule'
+  examples:
+    - 'Pay 800 LP;'
+
+- id: 'COST_BANISH_N_DESC_FROM_GY'
+  version: '0.0'
+  priority: 205
+  language: 'en'
+  applies_to: 'cost'
+  pattern: '^banish 【N】 (?P<desc>.+?) from your gy;$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    cost:
+      type: 'banish'
+      n: '$n'
+      desc: '$desc'
+      from:
+        - 'GY'
+  on_fail: 'ignore'
+  note: 'starter cost rule'
+  examples:
+    - 'Banish 1 monster from your GY;'
+
+- id: 'COST_TRIBUTE_N'
+  version: '0.0'
+  priority: 200
+  language: 'en'
+  applies_to: 'cost'
+  pattern: '^tribute 【N】 monsters?;$'
+  capture:
+    n: 'N[0]'
+  emit:
+    cost:
+      type: 'tribute'
+      n: '$n'
+      thing: 'monster'
+  on_fail: 'ignore'
+  note: 'starter cost rule'
+  examples:
+    - 'Tribute 2 monsters;'
+
+- id: 'COST_DETACH_N_MATERIAL'
+  version: '0.0'
+  priority: 195
+  language: 'en'
+  applies_to: 'cost'
+  pattern: '^detach 【N】 materials? from a monster you control;$'
+  capture:
+    n: 'N[0]'
+  emit:
+    cost:
+      type: 'detach_material'
+      n: '$n'
+      from: 'monster_you_control'
+  on_fail: 'ignore'
+  note: 'starter cost rule'
+  examples:
+    - 'Detach 1 material from a monster you control;'
+
+- id: 'COST_REVEAL_N_DESC_FROM_HAND'
+  version: '0.0'
+  priority: 190
+  language: 'en'
+  applies_to: 'cost'
+  pattern: '^reveal 【N】 (?P<desc>.+?) in your hand;$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    cost:
+      type: 'reveal'
+      n: '$n'
+      desc: '$desc'
+      from:
+        - 'hand'
+  on_fail: 'ignore'
+  note: 'starter cost rule'
+  examples:
+    - 'Reveal 1 card in your hand;'
