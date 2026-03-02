@@ -18,10 +18,17 @@ class _IngestArgs:
 
 class _TransformArgs:
     def __init__(self, dataset: str, out_dir: str):
+        self.in_path = None
+        self.glob = None
+        self.dict_dir = "resources/dict/v0_0"
         self.dataset = dataset
         self.manifest = None
         self.jsonl = None
         self.out_dir = out_dir
+        self.limit = None
+        self.fail_fast = False
+        self.log_level = "INFO"
+        self.report = True
 
 
 class _ValidateArgs:
@@ -39,10 +46,10 @@ def test_pipeline_smoke(tmp_path: Path) -> None:
     transform_rc = cmd_transform(_TransformArgs(dataset=dataset_dir, out_dir=str(out_dir)))
     assert transform_rc == 0
 
-    validate_rc = cmd_validate(_ValidateArgs(cards_dir=str(out_dir)))
+    validate_rc = cmd_validate(_ValidateArgs(cards_dir=str(out_dir / "yaml")))
     assert validate_rc == 0
 
-    files = sorted(out_dir.glob("*.yaml"))
+    files = sorted((out_dir / "yaml").glob("*.yaml"))
     assert len(files) == 3
 
     for file in files:
