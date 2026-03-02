@@ -2,15 +2,26 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
+import time
 from pathlib import Path
 from typing import Any
 
 from ygo_effect_dsl.analyze.report import build_report
+from ygo_effect_dsl.dict_loader import load_dictionary, validate_dictionary
 from ygo_effect_dsl.ingest.jsonl_reader import load_dataset, resolve_dataset_paths
+from ygo_effect_dsl.io_input import load_inputs
+from ygo_effect_dsl.normalize import normalize_card_texts
+from ygo_effect_dsl.pipeline import transform_card
+from ygo_effect_dsl.report import TransformReporter
+from ygo_effect_dsl.rule_engine import RuleEngine
 from ygo_effect_dsl.transform.dsl_writer import write_card_yaml
 from ygo_effect_dsl.transform.etl_to_dsl import to_dsl_yaml_dict
 from ygo_effect_dsl.util.yaml_io import load_yaml
 from ygo_effect_dsl.validate.validator import validate_card_yaml
+from ygo_effect_dsl.yaml_writer import write_yaml_by_cid
+
+logger = logging.getLogger("ygo_effect_dsl")
 
 
 def _load_cards_with_path(cards_dir: str) -> list[tuple[str, dict[str, Any]]]:
@@ -54,7 +65,7 @@ def cmd_ingest(args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_transform(args: argparse.Namespace) -> int:
+def _legacy_transform(args: argparse.Namespace) -> int:
     rc, loaded = _load_from_args(args)
     if rc != 0 or loaded is None:
         return rc
@@ -71,6 +82,94 @@ def cmd_transform(args: argparse.Namespace) -> int:
         count += 1
 
     print(f"transform: wrote={count}")
+    return 0
+
+
+def cmd_transform(args: argparse.Namespace) -> int:
+    in_path = getattr(args, "in_path", None)
+    dataset = getattr(args, "dataset", None)
+    if in_path is None and dataset:
+        return _legacy_transform(args)
+    if not in_path:
+        print("transform error: --in is required")
+        return 2
+
+    logging.basicConfig(level=getattr(logging, args.log_level.upper(), logging.INFO), format="%(asctime)s [%(levelname)s] %(message)s")
+
+    dict_errors = validate_dictionary(args.dict_dir)
+    if dict_errors:
+        print("validate-dict failed:")
+        for err in dict_errors:
+            print(f"  - {err}")
+        return 2
+
+    dictionary = load_dictionary(args.dict_dir)
+    engine = RuleEngine()
+    reporter = TransformReporter()
+
+    start = time.time()
+    cards = load_inputs(in_path, glob_pattern=getattr(args, "glob", None), limit=getattr(args, "limit", None))
+    logger.info("loaded %d records", len(cards))
+
+    for idx, card in enumerate(cards, start=1):
+        cid = str(card.get("cid", card.get("id", "")))
+        try:
+            result = transform_card(card, dictionary, engine)
+            write_yaml_by_cid(result.output, args.out_dir)
+            reporter.record_success(result.output, result.stage_outcomes)
+            if logger.isEnabledFor(logging.DEBUG):
+                for stage, outcome in result.stage_outcomes.items():
+                    logger.debug("cid=%s stage=%s hits=%s", cid, stage, outcome.matched_rule_ids)
+        except Exception as exc:  # noqa: BLE001
+            reporter.record_failure(cid, str(exc))
+            logger.exception("failed to transform cid=%s", cid)
+            if args.fail_fast:
+                break
+
+        if idx % 100 == 0 or idx == len(cards):
+            elapsed = time.time() - start
+            logger.info("progress: %d/%d elapsed=%.2fs failures=%d", idx, len(cards), elapsed, len(reporter.failures))
+
+    if args.report:
+        reporter.write_reports(args.out_dir, include_unmatched=True)
+
+    print(f"transform: input={reporter.total} success={reporter.success} failure={len(reporter.failures)}")
+    return 1 if args.fail_fast and reporter.failures else 0
+
+
+def cmd_validate_dict(args: argparse.Namespace) -> int:
+    errors = validate_dictionary(args.dict_dir)
+    if errors:
+        print("validate-dict: failed")
+        for err in errors:
+            print(f"  - {err}")
+        return 1
+    print("validate-dict: ok")
+    return 0
+
+
+def cmd_normalize(args: argparse.Namespace) -> int:
+    dict_errors = validate_dictionary(args.dict_dir)
+    if dict_errors:
+        print("validate-dict failed:")
+        for err in dict_errors:
+            print(f"  - {err}")
+        return 2
+
+    dictionary = load_dictionary(args.dict_dir)
+    cards = load_inputs(args.in_path, glob_pattern=getattr(args, "glob", None), limit=getattr(args, "limit", None))
+    out_rows: list[dict[str, Any]] = []
+    from ygo_effect_dsl.io_input import extract_card_fields
+
+    for row in cards:
+        fields = extract_card_fields(row)
+        norm = normalize_card_texts(fields, dictionary.vocab)
+        out_rows.append({"cid": fields.get("cid", ""), "norm": norm.as_dict()})
+
+    out_path = Path(args.out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(out_rows, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"normalize: wrote={len(out_rows)} to {out_path}")
     return 0
 
 
@@ -129,10 +228,29 @@ def main() -> int:
     _add_dataset_arguments(p0)
     p0.set_defaults(func=cmd_ingest)
 
-    p1 = sub.add_parser("transform", help="dataset -> DSL YAML")
-    _add_dataset_arguments(p1)
-    p1.add_argument("--out", dest="out_dir", required=True, help="output directory for YAML cards")
+    p1 = sub.add_parser("transform", help="ETL JSON/JSONL -> v0.0 DSL YAML")
+    p1.add_argument("--in", dest="in_path", help="input file or directory")
+    p1.add_argument("--glob", help="glob pattern when --in is directory")
+    p1.add_argument("--dict", dest="dict_dir", default="resources/dict/v0_0", help="dictionary directory")
+    p1.add_argument("--out", dest="out_dir", default="data/export", help="output root directory")
+    p1.add_argument("--limit", type=int, help="limit number of cards")
+    p1.add_argument("--fail-fast", action="store_true", help="stop at first card failure")
+    p1.add_argument("--log-level", default="INFO", choices=["INFO", "DEBUG"], help="log verbosity")
+    p1.add_argument("--report", action=argparse.BooleanOptionalAction, default=True, help="write summary and unmatched reports")
+    _add_dataset_arguments(p1)  # backward compatibility
     p1.set_defaults(func=cmd_transform)
+
+    pvd = sub.add_parser("validate-dict", help="validate dictionary files and regex patterns")
+    pvd.add_argument("--dict", dest="dict_dir", default="resources/dict/v0_0", help="dictionary directory")
+    pvd.set_defaults(func=cmd_validate_dict)
+
+    pn = sub.add_parser("normalize", help="debug: normalize ETL text and dump JSON")
+    pn.add_argument("--in", dest="in_path", required=True, help="input file or directory")
+    pn.add_argument("--glob", help="glob pattern when --in is directory")
+    pn.add_argument("--dict", dest="dict_dir", default="resources/dict/v0_0", help="dictionary directory")
+    pn.add_argument("--out", dest="out_path", required=True, help="output JSON path")
+    pn.add_argument("--limit", type=int, help="limit number of cards")
+    pn.set_defaults(func=cmd_normalize)
 
     p2 = sub.add_parser("validate", help="validate DSL YAML files for spec v0.0 minimum")
     p2.add_argument("cards_dir", help="directory that contains YAML cards")
