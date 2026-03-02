@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+build/
+dist/
+
+# venv
+.venv/
+venv/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# VSCode
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# DSL outputs
+data/export/
+data/dsl_out/
+data/reports/
+data/etl/
+
+# OS
+.DS_Store
+Thumbs.db
