@@ -91,3 +91,34 @@ def test_transform_yaml_has_required_effect_keys(tmp_path: Path) -> None:
     for key in ["trigger", "restriction", "condition", "cost", "action"]:
         assert key in effect
         assert isinstance(effect[key], dict)
+
+
+def test_transform_fragment_candidates_hit_action_and_restriction(tmp_path: Path) -> None:
+    in_path = tmp_path / "cards.jsonl"
+    rows = [
+        {
+            "cid": 20194,
+            "name_en": "Silvy of the White Forest",
+            "name_ja": "",
+            "card_text_en": (
+                'If this card is Normal Summoned: You can add 1 "White Forest" Spell/Trap from your Deck to your hand. '
+                'If this card is in your GY (Quick Effect): You can target 1 face-up monster you control; return it to the hand. '
+                'You can only use each effect of "Silvy of the White Forest" once per turn.'
+            ),
+            "card_text_ja": "",
+            "card_info_en": "",
+            "card_info_ja": "",
+        }
+    ]
+    in_path.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows), encoding="utf-8")
+
+    rc = cmd_transform(_TransformArgs(str(in_path), str(tmp_path / "export")))
+    assert rc == 0
+
+    payload = load_yaml(str(tmp_path / "export" / "yaml" / "20194.yaml"))
+    effect = payload["effects"][0]
+    assert effect["action"].get("type") == "add_to_hand"
+    assert payload["meta"]["restrictions"]["global"]["once_per_turn"]["key"] == "each_effect_of_card"
+
+    unmatched_rows = [json.loads(line) for line in (tmp_path / "export" / "reports" / "unmatched_fragments.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert any(row["fragment"].startswith("action:") for row in unmatched_rows)

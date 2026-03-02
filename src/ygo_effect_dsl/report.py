@@ -26,7 +26,11 @@ class TransformReporter:
             self.stage_total[stage] += 1
             if outcome.matched:
                 self.stage_hits[stage] += 1
-            if outcome.unmatched_fragment:
+            unmatched_fragments = getattr(outcome, "unmatched_fragments", [])
+            if unmatched_fragments:
+                for fragment in unmatched_fragments:
+                    self.unmatched[f"{stage}:{fragment}"] += 1
+            elif outcome.unmatched_fragment:
                 self.unmatched[f"{stage}:{outcome.unmatched_fragment}"] += 1
 
     def record_failure(self, cid: str, error: str) -> None:

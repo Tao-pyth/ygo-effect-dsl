@@ -63,6 +63,7 @@ class StageOutcome:
     matched: bool
     matched_rule_ids: list[str] = field(default_factory=list)
     unmatched_fragment: str = ""
+    unmatched_fragments: list[str] = field(default_factory=list)
 
 
 @dataclass(slots=True)
