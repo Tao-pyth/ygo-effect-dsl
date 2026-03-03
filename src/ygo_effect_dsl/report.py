@@ -17,21 +17,39 @@ class TransformReporter:
         self.stage_total = Counter()
         self.unmatched = Counter()
         self.cards: list[dict[str, Any]] = []
+        self.candidates_count = Counter()
 
     def record_success(self, card: dict[str, Any], outcomes: dict[str, Any]) -> None:
         self.total += 1
         self.success += 1
         self.cards.append(card)
+        meta = card.get("meta", {}) if isinstance(card, dict) else {}
+        candidate_counts = meta.get("candidates_count", {}) if isinstance(meta, dict) else {}
+        if isinstance(candidate_counts, dict):
+            for key in ("sentences", "restriction", "cost", "action"):
+                value = candidate_counts.get(key, 0)
+                if isinstance(value, int):
+                    self.candidates_count[key] += value
+
         for stage, outcome in outcomes.items():
             self.stage_total[stage] += 1
             if outcome.matched:
                 self.stage_hits[stage] += 1
+
+            unmatched_details = getattr(outcome, "unmatched_details", [])
+            if unmatched_details:
+                for row in unmatched_details:
+                    fragment = row.get("fragment", "")
+                    classified_as = row.get("classified_as", "sentence")
+                    self.unmatched[(stage, classified_as, fragment)] += 1
+                continue
+
             unmatched_fragments = getattr(outcome, "unmatched_fragments", [])
             if unmatched_fragments:
                 for fragment in unmatched_fragments:
-                    self.unmatched[f"{stage}:{fragment}"] += 1
+                    self.unmatched[(stage, "sentence", fragment)] += 1
             elif outcome.unmatched_fragment:
-                self.unmatched[f"{stage}:{outcome.unmatched_fragment}"] += 1
+                self.unmatched[(stage, "sentence", outcome.unmatched_fragment)] += 1
 
     def record_failure(self, cid: str, error: str) -> None:
         self.total += 1
@@ -44,8 +62,8 @@ class TransformReporter:
             stage_hit_rate[stage] = {"hit": hit, "total": total, "ratio": (hit / total if total else 0.0)}
 
         unmatched_top = [
-            {"fragment": fragment, "count": count}
-            for fragment, count in self.unmatched.most_common(50)
+            {"stage": stage, "classified_as": classified_as, "fragment": fragment, "count": count}
+            for (stage, classified_as, fragment), count in self.unmatched.most_common(50)
         ]
         return {
             "input_count": self.total,
@@ -53,6 +71,7 @@ class TransformReporter:
             "failure_count": len(self.failures),
             "stage_hit_rate": stage_hit_rate,
             "action_type_ranking": count_action_types(self.cards),
+            "candidates_count": dict(self.candidates_count),
             "unmatched_top": unmatched_top,
         }
 
@@ -66,8 +85,8 @@ class TransformReporter:
         if include_unmatched:
             unmatched_path = report_dir / "unmatched_fragments.jsonl"
             with unmatched_path.open("w", encoding="utf-8") as f:
-                for fragment, count in self.unmatched.most_common():
-                    row = {"fragment": fragment, "count": count}
+                for (stage, classified_as, fragment), count in self.unmatched.most_common():
+                    row = {"stage": stage, "classified_as": classified_as, "fragment": fragment, "count": count}
                     f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
         failures_path = report_dir / "failures.jsonl"
