@@ -1,47 +1,18 @@
 # 32_trigger_rules.yaml
-# v0.0 trigger rules (minimum starter set: 8 rules)
-# Generated: 2026-03-01
-# Spec: docs/spec/v0.0/18_dictionary_format.md
+# v0.0 trigger rules (minimum starter set: 12 rules)
+# Generated: 2026-03-03
+#
+# Focus:
+# - High-frequency timing phrases seen in unmatched_top and common Yu-Gi-Oh! text.
 #
 # Notes:
-# - These patterns are designed for normalized English text (recommended: lowercased).
-# - These are intentionally shallow: they aim to capture "trigger shape" not full semantics.
-
-- id: 'TRIGGER_IF_THIS_CARD_NORMAL_SUMMONED'
+# - Patterns assume normalized English fragments (lowercase, trimmed) and often end with ':'.
+# - Emits patch into effect.trigger.* (engine should deep-merge).
+# - Some gate phrases are temporarily treated as trigger-ish for v0.0 convenience.
+#
+- id: 'TRIG_ON_SUMMON_NORMAL_OR_SPECIAL'
   version: '0.0'
-  priority: 220
-  language: 'en'
-  applies_to: 'trigger'
-  pattern: '^if this card is normal summoned:$'
-  emit:
-    trigger:
-      type: 'summon'
-      modes:
-        - 'normal'
-  on_fail: 'ignore'
-  note: 'starter trigger rule'
-  examples:
-    - 'If this card is Normal Summoned:'
-
-- id: 'TRIGGER_IF_THIS_CARD_SPECIAL_SUMMONED'
-  version: '0.0'
-  priority: 219
-  language: 'en'
-  applies_to: 'trigger'
-  pattern: '^if this card is special summoned:$'
-  emit:
-    trigger:
-      type: 'summon'
-      modes:
-        - 'special'
-  on_fail: 'ignore'
-  note: 'starter trigger rule'
-  examples:
-    - 'If this card is Special Summoned:'
-
-- id: 'TRIGGER_IF_THIS_CARD_NORMAL_OR_SPECIAL_SUMMONED'
-  version: '0.0'
-  priority: 218
+  priority: 300
   language: 'en'
   applies_to: 'trigger'
   pattern: '^if this card is normal or special summoned:$'
@@ -52,84 +23,180 @@
         - 'normal'
         - 'special'
   on_fail: 'ignore'
-  note: 'starter trigger rule'
+  note: 'summon trigger (normal or special)'
   examples:
     - 'If this card is Normal or Special Summoned:'
 
-- id: 'TRIGGER_IF_THIS_CARD_IN_GY'
+- id: 'TRIG_ON_NORMAL_SUMMON'
   version: '0.0'
-  priority: 210
+  priority: 299
   language: 'en'
   applies_to: 'trigger'
-  pattern: '^if this card is in your gy \\(quick effect\\):$'
+  pattern: '^if this card is normal summoned:$'
   emit:
     trigger:
-      type: 'location_condition'
-      self_location: 'GY'
-      speed: 'quick'
+      type: 'summon'
+      modes:
+        - 'normal'
   on_fail: 'ignore'
-  note: 'starter trigger rule'
+  note: 'summon trigger (normal)'
+  examples:
+    - 'If this card is Normal Summoned:'
+
+- id: 'TRIG_ON_SPECIAL_SUMMON'
+  version: '0.0'
+  priority: 298
+  language: 'en'
+  applies_to: 'trigger'
+  pattern: '^if this card is special summoned:$'
+  emit:
+    trigger:
+      type: 'summon'
+      modes:
+        - 'special'
+  on_fail: 'ignore'
+  note: 'summon trigger (special)'
+  examples:
+    - 'If this card is Special Summoned:'
+
+- id: 'TRIG_WHILE_IN_GY_QUICK_EFFECT'
+  version: '0.0'
+  priority: 290
+  language: 'en'
+  applies_to: 'trigger'
+  pattern: '^if this card is in your gy \(quick effect\):$'
+  emit:
+    trigger:
+      type: 'quick'
+      zone: 'GY'
+      subject: 'self'
+  on_fail: 'ignore'
+  note: 'quick effect while this card is in your GY'
   examples:
     - 'If this card is in your GY (Quick Effect):'
 
-- id: 'TRIGGER_IF_THIS_CARD_IN_GY__NO_SPEED'
+- id: 'TRIG_WHILE_IN_HAND_QUICK_EFFECT'
   version: '0.0'
-  priority: 209
+  priority: 289
   language: 'en'
   applies_to: 'trigger'
-  pattern: '^if this card is in your gy:$'
+  pattern: '^if this card is in your hand \(quick effect\):$'
   emit:
     trigger:
-      type: 'location_condition'
-      self_location: 'GY'
+      type: 'quick'
+      zone: 'hand'
+      subject: 'self'
   on_fail: 'ignore'
-  note: 'starter trigger rule'
+  note: 'quick effect while this card is in your hand'
   examples:
-    - 'If this card is in your GY:'
+    - 'If this card is in your hand (Quick Effect):'
 
-- id: 'TRIGGER_IF_THIS_CARD_DESTROYED'
+- id: 'TRIG_WHILE_IN_FIELD_QUICK_EFFECT'
   version: '0.0'
-  priority: 205
+  priority: 288
   language: 'en'
   applies_to: 'trigger'
-  pattern: '^if this card is destroyed:$'
+  pattern: '^if this card is on the field \(quick effect\):$'
   emit:
     trigger:
-      type: 'self_event'
-      event: 'destroyed'
+      type: 'quick'
+      zone: 'field'
+      subject: 'self'
   on_fail: 'ignore'
-  note: 'starter trigger rule'
+  note: 'quick effect while this card is on the field'
   examples:
-    - 'If this card is destroyed:'
+    - 'If this card is on the field (Quick Effect):'
 
-- id: 'TRIGGER_WHEN_THIS_CARD_SENT_TO_GY'
+- id: 'TRIG_DURING_YOUR_MAIN_PHASE'
   version: '0.0'
-  priority: 200
+  priority: 280
   language: 'en'
   applies_to: 'trigger'
-  pattern: '^when this card is sent to the gy:$'
+  pattern: '^during your main phase:$'
   emit:
     trigger:
-      type: 'self_event'
-      event: 'sent_to_gy'
+      type: 'ignition'
+      phase: 'main'
   on_fail: 'ignore'
-  note: 'starter trigger rule'
+  note: 'ignition trigger during your main phase'
   examples:
-    - 'When this card is sent to the GY:'
+    - 'During your Main Phase:'
 
-- id: 'TRIGGER_WHILE_THIS_CARD_IN_GY'
+- id: 'TRIG_ONCE_PER_TURN_PREFIX'
   version: '0.0'
-  priority: 195
+  priority: 279
   language: 'en'
   applies_to: 'trigger'
-  pattern: '^while this card is in your gy \\(except during the damage step\\):$'
+  pattern: '^once per turn:$'
   emit:
     trigger:
-      type: 'location_condition'
-      self_location: 'GY'
-      except:
-        - 'Damage Step'
+      type: 'ignition'
+      frequency: 'once_per_turn'
   on_fail: 'ignore'
-  note: 'starter trigger rule'
+  note: 'prefix indicating ignition-like once-per-turn effect; detailed restriction handled elsewhere'
   examples:
-    - 'While this card is in your GY (except during the Damage Step):'
+    - 'Once per turn:'
+
+- id: 'TRIG_WHEN_THIS_CARD_IS_SENT_TO_GY'
+  version: '0.0'
+  priority: 270
+  language: 'en'
+  applies_to: 'trigger'
+  pattern: '^if this card is sent to the gy:$'
+  emit:
+    trigger:
+      type: 'sent_to_gy'
+      subject: 'self'
+  on_fail: 'ignore'
+  note: 'trigger when this card is sent to the GY'
+  examples:
+    - 'If this card is sent to the GY:'
+
+- id: 'TRIG_WHEN_SPELL_TRAP_SENT_TO_GY_TO_ACTIVATE_MONSTER_EFFECT_WHILE_IN_GY'
+  version: '0.0'
+  priority: 260
+  language: 'en'
+  applies_to: 'trigger'
+  pattern: '^if a spell/trap\(s\) is sent to your gy to activate a monsters effect, while this card is in your gy:$'
+  emit:
+    trigger:
+      type: 'event'
+      event: 'st_sent_to_gy_for_monster_effect'
+      zone: 'GY'
+      subject: 'self'
+  on_fail: 'ignore'
+  note: 'specific common trigger phrase (White Forest examples)'
+  examples:
+    - 'If a Spell/Trap(s) is sent to your GY to activate a monster''s effect, while this card is in your GY:'
+
+- id: 'TRIG_WHEN_YOU_ACTIVATE_CARD_OR_EFFECT'
+  version: '0.0'
+  priority: 250
+  language: 'en'
+  applies_to: 'trigger'
+  pattern: '^when you activate a (?P<what>spell|trap|monster) card or effect:$'
+  capture:
+    what: '$what'
+  emit:
+    trigger:
+      type: 'activate'
+      what: '$what'
+  on_fail: 'ignore'
+  note: 'trigger when you activate a card/effect (simplified)'
+  examples:
+    - 'When you activate a Spell Card or effect:'
+
+- id: 'TRIG_IF_YOU_CONTROL_NO_MONSTERS'
+  version: '0.0'
+  priority: 240
+  language: 'en'
+  applies_to: 'trigger'
+  pattern: '^if you control no monsters:$'
+  emit:
+    trigger:
+      type: 'condition_only'
+      condition: 'control_no_monsters'
+  on_fail: 'ignore'
+  note: 'common gate phrase; treated as trigger-ish for v0.0 (can be moved to condition later)'
+  examples:
+    - 'If you control no monsters:'

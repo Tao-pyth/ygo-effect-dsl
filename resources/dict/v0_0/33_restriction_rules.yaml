@@ -1,124 +1,181 @@
 # 33_restriction_rules.yaml
-# v0.0 restriction (global) rules (minimum starter set: 6 rules)
-# Generated: 2026-03-01
-# Spec: docs/spec/v0.0/18_dictionary_format.md
+# v0.0 restriction rules (minimum starter set: 10 rules)
+# Generated: 2026-03-03
+#
+# Focus:
+# - once per turn / per turn activation limits that dominate unmatched_top.
 #
 # Notes:
-# - These patterns are designed for normalized English text (recommended: lowercased).
-# - v0.0 recommends storing card-wide restrictions in meta.restrictions.global.
-
-- id: 'RESTRICT_GLOBAL_EACH_EFFECT_ONCE_PER_TURN'
+# - Patterns assume normalized English text (recommended: lowercased).
+# - Emits patch into effect.restriction.* (engine should deep-merge).
+# - If you prefer storing global restrictions under meta.restrictions.global,
+#   lift/aggregate these restriction objects after per-effect parsing.
+#
+- id: 'RESTR_OOPT_THIS_EFFECT_OF_CARDNAME'
   version: '0.0'
-  priority: 230
+  priority: 300
   language: 'en'
-  applies_to: 'restriction_global'
-  pattern: '^you can only use each effect of 【CARD_NAME】 once per turn\.$'
-  capture:
-    card_name: 'CARD_NAME[0]'
+  applies_to: 'restriction'
+  pattern: '^you can only use this effect of 【CARD_NAME】 once per turn\.$'
   emit:
-    meta:
-      restrictions:
-        global:
-          once_per_turn:
-            scope: 'each_effect'
-            key: 'each_effect_of_card'
-            card_name: '$card_name'
+    restriction:
+      type: 'once_per_turn'
+      scope: 'this_effect'
+      by: 'card_name'
   on_fail: 'ignore'
-  note: 'starter restriction rule (global)'
+  note: 'hard once-per-turn for this effect of the named card'
+  examples:
+    - 'You can only use this effect of "Blue-Eyes" once per turn.'
+
+- id: 'RESTR_OOPT_EACH_EFFECT_OF_CARDNAME'
+  version: '0.0'
+  priority: 299
+  language: 'en'
+  applies_to: 'restriction'
+  pattern: '^you can only use each effect of 【CARD_NAME】 once per turn\.$'
+  emit:
+    restriction:
+      type: 'once_per_turn'
+      scope: 'each_effect'
+      by: 'card_name'
+  on_fail: 'ignore'
+  note: 'hard once-per-turn for each effect of the named card'
   examples:
     - 'You can only use each effect of "Silvy of the White Forest" once per turn.'
 
-- id: 'RESTRICT_GLOBAL_ONCE_PER_TURN_THIS_EFFECT'
+- id: 'RESTR_OOPT_EACH_OF_FOLLOWING_EFFECTS_OF_CARDNAME'
   version: '0.0'
-  priority: 220
+  priority: 298
   language: 'en'
-  applies_to: 'restriction_global'
+  applies_to: 'restriction'
+  pattern: '^you can only use each of the following effects of 【CARD_NAME】 once per turn\.$'
+  emit:
+    restriction:
+      type: 'once_per_turn'
+      scope: 'each_of_following_effects'
+      by: 'card_name'
+  on_fail: 'ignore'
+  note: 'hard once-per-turn for each of the following effects (multi-effect template)'
+  examples:
+    - 'You can only use each of the following effects of "CARD" once per turn.'
+
+- id: 'RESTR_OOPT_EACH_OF_THESE_EFFECTS'
+  version: '0.0'
+  priority: 297
+  language: 'en'
+  applies_to: 'restriction'
+  pattern: '^you can only use each of these effects once per turn\.$'
+  emit:
+    restriction:
+      type: 'once_per_turn'
+      scope: 'each_of_these_effects'
+      by: 'card_self'
+  on_fail: 'ignore'
+  note: 'hard once-per-turn for each of these effects (pronoun form)'
+  examples:
+    - 'You can only use each of these effects once per turn.'
+
+- id: 'RESTR_OOPT_ONE_OF_THESE_EFFECTS'
+  version: '0.0'
+  priority: 296
+  language: 'en'
+  applies_to: 'restriction'
+  pattern: '^you can only use 【N】 of these effects per turn\.$'
+  capture:
+    n: 'N[0]'
+  emit:
+    restriction:
+      type: 'per_turn_limit'
+      scope: 'one_of_these_effects'
+      n: '$n'
+      by: 'card_self'
+  on_fail: 'ignore'
+  note: 'per-turn limit for using N of these effects'
+  examples:
+    - 'You can only use 1 of these effects per turn.'
+
+- id: 'RESTR_ACTIVATE_N_CARDNAME_PER_TURN'
+  version: '0.0'
+  priority: 295
+  language: 'en'
+  applies_to: 'restriction'
+  pattern: '^you can only activate 【N】 【CARD_NAME】 per turn\.$'
+  capture:
+    n: 'N[0]'
+  emit:
+    restriction:
+      type: 'per_turn_limit'
+      scope: 'activate_card'
+      n: '$n'
+      by: 'card_name'
+  on_fail: 'ignore'
+  note: 'activation limit per turn for the named card'
+  examples:
+    - 'You can only activate 1 "Some Card" per turn.'
+
+- id: 'RESTR_OOPT_ONCE_PER_TURN_PREFIX'
+  version: '0.0'
+  priority: 294
+  language: 'en'
+  applies_to: 'restriction'
+  pattern: '^once per turn:\s*(?P<rest>.+)$'
+  capture:
+    rest: '$rest'
+  emit:
+    restriction:
+      type: 'once_per_turn'
+      scope: 'prefix_clause'
+      by: 'card_self'
+      rest: '$rest'
+  on_fail: 'ignore'
+  note: 'once-per-turn prefix clause; keep rest for later parsing'
+  examples:
+    - 'Once per turn: You can draw 1 card.'
+
+- id: 'RESTR_SOFT_OOPT_THIS_EFFECT_ONCE_PER_TURN'
+  version: '0.0'
+  priority: 293
+  language: 'en'
+  applies_to: 'restriction'
   pattern: '^you can only use this effect once per turn\.$'
   emit:
-    meta:
-      restrictions:
-        global:
-          once_per_turn:
-            scope: 'this_effect'
-            key: 'this_effect'
+    restriction:
+      type: 'once_per_turn'
+      scope: 'this_effect'
+      by: 'card_self'
   on_fail: 'ignore'
-  note: 'starter restriction rule (global)'
+  note: 'once-per-turn for this effect (no card name)'
   examples:
     - 'You can only use this effect once per turn.'
 
-- id: 'RESTRICT_GLOBAL_ONCE_PER_DUEL'
+- id: 'RESTR_SOFT_OOPT_EACH_EFFECT_ONCE_PER_TURN'
   version: '0.0'
-  priority: 215
+  priority: 292
   language: 'en'
-  applies_to: 'restriction_global'
-  pattern: '^you can only use this effect once per duel\.$'
+  applies_to: 'restriction'
+  pattern: '^you can only use each effect once per turn\.$'
   emit:
-    meta:
-      restrictions:
-        global:
-          once_per_duel:
-            scope: 'this_effect'
-            key: 'this_effect'
+    restriction:
+      type: 'once_per_turn'
+      scope: 'each_effect'
+      by: 'card_self'
   on_fail: 'ignore'
-  note: 'starter restriction rule (global)'
+  note: 'once-per-turn for each effect (no card name)'
   examples:
-    - 'You can only use this effect once per Duel.'
+    - 'You can only use each effect once per turn.'
 
-- id: 'RESTRICT_GLOBAL_EXCEPT_DURING_DAMAGE_STEP'
+- id: 'RESTR_OOPT_EACH_EFFECT_OF_CARDNAME_NO_PERIOD'
   version: '0.0'
-  priority: 210
+  priority: 291
   language: 'en'
-  applies_to: 'restriction_global'
-  pattern: '^\(except during the damage step\)$'
+  applies_to: 'restriction'
+  pattern: '^you can only use each effect of 【CARD_NAME】 once per turn$'
   emit:
-    meta:
-      restrictions:
-        global:
-          except:
-            phases:
-              - 'Damage Step'
+    restriction:
+      type: 'once_per_turn'
+      scope: 'each_effect'
+      by: 'card_name'
   on_fail: 'ignore'
-  note: 'starter restriction rule (global)'
+  note: 'tolerant form (missing trailing period)'
   examples:
-    - '(except during the Damage Step)'
-
-- id: 'RESTRICT_GLOBAL_NOT_DURING_DAMAGE_STEP'
-  version: '0.0'
-  priority: 209
-  language: 'en'
-  applies_to: 'restriction_global'
-  pattern: '^except during the damage step$'
-  emit:
-    meta:
-      restrictions:
-        global:
-          except:
-            phases:
-              - 'Damage Step'
-  on_fail: 'ignore'
-  note: 'starter restriction rule (global)'
-  examples:
-    - 'except during the Damage Step'
-
-- id: 'RESTRICT_GLOBAL_HARD_OPT_EACH_NAME_ONCE_PER_TURN'
-  version: '0.0'
-  priority: 205
-  language: 'en'
-  applies_to: 'restriction_global'
-  pattern: '^you can only use 【N】 effect\\(s\\) of 【CARD_NAME】 per turn\.$'
-  capture:
-    n: 'N[0]'
-    card_name: 'CARD_NAME[0]'
-  emit:
-    meta:
-      restrictions:
-        global:
-          once_per_turn:
-            scope: 'named_effects'
-            key: 'effects_of_card'
-            card_name: '$card_name'
-            n: '$n'
-  on_fail: 'ignore'
-  note: 'starter restriction rule (global)'
-  examples:
-    - 'You can only use 1 effect(s) of "X" per turn.'
+    - 'You can only use each effect of "CARD" once per turn'
