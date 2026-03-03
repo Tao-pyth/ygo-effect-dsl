@@ -1,11 +1,52 @@
 # 31_action_rules.yaml
-# v0.0 action rules (minimum starter set: 15 rules)
-# Generated: 2026-03-01
+# v0.0 action rules (minimum starter set: 17 rules; +target minimal rules)
+# Generated: 2026-03-03
 # Spec: docs/spec/v0.0/18_dictionary_format.md
 #
 # Notes:
-# - These patterns are designed for normalized English text (recommended: lowercased).
-# - Emits are patches; engine should merge without dropping required keys.
+# - Patterns assume normalized English text (recommended: lowercased).
+# - TARGET rules are intended to run on candidates split around ';' / '.'
+# - Emits are patches; engine should deep-merge without dropping keys.
+#
+- id: 'ACTION_TARGET_N_DESC__YOU_CAN__SEMICOLON'
+  version: '0.0'
+  priority: 230
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^you can target 【N】 (?P<desc>.+?);$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    action:
+      target:
+        -
+          n: '$n'
+          desc: '$desc'
+  on_fail: 'ignore'
+  note: 'adds action.target from a target clause (before '';'')'
+  examples:
+    - 'You can target 1 "White Forest" Synchro Monster you control or in your GY;'
+
+- id: 'ACTION_TARGET_N_DESC__YOU_CAN__PERIOD'
+  version: '0.0'
+  priority: 229
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^you can target 【N】 (?P<desc>.+?)\.$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    action:
+      target:
+        -
+          n: '$n'
+          desc: '$desc'
+  on_fail: 'ignore'
+  note: 'adds action.target from a target clause'
+  examples:
+    - 'You can target 1 monster your opponent controls.'
 
 - id: 'ACTION_ADD_FROM_DECK_TO_HAND__YOU_CAN'
   version: '0.0'
