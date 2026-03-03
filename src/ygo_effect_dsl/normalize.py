@@ -89,15 +89,12 @@ def normalize_card_texts(card_fields: dict[str, Any], vocab: dict[str, Any]) -> 
         setattr(normalized, out_key, value)
 
     normalized.text_en, card_names_text = _extract_card_names(normalized.text_en)
-    normalized.info_en, card_names_info = _extract_card_names(normalized.info_en)
-
     normalized.text_en, nums_text = _extract_numbers(normalized.text_en)
-    normalized.info_en, nums_info = _extract_numbers(normalized.info_en)
 
-    normalized.params["CARD_NAME"] = card_names_text + card_names_info
-    normalized.params["N"] = nums_text + nums_info
+    normalized.params["CARD_NAME"] = card_names_text
+    normalized.params["N"] = nums_text
     normalized.categories = _extract_categories(
-        f"{normalized.text_en} {normalized.info_en}",
+        normalized.text_en,
         vocab,
     )
 
