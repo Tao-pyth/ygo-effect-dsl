@@ -154,3 +154,87 @@ def test_transform_does_not_export_raw_json_fields(tmp_path: Path) -> None:
     assert payload["card"]["name"]["ja"] == ""
     assert payload["card"]["text"]["en"] == ""
     assert payload["card"]["text"]["ja"] == ""
+
+
+def test_transform_exports_compact_card_props_from_card_info_en(tmp_path: Path) -> None:
+    in_path = tmp_path / "cards.jsonl"
+    rows = [
+        {
+            "cid": 4104,
+            "name_en": "Alexandrite Dragon",
+            "name_ja": "アレキサンドライドラゴン",
+            "card_text_en": "",
+            "card_text_ja": "",
+            "card_info_en": json.dumps(
+                {
+                    "frameType": "normal",
+                    "attribute": "LIGHT",
+                    "race": "Dragon",
+                    "level": 4,
+                    "atk": 2000,
+                    "def": 100,
+                    "type": "Normal Monster",
+                    "typeline": ["Dragon", "Normal"],
+                    "misc_info": [{"has_effect": 0}],
+                    "card_sets": [{"set_name": "ignore me"}],
+                    "card_prices": [{"cardmarket_price": "1.00"}],
+                    "card_images": [{"image_url": "https://example.com/1.jpg", "image_url_small": "https://example.com/1s.jpg"}],
+                    "image_relpath": "images/4104.jpg",
+                },
+                ensure_ascii=False,
+            ),
+        }
+    ]
+    in_path.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows), encoding="utf-8")
+
+    rc = cmd_transform(_TransformArgs(str(in_path), str(tmp_path / "export")))
+    assert rc == 0
+
+    payload = load_yaml(str(tmp_path / "export" / "yaml" / "4104.yaml"))
+    assert "info" not in payload["card"]
+    assert "info_en" not in payload["meta"]["norm"]
+
+    props = payload["card"]["props"]
+    assert props["frame_type"] == "normal"
+    assert props["has_effect"] is False
+    assert props["attribute"] == "LIGHT"
+    assert props["race"] == "Dragon"
+    assert props["level"] == 4
+    assert props["atk"] == 2000
+    assert props["def"] == 100
+    assert props["archetype"] == ""
+    assert props["card_type"] == "Normal Monster"
+    assert props["typeline"] == ["Dragon", "Normal"]
+
+    assert "card_sets" not in props
+    assert "card_prices" not in props
+    assert "card_images" not in props
+
+
+def test_transform_spell_trap_props_are_null_for_missing_stats(tmp_path: Path) -> None:
+    in_path = tmp_path / "spell.json"
+    in_path.write_text(
+        json.dumps(
+            {
+                "cid": 500,
+                "name_en": "Sample Spell",
+                "card_text_en": "",
+                "card_info_en": {
+                    "frameType": "spell",
+                    "type": "Spell Card",
+                    "race": "Quick-Play",
+                    "misc_info": [{"has_effect": 1}],
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    rc = cmd_transform(_TransformArgs(str(in_path), str(tmp_path / "export")))
+    assert rc == 0
+
+    props = load_yaml(str(tmp_path / "export" / "yaml" / "500.yaml"))["card"]["props"]
+    assert props["level"] is None
+    assert props["atk"] is None
+    assert props["def"] is None

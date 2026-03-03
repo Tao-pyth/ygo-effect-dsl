@@ -64,6 +64,7 @@ def test_pipeline_smoke(tmp_path: Path) -> None:
         assert "name" in card
         assert "en" in card["name"]
         assert "ja" in card["name"]
+        assert "props" in card
 
         effects = payload["effects"]
         assert isinstance(effects, list)

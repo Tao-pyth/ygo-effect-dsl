@@ -74,6 +74,58 @@ def _as_text(value: Any) -> str:
     return ""
 
 
+def _parse_card_info(value: Any) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str):
+        raw = value.strip()
+        if not raw:
+            return {}
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            return {}
+        return parsed if isinstance(parsed, dict) else {}
+    return {}
+
+
+def _pick_raw(card: dict[str, Any], *keys: str) -> Any:
+    for key in keys:
+        if key in card:
+            return card.get(key)
+    return None
+
+
+def _extract_card_props(card_info_en: dict[str, Any]) -> dict[str, Any]:
+    misc_info = card_info_en.get("misc_info")
+    has_effect = False
+    if isinstance(misc_info, list) and misc_info and isinstance(misc_info[0], dict):
+        has_effect = misc_info[0].get("has_effect") == 1
+
+    card_type = card_info_en.get("humanReadableCardType")
+    if not isinstance(card_type, str) or not card_type:
+        fallback_type = card_info_en.get("type")
+        card_type = fallback_type if isinstance(fallback_type, str) else ""
+
+    typeline = card_info_en.get("typeline")
+    if not isinstance(typeline, list):
+        typeline = []
+
+    props: dict[str, Any] = {
+        "frame_type": card_info_en.get("frameType", ""),
+        "has_effect": has_effect,
+        "attribute": card_info_en.get("attribute", ""),
+        "race": card_info_en.get("race", ""),
+        "level": card_info_en.get("level"),
+        "atk": card_info_en.get("atk"),
+        "def": card_info_en.get("def"),
+        "archetype": card_info_en.get("archetype", ""),
+        "card_type": card_type,
+        "typeline": typeline,
+    }
+    return props
+
+
 def extract_card_fields(card: dict[str, Any]) -> dict[str, Any]:
     cid = card.get("cid", card.get("id", card.get("card_id", "")))
     cid_str = str(cid) if cid is not None else ""
@@ -86,12 +138,14 @@ def extract_card_fields(card: dict[str, Any]) -> dict[str, Any]:
                     return text
         return ""
 
+    card_info_en = _parse_card_info(_pick_raw(card, "card_info_en", "info_en"))
+
     return {
         "cid": cid_str,
         "name_en": _pick("name_en", "card_name_en"),
         "name_ja": _pick("name_ja", "card_name_ja"),
         "card_text_en": _pick("card_text_en", "text_en"),
         "card_text_ja": _pick("card_text_ja", "text_ja"),
-        "card_info_en": _pick("card_info_en", "info_en"),
+        "card_props": _extract_card_props(card_info_en),
         "card_info_ja": _pick("card_info_ja", "info_ja"),
     }

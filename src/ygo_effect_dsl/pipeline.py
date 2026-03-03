@@ -35,6 +35,7 @@ def _base_output(card_fields: dict[str, Any], norm: dict[str, Any]) -> dict[str,
                 "en": card_fields.get("card_text_en", ""),
                 "ja": card_fields.get("card_text_ja", ""),
             },
+            "props": card_fields.get("card_props", {}),
         },
         "effects": [{"id": effect_id, "order": 1, **EMPTY_EFFECT}],
         "meta": {
