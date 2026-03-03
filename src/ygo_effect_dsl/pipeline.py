@@ -35,12 +35,8 @@ def _base_output(card_fields: dict[str, Any], norm: dict[str, Any]) -> dict[str,
                 "en": card_fields.get("card_text_en", ""),
                 "ja": card_fields.get("card_text_ja", ""),
             },
-            "info": {
-                "en": card_fields.get("card_info_en", ""),
-                "ja": card_fields.get("card_info_ja", ""),
-            },
         },
-        "effects": [{"id": effect_id, "order": 1, **EMPTY_EFFECT, "meta": {"raw_text_en": card_fields.get("card_text_en", ""), "raw_text_ja": card_fields.get("card_text_ja", "")}}],
+        "effects": [{"id": effect_id, "order": 1, **EMPTY_EFFECT}],
         "meta": {
             "norm": norm,
             "restrictions": {"global": {}},
@@ -120,10 +116,8 @@ def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: R
     effect = output["effects"][0]
 
     normalize_source = {
-        "card_text_en": effect["meta"].get("raw_text_en", ""),
-        "card_text_ja": effect["meta"].get("raw_text_ja", ""),
-        "card_info_en": "",
-        "card_info_ja": "",
+        "card_text_en": fields.get("card_text_en", ""),
+        "card_text_ja": fields.get("card_text_ja", ""),
     }
     normalized = normalize_card_texts(normalize_source, dictionary.vocab)
     output["meta"]["norm"] = normalized.as_dict()

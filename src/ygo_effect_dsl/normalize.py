@@ -82,8 +82,6 @@ def normalize_card_texts(card_fields: dict[str, Any], vocab: dict[str, Any]) -> 
     for source_key, out_key in (
         ("card_text_en", "text_en"),
         ("card_text_ja", "text_ja"),
-        ("card_info_en", "info_en"),
-        ("card_info_ja", "info_ja"),
     ):
         value = _normalize_text(str(card_fields.get(source_key, "")))
         setattr(normalized, out_key, value)

@@ -55,6 +55,11 @@ def test_transform_action_hit_and_reports(tmp_path: Path) -> None:
     out_yaml = tmp_path / "export" / "yaml" / "100.yaml"
     payload = load_yaml(str(out_yaml))
 
+    assert "info" not in payload["card"]
+    assert "meta" not in payload["effects"][0]
+    assert "info_en" not in payload["meta"]["norm"]
+    assert "info_ja" not in payload["meta"]["norm"]
+
     effect = payload["effects"][0]
     assert effect["action"].get("type") == "draw"
     assert effect["action"].get("n") == 2
@@ -122,3 +127,30 @@ def test_transform_fragment_candidates_hit_action_and_restriction(tmp_path: Path
 
     unmatched_rows = [json.loads(line) for line in (tmp_path / "export" / "reports" / "unmatched_fragments.jsonl").read_text(encoding="utf-8").splitlines()]
     assert any(row["fragment"].startswith("action:") for row in unmatched_rows)
+
+
+def test_transform_does_not_export_raw_json_fields(tmp_path: Path) -> None:
+    in_path = tmp_path / "raw.json"
+    in_path.write_text(
+        json.dumps(
+            {
+                "cid": 300,
+                "name_en": {"nested": "object"},
+                "name_ja": ["nested", "array"],
+                "card_text_en": {"raw": "json"},
+                "card_text_ja": ["raw", "json"],
+                "card_info_en": {"info": "blob"},
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    rc = cmd_transform(_TransformArgs(str(in_path), str(tmp_path / "export")))
+    assert rc == 0
+
+    payload = load_yaml(str(tmp_path / "export" / "yaml" / "300.yaml"))
+    assert payload["card"]["name"]["en"] == ""
+    assert payload["card"]["name"]["ja"] == ""
+    assert payload["card"]["text"]["en"] == ""
+    assert payload["card"]["text"]["ja"] == ""
