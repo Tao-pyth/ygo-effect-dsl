@@ -125,8 +125,12 @@ def test_transform_fragment_candidates_hit_action_and_restriction(tmp_path: Path
     assert effect["action"].get("type") == "add_to_hand"
     assert payload["meta"]["restrictions"]["global"]["once_per_turn"]["key"] == "each_effect_of_card"
 
+    summary = json.loads((tmp_path / "export" / "reports" / "summary.json").read_text(encoding="utf-8"))
+    assert summary["candidates_count"]["restriction"] >= 1
+
     unmatched_rows = [json.loads(line) for line in (tmp_path / "export" / "reports" / "unmatched_fragments.jsonl").read_text(encoding="utf-8").splitlines()]
-    assert any(row["fragment"].startswith("action:") for row in unmatched_rows)
+    assert all("classified_as" in row for row in unmatched_rows)
+    assert not any(row["stage"] == "action" and "once per turn" in row["fragment"] for row in unmatched_rows)
 
 
 def test_transform_does_not_export_raw_json_fields(tmp_path: Path) -> None:

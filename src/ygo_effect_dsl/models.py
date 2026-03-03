@@ -60,6 +60,7 @@ class StageOutcome:
     matched_rule_ids: list[str] = field(default_factory=list)
     unmatched_fragment: str = ""
     unmatched_fragments: list[str] = field(default_factory=list)
+    unmatched_details: list[dict[str, str]] = field(default_factory=list)
 
 
 @dataclass(slots=True)

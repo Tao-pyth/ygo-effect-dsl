@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from collections import Counter
 from typing import Any
 
@@ -10,6 +11,19 @@ from ygo_effect_dsl.normalize import normalize_card_texts
 from ygo_effect_dsl.rule_engine import RuleEngine
 
 logger = logging.getLogger("ygo_effect_dsl")
+
+RESTRICTION_FORCE_PATTERNS = (
+    re.compile(r"^you can only (use|activate|special summon|control)\b"),
+    re.compile(r"^once per (turn|duel):\b"),
+    re.compile(r"^cannot be\b"),
+    re.compile(r"^you cannot\b"),
+    re.compile(r"^must\b"),
+    re.compile(r"^also\b.*\bonly\b.*\bonce per turn\b"),
+)
+ACTION_PRIORITY_PATTERNS = (
+    re.compile(r"^(you can )?(add|special summon|draw|discard|destroy|banish|send|return|shuffle)\b"),
+    re.compile(r"^(you can )?target\b"),
+)
 
 EMPTY_EFFECT = {
     "trigger": {},
@@ -56,10 +70,9 @@ def _split_sentences(text: str) -> list[str]:
 
 def _build_candidates(text: str) -> dict[str, list[str]]:
     sentences = _split_sentences(text)
-    colon_actions: list[str] = []
-    semicolon_cost: list[str] = []
-    semicolon_action: list[str] = []
-    action_sentences: list[str] = []
+    restriction_candidates: list[str] = []
+    cost_candidates: list[str] = []
+    action_candidates: list[str] = []
     trigger_sentences: list[str] = []
 
     for sentence in sentences:
@@ -68,46 +81,53 @@ def _build_candidates(text: str) -> dict[str, list[str]]:
             trigger_sentences.append(f"{left.strip()}:")
             right = right.strip()
             if right:
-                colon_actions.append(right)
+                action_candidates.append(right)
 
         if ";" in sentence:
             left, right = sentence.split(";", 1)
             left = left.strip()
             right = right.strip()
             if left:
-                semicolon_cost.append(f"{left};")
+                cost_candidates.append(f"{left};")
             if right:
-                semicolon_action.append(right)
+                action_candidates.append(right)
 
-        if sentence.startswith("you can "):
-            action_sentences.append(sentence)
+        normalized_sentence = sentence.strip()
+        is_restriction = any(pattern.search(normalized_sentence) for pattern in RESTRICTION_FORCE_PATTERNS) or (
+            "once per turn" in normalized_sentence
+        )
+        if is_restriction:
+            restriction_candidates.append(sentence)
+            continue
+
+        if any(pattern.search(normalized_sentence) for pattern in ACTION_PRIORITY_PATTERNS):
+            action_candidates.append(sentence)
 
     return {
         "sentences": sentences,
-        "colon_actions": colon_actions,
-        "semicolon_cost": semicolon_cost,
-        "semicolon_action": semicolon_action,
-        "action_sentences": action_sentences,
+        "restriction_candidates": restriction_candidates,
+        "cost_candidates": cost_candidates,
+        "action_candidates": action_candidates,
         "trigger_sentences": trigger_sentences,
     }
 
 
 def _apply_candidates(
-    candidates: list[str],
+    candidates: list[tuple[str, str]],
     rules: list[Any],
     payload: dict[str, Any],
     params: dict[str, list[Any]],
     engine: RuleEngine,
-) -> tuple[dict[str, Any], list[str], list[str]]:
+) -> tuple[dict[str, Any], list[str], list[dict[str, str]]]:
     out = payload
     hits: list[str] = []
-    unmatched: list[str] = []
-    for fragment in candidates:
+    unmatched: list[dict[str, str]] = []
+    for fragment, classified_as in candidates:
         out, fragment_hits = engine.apply_rules(fragment, rules, out, params)
         if fragment_hits:
             hits.extend(fragment_hits)
         else:
-            unmatched.append(fragment)
+            unmatched.append({"fragment": fragment, "classified_as": classified_as})
     return out, hits, unmatched
 
 
@@ -124,13 +144,19 @@ def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: R
     output["meta"]["norm"] = normalized.as_dict()
 
     candidates = _build_candidates(normalized.text_en)
+    output["meta"]["candidates_count"] = {
+        "sentences": len(candidates["sentences"]),
+        "restriction": len(candidates["restriction_candidates"]),
+        "cost": len(candidates["cost_candidates"]),
+        "action": len(candidates["action_candidates"]),
+    }
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("cid=%s candidates=%s", fields.get("cid", ""), candidates)
 
     outcomes: dict[str, StageOutcome] = {}
 
     output, restriction_hits, restriction_unmatched = _apply_candidates(
-        candidates["sentences"],
+        [(fragment, "restriction") for fragment in candidates["restriction_candidates"]],
         dictionary.rules_by_stage.get("restriction_global", []),
         output,
         normalized.params,
@@ -140,11 +166,12 @@ def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: R
         stage="restriction",
         matched=bool(restriction_hits),
         matched_rule_ids=restriction_hits,
-        unmatched_fragments=restriction_unmatched,
+        unmatched_fragments=[row["fragment"] for row in restriction_unmatched],
+        unmatched_details=restriction_unmatched,
     )
 
     cost_payload, cost_hits, cost_unmatched = _apply_candidates(
-        candidates["semicolon_cost"],
+        [(fragment, "cost") for fragment in candidates["cost_candidates"]],
         dictionary.rules_by_stage.get("cost", []),
         {"cost": effect["cost"]},
         normalized.params,
@@ -155,12 +182,12 @@ def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: R
         stage="cost",
         matched=bool(cost_hits),
         matched_rule_ids=cost_hits,
-        unmatched_fragments=cost_unmatched,
+        unmatched_fragments=[row["fragment"] for row in cost_unmatched],
+        unmatched_details=cost_unmatched,
     )
 
-    action_candidates = candidates["colon_actions"] + candidates["semicolon_action"] + candidates["action_sentences"] + candidates["sentences"]
     action_payload, action_hits, action_unmatched = _apply_candidates(
-        action_candidates,
+        [(fragment, "action") for fragment in candidates["action_candidates"]],
         dictionary.rules_by_stage.get("action", []),
         {"action": effect["action"]},
         normalized.params,
@@ -171,12 +198,13 @@ def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: R
         stage="action",
         matched=bool(action_hits),
         matched_rule_ids=action_hits,
-        unmatched_fragments=action_unmatched,
+        unmatched_fragments=[row["fragment"] for row in action_unmatched],
+        unmatched_details=action_unmatched,
     )
 
     trigger_candidates = candidates["trigger_sentences"] or candidates["sentences"]
     trigger_payload, trigger_hits, trigger_unmatched = _apply_candidates(
-        trigger_candidates,
+        [(fragment, "sentence") for fragment in trigger_candidates],
         dictionary.rules_by_stage.get("trigger", []),
         {"trigger": effect["trigger"], "condition": effect["condition"]},
         normalized.params,
@@ -188,7 +216,8 @@ def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: R
         stage="trigger",
         matched=bool(trigger_hits),
         matched_rule_ids=trigger_hits,
-        unmatched_fragments=trigger_unmatched,
+        unmatched_fragments=[row["fragment"] for row in trigger_unmatched],
+        unmatched_details=trigger_unmatched,
     )
 
     if logger.isEnabledFor(logging.DEBUG):
