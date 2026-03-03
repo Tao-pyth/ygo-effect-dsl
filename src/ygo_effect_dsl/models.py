@@ -20,8 +20,6 @@ CATEGORY_KEYS = (
 class NormalizedPayload:
     text_en: str = ""
     text_ja: str = ""
-    info_en: str = ""
-    info_ja: str = ""
     params: dict[str, list[Any]] = field(default_factory=lambda: {"N": [], "CARD_NAME": []})
     categories: dict[str, list[Any]] = field(
         default_factory=lambda: {key: [] for key in CATEGORY_KEYS}
@@ -31,8 +29,6 @@ class NormalizedPayload:
         return {
             "text_en": self.text_en,
             "text_ja": self.text_ja,
-            "info_en": self.info_en,
-            "info_ja": self.info_ja,
             "params": self.params,
             "categories": self.categories,
         }

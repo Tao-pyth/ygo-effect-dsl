@@ -71,8 +71,6 @@ def _as_text(value: Any) -> str:
         return value
     if isinstance(value, (int, float)):
         return str(value)
-    if isinstance(value, (dict, list)):
-        return json.dumps(value, ensure_ascii=False, sort_keys=True)
     return ""
 
 
