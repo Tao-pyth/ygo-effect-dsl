@@ -41,15 +41,16 @@ class TransformReporter:
                 for row in unmatched_details:
                     fragment = row.get("fragment", "")
                     classified_as = row.get("classified_as", "sentence")
-                    self.unmatched[(stage, classified_as, fragment)] += 1
+                    mapped_action_index = row.get("mapped_action_index") if stage == "action" else None
+                    self.unmatched[(stage, classified_as, fragment, mapped_action_index)] += 1
                 continue
 
             unmatched_fragments = getattr(outcome, "unmatched_fragments", [])
             if unmatched_fragments:
                 for fragment in unmatched_fragments:
-                    self.unmatched[(stage, "sentence", fragment)] += 1
+                    self.unmatched[(stage, "sentence", fragment, None)] += 1
             elif outcome.unmatched_fragment:
-                self.unmatched[(stage, "sentence", outcome.unmatched_fragment)] += 1
+                self.unmatched[(stage, "sentence", outcome.unmatched_fragment, None)] += 1
 
     def record_failure(self, cid: str, error: str) -> None:
         self.total += 1
@@ -62,15 +63,40 @@ class TransformReporter:
             stage_hit_rate[stage] = {"hit": hit, "total": total, "ratio": (hit / total if total else 0.0)}
 
         unmatched_top = [
-            {"stage": stage, "classified_as": classified_as, "fragment": fragment, "count": count}
-            for (stage, classified_as, fragment), count in self.unmatched.most_common(50)
+            {
+                "stage": stage,
+                "classified_as": classified_as,
+                "fragment": fragment,
+                "mapped_action_index": mapped_action_index,
+                "count": count,
+            }
+            for (stage, classified_as, fragment, mapped_action_index), count in self.unmatched.most_common(50)
         ]
+
+        action_counts = []
+        for card in self.cards:
+            for effect in card.get("effects", []):
+                if not isinstance(effect, dict):
+                    continue
+                actions = effect.get("actions")
+                if isinstance(actions, list):
+                    action_counts.append(sum(1 for row in actions if isinstance(row, dict) and row))
+                else:
+                    fallback = effect.get("action")
+                    action_counts.append(1 if isinstance(fallback, dict) and fallback else 0)
+
+        summary_actions_count = {
+            "avg": (sum(action_counts) / len(action_counts)) if action_counts else 0.0,
+            "min": min(action_counts) if action_counts else 0,
+            "max": max(action_counts) if action_counts else 0,
+        }
         return {
             "input_count": self.total,
             "success_count": self.success,
             "failure_count": len(self.failures),
             "stage_hit_rate": stage_hit_rate,
             "action_type_ranking": count_action_types(self.cards),
+            "actions_count": summary_actions_count,
             "candidates_count": dict(self.candidates_count),
             "unmatched_top": unmatched_top,
         }
@@ -85,8 +111,14 @@ class TransformReporter:
         if include_unmatched:
             unmatched_path = report_dir / "unmatched_fragments.jsonl"
             with unmatched_path.open("w", encoding="utf-8") as f:
-                for (stage, classified_as, fragment), count in self.unmatched.most_common():
-                    row = {"stage": stage, "classified_as": classified_as, "fragment": fragment, "count": count}
+                for (stage, classified_as, fragment, mapped_action_index), count in self.unmatched.most_common():
+                    row = {
+                        "stage": stage,
+                        "classified_as": classified_as,
+                        "fragment": fragment,
+                        "mapped_action_index": mapped_action_index,
+                        "count": count,
+                    }
                     f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
         failures_path = report_dir / "failures.jsonl"

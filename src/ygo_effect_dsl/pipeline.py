@@ -30,6 +30,7 @@ EMPTY_EFFECT = {
     "restriction": {},
     "condition": {},
     "cost": {},
+    "actions": [],
     "action": {},
 }
 
@@ -131,6 +132,48 @@ def _apply_candidates(
     return out, hits, unmatched
 
 
+def _apply_action_candidates(
+    candidates: list[str],
+    rules: list[Any],
+    params: dict[str, list[Any]],
+    engine: RuleEngine,
+) -> tuple[list[dict[str, Any]], list[str], list[dict[str, Any]], list[dict[str, Any]]]:
+    actions: list[dict[str, Any]] = []
+    hits: list[str] = []
+    details: list[dict[str, Any]] = []
+
+    for index, fragment in enumerate(candidates):
+        payload, fragment_hits = engine.apply_rules(fragment, rules, {"action": {}, "actions": []}, params)
+        action_obj = payload.get("action", {})
+        action_list = payload.get("actions", [])
+
+        mapped_action_index: int | None = None
+        if isinstance(action_list, list) and action_list:
+            for row in action_list:
+                if isinstance(row, dict) and row:
+                    actions.append(row)
+                    mapped_action_index = len(actions) - 1
+        elif isinstance(action_obj, dict) and action_obj:
+            actions.append(action_obj)
+            mapped_action_index = len(actions) - 1
+
+        details.append(
+            {
+                "fragment": fragment,
+                "classified_as": "action",
+                "candidate_index": index,
+                "matched_rule_ids": fragment_hits,
+                "mapped_action_index": mapped_action_index,
+            }
+        )
+
+        if fragment_hits:
+            hits.extend(fragment_hits)
+
+    unmatched = [row for row in details if not row["matched_rule_ids"]]
+    return actions, hits, unmatched, details
+
+
 def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: RuleEngine) -> TransformResult:
     fields = extract_card_fields(card)
     output = _base_output(fields, {})
@@ -186,14 +229,12 @@ def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: R
         unmatched_details=cost_unmatched,
     )
 
-    action_payload, action_hits, action_unmatched = _apply_candidates(
-        [(fragment, "action") for fragment in candidates["action_candidates"]],
-        dictionary.rules_by_stage.get("action", []),
-        {"action": effect["action"]},
-        normalized.params,
-        engine,
+    actions, action_hits, action_unmatched, action_details = _apply_action_candidates(
+        candidates["action_candidates"], dictionary.rules_by_stage.get("action", []), normalized.params, engine
     )
-    effect["action"] = action_payload.get("action", {})
+    effect["actions"] = actions
+    effect["action"] = actions[0] if actions else {}
+    output["meta"]["action_candidate_trace"] = action_details
     outcomes["action"] = StageOutcome(
         stage="action",
         matched=bool(action_hits),
@@ -232,9 +273,18 @@ def count_action_types(cards: list[dict[str, Any]]) -> dict[str, int]:
     counter: Counter[str] = Counter()
     for card in cards:
         for effect in card.get("effects", []):
-            action = effect.get("action", {}) if isinstance(effect, dict) else {}
-            if isinstance(action, dict):
-                action_type = action.get("type")
+            if not isinstance(effect, dict):
+                continue
+
+            actions = effect.get("actions")
+            if isinstance(actions, list) and actions:
+                rows = [row for row in actions if isinstance(row, dict)]
+            else:
+                action = effect.get("action", {})
+                rows = [action] if isinstance(action, dict) and action else []
+
+            for row in rows:
+                action_type = row.get("type")
                 if isinstance(action_type, str) and action_type:
                     counter[action_type] += 1
     return dict(counter.most_common())

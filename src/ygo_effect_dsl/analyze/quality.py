@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 
-EFFECT_KEYS = ("trigger", "restriction", "condition", "cost", "action")
+EFFECT_KEYS = ("trigger", "restriction", "condition", "cost", "action", "actions")
 
 
 def collect_quality(cards: list[dict[str, Any]]) -> dict[str, Any]:
@@ -26,10 +26,20 @@ def collect_quality(cards: list[dict[str, Any]]) -> dict[str, Any]:
                     empty_blocks[key] += 1
                 continue
 
-            for key in EFFECT_KEYS:
+            for key in ("trigger", "restriction", "condition", "cost"):
                 block = effect.get(key)
                 if not isinstance(block, dict) or block == {}:
                     empty_blocks[key] += 1
+
+            action = effect.get("action")
+            if not isinstance(action, dict) or action == {}:
+                empty_blocks["action"] += 1
+
+            actions = effect.get("actions")
+            if not isinstance(actions, list) or not any(isinstance(row, dict) and row for row in actions):
+                # fallback: old data with only action should count as non-empty actions.
+                if not (isinstance(action, dict) and action):
+                    empty_blocks["actions"] += 1
 
     effects_empty_ratio = (cards_effects_empty / total_cards) if total_cards else 0.0
     block_empty_ratio = {
