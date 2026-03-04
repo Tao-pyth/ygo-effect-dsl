@@ -10,6 +10,7 @@ EMPTY_EFFECT_BLOCK = {
     "cost": {},
     "actions": [],
     "action": {},
+    "targets": [],
 }
 
 

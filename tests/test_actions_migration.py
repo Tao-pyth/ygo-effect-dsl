@@ -32,3 +32,19 @@ def test_collect_stats_actions_count_with_legacy_fallback() -> None:
     assert stats["actions_count"]["min"] == 1
     assert stats["actions_count"]["max"] == 2
     assert stats["actions_count"]["avg"] == 1.5
+
+
+def test_collect_stats_targets_count() -> None:
+    cards = [
+        _base_card({"actions": [{"type": "draw"}], "targets": [{"id": "t1", "count": 1, "selector": {"kind": "monster"}}]}),
+        _base_card({"action": {"type": "special_summon"}}),
+    ]
+
+    stats = collect_stats(cards)
+    assert stats["targets_count"]["total"] == 1
+    assert stats["targets_count"]["cards_with_targets"] == 1
+
+
+def test_validate_accepts_targets() -> None:
+    payload = _base_card({"actions": [{"type": "destroy", "target_id": "t1"}], "targets": [{"id": "t1", "count": 1, "selector": {"kind": "monster"}}]})
+    assert validate_card_yaml(payload) == []
