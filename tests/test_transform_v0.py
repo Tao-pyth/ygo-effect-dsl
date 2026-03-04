@@ -127,6 +127,10 @@ def test_transform_fragment_candidates_hit_action_and_restriction(tmp_path: Path
     effect = payload["effects"][0]
     assert effect["actions"][0].get("type") == "add_to_hand"
     assert "global" in payload["meta"]["restrictions"]
+    assert effect["targets"][0]["id"] == "t1"
+    assert effect["targets"][0]["count"] == 1
+    assert effect["targets"][0]["selector"]["kind"] == "monster"
+    assert effect["targets"][0]["selector"]["controller"] == "you"
 
     summary = json.loads((tmp_path / "export" / "reports" / "summary.json").read_text(encoding="utf-8"))
     assert summary["candidates_count"]["restriction"] >= 1
@@ -246,3 +250,30 @@ def test_transform_spell_trap_props_are_null_for_missing_stats(tmp_path: Path) -
     assert props["level"] is None
     assert props["atk"] is None
     assert props["def"] is None
+
+
+def test_transform_links_target_id_to_semicolon_action(tmp_path: Path) -> None:
+    in_path = tmp_path / "cards.json"
+    in_path.write_text(
+        json.dumps(
+            {
+                "cid": 602,
+                "name_en": "Target Link",
+                "name_ja": "",
+                "card_text_en": "You can target 1 monster you control; return it to the hand.",
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    rc = cmd_transform(_TransformArgs(str(in_path), str(tmp_path / "export")))
+    assert rc == 0
+
+    payload = load_yaml(str(tmp_path / "export" / "yaml" / "602.yaml"))
+    effect = payload["effects"][0]
+
+    assert effect["targets"][0]["id"] == "t1"
+
+    trace = payload["meta"]["action_candidate_trace"]
+    assert any(row["classified_as"] == "target_candidate" for row in trace)

@@ -10,6 +10,24 @@ def _is_empty(value: object) -> bool:
     return value in (None, "", [], {})
 
 
+def _validate_target(prefix: str, target: dict, errs: list[DslError]) -> None:
+    if not isinstance(target.get("id"), str):
+        errs.append(DslError(f"{prefix}.id", "required", "target.id must be string"))
+
+    count = target.get("count")
+    if not isinstance(count, int):
+        errs.append(DslError(f"{prefix}.count", "required", "target.count must be int"))
+
+    selector = target.get("selector")
+    if not isinstance(selector, dict):
+        errs.append(DslError(f"{prefix}.selector", "required", "target.selector must be object"))
+        return
+
+    kind = selector.get("kind")
+    if not isinstance(kind, str) or not kind:
+        errs.append(DslError(f"{prefix}.selector.kind", "required", "target.selector.kind must be non-empty string"))
+
+
 def validate_card_yaml(card: dict) -> list[DslError]:
     errs: list[DslError] = []
 
@@ -79,5 +97,24 @@ def validate_card_yaml(card: dict) -> list[DslError]:
                                 "actions item must be object",
                             )
                         )
+                    elif "target_id" in action and not isinstance(action.get("target_id"), str):
+                        errs.append(DslError(f"{prefix}.actions[{action_idx}].target_id", "type", "target_id must be string"))
+
+        if "targets" in effect:
+            targets = effect["targets"]
+            if not isinstance(targets, list):
+                errs.append(DslError(f"{prefix}.targets", "type", "targets must be list"))
+            else:
+                for target_idx, target in enumerate(targets):
+                    target_prefix = f"{prefix}.targets[{target_idx}]"
+                    if not isinstance(target, dict):
+                        errs.append(DslError(target_prefix, "type", "targets item must be object"))
+                        continue
+                    _validate_target(target_prefix, target, errs)
+
+        if "target_id" in effect.get("cost", {}) and not isinstance(effect["cost"].get("target_id"), str):
+            errs.append(DslError(f"{prefix}.cost.target_id", "type", "target_id must be string"))
+        if "target_id" in effect.get("condition", {}) and not isinstance(effect["condition"].get("target_id"), str):
+            errs.append(DslError(f"{prefix}.condition.target_id", "type", "target_id must be string"))
 
     return errs

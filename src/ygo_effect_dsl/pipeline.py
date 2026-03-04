@@ -32,7 +32,107 @@ EMPTY_EFFECT = {
     "cost": {},
     "actions": [],
     "action": {},
+    "targets": [],
 }
+
+TARGET_PATTERN = re.compile(r"^(?:you can\s+)?target\s+(?:(\d+)\s+)?(.+?)\s*;?$", re.IGNORECASE)
+
+
+def _normalize_fragment_key(fragment: str) -> str:
+    return " ".join(fragment.strip().rstrip(".").split()).lower()
+
+
+def _build_target_selector(selector_text: str) -> dict[str, Any]:
+    lowered = selector_text.lower()
+    selector: dict[str, Any] = {"kind": "unknown"}
+
+    if "monster" in lowered:
+        selector["kind"] = "monster"
+    elif "spell" in lowered:
+        selector["kind"] = "spell"
+    elif "trap" in lowered:
+        selector["kind"] = "trap"
+    elif "card" in lowered:
+        selector["kind"] = "card"
+    elif "this card" in lowered or "itself" in lowered:
+        selector["kind"] = "self"
+
+    archetype_match = re.search(r'"([^"]+)"', selector_text)
+    if archetype_match:
+        selector["archetype"] = archetype_match.group(1)
+
+    for subtype in ("synchro", "xyz", "fusion", "ritual", "link", "normal", "effect"):
+        if subtype in lowered:
+            selector["subtype"] = subtype
+            break
+
+    zones: list[str] = []
+    zone_map = {
+        "field": ("field",),
+        "gy": ("gy", "graveyard"),
+        "hand": ("hand",),
+        "deck": ("deck",),
+        "banished": ("banished",),
+    }
+    for zone, keywords in zone_map.items():
+        if any(keyword in lowered for keyword in keywords):
+            zones.append(zone)
+    if zones:
+        selector["zones"] = zones
+
+    if "you control" in lowered or "your " in lowered:
+        selector["controller"] = "you"
+    elif "opponent controls" in lowered or "opponent's" in lowered:
+        selector["controller"] = "opponent"
+    elif "either player" in lowered:
+        selector["controller"] = "either"
+
+    return selector
+
+
+def _extract_targets_from_action_candidates(candidates: list[str]) -> tuple[list[dict[str, Any]], dict[str, str]]:
+    targets: list[dict[str, Any]] = []
+    right_fragment_target_map: dict[str, str] = {}
+    seen_target_keys: set[str] = set()
+
+    def register_target(target_fragment: str, right_fragment: str | None = None) -> None:
+        normalized_target = target_fragment.strip().rstrip(".")
+        match = TARGET_PATTERN.match(normalized_target)
+        if not match:
+            return
+
+        selector_text = match.group(2).strip()
+        target_key = _normalize_fragment_key(normalized_target)
+        if target_key in seen_target_keys:
+            return
+
+        seen_target_keys.add(target_key)
+        count_text = match.group(1)
+        count = int(count_text) if count_text and count_text.isdigit() else 1
+        target_id = f"t{len(targets) + 1}"
+        targets.append(
+            {
+                "id": target_id,
+                "count": count,
+                "selector": _build_target_selector(selector_text),
+                "raw": normalized_target,
+            }
+        )
+
+        if right_fragment:
+            right_fragment_target_map[_normalize_fragment_key(right_fragment)] = target_id
+
+    for fragment in candidates:
+        cleaned = fragment.strip()
+        if not cleaned:
+            continue
+        if ";" in cleaned:
+            left, right = cleaned.split(";", 1)
+            register_target(left, right)
+            continue
+        register_target(cleaned)
+
+    return targets, right_fragment_target_map
 
 
 def _base_output(card_fields: dict[str, Any], norm: dict[str, Any]) -> dict[str, Any]:
@@ -160,7 +260,7 @@ def _apply_action_candidates(
         details.append(
             {
                 "fragment": fragment,
-                "classified_as": "action",
+                "classified_as": "target_candidate" if TARGET_PATTERN.match(fragment.strip().rstrip(".")) else "action",
                 "candidate_index": index,
                 "matched_rule_ids": fragment_hits,
                 "mapped_action_index": mapped_action_index,
@@ -232,8 +332,24 @@ def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: R
     actions, action_hits, action_unmatched, action_details = _apply_action_candidates(
         candidates["action_candidates"], dictionary.rules_by_stage.get("action", []), normalized.params, engine
     )
+    targets, right_fragment_target_map = _extract_targets_from_action_candidates(candidates["action_candidates"])
+
+    for detail in action_details:
+        mapped_action_index = detail.get("mapped_action_index")
+        if not isinstance(mapped_action_index, int):
+            continue
+        fragment = detail.get("fragment", "")
+        if not isinstance(fragment, str):
+            continue
+        target_id = right_fragment_target_map.get(_normalize_fragment_key(fragment))
+        if not target_id:
+            continue
+        if 0 <= mapped_action_index < len(actions) and isinstance(actions[mapped_action_index], dict):
+            actions[mapped_action_index]["target_id"] = target_id
+
     effect["actions"] = actions
     effect["action"] = actions[0] if actions else {}
+    effect["targets"] = targets
     output["meta"]["action_candidate_trace"] = action_details
     outcomes["action"] = StageOutcome(
         stage="action",
