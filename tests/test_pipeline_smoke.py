@@ -69,5 +69,5 @@ def test_pipeline_smoke(tmp_path: Path) -> None:
         effects = payload["effects"]
         assert isinstance(effects, list)
         for effect in effects:
-            for key in ["trigger", "restriction", "condition", "cost", "action"]:
+            for key in ["trigger", "restriction", "condition", "cost", "action", "actions"]:
                 assert key in effect

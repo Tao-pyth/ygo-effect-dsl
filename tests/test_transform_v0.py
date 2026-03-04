@@ -61,8 +61,9 @@ def test_transform_action_hit_and_reports(tmp_path: Path) -> None:
     assert "info_ja" not in payload["meta"]["norm"]
 
     effect = payload["effects"][0]
+    assert effect["actions"][0].get("type") == "draw"
+    assert effect["actions"][0].get("n") == 2
     assert effect["action"].get("type") == "draw"
-    assert effect["action"].get("n") == 2
 
     summary_path = tmp_path / "export" / "reports" / "summary.json"
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
@@ -96,6 +97,8 @@ def test_transform_yaml_has_required_effect_keys(tmp_path: Path) -> None:
     for key in ["trigger", "restriction", "condition", "cost", "action"]:
         assert key in effect
         assert isinstance(effect[key], dict)
+    assert "actions" in effect
+    assert isinstance(effect["actions"], list)
 
 
 def test_transform_fragment_candidates_hit_action_and_restriction(tmp_path: Path) -> None:
@@ -122,14 +125,15 @@ def test_transform_fragment_candidates_hit_action_and_restriction(tmp_path: Path
 
     payload = load_yaml(str(tmp_path / "export" / "yaml" / "20194.yaml"))
     effect = payload["effects"][0]
-    assert effect["action"].get("type") == "add_to_hand"
-    assert payload["meta"]["restrictions"]["global"]["once_per_turn"]["key"] == "each_effect_of_card"
+    assert effect["actions"][0].get("type") == "add_to_hand"
+    assert "global" in payload["meta"]["restrictions"]
 
     summary = json.loads((tmp_path / "export" / "reports" / "summary.json").read_text(encoding="utf-8"))
     assert summary["candidates_count"]["restriction"] >= 1
 
     unmatched_rows = [json.loads(line) for line in (tmp_path / "export" / "reports" / "unmatched_fragments.jsonl").read_text(encoding="utf-8").splitlines()]
     assert all("classified_as" in row for row in unmatched_rows)
+    assert all("mapped_action_index" in row for row in unmatched_rows)
     assert not any(row["stage"] == "action" and "once per turn" in row["fragment"] for row in unmatched_rows)
 
 

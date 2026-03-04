@@ -3,7 +3,7 @@ from __future__ import annotations
 from ygo_effect_dsl.errors import DslError
 
 
-EFFECT_REQUIRED_OBJECT_KEYS = ("trigger", "restriction", "condition", "cost", "action")
+EFFECT_REQUIRED_OBJECT_KEYS = ("trigger", "restriction", "condition", "cost")
 
 
 def _is_empty(value: object) -> bool:
@@ -55,5 +55,29 @@ def validate_card_yaml(card: dict) -> list[DslError]:
                 continue
             if not isinstance(effect[key], dict):
                 errs.append(DslError(f"{prefix}.{key}", "type", f"{key} must be object"))
+
+        has_action = "action" in effect
+        has_actions = "actions" in effect
+        if not has_action and not has_actions:
+            errs.append(DslError(f"{prefix}.actions", "required", "action or actions key is required"))
+            continue
+
+        if has_action and not isinstance(effect["action"], dict):
+            errs.append(DslError(f"{prefix}.action", "type", "action must be object"))
+
+        if has_actions:
+            actions = effect["actions"]
+            if not isinstance(actions, list):
+                errs.append(DslError(f"{prefix}.actions", "type", "actions must be list"))
+            else:
+                for action_idx, action in enumerate(actions):
+                    if not isinstance(action, dict):
+                        errs.append(
+                            DslError(
+                                f"{prefix}.actions[{action_idx}]",
+                                "type",
+                                "actions item must be object",
+                            )
+                        )
 
     return errs

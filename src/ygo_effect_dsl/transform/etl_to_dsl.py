@@ -8,6 +8,7 @@ EMPTY_EFFECT_BLOCK = {
     "restriction": {},
     "condition": {},
     "cost": {},
+    "actions": [],
     "action": {},
 }
 
