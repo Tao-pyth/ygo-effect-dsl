@@ -12,8 +12,6 @@ dependencies = [
   "PyYAML>=6.0",
 ]
 
-[project.scripts]
-ygo-effect-dsl = "ygo_effect_dsl.cli.main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

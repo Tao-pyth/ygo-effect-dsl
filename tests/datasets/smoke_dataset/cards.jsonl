@@ -1,0 +1,2 @@
+{"cid":"90000001","name_en":"Smoke Test Dragon","name_ja":"スモークテスト・ドラゴン","card_text_en":"Target 1 monster on the field; destroy it.","card_text_ja":"フィールドのモンスター1体を対象として発動できる。そのモンスターを破壊する。","card_info_en":{"frameType":"effect","race":"Dragon","attribute":"LIGHT","level":4,"atk":1500,"def":1200,"type":"Effect Monster","typeline":["Dragon","Effect"]}}
+{"cid":"90000002","name_en":"Smoke Test Spell","name_ja":"スモークテスト・魔法","card_text_en":"Draw 1 card.","card_text_ja":"カードを1枚ドローする。","card_info_en":{"frameType":"spell","race":"Normal","type":"Spell Card","typeline":["Spell"]}}
