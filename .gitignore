@@ -23,10 +23,7 @@ htmlcov/
 logs/
 
 # DSL outputs
-data/export/
-data/dsl_out/
-data/reports/
-data/etl/
+data/
 
 # OS
 .DS_Store

@@ -1,0 +1,1 @@
+Get-Command ygo-effect-dsl | Format-List *
