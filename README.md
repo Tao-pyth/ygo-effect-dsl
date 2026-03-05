@@ -132,7 +132,7 @@ pip install -e .
 Read ETL export dataset and verify `manifest.json` before `cards.jsonl`.
 
 ```bash
-ygo-effect-dsl ingest --dataset examples/sample_dataset
+python -m ygo_effect_dsl ingest --dataset examples/sample_dataset
 ```
 
 ### 2) transform
@@ -140,7 +140,7 @@ ygo-effect-dsl ingest --dataset examples/sample_dataset
 Convert ETL export dataset to Spec v0.0 skeleton YAML.
 
 ```bash
-ygo-effect-dsl transform --dataset examples/sample_dataset --out data/dsl_out
+python -m ygo_effect_dsl transform --dataset examples/sample_dataset --out data/dsl_out
 ```
 
 - one file per card: `{cid}.yaml`
@@ -152,7 +152,7 @@ ygo-effect-dsl transform --dataset examples/sample_dataset --out data/dsl_out
 Validate generated DSL against v0.0 minimum grammar constraints.
 
 ```bash
-ygo-effect-dsl validate data/dsl_out
+python -m ygo_effect_dsl validate data/dsl_out
 ```
 
 Exit codes:
@@ -165,7 +165,7 @@ Exit codes:
 Compute unresolved rates (e.g., empty object ratios) and write report.
 
 ```bash
-ygo-effect-dsl analyze data/dsl_out --out data/reports
+python -m ygo_effect_dsl analyze data/dsl_out --out data/reports
 ```
 
 Output:
