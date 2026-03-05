@@ -2,30 +2,16 @@ from __future__ import annotations
 
 import argparse
 import json
-import logging
-import time
 from pathlib import Path
 from typing import Any
 
-from ygo_effect_dsl.analyze.report import build_report
+from ygo_effect_dsl.cli.cmd_analyze import cmd_analyze
+from ygo_effect_dsl.cli.cmd_transform import cmd_transform
+from ygo_effect_dsl.cli.cmd_validate import cmd_validate
 from ygo_effect_dsl.dict_loader import load_dictionary, validate_dictionary
-from ygo_effect_dsl.ingest.jsonl_reader import load_dataset, resolve_dataset_paths
 from ygo_effect_dsl.io_input import load_inputs
 from ygo_effect_dsl.normalize import normalize_card_texts
-from ygo_effect_dsl.pipeline import transform_card
-from ygo_effect_dsl.report import TransformReporter
-from ygo_effect_dsl.rule_engine import RuleEngine
-from ygo_effect_dsl.util.yaml_io import load_yaml
-from ygo_effect_dsl.validate.validator import validate_card_yaml
-from ygo_effect_dsl.yaml_writer import write_yaml_by_cid
-
-logger = logging.getLogger("ygo_effect_dsl")
-
-
-def _load_cards_with_path(cards_dir: str) -> list[tuple[str, dict[str, Any]]]:
-    cards_path = Path(cards_dir)
-    files = sorted(p for p in cards_path.iterdir() if p.suffix in {".yml", ".yaml"})
-    return [(str(path), load_yaml(str(path))) for path in files]
+from ygo_effect_dsl.pipeline.transform import load_dataset_from_args
 
 
 def _add_dataset_arguments(parser: argparse.ArgumentParser) -> None:
@@ -34,25 +20,8 @@ def _add_dataset_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--jsonl", help="path to cards.jsonl")
 
 
-def _load_from_args(args: argparse.Namespace) -> tuple[int, Any | None]:
-    if not args.dataset and not (args.manifest and args.jsonl):
-        print("dataset error: specify --dataset or both --manifest and --jsonl")
-        return 2, None
-
-    try:
-        paths = resolve_dataset_paths(args.dataset, args.manifest, args.jsonl)
-        loaded = load_dataset(paths)
-    except FileNotFoundError as exc:
-        print(f"dataset error: {exc}")
-        return 2, None
-    except ValueError as exc:
-        print(f"dataset error: {exc}")
-        return 1, None
-    return 0, loaded
-
-
 def cmd_ingest(args: argparse.Namespace) -> int:
-    rc, loaded = _load_from_args(args)
+    rc, loaded = load_dataset_from_args(args)
     if rc != 0 or loaded is None:
         return rc
 
@@ -61,74 +30,6 @@ def cmd_ingest(args: argparse.Namespace) -> int:
     print(f"ingest: loaded={len(loaded.cards)}")
     print(f"ingest: fields={','.join(loaded.manifest.fields)}")
     return 0
-
-
-def cmd_transform(args: argparse.Namespace) -> int:
-    in_path = getattr(args, "in_path", None)
-    dataset = getattr(args, "dataset", None)
-    dataset_loaded = None
-    if dataset and in_path is None:
-        rc, dataset_loaded = _load_from_args(args)
-        if rc != 0:
-            return rc
-    elif not in_path:
-        print("transform error: --in is required")
-        return 2
-
-    logging.basicConfig(level=getattr(logging, args.log_level.upper(), logging.INFO), format="%(asctime)s [%(levelname)s] %(message)s")
-
-    dict_errors = validate_dictionary(args.dict_dir)
-    if dict_errors:
-        print("validate-dict failed:")
-        for err in dict_errors:
-            print(f"  - {err}")
-        return 2
-
-    dictionary = load_dictionary(args.dict_dir)
-    if logger.isEnabledFor(logging.DEBUG):
-        logger.debug("loaded vocab categories=%s", sorted(dictionary.vocab.keys()))
-        for stage, rules in dictionary.rules_by_stage.items():
-            logger.debug("loaded rules stage=%s count=%d", stage, len(rules))
-
-    engine = RuleEngine()
-    reporter = TransformReporter()
-
-    start = time.time()
-    if dataset_loaded is not None:
-        cards = dataset_loaded.cards[: args.limit] if args.limit else dataset_loaded.cards
-    else:
-        cards = load_inputs(in_path, glob_pattern=getattr(args, "glob", None), limit=getattr(args, "limit", None))
-    logger.info("loaded %d records", len(cards))
-
-    for idx, card in enumerate(cards, start=1):
-        cid = str(card.get("cid", card.get("id", "")))
-        try:
-            result = transform_card(card, dictionary, engine)
-            write_yaml_by_cid(result.output, args.out_dir)
-            reporter.record_success(result.output, result.stage_outcomes)
-            if logger.isEnabledFor(logging.DEBUG):
-                for stage, outcome in result.stage_outcomes.items():
-                    logger.debug("cid=%s stage=%s hits=%s", cid, stage, outcome.matched_rule_ids)
-        except Exception as exc:  # noqa: BLE001
-            reporter.record_failure(cid, str(exc))
-            logger.exception("failed to transform cid=%s", cid)
-            if args.fail_fast:
-                break
-
-        if idx % 100 == 0 or idx == len(cards):
-            elapsed = time.time() - start
-            logger.info("progress: %d/%d elapsed=%.2fs failures=%d", idx, len(cards), elapsed, len(reporter.failures))
-
-    if args.report:
-        reporter.write_reports(args.out_dir, include_unmatched=True)
-
-    if logger.isEnabledFor(logging.DEBUG):
-        for stage, total in reporter.stage_total.items():
-            hits = reporter.stage_hits[stage]
-            logger.debug("stage=%s applied=%d matched=%d", stage, total, hits)
-
-    print(f"transform: input={reporter.total} success={reporter.success} failure={len(reporter.failures)}")
-    return 1 if args.fail_fast and reporter.failures else 0
 
 
 def cmd_validate_dict(args: argparse.Namespace) -> int:
@@ -167,53 +68,6 @@ def cmd_normalize(args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_validate(args: argparse.Namespace) -> int:
-    try:
-        cards = _load_cards_with_path(args.cards_dir)
-    except (OSError, ValueError) as exc:
-        print(f"validate: argument/config error: {exc}")
-        return 2
-
-    all_errors: list[tuple[str, Any]] = []
-    for path, card in cards:
-        for err in validate_card_yaml(card):
-            all_errors.append((path, err))
-
-    print(f"validate: scanned={len(cards)}")
-    print(f"validate: critical_errors={len(all_errors)}")
-    for path, err in all_errors:
-        print(f"  {path}: {err.path} [{err.code}] {err.message}")
-
-    return 1 if all_errors else 0
-
-
-def cmd_analyze(args: argparse.Namespace) -> int:
-    try:
-        cards = _load_cards_with_path(args.cards_dir)
-    except (OSError, ValueError) as exc:
-        print(f"analyze: argument/config error: {exc}")
-        return 2
-
-    validate_errors = 0
-    for _, card in cards:
-        validate_errors += len(validate_card_yaml(card))
-
-    payload_cards = [card for _, card in cards]
-    report = build_report(payload_cards, validate_errors=validate_errors)
-
-    Path(args.out_dir).mkdir(parents=True, exist_ok=True)
-    out_path = Path(args.out_dir) / "analysis_report.json"
-    out_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-
-    print(f"analyze: total_cards={report['quality']['total_cards']}")
-    print(f"analyze: effects_empty_ratio={report['quality']['effects_empty_ratio']:.4f}")
-    for key, ratio in report["quality"]["empty_block_ratio"].items():
-        print(f"analyze: {key}_empty_ratio={ratio:.4f}")
-    print(f"analyze: validation_error_count={report['validation']['error_count']}")
-    print(f"analyze: wrote report to {out_path}")
-    return 0
-
-
 def main() -> int:
     ap = argparse.ArgumentParser(prog="ygo-effect-dsl")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -231,7 +85,7 @@ def main() -> int:
     p1.add_argument("--fail-fast", action="store_true", help="stop at first card failure")
     p1.add_argument("--log-level", default="INFO", choices=["INFO", "DEBUG"], help="log verbosity")
     p1.add_argument("--report", action=argparse.BooleanOptionalAction, default=True, help="write summary and unmatched reports")
-    _add_dataset_arguments(p1)  # backward compatibility
+    _add_dataset_arguments(p1)
     p1.set_defaults(func=cmd_transform)
 
     pvd = sub.add_parser("validate-dict", help="validate dictionary files and regex patterns")
