@@ -15,12 +15,12 @@ def run_analyze(args: object) -> int:
         print(f"analyze: argument/config error: {exc}")
         return 2
 
-    validate_errors = 0
+    diagnostics = []
     for _, card in cards:
-        validate_errors += len(validate_card_yaml(card))
+        diagnostics.extend(validate_card_yaml(card))
 
     payload_cards = [card for _, card in cards]
-    report = build_report(payload_cards, validate_errors=validate_errors)
+    report = build_report(payload_cards, diagnostics=diagnostics)
 
     Path(args.out_dir).mkdir(parents=True, exist_ok=True)
     out_path = Path(args.out_dir) / "analysis_report.json"
@@ -30,6 +30,7 @@ def run_analyze(args: object) -> int:
     print(f"analyze: effects_empty_ratio={report['quality']['effects_empty_ratio']:.4f}")
     for key, ratio in report["quality"]["empty_block_ratio"].items():
         print(f"analyze: {key}_empty_ratio={ratio:.4f}")
-    print(f"analyze: validation_error_count={report['validation']['error_count']}")
+    print(f"analyze: validation_errors={report['validation']['severity_counts']['error']}")
+    print(f"analyze: validation_warnings={report['validation']['severity_counts']['warning']}")
     print(f"analyze: wrote report to {out_path}")
-    return 0
+    return 1 if report["validation"]["severity_counts"]["error"] else 0

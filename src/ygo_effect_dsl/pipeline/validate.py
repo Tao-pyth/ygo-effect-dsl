@@ -20,14 +20,18 @@ def run_validate(args: object) -> int:
         print(f"validate: argument/config error: {exc}")
         return 2
 
-    all_errors: list[tuple[str, Any]] = []
+    diagnostics: list[tuple[str, Any]] = []
     for path, card in cards:
         for err in validate_card_yaml(card):
-            all_errors.append((path, err))
+            diagnostics.append((path, err))
+
+    severity_counts = {"error": 0, "warning": 0, "info": 0}
+    for _, err in diagnostics:
+        severity_counts[err.severity] = severity_counts.get(err.severity, 0) + 1
 
     print(f"validate: scanned={len(cards)}")
-    print(f"validate: critical_errors={len(all_errors)}")
-    for path, err in all_errors:
-        print(f"  {path}: {err.path} [{err.code}] {err.message}")
+    print(f"validate: errors={severity_counts['error']} warnings={severity_counts['warning']} info={severity_counts['info']}")
+    for path, err in diagnostics:
+        print(f"  {path}: {err.path} [{err.severity}:{err.code}] {err.message}")
 
-    return 1 if all_errors else 0
+    return 1 if severity_counts["error"] else 0

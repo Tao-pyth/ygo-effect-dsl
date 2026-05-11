@@ -1,9 +1,12 @@
 from dataclasses import dataclass
+from typing import Literal
+
 
 @dataclass(frozen=True)
 class DslError:
-    """CORE全体で共通のエラー表現（構造化）"""
+    """Validation diagnostic shared by CORE commands."""
+
     path: str
     code: str
     message: str
-    severity: str = "error"  # "error" | "warn"
+    severity: Literal["error", "warning", "info"] = "error"

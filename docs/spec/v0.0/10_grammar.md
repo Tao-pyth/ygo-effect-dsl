@@ -1,171 +1,149 @@
-# ygoEffectDSL Spec v0.0 (Draft) — Grammar
+# ygoEffectDSL Spec v0.0 (Draft) - Grammar
 
-> Status: Draft (Experimental)  
-> 破壊的変更が起こり得る初期仕様。  
-> 本文書は DSL の「構文（構造とフィールド）」のみを定義する。  
-> 意味論（評価順序や状態遷移）は 20_semantics.md を参照。  
-> Last updated: 2026-03-01
+> Status: Draft / experimental research baseline
+> Last updated: 2026-05-12
 
----
+v0.0 defines the stable shape of transformed card-effect data. It is a research conversion format, not a full game engine contract.
 
-# 1. 基本方針（Design Principles）
+## Design Principles
 
-v0.0 の文法設計は以下の原則に基づく：
+1. Required structural keys are emitted even when unresolved.
+2. Structure is preferred over semantic completeness.
+3. `actions[]` is the canonical effect-action representation.
+4. Legacy fields may remain only as compatibility fallbacks and must be visible to validation/analyze.
 
-1. **常にキーを存在させる**
-   - 欠損はキー欠落ではなく空値で表現する
-2. **構造優先**
-   - 意味の正確性よりも、構造化可能性を優先する
-3. **最小十分構造**
-   - 将来拡張可能な余白を残す（ただし後方互換を壊しにくい形を優先）
-4. **DSLは宣言的**
-   - 命令列ではなく、効果の構成要素を分解した宣言型表現とする
-
----
-
-# 2. ルート構造
+## Root Object
 
 ```yaml
 dsl_version: "0.0"
-
 card:
   cid: 0
   name:
     en: ""
     ja: ""
   text:
-    en: ""   # 必須（キーは必須・中身は空でもよい）
-    ja: ""   # 推奨（枠は常に作り、空でもよい）
-  info:
-    en: ""   # 必須（キーは必須・中身は空でもよい）
-    ja: ""   # 推奨（枠は常に作り、空でもよい）
-
+    en: ""
+    ja: ""
+  props: {}
 effects: []
-
 meta: {}
 ```
 
----
+`card.info` is not part of the v0.0 DSL. Raw ETL fields such as `card_info_en` may be normalized into compact `card.props` values during transform, but the raw info blob must not be exported under `card`.
 
-# 3. ルートフィールド定義
+## `card`
 
-## 3.1 dsl_version (string) — 必須
-- 形式: "0.0"
+Required:
 
-## 3.2 card (object) — 必須
-- `card.cid`：Konami ID（int or string）
-- `card.name.en / ja`：文字列（欠損時は空文字）
-- `card.text.en`：必須（空文字でもキーは必須）
-- `card.info.en`：必須（空文字でもキーは必須）
-- `card.text.ja / card.info.ja`：推奨（v0.0運用としてはキーは常に作る）
+- `card.cid`: Konami/card identifier as integer or string.
+- `card.name.en` / `card.name.ja`: present as strings; empty string is allowed.
+- `card.text.en` / `card.text.ja`: present as strings; empty string is allowed.
+- `card.props`: compact card metadata object. Empty object is allowed.
 
-## 3.3 effects (list) — 必須
-- 空配列も許可（未解析など）
-- 可能なら最低1件（Level0）を生成する
+## `effects[]`
 
----
+Each effect object has these fields:
 
-# 4. effect オブジェクト構造
+| Field | Required | Type | Notes |
+| --- | --- | --- | --- |
+| `id` | yes | string | Recommended form: `{cid}_001` |
+| `order` | yes | integer | 1-based effect order |
+| `trigger` | yes | object | Empty object allowed |
+| `restriction` | yes | object | Empty object allowed |
+| `condition` | yes | object | Empty object allowed |
+| `cost` | yes | object | Empty object allowed |
+| `actions` | yes | list | Canonical action list; empty list allowed for unresolved text |
+| `action` | compatibility | object | Legacy fallback mirroring the first action when present |
+| `targets` | yes | list | Canonical target declarations; empty list allowed |
 
-各 effect は以下のフィールドを持つ。
+`action` is a legacy fallback. New consumers must read `actions[]`. Validators should warn when a payload has only `action` and no `actions[]`.
 
-| フィールド | 必須 | 型 | 説明 |
-|------------|------|----|------|
-| id | ✔ | string | `{cid}_{3桁連番}` 推奨 |
-| order | ✔ | integer | 効果の順序 |
-| trigger | ✔ | object | 発動契機 |
-| restriction | ✔ | object | 制限条件 |
-| condition | ✔ | object | 発動条件 |
-| cost | ✔ | object | コスト |
-| action | ✔ | object | 効果解決（v0.0で target / sequence を許可） |
+## `actions[]`
 
-※ v0.0では trigger/restriction/condition/cost/action のキーは必ず存在させる（空オブジェクト可）。
+Each action is an object. The canonical minimum field is:
 
----
-
-# 5. 構成要素の最小構文（v0.0）
-
-## 5.1 trigger（最小 + 拡張許可）
-- v0.0は自由構造（空オブジェクト可）
-- ただし **summon等の複数モード** を表現できるよう `modes` を許可する
-
-例:
 ```yaml
-trigger:
-  type: "summon"
-  modes: ["normal", "special"]
+type: "draw"
 ```
 
-## 5.2 restriction
-- v0.0は自由構造（空オブジェクト可）
-- カード全体制限は `meta.restrictions.global` を推奨（仕様は別紙 17 を参照）
+Common v0.0 action types:
 
-## 5.3 condition
-- v0.0は自由構造（空オブジェクト可）
+- `draw`
+- `add_to_hand`
+- `send_to_gy`
+- `destroy`
+- `special_summon`
+- `banish`
+- `negate`
 
-## 5.4 cost
-- v0.0は自由構造（空オブジェクト可）
+The current transformer may also emit compatibility/research action types such as `discard`, `return_to_deck`, and `return_to_extra`. Unknown action types are valid YAML shape but should be reported as validation warnings.
 
-## 5.5 action（最小 + target/sequence許可）
-- v0.0は自由構造（空オブジェクト可）
-- ただし **対象指定** と **連鎖（成功時続行など）** を表現するため、以下を許可する：
-  - `action.target`（対象指定）
-  - `action.sequence`（連鎖。配列）
+Actions may use inline selector fields such as `n`, `desc`, `from`, `to`, or `who`, or point to a declared target:
 
-### action.target（例）
 ```yaml
-action:
-  target:
-    n: 1
-    desc: "White Forest Synchro Monster"
-    location: ["field", "GY"]
-  type: "return_to_extra"
+actions:
+  - type: "destroy"
+    target_id: "t1"
 ```
 
-### action.sequence（例）
+## `targets[]`
+
+Targets are declared separately so that action, cost, and condition blocks can refer to the same selection.
+
 ```yaml
-action:
-  sequence:
-    - type: "return_to_extra"
-      target:
-        n: 1
-        desc: "White Forest Synchro Monster"
-        location: ["field", "GY"]
-    - type: "special_summon"
-      who: "self"
-      condition: "if_previous_success"
-    - type: "negate_effects"
-      target: "self"
+targets:
+  - id: "t1"
+    count: 1
+    selector:
+      kind: "monster"
+      zones: ["field"]
+      controller: "opponent"
+    raw: "target 1 monster your opponent controls"
 ```
 
----
+Required target fields:
 
-# 6. 型と欠損表現
+- `id`: string.
+- `count`: integer.
+- `selector`: object.
+- `selector.kind`: non-empty string.
 
-| 種類 | 表現 |
-|------|------|
-| 文字列 | "" |
-| 配列 | [] |
-| オブジェクト | {} |
+Recommended selector fields:
 
-キー欠落は禁止。
+- `zones`: list of zones such as `deck`, `hand`, `field`, `gy`, `banished`, `extra`.
+- `controller`: `you`, `opponent`, or `either`.
+- `archetype`: archetype/name phrase when captured.
+- `subtype`: subtype such as `synchro`, `fusion`, `xyz`, `link`, `ritual`, `normal`, `effect`.
+- `constraints`: list/object for unresolved extra restrictions.
+- `targeting_mode`: `target`, `choose`, or `select` when known.
 
----
+`selector.kind: "unknown"` is structurally valid but should produce an `unresolved_target` warning.
 
-# 7. 命名規則
+## Empty Values
 
-- effect.id 形式（推奨）: `{cid}_{3桁連番}`
-- effect.order: 1..N
+Use these empty values instead of omitting structural keys:
 
----
+| Kind | Empty value |
+| --- | --- |
+| string | `""` |
+| list | `[]` |
+| object | `{}` |
 
-# 8. JSON 互換性
-DSLは YAML または JSON で表現可能であること。
+## Validation Severity
 
----
+Validators categorize diagnostics as:
 
-# 9. 互換性ポリシー
+- `error`: DSL shape is invalid for v0.0.
+- `warning`: DSL shape is valid, but unresolved, ambiguous, or compatibility-only.
+- `info`: parser/analysis note.
 
-v0.0 は Experimental：
-- 破壊的変更を許容（ただし可能な限り後方互換を壊しにくい拡張を優先）
-- 変更は changelog に記録
+Standard diagnostic codes include:
+
+- `unknown_action`
+- `unresolved_target`
+- `missing_selector`
+- `legacy_action_fallback`
+
+## Compatibility Policy
+
+v0.0 is experimental, but this grammar is the baseline for golden tests and benchmark comparisons. Any intended DSL output change should update the representative-card golden files and the changelog in the same change.

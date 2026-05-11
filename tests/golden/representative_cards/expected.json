@@ -1,0 +1,41 @@
+{
+  "cards": [
+    {"cid": 9001, "has_card_info": false, "action_types": ["draw"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9002, "has_card_info": false, "action_types": ["add_to_hand"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9003, "has_card_info": false, "action_types": ["destroy"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9004, "has_card_info": false, "action_types": ["send_to_gy"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9005, "has_card_info": false, "action_types": ["special_summon"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9006, "has_card_info": false, "action_types": ["special_summon"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9007, "has_card_info": false, "action_types": ["banish"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9008, "has_card_info": false, "action_types": ["return_to_extra"], "target_count": 1, "target_kinds": ["monster"], "diagnostics": []},
+    {"cid": 9009, "has_card_info": false, "action_types": ["destroy"], "target_count": 1, "target_kinds": ["card"], "diagnostics": []},
+    {"cid": 9010, "has_card_info": false, "action_types": ["draw"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9011, "has_card_info": false, "action_types": ["draw"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9012, "has_card_info": false, "action_types": ["add_to_hand"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9013, "has_card_info": false, "action_types": ["special_summon"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9014, "has_card_info": false, "action_types": ["special_summon"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9015, "has_card_info": false, "action_types": ["discard"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9016, "has_card_info": false, "action_types": ["return_to_deck"], "target_count": 1, "target_kinds": ["card"], "diagnostics": []},
+    {"cid": 9017, "has_card_info": false, "action_types": ["negate"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9018, "has_card_info": false, "action_types": ["banish"], "target_count": 1, "target_kinds": ["monster"], "diagnostics": []},
+    {"cid": 9019, "has_card_info": false, "action_types": ["draw", "send_to_gy"], "target_count": 0, "target_kinds": [], "diagnostics": []},
+    {"cid": 9020, "has_card_info": false, "action_types": [], "target_count": 0, "target_kinds": [], "diagnostics": []}
+  ],
+  "action_counts": {
+    "add_to_hand": 2,
+    "banish": 2,
+    "destroy": 2,
+    "discard": 1,
+    "draw": 4,
+    "negate": 1,
+    "return_to_deck": 1,
+    "return_to_extra": 1,
+    "send_to_gy": 2,
+    "special_summon": 4
+  },
+  "diagnostic_counts": {
+    "error": 0,
+    "warning": 0,
+    "info": 0
+  }
+}

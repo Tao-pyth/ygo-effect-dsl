@@ -21,7 +21,7 @@ RESTRICTION_FORCE_PATTERNS = (
     re.compile(r"^also\b.*\bonly\b.*\bonce per turn\b"),
 )
 ACTION_PRIORITY_PATTERNS = (
-    re.compile(r"^(you can )?(add|special summon|draw|discard|destroy|banish|send|return|shuffle)\b"),
+    re.compile(r"^(you can )?(add|special summon|draw|discard|destroy|banish|send|return|shuffle|negate)\b"),
     re.compile(r"^(you can )?target\b"),
 )
 

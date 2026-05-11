@@ -45,6 +45,41 @@ def test_collect_stats_targets_count() -> None:
     assert stats["targets_count"]["cards_with_targets"] == 1
 
 
+def test_collect_stats_reports_action_coverage_and_target_resolution() -> None:
+    cards = [
+        _base_card(
+            {
+                "actions": [{"type": "destroy", "target_id": "t1"}],
+                "targets": [{"id": "t1", "count": 1, "selector": {"kind": "card"}}],
+            }
+        ),
+        _base_card(
+            {
+                "actions": [{"type": "banish", "target_id": "missing"}],
+                "targets": [{"id": "t2", "count": 1, "selector": {"kind": "monster"}}],
+            }
+        ),
+    ]
+
+    stats = collect_stats(cards)
+    assert stats["action_type_coverage"] == {"banish": 1, "destroy": 1}
+    assert stats["targets_count"]["references"] == 2
+    assert stats["targets_count"]["resolved_references"] == 1
+    assert stats["targets_count"]["resolution_rate"] == 0.5
+
+
 def test_validate_accepts_targets() -> None:
     payload = _base_card({"actions": [{"type": "destroy", "target_id": "t1"}], "targets": [{"id": "t1", "count": 1, "selector": {"kind": "monster"}}]})
     assert validate_card_yaml(payload) == []
+
+
+def test_validate_reports_warning_for_legacy_action_fallback() -> None:
+    payload = _base_card({"action": {"type": "draw", "n": 1}})
+    diagnostics = validate_card_yaml(payload)
+    assert [(row.severity, row.code) for row in diagnostics] == [("warning", "legacy_action_fallback")]
+
+
+def test_validate_reports_unknown_action_warning() -> None:
+    payload = _base_card({"actions": [{"type": "reveal"}]})
+    diagnostics = validate_card_yaml(payload)
+    assert [(row.severity, row.code) for row in diagnostics] == [("warning", "unknown_action")]

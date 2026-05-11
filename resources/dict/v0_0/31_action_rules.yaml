@@ -305,6 +305,21 @@
   examples:
     - 'Banish 1 card from your GY.'
 
+- id: 'ACTION_NEGATE_EFFECT'
+  version: '0.0'
+  priority: 178
+  language: 'en'
+  applies_to: 'action'
+  pattern: '^negate (that|this|the) effect\.$'
+  emit:
+    action:
+      type: 'negate'
+      what: 'effect'
+  on_fail: 'ignore'
+  note: 'min-set v0.0: starter action rule'
+  examples:
+    - 'Negate that effect.'
+
 - id: 'ACTION_RETURN_IT_TO_EXTRA_DECK'
   version: '0.0'
   priority: 175

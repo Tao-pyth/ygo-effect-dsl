@@ -1,0 +1,13 @@
+{
+  "export_schema_version": "0.1",
+  "record_count": 20,
+  "fields": [
+    "cid",
+    "name_en",
+    "name_ja",
+    "card_text_en",
+    "card_text_ja",
+    "card_info_en",
+    "card_info_ja"
+  ]
+}
