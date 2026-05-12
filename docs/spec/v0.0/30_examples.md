@@ -117,6 +117,68 @@ For a new Japanese programmer, the recommended reading order is:
 6. Re-run `transform`, `validate`, and `analyze`; the same fields should move in
    the expected direction.
 
+### Empty block ratio policy
+
+`quality.empty_block_ratio` is the ratio of effects where each structural block
+remained empty after transform. For object-shaped blocks, empty means `{}`. For
+`actions`, empty means an empty or missing `actions[]` list. The metric is about
+converter coverage, not card legality or gameplay power.
+
+v0.0 treats this metric as advisory. It should make parser gaps visible during
+review, but it should not fail CI by itself. The transform still contains known
+fallbacks, the representative dataset is small, and some blocks are optional in
+real card text. Making CI fail on the first threshold would encourage noisy
+patches that hide `{}` without adding reliable semantics. CI should continue to
+gate schema validity, validation errors, golden regressions, and smoke checks;
+empty block ratio should guide the next dictionary or parser issue until the
+dataset and semantics are stable enough for v0.1-era gates.
+
+Use these provisional thresholds as investigation triggers:
+
+- `trigger >= 0.50`: investigate whether timing phrases such as "when", "if",
+  "during", and phase/turn markers are being missed. Some continuous effects
+  may have no trigger, so inspect examples before changing rules.
+- `restriction >= 0.80`: investigate, but expect this block to be naturally
+  high. Many effects have no "once per turn", activation limit, or material
+  restriction. Repeated phrases such as "you can only use this effect..." should
+  still become parser work.
+- `condition >= 0.50`: investigate missed "if you control", "while", "except",
+  location, face-up, and state requirements. A high value often means the
+  converter is placing requirement text into action fragments or dropping it.
+- `cost >= 0.50`: investigate missed "discard", "send", "tribute", "banish",
+  "pay", and detach clauses that appear before the main action. Empty cost is
+  legitimate for many effects, so confirm the sample has cost language.
+- `action >= 0.50`: investigate legacy single-action fallback coverage. Because
+  `actions[]` is canonical, this field mainly shows whether compatibility
+  output is still useful or drifting.
+- `actions >= 0.50`: investigate first. A high value means the canonical action
+  list is often empty, so v0.1 state/action semantics would not have enough
+  structured operations to consume.
+
+For new Japanese programmers, use this investigation flow when a ratio is above
+the threshold:
+
+1. Open `analysis_report.json` and identify the highest block ratio.
+2. Pick three to five affected cards or effects from the transformed YAML.
+3. Read the original Japanese and English effect text beside the emitted block.
+4. Decide whether the text truly has no such block, or whether the parser missed
+   a phrase.
+5. If the phrase is action-like, compare it with `stats.unmatched_fragments_top`
+   and existing action dictionary rules.
+6. If the phrase names a target, compare `targets[]`, action `target_id`, and
+   `stats.targets_count.resolution_rate`.
+7. Add or adjust the smallest dictionary, extractor, or transform rule that
+   captures the repeated phrase.
+8. Re-run `transform`, `validate`, and `analyze`; confirm the ratio moves down
+   without increasing validation errors or unmatched fragments.
+
+The v0.0 stabilization meaning is simple: ratios should become explainable.
+They do not all need to be low, but a high value should have a known reason,
+examples, and a follow-up issue. The v0.1 connection is also direct: early
+state/query behavior should only be built on blocks that are common enough,
+resolved enough, and validation-clean enough for analyze to show repeatable
+structure.
+
 This dashboard is necessary for v0.0 stabilization because v0.0 is about making
 conversion quality visible and repeatable. It also connects directly to v0.1:
 the minimal state/action semantics should only depend on action types, targets,
