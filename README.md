@@ -27,6 +27,19 @@ Key outputs:
 - Transform reports: `data/dsl_out/reports/`
 - Analyze report: `data/reports/analysis_report.json`
 
+For a richer distributable fixture, use the synthetic verification cards:
+
+```bash
+python -m ygo_effect_dsl ingest --dataset examples/synthetic_test_cards
+python -m ygo_effect_dsl transform --dataset examples/synthetic_test_cards --out data/synthetic_dsl
+python -m ygo_effect_dsl validate data/synthetic_dsl/yaml
+```
+
+`examples/synthetic_test_cards` contains 10 fictional cards designed to exercise
+common parser behavior without copying official card database records. This is a
+distributable smoke fixture; it does not replace the representative-card
+benchmark, which should continue moving toward real-card-centered coverage.
+
 ## What v0.0 Means
 
 v0.0 is a research conversion baseline. It prioritizes stable structure and diagnostics over complete game semantics.

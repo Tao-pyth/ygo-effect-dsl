@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- examples: add 10 fictional synthetic test cards for GitHub-distributable
+  pipeline verification without copying official card records.
+- test: cover the synthetic example dataset through ingest, transform, and
+  validate.
 - docs: add v0.1 overview, minimal state/action semantics, and first 10 one-step application candidates.
 - docs: document representative benchmark slot coverage, real-card replacement priorities, and golden update workflow.
 - test: strengthen representative-card golden comparison with full DSL payload snapshots and diagnostics.

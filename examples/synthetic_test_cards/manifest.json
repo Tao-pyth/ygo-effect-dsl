@@ -1,0 +1,17 @@
+{
+  "export_schema_version": "0.0",
+  "record_count": 10,
+  "fields": [
+    "cid",
+    "name_en",
+    "name_ja",
+    "card_text_en",
+    "card_text_ja",
+    "card_info_en",
+    "card_info_ja"
+  ],
+  "languages": ["en", "ja"],
+  "has_images": false,
+  "exported_at": "2026-05-13T00:00:00Z",
+  "notes": "Synthetic fixture cards for parser verification. Names and text are original test data, not official card records."
+}
