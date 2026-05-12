@@ -1,11 +1,50 @@
 # Spec Index
 
-仕様本文（正）はリポジトリ内 `docs/spec/` にあります。
+このページは、`docs/spec/` にある仕様文書への案内です。Wikiは読み物、`docs/spec/` は一次情報として扱います。
 
-## Spec v0.0 (Draft)
-- 00 Overview: ../docs/spec/v0.0/00_overview.md
-- 10 Grammar:  ../docs/spec/v0.0/10_grammar.md
-- 20 Semantics: ../docs/spec/v0.0/20_semantics.md
-- 30 Examples: ../docs/spec/v0.0/30_examples.md
-- 40 Validation: ../docs/spec/v0.0/40_validation.md
-- 50 Changelog: ../docs/spec/v0.0/50_changelog.md
+## v0.0 Spec
+
+| File | 内容 | まず読むべき人 |
+| --- | --- | --- |
+| [00 Overview](../docs/spec/v0.0/00_overview.md) | v0.0の目的、スコープ、用語 | 全体像を知りたい人 |
+| [10 Grammar](../docs/spec/v0.0/10_grammar.md) | DSL YAMLの構造、必須キー、action/target形式 | transformerやvalidatorを触る人 |
+| [20 Semantics](../docs/spec/v0.0/20_semantics.md) | State Transitionとしての意味論 | v0.1以降の状態モデルを考える人 |
+| [30 Examples](../docs/spec/v0.0/30_examples.md) | DSLの具体例 | 出力例から理解したい人 |
+| [40 Validation](../docs/spec/v0.0/40_validation.md) | severity、diagnostic code、validate CLIの読み方 | 変換品質を改善する人 |
+| [50 Changelog](../docs/spec/v0.0/50_changelog.md) | 仕様・CLI・変換・検証・fixture変更の記録 | 変更履歴を追う人 |
+
+## Input Contract
+
+COREが読む入力は、ETLが出力する成果物です。
+
+- [Input Contract](../docs/contract/input_contract.md)
+- `manifest.json`
+- `cards.jsonl`
+
+COREはETL内部のSQLiteには直接依存しません。境界は export artifact です。
+
+## 仕様を変更する時の基本ルール
+
+仕様、CLI、transform、validation、analysis、fixtureを変える場合は、同じ変更で changelog も更新します。
+
+代表カードのDSL出力が変わる場合は、golden testの差分も確認します。意図した変更であれば `YGO_UPDATE_GOLDEN=1` を使って更新します。
+
+## v0.0 Grammarの要点
+
+v0.0では、未解決の意味があっても構造キーを省略しません。
+
+- 空文字は `""`
+- 空リストは `[]`
+- 空オブジェクトは `{}`
+
+`actions[]` が正規のaction表現です。単数の `action` は互換用fallbackとして扱います。
+
+## Validationの要点
+
+`validate` は、完全なゲームルールとして正しいかではなく、v0.0 DSLとして後続処理が読める形かを確認します。
+
+- `error`: shape invalid。まず直す
+- `warning`: shape valid。変換品質改善のTODOとして読む
+- `info`: 補助情報
+
+代表的な warning は `unknown_action`、`unresolved_target`、`missing_selector`、`legacy_action_fallback` です。
