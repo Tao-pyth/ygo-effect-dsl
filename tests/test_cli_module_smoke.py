@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -39,4 +40,13 @@ def test_python_m_pipeline_smoke(tmp_path: Path) -> None:
     assert "analyze: unmatched_fragments_top_count=" in analyze.stdout
     assert "analyze: validation_code_counts=" in analyze.stdout
 
-    assert (report_out / "analysis_report.json").exists()
+    report_path = report_out / "analysis_report.json"
+    assert report_path.exists()
+
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert isinstance(report["stats"]["action_type_coverage"], dict)
+    assert isinstance(report["stats"]["targets_count"]["resolution_rate"], float)
+    assert isinstance(report["stats"]["unmatched_fragments_top"], list)
+    assert isinstance(report["quality"]["empty_block_ratio"], dict)
+    assert isinstance(report["validation"]["severity_counts"], dict)
+    assert isinstance(report["validation"]["code_counts"], dict)

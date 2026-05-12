@@ -1,0 +1,68 @@
+{
+  "stats": {
+    "cards": 4,
+    "effects": 3,
+    "action_type_coverage": {
+      "banish": 1,
+      "destroy": 1,
+      "draw": 2
+    },
+    "actions_count": {
+      "avg": 1.3333333333333333,
+      "min": 1,
+      "max": 2
+    },
+    "targets_count": {
+      "total": 2,
+      "avg": 0.6666666666666666,
+      "cards_with_targets": 2,
+      "references": 2,
+      "resolved_references": 1,
+      "resolution_rate": 0.5
+    },
+    "unmatched_fragments_top": [
+      {
+        "fragment": "cannot parse A",
+        "count": 2
+      },
+      {
+        "fragment": "cannot parse B",
+        "count": 1
+      }
+    ]
+  },
+  "quality": {
+    "total_cards": 4,
+    "total_effects": 3,
+    "effects_empty_cards": 1,
+    "effects_empty_ratio": 0.25,
+    "empty_block_counts": {
+      "trigger": 2,
+      "restriction": 3,
+      "condition": 2,
+      "cost": 3,
+      "action": 2,
+      "actions": 0
+    },
+    "empty_block_ratio": {
+      "trigger": 0.6666666666666666,
+      "restriction": 1.0,
+      "condition": 0.6666666666666666,
+      "cost": 1.0,
+      "action": 0.6666666666666666,
+      "actions": 0.0
+    }
+  },
+  "validation": {
+    "severity_counts": {
+      "error": 1,
+      "warning": 2,
+      "info": 1
+    },
+    "code_counts": {
+      "error:required": 1,
+      "info:note": 1,
+      "warning:unknown_action": 2
+    }
+  }
+}
