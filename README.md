@@ -67,14 +67,13 @@ Then review `tests/golden/representative_cards/` before committing.
 
 `analyze` is intended to be the main v0.0 development feedback loop. It reports:
 
-- action type coverage
-- target declaration and target reference resolution rate
-- top unmatched fragments
-- empty block ratios
-- validation severity counts
-- validation code counts
+- `stats.action_type_coverage`: which action `type` values the transform currently emits
+- `stats.targets_count.resolution_rate`: how many action `target_id` references resolve to declared `targets[]`
+- `stats.unmatched_fragments_top`: frequent action-candidate text fragments that no dictionary rule matched
+- `quality.empty_block_ratio`: which effect blocks still fall back to `{}` or empty `actions[]`
+- `validation.severity_counts` and `validation.code_counts`: validation TODOs grouped by seriousness and code
 
-These metrics make dictionary and transform changes visible before any state engine work begins.
+Read the report as a dashboard: unmatched fragments point to dictionary gaps, target resolution points to target extraction/transform gaps, empty block ratios point to missing block parsers, and validation counts show which DSL contracts are still noisy. These metrics make dictionary and transform changes visible before any state engine work begins. See [Examples](docs/spec/v0.0/30_examples.md#example-4-analyze-report-development-dashboard) for the field-level reading guide.
 
 ## Validation Diagnostics
 
