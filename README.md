@@ -63,6 +63,88 @@ Remove-Item Env:\YGO_UPDATE_GOLDEN
 
 Then review `tests/golden/representative_cards/` before committing.
 
+## Representative Benchmark Policy
+
+`tests/datasets/representative_cards/cards.jsonl` is the small benchmark used to
+keep v0.0 transform behavior measurable while the parser is still changing. It
+currently has 20 synthetic slots. Treat each row as a semantic slot first and as
+a card name second: a replacement is useful only when it keeps the same action,
+target, cost, or restriction pressure visible in the golden snapshot.
+
+Current slot coverage:
+
+| CID | Slot | Action coverage | Target coverage | Cost coverage | Restriction coverage |
+| --- | --- | --- | --- | --- | --- |
+| 9001 | simple draw | `draw` | none | none | none |
+| 9002 | summon-triggered search | `add_to_hand` from Deck to hand | none | none | Normal Summon trigger, no restriction |
+| 9003 | simple destroy | `destroy` | inline description, no declared target | none | none |
+| 9004 | simple send | `send_to_gy` | inline monster description | none | none |
+| 9005 | self summon | `special_summon` self | none | none | none |
+| 9006 | summon from Deck | `special_summon` from Deck | inline LIGHT Spellcaster Tuner description | none | none |
+| 9007 | banish from GY | `banish` | inline GY description | none | none |
+| 9008 | targeted return to Extra Deck | `return_to_extra` | `targets[]` monster you control | none | target clause only |
+| 9009 | targeted destroy | `destroy` | `targets[]` card your opponent controls | none | target clause only |
+| 9010 | discard cost into draw | `draw`, plus current extra `discard` action trace | none | `discard` 1 card | none |
+| 9011 | once-per-turn classifier | `draw` | none | none | OPT text is detected as a restriction candidate; emitted global restriction is still empty |
+| 9012 | generic monster search | `add_to_hand` from Deck to hand | inline monster description | none | none |
+| 9013 | summon from GY | `special_summon` from GY | inline monster description | none | none |
+| 9014 | summon from hand | `special_summon` from hand | inline monster description | none | none |
+| 9015 | discard action | `discard` | inline monster description | none | none |
+| 9016 | targeted shuffle to Deck | `return_to_deck` shuffle mode | `targets[]` card in either GY | none | target clause only |
+| 9017 | negate | `negate` effect | implicit "that effect" | none | none |
+| 9018 | targeted banish | `banish` | `targets[]` monster in your GY | none | target clause only |
+| 9019 | multi-action sequence | `draw`, `send_to_gy` | inline monster description | none | none |
+| 9020 | unmatched fragment sentinel | no action yet | hand phrase remains unmatched | none | none |
+
+Replacement priorities from synthetic to real cards:
+
+1. Replace slots whose real card text is short, famous, and mechanically narrow:
+   draw, generic search, Monster Reborn-style GY summon, destroy Spell/Trap, and
+   Foolish Burial-style send to GY. These should preserve action coverage while
+   making the fixture recognizable.
+2. Replace target-heavy slots after checking that the real text keeps the same
+   `targets[]` shape. Target wording has more parser surface area than simple
+   actions, so preserve one slot each for controlled monster, opponent card,
+   either GY, and your GY.
+3. Replace cost and restriction slots only when the golden diff is intentionally
+   reviewed. These slots expose current rough edges: semicolon costs can also
+   appear in `actions[]`, and OPT text is counted as a restriction candidate but
+   does not yet populate `meta.restrictions.global`.
+4. Keep one unmatched or partially unmatched real card slot for v0.0. It is a
+   canary for dictionary gaps and helps `analyze` keep surfacing work that should
+   not be hidden by only testing already-supported text.
+
+Obvious real-card candidates to verify against local source data before editing
+the dataset:
+
+- 9001 simple draw: `Pot of Greed`.
+- 9012 generic monster search: `Reinforcement of the Army`.
+- 9013 summon from GY: `Monster Reborn`.
+- 9004 simple send: `Foolish Burial`.
+- 9003 simple destroy: `Mystical Space Typhoon` or another short destroy card,
+  depending on whether the slot should stay "card on the field" or narrow to
+  Spell/Trap.
+- 9017 negate: a short "negate that effect" hand-trap or response card, after
+  confirming the surrounding trigger/cost text does not change the slot's role.
+
+When replacing a row, keep `tests/golden/representative_cards/expected.json` as a
+full snapshot and update it only as a deliberate second step:
+
+1. Change one or a small batch of rows in `tests/datasets/representative_cards/cards.jsonl`.
+2. Run `python -m pytest tests/test_representative_golden.py` once to see the
+   failing diff.
+3. Confirm the diff preserves or intentionally improves the slot's action,
+   target, cost, restriction, diagnostics, and `meta.action_candidate_trace`.
+4. Regenerate with `YGO_UPDATE_GOLDEN=1` only after that review.
+5. Re-run the representative golden test and the analyze checks, then inspect
+   `tests/golden/representative_cards/expected.json` before committing.
+
+This benchmark is the bridge between v0.0 stabilization and v0.1 semantics.
+v0.0 needs stable, reviewable outputs for `actions[]`, `targets[]`, costs,
+restrictions, diagnostics, and analyze metrics. v0.1 should only build minimal
+state/action behavior on card patterns whose transform output has survived this
+representative golden loop.
+
 ## Hourly Brainstorm Workflow
 
 Hourly brainstorms are tracked as a primary research output, not as setup for later work. Use them to record hypotheses that move `ygo-effect-dsl` toward a research CORE, including why an issue was or was not created.
