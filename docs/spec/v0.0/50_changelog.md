@@ -4,6 +4,7 @@
 
 ## Unreleased
 
+- test: strengthen representative-card golden comparison with full DSL payload snapshots and diagnostics.
 - docs: define provisional `quality.empty_block_ratio` thresholds and advisory investigation policy for v0.0 stabilization.
 - test: add analyze dashboard golden fixture and smoke checks for report fields.
 - feat: print analyze dashboard summaries in CLI output for action coverage, target resolution, unmatched fragments, and validation code counts.

@@ -1,41 +1,2349 @@
 {
   "cards": [
-    {"cid": 9001, "has_card_info": false, "action_types": ["draw"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9002, "has_card_info": false, "action_types": ["add_to_hand"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9003, "has_card_info": false, "action_types": ["destroy"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9004, "has_card_info": false, "action_types": ["send_to_gy"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9005, "has_card_info": false, "action_types": ["special_summon"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9006, "has_card_info": false, "action_types": ["special_summon"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9007, "has_card_info": false, "action_types": ["banish"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9008, "has_card_info": false, "action_types": ["return_to_extra"], "target_count": 1, "target_kinds": ["monster"], "diagnostics": []},
-    {"cid": 9009, "has_card_info": false, "action_types": ["destroy"], "target_count": 1, "target_kinds": ["card"], "diagnostics": []},
-    {"cid": 9010, "has_card_info": false, "action_types": ["draw"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9011, "has_card_info": false, "action_types": ["draw"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9012, "has_card_info": false, "action_types": ["add_to_hand"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9013, "has_card_info": false, "action_types": ["special_summon"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9014, "has_card_info": false, "action_types": ["special_summon"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9015, "has_card_info": false, "action_types": ["discard"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9016, "has_card_info": false, "action_types": ["return_to_deck"], "target_count": 1, "target_kinds": ["card"], "diagnostics": []},
-    {"cid": 9017, "has_card_info": false, "action_types": ["negate"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9018, "has_card_info": false, "action_types": ["banish"], "target_count": 1, "target_kinds": ["monster"], "diagnostics": []},
-    {"cid": 9019, "has_card_info": false, "action_types": ["draw", "send_to_gy"], "target_count": 0, "target_kinds": [], "diagnostics": []},
-    {"cid": 9020, "has_card_info": false, "action_types": [], "target_count": 0, "target_kinds": [], "diagnostics": []}
+    {
+      "filename": "9001.yaml",
+      "cid": "9001",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9001",
+          "name": {
+            "en": "Bench Draw Two",
+            "ja": ""
+          },
+          "text": {
+            "en": "Draw 2 cards.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9001_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "draw",
+                "n": 2
+              }
+            ],
+            "action": {
+              "type": "draw",
+              "n": 2
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "draw 【N】 cards.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                2
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 0,
+            "action": 1
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "draw 【N】 cards.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_DRAW_N"
+              ],
+              "mapped_action_index": 0
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9002.yaml",
+      "cid": "9002",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9002",
+          "name": {
+            "en": "Bench Search Spell",
+            "ja": ""
+          },
+          "text": {
+            "en": "If this card is Normal Summoned: You can add 1 \"White Forest\" Spell/Trap from your Deck to your hand.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9002_001",
+            "order": 1,
+            "trigger": {
+              "type": "summon",
+              "modes": [
+                "normal"
+              ]
+            },
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "add_to_hand",
+                "n": 1,
+                "from": [
+                  "deck"
+                ],
+                "to": [
+                  "hand"
+                ],
+                "desc": "【CARD_NAME】 spell/trap"
+              }
+            ],
+            "action": {
+              "type": "add_to_hand",
+              "n": 1,
+              "from": [
+                "deck"
+              ],
+              "to": [
+                "hand"
+              ],
+              "desc": "【CARD_NAME】 spell/trap"
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "if this card is normal summoned: you can add 【N】 【CARD_NAME】 spell/trap from your deck to your hand.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1
+              ],
+              "CARD_NAME": [
+                "white forest"
+              ]
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [
+                "deck",
+                "hand"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [
+                "spell",
+                "trap"
+              ],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 0,
+            "action": 1
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "you can add 【N】 【CARD_NAME】 spell/trap from your deck to your hand.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_ADD_FROM_DECK_TO_HAND__YOU_CAN"
+              ],
+              "mapped_action_index": 0
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9003.yaml",
+      "cid": "9003",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9003",
+          "name": {
+            "en": "Bench Destroy Field",
+            "ja": ""
+          },
+          "text": {
+            "en": "Destroy 1 card on the field.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9003_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "destroy",
+                "n": 1,
+                "desc": "card on the field"
+              }
+            ],
+            "action": {
+              "type": "destroy",
+              "n": 1,
+              "desc": "card on the field"
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "destroy 【N】 card on the field.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [
+                "field"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 0,
+            "action": 1
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "destroy 【N】 card on the field.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_DESTROY_N"
+              ],
+              "mapped_action_index": 0
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9004.yaml",
+      "cid": "9004",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9004",
+          "name": {
+            "en": "Bench Send Monster",
+            "ja": ""
+          },
+          "text": {
+            "en": "Send 1 monster to the GY.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9004_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "send_to_gy",
+                "n": 1,
+                "desc": "monster",
+                "to": [
+                  "GY"
+                ]
+              }
+            ],
+            "action": {
+              "type": "send_to_gy",
+              "n": 1,
+              "desc": "monster",
+              "to": [
+                "GY"
+              ]
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "send 【N】 monster to the gy.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [
+                "GY"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [
+                "monster"
+              ],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 0,
+            "action": 1
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "send 【N】 monster to the gy.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_SEND_TO_GY__DESC"
+              ],
+              "mapped_action_index": 0
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9005.yaml",
+      "cid": "9005",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9005",
+          "name": {
+            "en": "Bench Summon Self",
+            "ja": ""
+          },
+          "text": {
+            "en": "You can Special Summon this card.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9005_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "special_summon",
+                "who": "self"
+              }
+            ],
+            "action": {
+              "type": "special_summon",
+              "who": "self"
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "you can special summon this card.",
+            "text_ja": "",
+            "params": {
+              "N": [],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 0,
+            "action": 1
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "you can special summon this card.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_SS_SELF__THIS_CARD"
+              ],
+              "mapped_action_index": 0
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9006.yaml",
+      "cid": "9006",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9006",
+          "name": {
+            "en": "Bench Summon Deck",
+            "ja": ""
+          },
+          "text": {
+            "en": "Special Summon 1 LIGHT Spellcaster Tuner from your Deck.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9006_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "special_summon",
+                "n": 1,
+                "who": "light spellcaster tuner",
+                "from": [
+                  "deck"
+                ]
+              }
+            ],
+            "action": {
+              "type": "special_summon",
+              "n": 1,
+              "who": "light spellcaster tuner",
+              "from": [
+                "deck"
+              ]
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "special summon 【N】 light spellcaster tuner from your deck.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [
+                "LIGHT"
+              ],
+              "races": [
+                "Spellcaster"
+              ],
+              "zones": [
+                "deck"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [
+                "spell"
+              ],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 0,
+            "action": 1
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "special summon 【N】 light spellcaster tuner from your deck.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_SS_FROM_DECK__DESC"
+              ],
+              "mapped_action_index": 0
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9007.yaml",
+      "cid": "9007",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9007",
+          "name": {
+            "en": "Bench Banish GY",
+            "ja": ""
+          },
+          "text": {
+            "en": "Banish 1 card from your GY.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9007_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "banish",
+                "n": 1,
+                "desc": "card from your gy"
+              }
+            ],
+            "action": {
+              "type": "banish",
+              "n": 1,
+              "desc": "card from your gy"
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "banish 【N】 card from your gy.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [
+                "GY"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 0,
+            "action": 1
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "banish 【N】 card from your gy.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_BANISH_N__DESC"
+              ],
+              "mapped_action_index": 0
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9008.yaml",
+      "cid": "9008",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9008",
+          "name": {
+            "en": "Bench Target Return",
+            "ja": ""
+          },
+          "text": {
+            "en": "You can target 1 monster you control; return it to the Extra Deck.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9008_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "return_to_extra",
+                "target_id": "t1"
+              }
+            ],
+            "action": {
+              "type": "return_to_extra",
+              "target_id": "t1"
+            },
+            "targets": [
+              {
+                "id": "t1",
+                "count": 1,
+                "selector": {
+                  "kind": "monster",
+                  "controller": "you"
+                },
+                "raw": "you can target 【N】 monster you control"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "you can target 【N】 monster you control; return it to the extra deck.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [
+                "deck",
+                "extra_deck"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [
+                "monster"
+              ],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 1,
+            "action": 2
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "return it to the extra deck.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_RETURN_IT_TO_EXTRA_DECK"
+              ],
+              "mapped_action_index": 0
+            },
+            {
+              "fragment": "you can target 【N】 monster you control; return it to the extra deck.",
+              "classified_as": "target_candidate",
+              "candidate_index": 1,
+              "matched_rule_ids": [],
+              "mapped_action_index": null
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9009.yaml",
+      "cid": "9009",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9009",
+          "name": {
+            "en": "Bench Target Destroy",
+            "ja": ""
+          },
+          "text": {
+            "en": "You can target 1 card your opponent controls; destroy 1 card on the field.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9009_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "destroy",
+                "n": 1,
+                "desc": "card on the field",
+                "target_id": "t1"
+              }
+            ],
+            "action": {
+              "type": "destroy",
+              "n": 1,
+              "desc": "card on the field",
+              "target_id": "t1"
+            },
+            "targets": [
+              {
+                "id": "t1",
+                "count": 1,
+                "selector": {
+                  "kind": "card",
+                  "controller": "you"
+                },
+                "raw": "you can target 【N】 card your opponent controls"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "you can target 【N】 card your opponent controls; destroy 【N】 card on the field.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1,
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [
+                "field"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 1,
+            "action": 2
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "destroy 【N】 card on the field.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_DESTROY_N"
+              ],
+              "mapped_action_index": 0
+            },
+            {
+              "fragment": "you can target 【N】 card your opponent controls; destroy 【N】 card on the field.",
+              "classified_as": "target_candidate",
+              "candidate_index": 1,
+              "matched_rule_ids": [],
+              "mapped_action_index": null
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9010.yaml",
+      "cid": "9010",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9010",
+          "name": {
+            "en": "Bench Cost Discard Draw",
+            "ja": ""
+          },
+          "text": {
+            "en": "Discard 1 card; draw 2 cards.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9010_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {
+              "type": "discard",
+              "n": 1
+            },
+            "actions": [
+              {
+                "type": "draw",
+                "n": 1
+              },
+              {
+                "type": "discard",
+                "n": 1,
+                "desc": "card; draw 【N】 cards"
+              }
+            ],
+            "action": {
+              "type": "draw",
+              "n": 1
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "discard 【N】 card; draw 【N】 cards.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1,
+                2
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 1,
+            "action": 2
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "draw 【N】 cards.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_DRAW_N"
+              ],
+              "mapped_action_index": 0
+            },
+            {
+              "fragment": "discard 【N】 card; draw 【N】 cards.",
+              "classified_as": "action",
+              "candidate_index": 1,
+              "matched_rule_ids": [
+                "ACTION_DISCARD_N__DESC"
+              ],
+              "mapped_action_index": 1
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9011.yaml",
+      "cid": "9011",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9011",
+          "name": {
+            "en": "Bench OPT Draw",
+            "ja": ""
+          },
+          "text": {
+            "en": "Draw 1 card. You can only use this effect of \"Bench OPT Draw\" once per turn.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9011_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "draw",
+                "n": 1
+              }
+            ],
+            "action": {
+              "type": "draw",
+              "n": 1
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "draw 【N】 card. you can only use this effect of 【CARD_NAME】 once per turn.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1
+              ],
+              "CARD_NAME": [
+                "bench opt draw"
+              ]
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 2,
+            "restriction": 1,
+            "cost": 0,
+            "action": 1
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "draw 【N】 card.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_DRAW_N"
+              ],
+              "mapped_action_index": 0
+            }
+          ]
+        },
+        "restriction": {
+          "type": "once_per_turn",
+          "scope": "this_effect",
+          "by": "card_name"
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9012.yaml",
+      "cid": "9012",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9012",
+          "name": {
+            "en": "Bench Search Monster",
+            "ja": ""
+          },
+          "text": {
+            "en": "Add 1 monster from your Deck to your hand.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9012_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "add_to_hand",
+                "n": 1,
+                "from": [
+                  "deck"
+                ],
+                "to": [
+                  "hand"
+                ],
+                "desc": "monster"
+              }
+            ],
+            "action": {
+              "type": "add_to_hand",
+              "n": 1,
+              "from": [
+                "deck"
+              ],
+              "to": [
+                "hand"
+              ],
+              "desc": "monster"
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "add 【N】 monster from your deck to your hand.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [
+                "deck",
+                "hand"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [
+                "monster"
+              ],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 0,
+            "action": 1
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "add 【N】 monster from your deck to your hand.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_ADD_FROM_DECK_TO_HAND"
+              ],
+              "mapped_action_index": 0
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9013.yaml",
+      "cid": "9013",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9013",
+          "name": {
+            "en": "Bench Summon GY",
+            "ja": ""
+          },
+          "text": {
+            "en": "Special Summon 1 monster from your GY.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9013_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "special_summon",
+                "n": 1,
+                "who": "monster",
+                "from": [
+                  "GY"
+                ]
+              }
+            ],
+            "action": {
+              "type": "special_summon",
+              "n": 1,
+              "who": "monster",
+              "from": [
+                "GY"
+              ]
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "special summon 【N】 monster from your gy.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [
+                "GY"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [
+                "monster"
+              ],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 0,
+            "action": 1
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "special summon 【N】 monster from your gy.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_SS_FROM_GY__DESC"
+              ],
+              "mapped_action_index": 0
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9014.yaml",
+      "cid": "9014",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9014",
+          "name": {
+            "en": "Bench Summon Hand",
+            "ja": ""
+          },
+          "text": {
+            "en": "You can Special Summon 1 monster from your hand.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9014_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "special_summon",
+                "n": 1,
+                "who": "monster",
+                "from": [
+                  "hand"
+                ]
+              }
+            ],
+            "action": {
+              "type": "special_summon",
+              "n": 1,
+              "who": "monster",
+              "from": [
+                "hand"
+              ]
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "you can special summon 【N】 monster from your hand.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [
+                "hand"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [
+                "monster"
+              ],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 0,
+            "action": 1
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "you can special summon 【N】 monster from your hand.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_SS_FROM_HAND__DESC"
+              ],
+              "mapped_action_index": 0
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9015.yaml",
+      "cid": "9015",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9015",
+          "name": {
+            "en": "Bench Discard Monster",
+            "ja": ""
+          },
+          "text": {
+            "en": "Discard 1 monster.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9015_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "discard",
+                "n": 1,
+                "desc": "monster"
+              }
+            ],
+            "action": {
+              "type": "discard",
+              "n": 1,
+              "desc": "monster"
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "discard 【N】 monster.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [
+                "monster"
+              ],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 0,
+            "action": 1
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "discard 【N】 monster.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_DISCARD_N__DESC"
+              ],
+              "mapped_action_index": 0
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9016.yaml",
+      "cid": "9016",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9016",
+          "name": {
+            "en": "Bench Shuffle Target",
+            "ja": ""
+          },
+          "text": {
+            "en": "You can target 1 card in either GY; shuffle it into the Deck.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9016_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "return_to_deck",
+                "mode": "shuffle",
+                "target_id": "t1"
+              }
+            ],
+            "action": {
+              "type": "return_to_deck",
+              "mode": "shuffle",
+              "target_id": "t1"
+            },
+            "targets": [
+              {
+                "id": "t1",
+                "count": 1,
+                "selector": {
+                  "kind": "card",
+                  "zones": [
+                    "gy"
+                  ]
+                },
+                "raw": "you can target 【N】 card in either gy"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "you can target 【N】 card in either gy; shuffle it into the deck.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [
+                "deck",
+                "GY"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 1,
+            "action": 2
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "shuffle it into the deck.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_SHUFFLE_IT_INTO_DECK"
+              ],
+              "mapped_action_index": 0
+            },
+            {
+              "fragment": "you can target 【N】 card in either gy; shuffle it into the deck.",
+              "classified_as": "target_candidate",
+              "candidate_index": 1,
+              "matched_rule_ids": [],
+              "mapped_action_index": null
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9017.yaml",
+      "cid": "9017",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9017",
+          "name": {
+            "en": "Bench Negate Unknown",
+            "ja": ""
+          },
+          "text": {
+            "en": "Negate that effect.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9017_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "negate",
+                "what": "effect"
+              }
+            ],
+            "action": {
+              "type": "negate",
+              "what": "effect"
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "negate that effect.",
+            "text_ja": "",
+            "params": {
+              "N": [],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 0,
+            "action": 1
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "negate that effect.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_NEGATE_EFFECT"
+              ],
+              "mapped_action_index": 0
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9018.yaml",
+      "cid": "9018",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9018",
+          "name": {
+            "en": "Bench Banish Target",
+            "ja": ""
+          },
+          "text": {
+            "en": "You can target 1 monster in your GY; banish 1 card from your GY.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9018_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "banish",
+                "n": 1,
+                "desc": "card from your gy",
+                "target_id": "t1"
+              }
+            ],
+            "action": {
+              "type": "banish",
+              "n": 1,
+              "desc": "card from your gy",
+              "target_id": "t1"
+            },
+            "targets": [
+              {
+                "id": "t1",
+                "count": 1,
+                "selector": {
+                  "kind": "monster",
+                  "zones": [
+                    "gy"
+                  ],
+                  "controller": "you"
+                },
+                "raw": "you can target 【N】 monster in your gy"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "you can target 【N】 monster in your gy; banish 【N】 card from your gy.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1,
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [
+                "GY"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [
+                "monster"
+              ],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 1,
+            "action": 2
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "banish 【N】 card from your gy.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_BANISH_N__DESC"
+              ],
+              "mapped_action_index": 0
+            },
+            {
+              "fragment": "you can target 【N】 monster in your gy; banish 【N】 card from your gy.",
+              "classified_as": "target_candidate",
+              "candidate_index": 1,
+              "matched_rule_ids": [],
+              "mapped_action_index": null
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9019.yaml",
+      "cid": "9019",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9019",
+          "name": {
+            "en": "Bench Multi Action",
+            "ja": ""
+          },
+          "text": {
+            "en": "Draw 1 card. Send 1 monster to the GY.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9019_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [
+              {
+                "type": "draw",
+                "n": 1
+              },
+              {
+                "type": "send_to_gy",
+                "n": 1,
+                "desc": "monster",
+                "to": [
+                  "GY"
+                ]
+              }
+            ],
+            "action": {
+              "type": "draw",
+              "n": 1
+            },
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "draw 【N】 card. send 【N】 monster to the gy.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1,
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [
+                "GY"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [
+                "monster"
+              ],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 2,
+            "restriction": 0,
+            "cost": 0,
+            "action": 2
+          },
+          "action_candidate_trace": [
+            {
+              "fragment": "draw 【N】 card.",
+              "classified_as": "action",
+              "candidate_index": 0,
+              "matched_rule_ids": [
+                "ACTION_DRAW_N"
+              ],
+              "mapped_action_index": 0
+            },
+            {
+              "fragment": "send 【N】 monster to the gy.",
+              "classified_as": "action",
+              "candidate_index": 1,
+              "matched_rule_ids": [
+                "ACTION_SEND_TO_GY__DESC"
+              ],
+              "mapped_action_index": 1
+            }
+          ]
+        }
+      },
+      "diagnostics": []
+    },
+    {
+      "filename": "9020.yaml",
+      "cid": "9020",
+      "payload": {
+        "dsl_version": "0.0",
+        "card": {
+          "cid": "9020",
+          "name": {
+            "en": "Bench Unmatched Fragment",
+            "ja": ""
+          },
+          "text": {
+            "en": "Reveal 1 card in your hand.",
+            "ja": ""
+          },
+          "props": {
+            "frame_type": "",
+            "has_effect": false,
+            "attribute": "",
+            "race": "",
+            "level": null,
+            "atk": null,
+            "def": null,
+            "archetype": "",
+            "card_type": "",
+            "typeline": []
+          }
+        },
+        "effects": [
+          {
+            "id": "9020_001",
+            "order": 1,
+            "trigger": {},
+            "restriction": {},
+            "condition": {},
+            "cost": {},
+            "actions": [],
+            "action": {},
+            "targets": []
+          }
+        ],
+        "meta": {
+          "norm": {
+            "text_en": "reveal 【N】 card in your hand.",
+            "text_ja": "",
+            "params": {
+              "N": [
+                1
+              ],
+              "CARD_NAME": []
+            },
+            "categories": {
+              "attributes": [],
+              "races": [],
+              "zones": [
+                "hand"
+              ],
+              "levels": [],
+              "ranks": [],
+              "links": [],
+              "card_types": [],
+              "phases": []
+            }
+          },
+          "restrictions": {
+            "global": {}
+          },
+          "candidates_count": {
+            "sentences": 1,
+            "restriction": 0,
+            "cost": 0,
+            "action": 0
+          },
+          "action_candidate_trace": []
+        }
+      },
+      "diagnostics": []
+    }
   ],
-  "action_counts": {
-    "add_to_hand": 2,
-    "banish": 2,
-    "destroy": 2,
-    "discard": 1,
-    "draw": 4,
-    "negate": 1,
-    "return_to_deck": 1,
-    "return_to_extra": 1,
-    "send_to_gy": 2,
-    "special_summon": 4
-  },
-  "diagnostic_counts": {
-    "error": 0,
-    "warning": 0,
-    "info": 0
+  "summary": {
+    "cards": [
+      {
+        "cid": "9001",
+        "has_card_info": false,
+        "action_types": [
+          "draw"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9002",
+        "has_card_info": false,
+        "action_types": [
+          "add_to_hand"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9003",
+        "has_card_info": false,
+        "action_types": [
+          "destroy"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9004",
+        "has_card_info": false,
+        "action_types": [
+          "send_to_gy"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9005",
+        "has_card_info": false,
+        "action_types": [
+          "special_summon"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9006",
+        "has_card_info": false,
+        "action_types": [
+          "special_summon"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9007",
+        "has_card_info": false,
+        "action_types": [
+          "banish"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9008",
+        "has_card_info": false,
+        "action_types": [
+          "return_to_extra"
+        ],
+        "target_count": 1,
+        "target_kinds": [
+          "monster"
+        ],
+        "diagnostics": []
+      },
+      {
+        "cid": "9009",
+        "has_card_info": false,
+        "action_types": [
+          "destroy"
+        ],
+        "target_count": 1,
+        "target_kinds": [
+          "card"
+        ],
+        "diagnostics": []
+      },
+      {
+        "cid": "9010",
+        "has_card_info": false,
+        "action_types": [
+          "draw",
+          "discard"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9011",
+        "has_card_info": false,
+        "action_types": [
+          "draw"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9012",
+        "has_card_info": false,
+        "action_types": [
+          "add_to_hand"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9013",
+        "has_card_info": false,
+        "action_types": [
+          "special_summon"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9014",
+        "has_card_info": false,
+        "action_types": [
+          "special_summon"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9015",
+        "has_card_info": false,
+        "action_types": [
+          "discard"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9016",
+        "has_card_info": false,
+        "action_types": [
+          "return_to_deck"
+        ],
+        "target_count": 1,
+        "target_kinds": [
+          "card"
+        ],
+        "diagnostics": []
+      },
+      {
+        "cid": "9017",
+        "has_card_info": false,
+        "action_types": [
+          "negate"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9018",
+        "has_card_info": false,
+        "action_types": [
+          "banish"
+        ],
+        "target_count": 1,
+        "target_kinds": [
+          "monster"
+        ],
+        "diagnostics": []
+      },
+      {
+        "cid": "9019",
+        "has_card_info": false,
+        "action_types": [
+          "draw",
+          "send_to_gy"
+        ],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      },
+      {
+        "cid": "9020",
+        "has_card_info": false,
+        "action_types": [],
+        "target_count": 0,
+        "target_kinds": [],
+        "diagnostics": []
+      }
+    ],
+    "action_counts": {
+      "add_to_hand": 2,
+      "banish": 2,
+      "destroy": 2,
+      "discard": 2,
+      "draw": 4,
+      "negate": 1,
+      "return_to_deck": 1,
+      "return_to_extra": 1,
+      "send_to_gy": 2,
+      "special_summon": 4
+    },
+    "diagnostic_counts": {
+      "error": 0,
+      "warning": 0,
+      "info": 0
+    }
   }
 }
