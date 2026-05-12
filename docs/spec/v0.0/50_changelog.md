@@ -4,6 +4,7 @@
 
 ## Unreleased
 
+- docs: add hourly brainstorm workflow and report template for tracking research CORE hypotheses and issue triage decisions.
 - docs: add analyze report dashboard reading guide with field names for action coverage, target resolution, unmatched fragments, empty blocks, and validation counts.
 - docs: synchronize grammar with current transform output: `card.info` removed, `card.props` added, `actions[]` is canonical, `action` is legacy fallback, and `targets[]` is part of the effect shape.
 - feat: add validation severity levels (`error`, `warning`, `info`) and surface warnings for `unknown_action`, `unresolved_target`, `missing_selector`, and `legacy_action_fallback`.

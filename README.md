@@ -63,6 +63,12 @@ Remove-Item Env:\YGO_UPDATE_GOLDEN
 
 Then review `tests/golden/representative_cards/` before committing.
 
+## Hourly Brainstorm Workflow
+
+Hourly brainstorms are tracked as a primary research output, not as setup for later work. Use them to record hypotheses that move `ygo-effect-dsl` toward a research CORE, including why an issue was or was not created.
+
+See [Hourly Brainstorm Workflow](docs/hourly_brainstorm.md) for the operating viewpoints and the report template used by Automation final reports.
+
 ## Analyze Metrics
 
 `analyze` is intended to be the main v0.0 development feedback loop. It reports:
