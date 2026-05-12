@@ -34,5 +34,9 @@ def test_python_m_pipeline_smoke(tmp_path: Path) -> None:
 
     analyze = _run_cli(["analyze", str(yaml_out), "--out", str(report_out)], repo_root)
     assert analyze.returncode == 0, analyze.stdout + analyze.stderr
+    assert "analyze: action_type_coverage=" in analyze.stdout
+    assert "analyze: target_resolution_rate=" in analyze.stdout
+    assert "analyze: unmatched_fragments_top_count=" in analyze.stdout
+    assert "analyze: validation_code_counts=" in analyze.stdout
 
     assert (report_out / "analysis_report.json").exists()

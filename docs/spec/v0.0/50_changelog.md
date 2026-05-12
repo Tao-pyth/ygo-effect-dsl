@@ -4,6 +4,7 @@
 
 ## Unreleased
 
+- feat: print analyze dashboard summaries in CLI output for action coverage, target resolution, unmatched fragments, and validation code counts.
 - docs: add hourly brainstorm workflow and report template for tracking research CORE hypotheses and issue triage decisions.
 - docs: add analyze report dashboard reading guide with field names for action coverage, target resolution, unmatched fragments, empty blocks, and validation counts.
 - docs: synchronize grammar with current transform output: `card.info` removed, `card.props` added, `actions[]` is canonical, `action` is legacy fallback, and `targets[]` is part of the effect shape.

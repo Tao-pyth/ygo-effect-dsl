@@ -81,6 +81,8 @@ See [Hourly Brainstorm Workflow](docs/hourly_brainstorm.md) for the operating vi
 
 Read the report as a dashboard: unmatched fragments point to dictionary gaps, target resolution points to target extraction/transform gaps, empty block ratios point to missing block parsers, and validation counts show which DSL contracts are still noisy. These metrics make dictionary and transform changes visible before any state engine work begins. See [Examples](docs/spec/v0.0/30_examples.md#example-4-analyze-report-development-dashboard) for the field-level reading guide.
 
+The `analyze` CLI also prints the most important dashboard summaries directly, including action type coverage, target resolution rate, unmatched fragment counts, and validation code counts. This keeps the next dictionary/transform target visible without opening the JSON report first.
+
 ## Validation Diagnostics
 
 `validate` separates diagnostics into three severities:
