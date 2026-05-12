@@ -6,6 +6,7 @@
 
 - docs: synchronize grammar with current transform output: `card.info` removed, `card.props` added, `actions[]` is canonical, `action` is legacy fallback, and `targets[]` is part of the effect shape.
 - feat: add validation severity levels (`error`, `warning`, `info`) and surface warnings for `unknown_action`, `unresolved_target`, `missing_selector`, and `legacy_action_fallback`.
+- docs: detail validation severity/code contracts, validate CLI output, and v0.1 connection in `40_validation.md`.
 - feat: expand analyze report with action type coverage, target reference resolution rate, unmatched fragment ranking, and validation severity/code counts.
 - feat: add starter `negate` action rule and candidate extraction coverage.
 - test: add representative-card benchmark dataset and golden-output comparison with explicit `YGO_UPDATE_GOLDEN=1` update flow.

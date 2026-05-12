@@ -76,6 +76,16 @@ Then review `tests/golden/representative_cards/` before committing.
 
 These metrics make dictionary and transform changes visible before any state engine work begins.
 
+## Validation Diagnostics
+
+`validate` separates diagnostics into three severities:
+
+- `error`: DSL shape is invalid. Fix this before later pipeline steps depend on the output.
+- `warning`: DSL shape is valid, but some meaning is unresolved or compatibility-only.
+- `info`: analysis note that does not block processing.
+
+For Japanese contributors: first check that `errors=0`, then use warning codes such as `unknown_action`, `unresolved_target`, `missing_selector`, and `legacy_action_fallback` as the TODO list for improving transform rules. The detailed contract is in [Validation](docs/spec/v0.0/40_validation.md).
+
 ## Specs
 
 Spec is the source of truth:
