@@ -184,6 +184,9 @@ Spec is the source of truth:
 - [Grammar](docs/spec/v0.0/10_grammar.md)
 - [Semantics](docs/spec/v0.0/20_semantics.md)
 - [Validation](docs/spec/v0.0/40_validation.md)
+- [v0.1 Overview](docs/spec/v0.1/00_overview.md)
+- [v0.1 Minimal Semantics](docs/spec/v0.1/10_minimal_semantics.md)
+- [v0.1 First 10 One-Step Applications](docs/spec/v0.1/20_first_10_applications.md)
 - [Changelog](docs/spec/v0.0/50_changelog.md)
 
 Documentation and behavior changes should update the changelog in the same change.
@@ -197,6 +200,7 @@ Milestone D: analyze coverage dashboard
 Milestone E: v0.1 minimal state/action semantics
 
 v0.1 should start with a small read/query state model (`Deck`, `Hand`, `Field`, `GY`, `Banished`, `Extra`, `Flags`) and a narrow action vocabulary (`draw`, `add_to_hand`, `send_to_gy`, `destroy`, `special_summon`, `banish`, `negate`).
+The draft contract is tracked in [v0.1 Minimal Semantics](docs/spec/v0.1/10_minimal_semantics.md), with the first representative one-step candidates in [v0.1 First 10 One-Step Applications](docs/spec/v0.1/20_first_10_applications.md).
 
 ## Scope
 

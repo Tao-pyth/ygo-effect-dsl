@@ -4,6 +4,7 @@
 
 ## Unreleased
 
+- docs: add v0.1 overview, minimal state/action semantics, and first 10 one-step application candidates.
 - docs: document representative benchmark slot coverage, real-card replacement priorities, and golden update workflow.
 - test: strengthen representative-card golden comparison with full DSL payload snapshots and diagnostics.
 - docs: define provisional `quality.empty_block_ratio` thresholds and advisory investigation policy for v0.0 stabilization.
