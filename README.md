@@ -40,6 +40,27 @@ common parser behavior without copying official card database records. This is a
 distributable smoke fixture; it does not replace the representative-card
 benchmark, which should continue moving toward real-card-centered coverage.
 
+## Windows exe Artifact
+
+Pull requests and pushes build a Windows x64 executable through GitHub Actions.
+The workflow runs `python -m pytest` first, then builds `ygo-effect-dsl.exe` with
+PyInstaller and uploads the artifact as `ygo-effect-dsl-win64`.
+
+Download the artifact from the `Build Windows exe` workflow run, then run the
+same CLI commands without installing Python:
+
+```powershell
+.\ygo-effect-dsl.exe ingest --dataset examples/sample_dataset
+.\ygo-effect-dsl.exe transform --dataset examples/sample_dataset --out data/dsl_out
+.\ygo-effect-dsl.exe validate data/dsl_out/yaml
+.\ygo-effect-dsl.exe analyze data/dsl_out/yaml --out data/reports
+```
+
+The exe bundles the default `resources/dict/v0_0` dictionary. Pass `--dict` only
+when testing an external dictionary directory. Formal release attachment on tag
+push is intentionally deferred; see
+[Versioning And Release Policy](docs/release/versioning.md).
+
 ## What v0.0 Means
 
 v0.0 is a research conversion baseline. It prioritizes stable structure and diagnostics over complete game semantics.
