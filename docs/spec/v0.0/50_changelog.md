@@ -4,6 +4,9 @@
 
 ## Unreleased
 
+- docs: add version/tag/release policy for SemVer, v0 line operation,
+  tag-triggered distribution, artifact naming, changelog expectations, and
+  future app/schema/ruleset version separation.
 - docs: add an anonymous validation Issue template and local log format for
   reporting YAML validation summaries without publishing protected source data.
 - docs: add Issue #27 pending local commits checklist for publishing

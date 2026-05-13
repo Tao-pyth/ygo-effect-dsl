@@ -304,6 +304,7 @@ Spec is the source of truth:
 - [v0.1 Minimal Semantics](docs/spec/v0.1/10_minimal_semantics.md)
 - [v0.1 First 10 One-Step Applications](docs/spec/v0.1/20_first_10_applications.md)
 - [Anonymous Validation Format](docs/anonymous_validation_format.md)
+- [Versioning And Release Policy](docs/release/versioning.md)
 - [Changelog](docs/spec/v0.0/50_changelog.md)
 
 Documentation and behavior changes should update the changelog in the same change.
