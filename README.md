@@ -140,6 +140,35 @@ the dataset:
 - 9017 negate: a short "negate that effect" hand-trap or response card, after
   confirming the surrounding trigger/cost text does not change the slot's role.
 
+Issue #13 migration checklist:
+
+- Keep each pull request to one small batch, preferably 2-4 low-risk slots, so
+  the transform diff and golden snapshot can be reviewed by another worker.
+- Start with simple action-only slots before target-heavy, cost, restriction,
+  or unmatched-fragment slots.
+- Use only short card names and source identifiers in docs or review notes; do
+  not bulk-copy official effect text into repository documentation.
+- Before changing `cards.jsonl`, record the expected slot role and the reason
+  the real card should preserve or intentionally improve that role.
+- After regenerating golden output, check both the representative golden diff
+  and the analyze dashboard impact before treating the batch as complete.
+
+Suggested first batches for #13:
+
+| Priority | Slots | Candidate names | Why this batch is safe |
+| --- | --- | --- | --- |
+| 1 | 9001, 9004, 9013 | `Pot of Greed`, `Foolish Burial`, `Monster Reborn` | Short, recognizable action-only cards that directly exercise draw, send-to-GY, and GY summon coverage. |
+| 2 | 9003, 9012 | `Mystical Space Typhoon`, `Reinforcement of the Army` | Still narrow, but should be reviewed for target/type narrowing in the emitted DSL. |
+| 3 | 9008, 9009, 9016, 9018 | Real cards with matching target clauses | Target slots should move after action-only replacements because they can change `targets[]` shape and target resolution metrics. |
+| 4 | 9010, 9011, 9017, 9020 | Real cards selected for cost, OPT, negate, and unmatched canary behavior | These are closure-critical but riskier because they touch known v0.0 rough edges in costs, restrictions, negation, and unmatched fragments. |
+
+Issue #13 is not complete until the benchmark is mostly real-card centered
+while still preserving the 20 semantic slots: action coverage remains broad,
+target resolution has at least one controlled/opponent/either-GY/your-GY case,
+cost and restriction rough edges are still visible, one unmatched canary remains,
+and `analyze` continues to report useful movement rather than a cleaned-up
+fixture-only success.
+
 When replacing a row, keep `tests/golden/representative_cards/expected.json` as a
 full snapshot and update it only as a deliberate second step:
 
@@ -150,7 +179,10 @@ full snapshot and update it only as a deliberate second step:
    target, cost, restriction, diagnostics, and `meta.action_candidate_trace`.
 4. Regenerate with `YGO_UPDATE_GOLDEN=1` only after that review.
 5. Re-run the representative golden test and the analyze checks, then inspect
-   `tests/golden/representative_cards/expected.json` before committing.
+   `tests/golden/representative_cards/expected.json` before committing. Treat
+   changes to empty-block ratio, target reference resolution, unmatched
+   fragments, validation codes, or action type coverage as review items, not as
+   mechanical golden churn.
 
 This benchmark is the bridge between v0.0 stabilization and v0.1 semantics.
 v0.0 needs stable, reviewable outputs for `actions[]`, `targets[]`, costs,

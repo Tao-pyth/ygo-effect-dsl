@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+- docs: add Issue #13 migration checklist, first-batch slot priorities, and
+  golden/analyze review items for real-card representative benchmark updates.
 - examples: add 10 fictional synthetic test cards for GitHub-distributable
   pipeline verification without copying official card records.
 - test: cover the synthetic example dataset through ingest, transform, and
