@@ -55,7 +55,7 @@ def test_distributable_synthetic_fixture_pipeline(tmp_path: Path) -> None:
     target_count = 0
     for file in files:
         payload = load_yaml(str(file))
-        assert payload["card"]["cid"] >= 10001
+        assert int(payload["card"]["cid"]) >= 10001
         effect = payload["effects"][0]
         action_types.update(
             action.get("type")

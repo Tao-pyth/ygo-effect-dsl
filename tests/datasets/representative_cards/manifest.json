@@ -1,5 +1,5 @@
 {
-  "export_schema_version": "0.1",
+  "export_schema_version": "0.0",
   "record_count": 20,
   "fields": [
     "cid",
