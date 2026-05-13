@@ -14,6 +14,13 @@ Do not copy large official card text into repo docs. Use the official database
 URL as the source pointer, then review the regenerated representative golden
 snapshot when Python is available.
 
+Before applying this first batch, follow the
+[Local Verification Prerequisites](../../../README.md#local-verification-prerequisites).
+If Python 3.10+, editable install, pytest, representative golden regeneration,
+or analyze report review cannot run locally, stop before changing
+`tests/datasets/representative_cards/cards.jsonl` or
+`tests/golden/representative_cards/expected.json`.
+
 | Slot | Candidate | Official DB URL | Slot role | Why it fits | Expected action/target | Golden update check |
 | --- | --- | --- | --- | --- | --- | --- |
 | 9001 | `Pot of Greed` | https://www.db.yugioh-card.com/yugiohdb/card_search.action?cid=4844&ope=2&request_locale=en | simple draw | Short Normal Spell with no target, cost, trigger, or restriction pressure. | `draw`; target remains implicit/no `targets[]`. | Confirm count remains 2, no extra cost/restriction appears, and analyze action coverage still counts `draw`. |

@@ -56,6 +56,57 @@ Current DSL focus:
 
 `card.info` is not exported in the DSL. Raw ETL info blobs may be normalized into compact `card.props`.
 
+## Local Verification Prerequisites
+
+Before starting the Issue #13 first batch or any representative-card golden
+update, confirm the local verification loop is available. Do this before
+editing `tests/datasets/representative_cards/cards.jsonl` so fixture changes and
+golden changes stay reviewable together.
+
+Required order:
+
+1. Install Python 3.10 or newer.
+2. Install the package in editable mode:
+
+   ```bash
+   pip install -e .
+   ```
+
+3. Run the test suite:
+
+   ```bash
+   python -m pytest
+   ```
+
+4. For an intentional representative benchmark update, first run the
+   representative golden test without updating the snapshot and review the
+   failing diff:
+
+   ```bash
+   python -m pytest tests/test_representative_golden.py
+   ```
+
+5. Regenerate the representative golden snapshot only after the per-card DSL
+   diff is intentional:
+
+   ```bash
+   $env:YGO_UPDATE_GOLDEN="1"
+   python -m pytest tests/test_representative_golden.py
+   Remove-Item Env:\YGO_UPDATE_GOLDEN
+   ```
+
+6. Re-run the representative golden test and the analyze checks, then inspect
+   both `tests/golden/representative_cards/expected.json` and the analyze
+   report impact before committing.
+
+Stop condition: if `python`, `py`, or `pytest` is not available locally, do not
+change `tests/datasets/representative_cards/cards.jsonl` or
+`tests/golden/representative_cards/expected.json`. In that state, keep work to
+README/docs/changelog notes, source-review planning, or other docs-only changes
+until the verification loop above can run. The Issue #13 first-batch source
+review note is in
+[docs/spec/v0.0/19_issue_13_first_batch_source_review.md](docs/spec/v0.0/19_issue_13_first_batch_source_review.md).
+
 ## Development Loop
 
 Run tests:
