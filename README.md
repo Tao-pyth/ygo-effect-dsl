@@ -107,6 +107,23 @@ until the verification loop above can run. The Issue #13 first-batch source
 review note is in
 [docs/spec/v0.0/19_issue_13_first_batch_source_review.md](docs/spec/v0.0/19_issue_13_first_batch_source_review.md).
 
+## Issue #27 Pending Local Commits Checklist
+
+Use this checklist before publishing the pending local commits for Issue #27.
+When `git status --short --branch` reports `main...origin/main [ahead N]`,
+GitHub Actions cannot verify those commits until they are pushed. Push and PR
+creation must wait for explicit user permission.
+
+1. Confirm `git status --short --branch` still reports
+   `main...origin/main [ahead N]` and review the pending local commits.
+2. Confirm there are no unintended user changes mixed into the publish set,
+   especially outside README/docs/changelog when doing docs-only stabilization.
+3. After explicit user approval, push the pending local commits or open a PR
+   from the prepared branch.
+4. Wait for GitHub Actions to run the pytest workflow on the published commits.
+5. Continue to the Issue #13 first batch only after CI is green, because the
+   next #13 step depends on the Issue #26 GitHub Actions workflow result.
+
 ## Development Loop
 
 Run tests:

@@ -4,6 +4,9 @@
 
 ## Unreleased
 
+- docs: add Issue #27 pending local commits checklist for publishing
+  `main...origin/main [ahead N]`, waiting for explicit push/PR approval, and
+  requiring green GitHub Actions before continuing the Issue #13 first batch.
 - ci: add GitHub Actions pytest workflow for pull requests and pushes, covering
   representative golden/analyze regression checks without updating golden
   fixtures.
