@@ -115,6 +115,9 @@ Run tests:
 python -m pytest
 ```
 
+GitHub Actions runs the same pytest suite on pull requests and pushes, so the
+representative golden and analyze checks act as CI regression detection.
+
 Representative-card golden tests compare transform output for `tests/datasets/representative_cards`.
 
 Update golden files only when the DSL change is intentional:

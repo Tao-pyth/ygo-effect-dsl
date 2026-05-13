@@ -4,6 +4,9 @@
 
 ## Unreleased
 
+- ci: add GitHub Actions pytest workflow for pull requests and pushes, covering
+  representative golden/analyze regression checks without updating golden
+  fixtures.
 - docs: document local verification prerequisites and stop condition for
   representative-card golden/analyze workflow before Issue #13 first-batch
   fixture edits.
