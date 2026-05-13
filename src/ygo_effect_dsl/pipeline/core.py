@@ -246,6 +246,19 @@ def _apply_action_candidates(
         return isinstance(row, dict) and isinstance(row.get("type"), str) and bool(row.get("type"))
 
     for index, fragment in enumerate(candidates):
+        classified_as = "target_candidate" if TARGET_PATTERN.match(fragment.strip().rstrip(".")) else "action"
+        if classified_as == "target_candidate":
+            details.append(
+                {
+                    "fragment": fragment,
+                    "classified_as": classified_as,
+                    "candidate_index": index,
+                    "matched_rule_ids": [],
+                    "mapped_action_index": None,
+                }
+            )
+            continue
+
         payload, fragment_hits = engine.apply_rules(fragment, rules, {"action": {}, "actions": []}, params)
         action_obj = payload.get("action", {})
         action_list = payload.get("actions", [])
@@ -263,7 +276,7 @@ def _apply_action_candidates(
         details.append(
             {
                 "fragment": fragment,
-                "classified_as": "target_candidate" if TARGET_PATTERN.match(fragment.strip().rstrip(".")) else "action",
+                "classified_as": classified_as,
                 "candidate_index": index,
                 "matched_rule_ids": fragment_hits,
                 "mapped_action_index": mapped_action_index,
