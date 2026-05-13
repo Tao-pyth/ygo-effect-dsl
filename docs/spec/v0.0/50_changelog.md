@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- fix: keep semicolon cost fragments out of `actions[]` so cost/action
+  separation does not inflate representative action coverage, and bind
+  normalized params per parsed fragment so representative 9010 emits
+  `discard` in `cost` and only `draw n=2` in `actions[]`.
 - docs: add version/tag/release policy for SemVer, v0 line operation,
   tag-triggered distribution, artifact naming, changelog expectations, and
   future app/schema/ruleset version separation.

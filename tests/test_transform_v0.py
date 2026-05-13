@@ -277,3 +277,31 @@ def test_transform_links_target_id_to_semicolon_action(tmp_path: Path) -> None:
 
     trace = payload["meta"]["action_candidate_trace"]
     assert any(row["classified_as"] == "target_candidate" for row in trace)
+
+
+def test_transform_semicolon_cost_is_not_duplicated_as_action(tmp_path: Path) -> None:
+    in_path = tmp_path / "cards.json"
+    in_path.write_text(
+        json.dumps(
+            {
+                "cid": 9010,
+                "name_en": "Cost Draw",
+                "name_ja": "",
+                "card_text_en": "Discard 1 card; draw 2 cards.",
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    rc = cmd_transform(_TransformArgs(str(in_path), str(tmp_path / "export")))
+    assert rc == 0
+
+    payload = load_yaml(str(tmp_path / "export" / "yaml" / "9010.yaml"))
+    effect = payload["effects"][0]
+
+    assert effect["cost"] == {"type": "discard", "n": 1}
+    assert effect["actions"] == [{"type": "draw", "n": 2}]
+    assert effect["action"] == {"type": "draw", "n": 2}
+    assert payload["meta"]["candidates_count"]["action"] == 1
+    assert all(";" not in row["fragment"] for row in payload["meta"]["action_candidate_trace"])

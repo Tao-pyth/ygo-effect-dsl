@@ -995,17 +995,12 @@
             "actions": [
               {
                 "type": "draw",
-                "n": 1
-              },
-              {
-                "type": "discard",
-                "n": 1,
-                "desc": "card; draw 【N】 cards"
+                "n": 2
               }
             ],
             "action": {
               "type": "draw",
-              "n": 1
+              "n": 2
             },
             "targets": []
           }
@@ -1039,7 +1034,7 @@
             "sentences": 1,
             "restriction": 0,
             "cost": 1,
-            "action": 2
+            "action": 1
           },
           "action_candidate_trace": [
             {
@@ -1050,15 +1045,6 @@
                 "ACTION_DRAW_N"
               ],
               "mapped_action_index": 0
-            },
-            {
-              "fragment": "discard 【N】 card; draw 【N】 cards.",
-              "classified_as": "action",
-              "candidate_index": 1,
-              "matched_rule_ids": [
-                "ACTION_DISCARD_N__DESC"
-              ],
-              "mapped_action_index": 1
             }
           ]
         }
@@ -2217,8 +2203,7 @@
         "cid": "9010",
         "has_card_info": false,
         "action_types": [
-          "draw",
-          "discard"
+          "draw"
         ],
         "target_count": 0,
         "target_kinds": [],
@@ -2332,7 +2317,7 @@
       "add_to_hand": 2,
       "banish": 2,
       "destroy": 2,
-      "discard": 2,
+      "discard": 1,
       "draw": 4,
       "negate": 1,
       "return_to_deck": 1,

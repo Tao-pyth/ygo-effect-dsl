@@ -168,7 +168,7 @@ Current slot coverage:
 | 9007 | banish from GY | `banish` | inline GY description | none | none |
 | 9008 | targeted return to Extra Deck | `return_to_extra` | `targets[]` monster you control | none | target clause only |
 | 9009 | targeted destroy | `destroy` | `targets[]` card your opponent controls | none | target clause only |
-| 9010 | discard cost into draw | `draw`, plus current extra `discard` action trace | none | `discard` 1 card | none |
+| 9010 | discard cost into draw | `draw` | none | `discard` 1 card | none |
 | 9011 | once-per-turn classifier | `draw` | none | none | OPT text is detected as a restriction candidate; emitted global restriction is still empty |
 | 9012 | generic monster search | `add_to_hand` from Deck to hand | inline monster description | none | none |
 | 9013 | summon from GY | `special_summon` from GY | inline monster description | none | none |
@@ -191,9 +191,9 @@ Replacement priorities from synthetic to real cards:
    actions, so preserve one slot each for controlled monster, opponent card,
    either GY, and your GY.
 3. Replace cost and restriction slots only when the golden diff is intentionally
-   reviewed. These slots expose current rough edges: semicolon costs can also
-   appear in `actions[]`, and OPT text is counted as a restriction candidate but
-   does not yet populate `meta.restrictions.global`.
+   reviewed. These slots protect current parser contracts: semicolon costs stay
+   in `cost` instead of `actions[]`, and OPT text is counted as a restriction
+   candidate but does not yet populate `meta.restrictions.global`.
 4. Keep one unmatched or partially unmatched real card slot for v0.0. It is a
    canary for dictionary gaps and helps `analyze` keep surfacing work that should
    not be hidden by only testing already-supported text.
