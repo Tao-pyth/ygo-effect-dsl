@@ -8,6 +8,8 @@
   uploading `ygo-effect-dsl-win64`.
 - feat: add `ygo-effect-dsl` console script and bundled-resource dictionary
   default for frozen executable runs.
+- fix: escape unmatched fragment CLI output so `analyze` works on Windows
+  consoles with non-UTF-8 default encodings.
 - fix: keep semicolon cost fragments out of `actions[]` so cost/action
   separation does not inflate representative action coverage, and bind
   normalized params per parsed fragment so representative 9010 emits
