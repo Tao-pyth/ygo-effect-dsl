@@ -64,6 +64,25 @@
   examples:
     - 'You can discard 1 monster;'
 
+- id: 'COST_DISCARD_N_DESC'
+  version: '0.0'
+  priority: 213
+  language: 'en'
+  applies_to: 'cost'
+  pattern: '^discard 【N】 (?P<desc>.+?);$'
+  capture:
+    n: 'N[0]'
+    desc: '$desc'
+  emit:
+    cost:
+      type: 'discard'
+      n: '$n'
+      desc: '$desc'
+  on_fail: 'ignore'
+  note: 'starter cost rule for semicolon costs without a leading "you can"'
+  examples:
+    - 'Discard 1 monster;'
+
 - id: 'COST_PAY_LP_N'
   version: '0.0'
   priority: 210
