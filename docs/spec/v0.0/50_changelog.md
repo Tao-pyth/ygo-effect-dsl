@@ -4,6 +4,9 @@
 
 ## Unreleased
 
+- ci: add representative golden preview workflow that can regenerate
+  `tests/golden/representative_cards/expected.json` in GitHub Actions and
+  publish the result as a review artifact without committing it.
 - ci: add Windows PyInstaller workflow that runs pytest before building and
   uploading `ygo-effect-dsl-win64`.
 - feat: add `ygo-effect-dsl` console script and bundled-resource dictionary

@@ -1,0 +1,66 @@
+name: Representative golden preview
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/representative-golden-preview.yml"
+      - "README.md"
+      - "docs/spec/v0.0/**"
+      - "tests/datasets/representative_cards/**"
+      - "tests/golden/representative_cards/**"
+      - "tests/test_representative_golden.py"
+
+jobs:
+  preview-representative-golden:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install package and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install pytest
+
+      - name: Run representative golden test without updating
+        id: diagnostic
+        continue-on-error: true
+        run: python -m pytest tests/test_representative_golden.py
+
+      - name: Regenerate representative golden snapshot
+        run: YGO_UPDATE_GOLDEN=1 python -m pytest tests/test_representative_golden.py
+
+      - name: Write representative golden diff
+        run: |
+          git diff -- tests/golden/representative_cards/expected.json > representative-golden-diff.txt
+          if [ ! -s representative-golden-diff.txt ]; then
+            echo "No representative golden diff was produced." > representative-golden-diff.txt
+          fi
+          {
+            echo "## Representative golden preview"
+            echo
+            echo "- Diagnostic test outcome: ${{ steps.diagnostic.outcome }}"
+            echo "- Regenerated file: tests/golden/representative_cards/expected.json"
+            echo "- This workflow does not commit generated files."
+            echo
+            echo '```diff'
+            cat representative-golden-diff.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload regenerated representative golden
+        uses: actions/upload-artifact@v4
+        with:
+          name: representative-golden-preview
+          path: |
+            tests/golden/representative_cards/expected.json
+            representative-golden-diff.txt
+          if-no-files-found: error

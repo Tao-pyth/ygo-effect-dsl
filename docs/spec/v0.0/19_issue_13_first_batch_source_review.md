@@ -21,6 +21,12 @@ or analyze report review cannot run locally, stop before changing
 `tests/datasets/representative_cards/cards.jsonl` or
 `tests/golden/representative_cards/expected.json`.
 
+If local Python is unavailable but a PR already contains representative
+benchmark edits, use the `Representative golden preview` GitHub Actions
+workflow to produce a regenerated `expected.json` artifact and diff report.
+Treat that artifact as review input only: it should not be copied into the repo
+until a maintainer has checked the per-card DSL and analyze impact.
+
 | Slot | Candidate | Official DB URL | Slot role | Why it fits | Expected action/target | Golden update check |
 | --- | --- | --- | --- | --- | --- | --- |
 | 9001 | `Pot of Greed` | https://www.db.yugioh-card.com/yugiohdb/card_search.action?cid=4844&ope=2&request_locale=en | simple draw | Short Normal Spell with no target, cost, trigger, or restriction pressure. | `draw`; target remains implicit/no `targets[]`. | Confirm count remains 2, no extra cost/restriction appears, and analyze action coverage still counts `draw`. |

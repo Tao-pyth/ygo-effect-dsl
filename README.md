@@ -128,6 +128,15 @@ until the verification loop above can run. The Issue #13 first-batch source
 review note is in
 [docs/spec/v0.0/19_issue_13_first_batch_source_review.md](docs/spec/v0.0/19_issue_13_first_batch_source_review.md).
 
+When local Python is unavailable but a PR needs a preview of the representative
+golden regeneration, run the `Representative golden preview` workflow from
+GitHub Actions. It first runs `tests/test_representative_golden.py` without
+`YGO_UPDATE_GOLDEN=1` as a diagnostic, then regenerates
+`tests/golden/representative_cards/expected.json` inside the Actions workspace
+and uploads the regenerated snapshot plus a diff report as an artifact. The
+workflow never commits generated files; use the artifact only as review input
+before making an intentional local golden update.
+
 ## Issue #27 Pending Local Commits Checklist
 
 Use this checklist before publishing the pending local commits for Issue #27.
