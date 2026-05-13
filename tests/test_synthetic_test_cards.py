@@ -52,6 +52,7 @@ def test_distributable_synthetic_fixture_pipeline(tmp_path: Path) -> None:
     assert len(files) == 10
 
     action_types = set()
+    cost_types = set()
     target_count = 0
     for file in files:
         payload = load_yaml(str(file))
@@ -62,16 +63,19 @@ def test_distributable_synthetic_fixture_pipeline(tmp_path: Path) -> None:
             for action in effect.get("actions", [])
             if isinstance(action, dict)
         )
+        cost = effect.get("cost", {})
+        if isinstance(cost, dict) and cost.get("type"):
+            cost_types.add(cost["type"])
         target_count += len(effect.get("targets", []))
 
     assert {
         "add_to_hand",
         "banish",
         "destroy",
-        "discard",
         "draw",
         "return_to_extra",
         "send_to_gy",
         "special_summon",
     }.issubset(action_types)
+    assert "discard" in cost_types
     assert target_count >= 2
