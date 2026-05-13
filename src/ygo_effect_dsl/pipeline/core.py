@@ -242,6 +242,9 @@ def _apply_action_candidates(
     hits: list[str] = []
     details: list[dict[str, Any]] = []
 
+    def is_typed_action(row: Any) -> bool:
+        return isinstance(row, dict) and isinstance(row.get("type"), str) and bool(row.get("type"))
+
     for index, fragment in enumerate(candidates):
         payload, fragment_hits = engine.apply_rules(fragment, rules, {"action": {}, "actions": []}, params)
         action_obj = payload.get("action", {})
@@ -250,10 +253,10 @@ def _apply_action_candidates(
         mapped_action_index: int | None = None
         if isinstance(action_list, list) and action_list:
             for row in action_list:
-                if isinstance(row, dict) and row:
+                if is_typed_action(row):
                     actions.append(row)
                     mapped_action_index = len(actions) - 1
-        elif isinstance(action_obj, dict) and action_obj:
+        elif is_typed_action(action_obj):
             actions.append(action_obj)
             mapped_action_index = len(actions) - 1
 
