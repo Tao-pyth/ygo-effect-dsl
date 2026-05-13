@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+- docs: add Issue #13 first-batch source review note for slots 9001, 9004,
+  and 9013 without changing representative dataset or golden fixtures.
 - docs: add Issue #13 migration checklist, first-batch slot priorities, and
   golden/analyze review items for real-card representative benchmark updates.
 - examples: add 10 fictional synthetic test cards for GitHub-distributable
