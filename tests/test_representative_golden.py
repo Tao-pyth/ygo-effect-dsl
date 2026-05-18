@@ -98,6 +98,35 @@ def _snapshot_dataset(cards_dir: Path) -> dict[str, object]:
     }
 
 
+def _first_diff_path(actual: Any, expected: Any, path: str = "$") -> str:
+    if type(actual) is not type(expected):
+        return f"{path}: type {type(actual).__name__} != {type(expected).__name__}"
+
+    if isinstance(actual, dict):
+        actual_keys = set(actual)
+        expected_keys = set(expected)
+        if actual_keys != expected_keys:
+            return f"{path}: keys {sorted(actual_keys)} != {sorted(expected_keys)}"
+        for key in sorted(actual_keys):
+            diff = _first_diff_path(actual[key], expected[key], f"{path}.{key}")
+            if diff:
+                return diff
+        return ""
+
+    if isinstance(actual, list):
+        if len(actual) != len(expected):
+            return f"{path}: length {len(actual)} != {len(expected)}"
+        for index, (actual_item, expected_item) in enumerate(zip(actual, expected)):
+            diff = _first_diff_path(actual_item, expected_item, f"{path}[{index}]")
+            if diff:
+                return diff
+        return ""
+
+    if actual != expected:
+        return f"{path}: {actual!r} != {expected!r}"
+    return ""
+
+
 def test_representative_cards_match_golden(tmp_path: Path) -> None:
     out_dir = tmp_path / "export"
     assert cmd_transform(_TransformArgs(str(out_dir))) == 0
@@ -108,4 +137,4 @@ def test_representative_cards_match_golden(tmp_path: Path) -> None:
         GOLDEN_PATH.write_text(json.dumps(actual, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     expected = json.loads(GOLDEN_PATH.read_text(encoding="utf-8"))
-    assert actual == expected
+    assert actual == expected, _first_diff_path(actual, expected)

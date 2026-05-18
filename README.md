@@ -27,6 +27,40 @@ Key outputs:
 - Transform reports: `data/dsl_out/reports/`
 - Analyze report: `data/reports/analysis_report.json`
 
+For a richer distributable fixture, use the synthetic verification cards:
+
+```bash
+python -m ygo_effect_dsl ingest --dataset examples/synthetic_test_cards
+python -m ygo_effect_dsl transform --dataset examples/synthetic_test_cards --out data/synthetic_dsl
+python -m ygo_effect_dsl validate data/synthetic_dsl/yaml
+```
+
+`examples/synthetic_test_cards` contains 10 fictional cards designed to exercise
+common parser behavior without copying official card database records. This is a
+distributable smoke fixture; it does not replace the representative-card
+benchmark, which should continue moving toward real-card-centered coverage.
+
+## Windows exe Artifact
+
+Pull requests and pushes build a Windows x64 executable through GitHub Actions.
+The workflow runs `python -m pytest` first, then builds `ygo-effect-dsl.exe` with
+PyInstaller and uploads the artifact as `ygo-effect-dsl-win64`.
+
+Download the artifact from the `Build Windows exe` workflow run, then run the
+same CLI commands without installing Python:
+
+```powershell
+.\ygo-effect-dsl.exe ingest --dataset examples/sample_dataset
+.\ygo-effect-dsl.exe transform --dataset examples/sample_dataset --out data/dsl_out
+.\ygo-effect-dsl.exe validate data/dsl_out/yaml
+.\ygo-effect-dsl.exe analyze data/dsl_out/yaml --out data/reports
+```
+
+The exe bundles the default `resources/dict/v0_0` dictionary. Pass `--dict` only
+when testing an external dictionary directory. Formal release attachment on tag
+push is intentionally deferred; see
+[Versioning And Release Policy](docs/release/versioning.md).
+
 ## What v0.0 Means
 
 v0.0 is a research conversion baseline. It prioritizes stable structure and diagnostics over complete game semantics.
@@ -43,6 +77,83 @@ Current DSL focus:
 
 `card.info` is not exported in the DSL. Raw ETL info blobs may be normalized into compact `card.props`.
 
+## Local Verification Prerequisites
+
+Before starting the Issue #13 first batch or any representative-card golden
+update, confirm the local verification loop is available. Do this before
+editing `tests/datasets/representative_cards/cards.jsonl` so fixture changes and
+golden changes stay reviewable together.
+
+Required order:
+
+1. Install Python 3.10 or newer.
+2. Install the package in editable mode:
+
+   ```bash
+   pip install -e .
+   ```
+
+3. Run the test suite:
+
+   ```bash
+   python -m pytest
+   ```
+
+4. For an intentional representative benchmark update, first run the
+   representative golden test without updating the snapshot and review the
+   failing diff:
+
+   ```bash
+   python -m pytest tests/test_representative_golden.py
+   ```
+
+5. Regenerate the representative golden snapshot only after the per-card DSL
+   diff is intentional:
+
+   ```bash
+   $env:YGO_UPDATE_GOLDEN="1"
+   python -m pytest tests/test_representative_golden.py
+   Remove-Item Env:\YGO_UPDATE_GOLDEN
+   ```
+
+6. Re-run the representative golden test and the analyze checks, then inspect
+   both `tests/golden/representative_cards/expected.json` and the analyze
+   report impact before committing.
+
+Stop condition: if `python`, `py`, or `pytest` is not available locally, do not
+change `tests/datasets/representative_cards/cards.jsonl` or
+`tests/golden/representative_cards/expected.json`. In that state, keep work to
+README/docs/changelog notes, source-review planning, or other docs-only changes
+until the verification loop above can run. The Issue #13 first-batch source
+review note is in
+[docs/spec/v0.0/19_issue_13_first_batch_source_review.md](docs/spec/v0.0/19_issue_13_first_batch_source_review.md).
+
+When local Python is unavailable but a PR needs a preview of the representative
+golden regeneration, run the `Representative golden preview` workflow from
+GitHub Actions. It first runs `tests/test_representative_golden.py` without
+`YGO_UPDATE_GOLDEN=1` as a diagnostic, then regenerates
+`tests/golden/representative_cards/expected.json` inside the Actions workspace
+and uploads the regenerated snapshot plus a diff report as an artifact. The
+workflow never commits generated files; use the artifact only as review input
+before making an intentional local golden update.
+
+## Issue #27 Pending Local Commits Checklist
+
+Use this checklist before publishing the pending local commits for Issue #27.
+When `git status --short --branch` reports `main...origin/main [ahead N]`,
+GitHub Actions cannot verify those commits until they are pushed. Push and PR
+creation must wait for explicit user permission.
+
+1. Confirm `git status --short --branch` still reports
+   `main...origin/main [ahead N]` and review the pending local commits.
+2. Confirm there are no unintended user changes mixed into the publish set,
+   especially outside README/docs/changelog when doing docs-only stabilization.
+3. After explicit user approval, push the pending local commits or open a PR
+   from the prepared branch.
+4. Wait for GitHub Actions to run the pytest workflow on the published commits.
+5. Continue to the Issue #13 first batch only after CI is green, because the
+   next #13 step depends on the Issue #26 GitHub Actions workflow result.
+
 ## Development Loop
 
 Run tests:
@@ -50,6 +161,9 @@ Run tests:
 ```bash
 python -m pytest
 ```
+
+GitHub Actions runs the same pytest suite on pull requests and pushes, so the
+representative golden and analyze checks act as CI regression detection.
 
 Representative-card golden tests compare transform output for `tests/datasets/representative_cards`.
 
@@ -84,7 +198,7 @@ Current slot coverage:
 | 9007 | banish from GY | `banish` | inline GY description | none | none |
 | 9008 | targeted return to Extra Deck | `return_to_extra` | `targets[]` monster you control | none | target clause only |
 | 9009 | targeted destroy | `destroy` | `targets[]` card your opponent controls | none | target clause only |
-| 9010 | discard cost into draw | `draw`, plus current extra `discard` action trace | none | `discard` 1 card | none |
+| 9010 | discard cost into draw | `draw` | none | `discard` 1 card | none |
 | 9011 | once-per-turn classifier | `draw` | none | none | OPT text is detected as a restriction candidate; emitted global restriction is still empty |
 | 9012 | generic monster search | `add_to_hand` from Deck to hand | inline monster description | none | none |
 | 9013 | summon from GY | `special_summon` from GY | inline monster description | none | none |
@@ -107,9 +221,9 @@ Replacement priorities from synthetic to real cards:
    actions, so preserve one slot each for controlled monster, opponent card,
    either GY, and your GY.
 3. Replace cost and restriction slots only when the golden diff is intentionally
-   reviewed. These slots expose current rough edges: semicolon costs can also
-   appear in `actions[]`, and OPT text is counted as a restriction candidate but
-   does not yet populate `meta.restrictions.global`.
+   reviewed. These slots protect current parser contracts: semicolon costs stay
+   in `cost` instead of `actions[]`, and OPT text is counted as a restriction
+   candidate but does not yet populate `meta.restrictions.global`.
 4. Keep one unmatched or partially unmatched real card slot for v0.0. It is a
    canary for dictionary gaps and helps `analyze` keep surfacing work that should
    not be hidden by only testing already-supported text.
@@ -127,6 +241,35 @@ the dataset:
 - 9017 negate: a short "negate that effect" hand-trap or response card, after
   confirming the surrounding trigger/cost text does not change the slot's role.
 
+Issue #13 migration checklist:
+
+- Keep each pull request to one small batch, preferably 2-4 low-risk slots, so
+  the transform diff and golden snapshot can be reviewed by another worker.
+- Start with simple action-only slots before target-heavy, cost, restriction,
+  or unmatched-fragment slots.
+- Use only short card names and source identifiers in docs or review notes; do
+  not bulk-copy official effect text into repository documentation.
+- Before changing `cards.jsonl`, record the expected slot role and the reason
+  the real card should preserve or intentionally improve that role.
+- After regenerating golden output, check both the representative golden diff
+  and the analyze dashboard impact before treating the batch as complete.
+
+Suggested first batches for #13:
+
+| Priority | Slots | Candidate names | Why this batch is safe |
+| --- | --- | --- | --- |
+| 1 | 9001, 9004, 9013 | `Pot of Greed`, `Foolish Burial`, `Monster Reborn` | Short, recognizable action-only cards that directly exercise draw, send-to-GY, and GY summon coverage. |
+| 2 | 9003, 9012 | `Mystical Space Typhoon`, `Reinforcement of the Army` | Still narrow, but should be reviewed for target/type narrowing in the emitted DSL. |
+| 3 | 9008, 9009, 9016, 9018 | Real cards with matching target clauses | Target slots should move after action-only replacements because they can change `targets[]` shape and target resolution metrics. |
+| 4 | 9010, 9011, 9017, 9020 | Real cards selected for cost, OPT, negate, and unmatched canary behavior | These are closure-critical but riskier because they touch known v0.0 rough edges in costs, restrictions, negation, and unmatched fragments. |
+
+Issue #13 is not complete until the benchmark is mostly real-card centered
+while still preserving the 20 semantic slots: action coverage remains broad,
+target resolution has at least one controlled/opponent/either-GY/your-GY case,
+cost and restriction rough edges are still visible, one unmatched canary remains,
+and `analyze` continues to report useful movement rather than a cleaned-up
+fixture-only success.
+
 When replacing a row, keep `tests/golden/representative_cards/expected.json` as a
 full snapshot and update it only as a deliberate second step:
 
@@ -137,7 +280,10 @@ full snapshot and update it only as a deliberate second step:
    target, cost, restriction, diagnostics, and `meta.action_candidate_trace`.
 4. Regenerate with `YGO_UPDATE_GOLDEN=1` only after that review.
 5. Re-run the representative golden test and the analyze checks, then inspect
-   `tests/golden/representative_cards/expected.json` before committing.
+   `tests/golden/representative_cards/expected.json` before committing. Treat
+   changes to empty-block ratio, target reference resolution, unmatched
+   fragments, validation codes, or action type coverage as review items, not as
+   mechanical golden churn.
 
 This benchmark is the bridge between v0.0 stabilization and v0.1 semantics.
 v0.0 needs stable, reviewable outputs for `actions[]`, `targets[]`, costs,
@@ -187,6 +333,8 @@ Spec is the source of truth:
 - [v0.1 Overview](docs/spec/v0.1/00_overview.md)
 - [v0.1 Minimal Semantics](docs/spec/v0.1/10_minimal_semantics.md)
 - [v0.1 First 10 One-Step Applications](docs/spec/v0.1/20_first_10_applications.md)
+- [Anonymous Validation Format](docs/anonymous_validation_format.md)
+- [Versioning And Release Policy](docs/release/versioning.md)
 - [Changelog](docs/spec/v0.0/50_changelog.md)
 
 Documentation and behavior changes should update the changelog in the same change.

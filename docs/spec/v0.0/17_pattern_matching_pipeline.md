@@ -44,6 +44,9 @@ meta:
 ## 3.1 `A ; B`（コスト→解決）
 - A → cost候補（cost辞書の入力）
 - B → action候補（action辞書の入力）
+- A が cost と判断された場合、文全体は action 候補に再投入しない。
+  これにより `Discard 1 card; draw 2 cards.` の `discard` は `cost` にのみ
+  出力され、`actions[]` には `draw` だけが残る。
 
 ## 3.2 `if A : B`（条件→解決）
 - A → trigger/condition候補（④で解析）
@@ -59,6 +62,8 @@ meta:
 原則:
 - 未解析でも `{}` を保持（失敗しても停止しない）
 - 抽出した数値や固有名は、正規化パラメータ（meta.norm.params）と整合させる
+- `N[0]` などの参照は、全文ではなく解析中の断片内での順序に合わせる。
+  例: `discard 【N】 card; draw 【N】 cards.` の action 断片では `N[0] = 2`。
 
 ---
 

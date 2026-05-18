@@ -42,6 +42,28 @@ def _normalize_fragment_key(fragment: str) -> str:
     return " ".join(fragment.strip().rstrip(".").split()).lower()
 
 
+def _params_for_fragment(fragment: str, source_text: str, params: dict[str, list[Any]]) -> dict[str, list[Any]]:
+    fragment_start = source_text.find(fragment)
+    if fragment_start < 0:
+        return params
+
+    local_params: dict[str, list[Any]] = {}
+    for key, values in params.items():
+        if not isinstance(values, list):
+            local_params[key] = values
+            continue
+
+        marker = f"【{key}】"
+        if marker not in fragment:
+            local_params[key] = []
+            continue
+
+        offset = source_text[:fragment_start].count(marker)
+        count = fragment.count(marker)
+        local_params[key] = values[offset : offset + count]
+    return local_params
+
+
 def _build_target_selector(selector_text: str) -> dict[str, Any]:
     lowered = selector_text.lower()
     selector: dict[str, Any] = {"kind": "unknown"}
@@ -177,6 +199,8 @@ def _build_candidates(text: str) -> dict[str, list[str]]:
     trigger_sentences: list[str] = []
 
     for sentence in sentences:
+        has_semicolon = ";" in sentence
+        semicolon_left = ""
         if ":" in sentence:
             left, right = sentence.split(":", 1)
             trigger_sentences.append(f"{left.strip()}:")
@@ -184,9 +208,10 @@ def _build_candidates(text: str) -> dict[str, list[str]]:
             if right:
                 action_candidates.append(right)
 
-        if ";" in sentence:
+        if has_semicolon:
             left, right = sentence.split(";", 1)
             left = left.strip()
+            semicolon_left = left
             right = right.strip()
             if left:
                 cost_candidates.append(f"{left};")
@@ -201,7 +226,9 @@ def _build_candidates(text: str) -> dict[str, list[str]]:
             restriction_candidates.append(sentence)
             continue
 
-        if any(pattern.search(normalized_sentence) for pattern in ACTION_PRIORITY_PATTERNS):
+        is_target_semicolon = bool(semicolon_left and TARGET_PATTERN.match(f"{semicolon_left};"))
+        is_cost_semicolon = bool(has_semicolon and semicolon_left and not is_target_semicolon)
+        if not is_cost_semicolon and any(pattern.search(normalized_sentence) for pattern in ACTION_PRIORITY_PATTERNS):
             action_candidates.append(sentence)
 
     return {
@@ -219,12 +246,14 @@ def _apply_candidates(
     payload: dict[str, Any],
     params: dict[str, list[Any]],
     engine: RuleEngine,
+    source_text: str = "",
 ) -> tuple[dict[str, Any], list[str], list[dict[str, str]]]:
     out = payload
     hits: list[str] = []
     unmatched: list[dict[str, str]] = []
     for fragment, classified_as in candidates:
-        out, fragment_hits = engine.apply_rules(fragment, rules, out, params)
+        fragment_params = _params_for_fragment(fragment, source_text, params) if source_text else params
+        out, fragment_hits = engine.apply_rules(fragment, rules, out, fragment_params)
         if fragment_hits:
             hits.extend(fragment_hits)
         else:
@@ -237,30 +266,48 @@ def _apply_action_candidates(
     rules: list[Any],
     params: dict[str, list[Any]],
     engine: RuleEngine,
+    source_text: str = "",
 ) -> tuple[list[dict[str, Any]], list[str], list[dict[str, Any]], list[dict[str, Any]]]:
     actions: list[dict[str, Any]] = []
     hits: list[str] = []
     details: list[dict[str, Any]] = []
 
+    def is_typed_action(row: Any) -> bool:
+        return isinstance(row, dict) and isinstance(row.get("type"), str) and bool(row.get("type"))
+
     for index, fragment in enumerate(candidates):
-        payload, fragment_hits = engine.apply_rules(fragment, rules, {"action": {}, "actions": []}, params)
+        classified_as = "target_candidate" if TARGET_PATTERN.match(fragment.strip().rstrip(".")) else "action"
+        if classified_as == "target_candidate":
+            details.append(
+                {
+                    "fragment": fragment,
+                    "classified_as": classified_as,
+                    "candidate_index": index,
+                    "matched_rule_ids": [],
+                    "mapped_action_index": None,
+                }
+            )
+            continue
+
+        fragment_params = _params_for_fragment(fragment, source_text, params) if source_text else params
+        payload, fragment_hits = engine.apply_rules(fragment, rules, {"action": {}, "actions": []}, fragment_params)
         action_obj = payload.get("action", {})
         action_list = payload.get("actions", [])
 
         mapped_action_index: int | None = None
         if isinstance(action_list, list) and action_list:
             for row in action_list:
-                if isinstance(row, dict) and row:
+                if is_typed_action(row):
                     actions.append(row)
                     mapped_action_index = len(actions) - 1
-        elif isinstance(action_obj, dict) and action_obj:
+        elif is_typed_action(action_obj):
             actions.append(action_obj)
             mapped_action_index = len(actions) - 1
 
         details.append(
             {
                 "fragment": fragment,
-                "classified_as": "target_candidate" if TARGET_PATTERN.match(fragment.strip().rstrip(".")) else "action",
+                "classified_as": classified_as,
                 "candidate_index": index,
                 "matched_rule_ids": fragment_hits,
                 "mapped_action_index": mapped_action_index,
@@ -304,6 +351,7 @@ def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: R
         output,
         normalized.params,
         engine,
+        normalized.text_en,
     )
     outcomes["restriction"] = StageOutcome(
         stage="restriction",
@@ -319,6 +367,7 @@ def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: R
         {"cost": effect["cost"]},
         normalized.params,
         engine,
+        normalized.text_en,
     )
     effect["cost"] = cost_payload.get("cost", {})
     outcomes["cost"] = StageOutcome(
@@ -330,7 +379,7 @@ def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: R
     )
 
     actions, action_hits, action_unmatched, action_details = _apply_action_candidates(
-        candidates["action_candidates"], dictionary.rules_by_stage.get("action", []), normalized.params, engine
+        candidates["action_candidates"], dictionary.rules_by_stage.get("action", []), normalized.params, engine, normalized.text_en
     )
     targets, right_fragment_target_map = _extract_targets_from_action_candidates(candidates["action_candidates"])
 
@@ -366,6 +415,7 @@ def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: R
         {"trigger": effect["trigger"], "condition": effect["condition"]},
         normalized.params,
         engine,
+        normalized.text_en,
     )
     effect["trigger"] = trigger_payload.get("trigger", {})
     effect["condition"] = trigger_payload.get("condition", effect["condition"])

@@ -4,6 +4,41 @@
 
 ## Unreleased
 
+- ci: add representative golden preview workflow that can regenerate
+  `tests/golden/representative_cards/expected.json` in GitHub Actions and
+  publish the result as a review artifact without committing it.
+- ci: add Windows PyInstaller workflow that runs pytest before building and
+  uploading `ygo-effect-dsl-win64`.
+- feat: add `ygo-effect-dsl` console script and bundled-resource dictionary
+  default for frozen executable runs.
+- fix: escape unmatched fragment CLI output so `analyze` works on Windows
+  consoles with non-UTF-8 default encodings.
+- fix: keep semicolon cost fragments out of `actions[]` so cost/action
+  separation does not inflate representative action coverage, and bind
+  normalized params per parsed fragment so representative 9010 emits
+  `discard` in `cost` and only `draw n=2` in `actions[]`.
+- docs: add version/tag/release policy for SemVer, v0 line operation,
+  tag-triggered distribution, artifact naming, changelog expectations, and
+  future app/schema/ruleset version separation.
+- docs: add an anonymous validation Issue template and local log format for
+  reporting YAML validation summaries without publishing protected source data.
+- docs: add Issue #27 pending local commits checklist for publishing
+  `main...origin/main [ahead N]`, waiting for explicit push/PR approval, and
+  requiring green GitHub Actions before continuing the Issue #13 first batch.
+- ci: add GitHub Actions pytest workflow for pull requests and pushes, covering
+  representative golden/analyze regression checks without updating golden
+  fixtures.
+- docs: document local verification prerequisites and stop condition for
+  representative-card golden/analyze workflow before Issue #13 first-batch
+  fixture edits.
+- docs: add Issue #13 first-batch source review note for slots 9001, 9004,
+  and 9013 without changing representative dataset or golden fixtures.
+- docs: add Issue #13 migration checklist, first-batch slot priorities, and
+  golden/analyze review items for real-card representative benchmark updates.
+- examples: add 10 fictional synthetic test cards for GitHub-distributable
+  pipeline verification without copying official card records.
+- test: cover the synthetic example dataset through ingest, transform, and
+  validate.
 - docs: add v0.1 overview, minimal state/action semantics, and first 10 one-step application candidates.
 - docs: document representative benchmark slot coverage, real-card replacement priorities, and golden update workflow.
 - test: strengthen representative-card golden comparison with full DSL payload snapshots and diagnostics.

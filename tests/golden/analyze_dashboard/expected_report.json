@@ -8,8 +8,8 @@
       "draw": 2
     },
     "actions_count": {
-      "avg": 1.3333333333333333,
-      "min": 1,
+      "avg": 1.0,
+      "min": 0,
       "max": 2
     },
     "targets_count": {

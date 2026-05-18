@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +13,13 @@ from ygo_effect_dsl.dict_loader import load_dictionary, validate_dictionary
 from ygo_effect_dsl.io_input import load_inputs
 from ygo_effect_dsl.normalize import normalize_card_texts
 from ygo_effect_dsl.pipeline.transform import load_dataset_from_args
+
+
+def _default_dict_dir() -> str:
+    if getattr(sys, "frozen", False):
+        bundle_root = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
+        return str(bundle_root / "resources" / "dict" / "v0_0")
+    return "resources/dict/v0_0"
 
 
 def _add_dataset_arguments(parser: argparse.ArgumentParser) -> None:
@@ -79,7 +87,7 @@ def main() -> int:
     p1 = sub.add_parser("transform", help="ETL JSON/JSONL -> v0.0 DSL YAML")
     p1.add_argument("--in", dest="in_path", help="input file or directory")
     p1.add_argument("--glob", help="glob pattern when --in is directory")
-    p1.add_argument("--dict", dest="dict_dir", default="resources/dict/v0_0", help="dictionary directory")
+    p1.add_argument("--dict", dest="dict_dir", default=_default_dict_dir(), help="dictionary directory")
     p1.add_argument("--out", dest="out_dir", default="data/export", help="output root directory")
     p1.add_argument("--limit", type=int, help="limit number of cards")
     p1.add_argument("--fail-fast", action="store_true", help="stop at first card failure")
@@ -89,13 +97,13 @@ def main() -> int:
     p1.set_defaults(func=cmd_transform)
 
     pvd = sub.add_parser("validate-dict", help="validate dictionary files and regex patterns")
-    pvd.add_argument("--dict", dest="dict_dir", default="resources/dict/v0_0", help="dictionary directory")
+    pvd.add_argument("--dict", dest="dict_dir", default=_default_dict_dir(), help="dictionary directory")
     pvd.set_defaults(func=cmd_validate_dict)
 
     pn = sub.add_parser("normalize", help="debug: normalize ETL text and dump JSON")
     pn.add_argument("--in", dest="in_path", required=True, help="input file or directory")
     pn.add_argument("--glob", help="glob pattern when --in is directory")
-    pn.add_argument("--dict", dest="dict_dir", default="resources/dict/v0_0", help="dictionary directory")
+    pn.add_argument("--dict", dest="dict_dir", default=_default_dict_dir(), help="dictionary directory")
     pn.add_argument("--out", dest="out_path", required=True, help="output JSON path")
     pn.add_argument("--limit", type=int, help="limit number of cards")
     pn.set_defaults(func=cmd_normalize)

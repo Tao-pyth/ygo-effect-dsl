@@ -18,7 +18,7 @@ what a future reader should be able to infer.
 | 9007 | Bench Banish GY | `banish` | `selector.kind=card`, `zones=[GY]`, `controller=you`, `count=1`, `targeting_mode=implicit` | move 1 card from `GY[you]` to `Banished[owner]` | current action stores the source in `desc`, not structured `from` or `targets[]` |
 | 9008 | Bench Target Return | out of vocabulary: `return_to_extra` | current `targets[]`: `selector.kind=monster`, `controller=you`, `count=1`; v0.1 would also want `zones=[Field]`, `targeting_mode=target` | no v0.1 action delta; future extension would move target from `Field[you]` to `Extra[owner]` | `return_to_extra` is not in the initial vocabulary and target zone/mode are partly inferred |
 | 9009 | Bench Target Destroy | `destroy` | current `targets[]`: `selector.kind=card`, `controller=opponent` intended, `count=1`, plus inferred `zones=[Field]`, `targeting_mode=target` | move targeted card from opponent `Field` to its owner's `GY` and mark it destroyed | current golden output records `controller=you` despite raw "opponent controls"; reader should preserve raw mismatch as risk |
-| 9010 | Bench Cost Discard Draw | `draw` after cost | action target: `count=2`, `controller=you`; cost target: discard `count=1` card from `Hand[you]` | cost candidate moves 1 card from `Hand[you]` to `GY[owner]`, then action candidate moves drawn cards from `Deck[you]` to `Hand[you]` | current transformed `draw.n` is 1 while raw text says 2, and `discard` also appears as an action trace |
+| 9010 | Bench Cost Discard Draw | `draw` after cost | action target: `count=2`, `controller=you`; cost target: discard `count=1` card from `Hand[you]` | cost candidate moves 1 card from `Hand[you]` to `GY[owner]`, then action candidate moves drawn cards from `Deck[you]` to `Hand[you]` | `discard` is kept in `cost` instead of `actions[]`; `draw.n=2` verifies fragment-local number binding |
 
 ## Reader Expectations
 
@@ -31,7 +31,8 @@ The first 10 cards deliberately include easy actions and rough edges:
   `banish`, and `negate`.
 - 9009 should expose target controller mismatch instead of silently trusting the
   structured selector.
-- 9010 should expose cost/action ordering and the current count mismatch.
+- 9010 should expose cost/action ordering without duplicating the cost in
+  `actions[]`.
 
 These candidates are enough for Issue #16 because they define the first
 verifiable bridge from v0.0 `actions[]` and `targets[]` to v0.1 state/action

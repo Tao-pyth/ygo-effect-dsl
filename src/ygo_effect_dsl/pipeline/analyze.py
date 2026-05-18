@@ -49,7 +49,7 @@ def run_analyze(args: object) -> int:
     unmatched_top = report["stats"]["unmatched_fragments_top"]
     print(f"analyze: unmatched_fragments_top_count={len(unmatched_top)}")
     for index, row in enumerate(unmatched_top[:UNMATCHED_FRAGMENTS_CLI_LIMIT], start=1):
-        fragment = json.dumps(row["fragment"], ensure_ascii=False)
+        fragment = json.dumps(row["fragment"], ensure_ascii=True)
         print(f"analyze: unmatched_fragments_top[{index}] count={row['count']} fragment={fragment}")
     print(f"analyze: validation_errors={report['validation']['severity_counts']['error']}")
     print(f"analyze: validation_warnings={report['validation']['severity_counts']['warning']}")
