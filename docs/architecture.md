@@ -4,7 +4,7 @@ Status: V0.1 baseline
 
 ## 1. 方針
 
-`ygo-effect-dsl` は、カード効果テキストを DSL 化するだけのツールではなく、将来の展開探索エンジンへ進むための研究 CORE である。V0.1 では、現在の DSL 変換基盤を維持しつつ、最終設計を「ゲームエンジン + AI 探索」として固定する。
+`ygo-effect-dsl` は、遊戯王 OCG の展開探索エンジンへ進むための研究基盤である。V0.1 以降の実行系は ocgcore / EDOPro Lua を真実源とし、既存 DSL CORE は legacy / deprecated / removal target として隔離する。
 
 本アーキテクチャは DDD を主軸にしない。責務境界、再現性、探索可能性、評価可能性を優先する。
 
@@ -13,22 +13,20 @@ Status: V0.1 baseline
 ```text
 Documentation
   ▼
-DSL Conversion CORE
+ocgcore / EDOPro Lua
   ▼
-Engine Boundary
+Bridge
   ▼
 Replay / Search / Evaluation
-  ▼
-ocgcore / EDOPro Lua
 ```
 
 ### Documentation
 
 Charter、Architecture、Specifications、ADR を管理する。破壊的変更は、まずここで理由を説明する。
 
-### DSL Conversion CORE
+### Legacy DSL CORE
 
-現在の実装範囲である。
+現在残っている互換維持用の実装範囲である。
 
 ```text
 ingest
@@ -40,11 +38,11 @@ validate
 analyze
 ```
 
-ここでは ETL export artifact から DSL YAML を生成し、Action、Target、Cost、Restriction、Diagnostics、Analyze metrics を観測可能にする。
+ここでは ETL export artifact から DSL YAML を生成し、Action、Target、Cost、Restriction、Diagnostics、Analyze metrics を観測可能にする。ただし、これらは探索エンジンの入力、補助分析基盤、Action 生成元として扱わない。
 
-### Engine Boundary
+### Bridge
 
-将来の Bridge / Replay / Search / Evaluation へ DSL を渡す境界である。V0.1 では、この境界を文書と minimal semantics で定義する。
+ocgcore / EDOPro Lua 由来の Message / DecisionRequest を Python 側へ渡す境界である。Bridge は変換責務のみを持ち、合法性や状態遷移を判断しない。
 
 ### Replay / Search / Evaluation
 
@@ -75,7 +73,7 @@ src/
     util/
 ```
 
-現在の `src/ygo_effect_dsl/` は、上記 `engine/` へ進む前の DSL Conversion CORE として維持する。既存コードを即時削除するのではなく、V0.1 の境界に合う形へ段階的に整理する。
+現在の `src/ygo_effect_dsl/` には legacy DSL CORE が残っている。これは `engine/` へ進む前段ではなく、互換維持のための一時残置であり、V0.2 Bridge / Replay baseline 後の破壊的変更で削除対象とする。
 
 ## 4. Responsibility Rules
 
@@ -92,8 +90,8 @@ V0.1 の完了条件は、フルエンジン実装ではない。完了条件は
 
 1. Project Charter が最上位方針として存在する。
 2. README が V0.1 の目的と非目標を説明している。
-3. Minimal Semantics が既存 DSL 出力から将来の state/action へ接続できる。
+3. Primary Runtime Path が ocgcore / EDOPro Lua -> Bridge -> Replay / Search / Evaluation として説明されている。
 4. ADR が Charter 採用理由を記録している。
-5. 既存 ingest / transform / validate / analyze の開発ループが維持されている。
+5. 既存 ingest / transform / validate / analyze が legacy / deprecated / removal target として明記されている。
 
 この定義により、V0.1 は「設計基盤の確立」として扱う。

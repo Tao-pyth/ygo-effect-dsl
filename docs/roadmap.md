@@ -4,7 +4,7 @@ Status: V0.1 baseline
 
 ## 1. V0.0 まで
 
-V0.0 は DSL 変換基盤の安定化を目的とした段階である。
+V0.0 は DSL 変換基盤の安定化を目的とした過去の段階である。
 
 - ETL export artifact の ingest
 - DSL YAML への transform
@@ -12,7 +12,7 @@ V0.0 は DSL 変換基盤の安定化を目的とした段階である。
 - analyze による変換品質の可視化
 - representative benchmark と golden regression
 
-この段階では、完全なゲーム状態遷移を実装しない。目的は、将来の engine が利用できる Action と Target を観測可能にすることである。
+この段階では、完全なゲーム状態遷移を実装しなかった。現在の方針では、この DSL CORE は探索エンジンの入力基盤ではなく廃止対象である。
 
 ## 2. V0.1
 
@@ -26,7 +26,7 @@ V0.1 は設計基盤を確立する段階である。
 - V0.1 minimal semantics の再定義
 - ADR による設計判断の記録
 
-V0.1 では、既存コードを「DSL Conversion CORE」として維持し、将来の Engine Boundary を文書化する。
+V0.1 では、既存 DSL CORE を legacy / deprecated / removal target として明記し、実行系を ocgcore / EDOPro Lua -> Bridge へ移す方針を文書化する。
 
 ## 3. V0.2
 

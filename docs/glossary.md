@@ -4,7 +4,7 @@ Status: V0.1 baseline
 
 ## Action
 
-探索の最小単位。NormalSummon、SpecialSummon、ActivateEffect、SelectCard、SelectOption、EndTurn などを想定する。現在の DSL `actions[]` は、将来の engine Action へ接続するための前段である。
+探索の最小単位。NormalSummon、SpecialSummon、ActivateEffect、SelectCard、SelectOption、EndTurn などを想定する。Action は ocgcore / EDOPro Lua 由来の Bridge / DecisionRequest から得る。DSL `actions[]` は legacy であり、engine Action の前段ではない。
 
 ## Action Evaluation
 
@@ -16,7 +16,7 @@ Python と ocgcore の境界。ocgcore Message を Python Action に変換し、
 
 ## DSL Conversion CORE
 
-現在の実装範囲。ETL export artifact を ingest し、DSL YAML へ transform し、validate と analyze を行う。
+過去の実験由来の legacy / deprecated / removal target。ETL export artifact を ingest し、DSL YAML へ transform し、validate と analyze を行うが、探索エンジンの入力、補助分析基盤、Action 生成元として扱わない。
 
 ## END_TURN
 

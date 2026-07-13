@@ -1,14 +1,14 @@
 # ygoEffectDSL Spec v0.1 - Overview
 
-Status: Established baseline / no full engine implementation
+Status: Historical baseline / legacy DSL CORE / no full engine implementation
 
 Last updated: 2026-07-13
 
 ## Purpose
 
-V0.1 connects the existing v0.0 DSL conversion baseline to the long-term project direction defined in [Project Charter](../../00_project_charter.md).
+V0.1 recorded an earlier attempt to connect the existing v0.0 DSL conversion baseline to the long-term project direction defined in [Project Charter](../../00_project_charter.md).
 
-V0.1 is not a complete game engine. It is the point where the repository stops treating DSL conversion as the final product and starts treating it as the input foundation for future Bridge, Replay, Search, and Evaluation work.
+V0.1 is not a complete game engine. Under the current Charter and ADR-0003, DSL conversion is not the input foundation for future Bridge, Replay, Search, or Evaluation work. The V0.1 spec remains as historical context for the legacy DSL CORE.
 
 ## What V0.1 Establishes
 
@@ -18,8 +18,8 @@ V0.1 establishes these project-level contracts:
 2. The project direction is "game engine + AI search", not DDD-first domain modeling.
 3. Python must not reimplement Yu-Gi-Oh! rules.
 4. ocgcore / EDOPro Lua are the future rule truth source.
-5. The current DSL conversion pipeline remains the measurable input layer.
-6. Minimal state/action semantics define how current `actions[]` and `targets[]` can feed later engine work.
+5. The current DSL conversion pipeline is a legacy compatibility layer.
+6. Minimal state/action semantics are historical notes and must not drive new engine work.
 
 ## Current Implementation Layer
 
@@ -31,14 +31,14 @@ The current codebase is still centered on:
 - analyze
 - representative golden tests
 
-This is intentional. Before a search engine can be useful, the project needs stable, reviewable Action and Target extraction.
+This remains only for compatibility with existing tests. The search engine must not depend on DSL Action and Target extraction.
 
 ## Engine Direction
 
-The future engine direction is:
+The current primary runtime direction is:
 
 ```text
-DSL Conversion CORE
+ocgcore / EDOPro Lua
   ▼
 Bridge
   ▼
@@ -51,7 +51,7 @@ Evaluation
 Statistics / Experiment
 ```
 
-The current v0.1 specification only defines the bridge from DSL output to state/action candidates. It does not execute real duels.
+The V0.1 DSL candidate path is deprecated and does not execute real duels.
 
 ## Scope
 
@@ -106,4 +106,4 @@ A V0.1 action candidate is usable when:
 4. the expected state delta can be described without mutating real runtime state;
 5. diagnostics still expose missing zones, unresolved targets, unknown actions, and compatibility fallbacks.
 
-The output of V0.1 is a contract for future validation, analysis, and engine boundary design. It is not yet an executor.
+The output of V0.1 is not a contract for future engine boundary design. It is a legacy record and not an executor.

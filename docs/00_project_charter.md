@@ -142,7 +142,7 @@ src/
     util/
 ```
 
-現在の `src/ygo_effect_dsl/` は DSL 変換 CORE であり、将来の engine 層へ入力を渡す前段として位置付ける。各ディレクトリは単一の責務を持つ。特に search、replay、bridge、evaluation は相互に依存しすぎないように境界を保つ。
+現在の `src/ygo_effect_dsl/` には legacy DSL CORE が残っている。これは engine 層の前段ではなく、互換維持のための一時残置であり、廃止対象とする。新規実装は engine/bridge、engine/replay、今後追加する engine/search へ集約する。
 
 ## 8. Search Engine
 
@@ -381,9 +381,10 @@ data/
 - ADR-0000: Project Charter の採用
 - ADR-0001: Replay を基準実装にする
 - ADR-0002: Python はルールを持たない
-- ADR-0003: Peak Board を正式結果にする
-- ADR-0004: END_TURN を Action として扱う
-- ADR-0005: State Evaluation と Action Evaluation を分離する
+- ADR-0003: DSL CORE を探索エンジンから除外し廃止対象にする
+- ADR-0004: Peak Board を正式結果にする
+- ADR-0005: END_TURN を Action として扱う
+- ADR-0006: State Evaluation と Action Evaluation を分離する
 
 ADR は Codex、Claude、ChatGPT、人間のいずれが読んでも、設計判断の理由を追跡できる状態にする。
 
@@ -424,6 +425,7 @@ ADR は Codex、Claude、ChatGPT、人間のいずれが読んでも、設計判
 - 仕様変更は Charter、Architecture、ADR のいずれかを先に更新する。
 - 実装より仕様を優先する。
 - Python にルールを実装しない。
+- DSL CORE を実行系、合法手判定、Action 生成の真実源として使わない。
 - Replay できない探索結果を正式結果として扱わない。
 - Action、Replay、Evaluation、Bridge の責務を混ぜない。
 - 生成 AI と人間が同じ設計文書を参照できる状態を維持する。

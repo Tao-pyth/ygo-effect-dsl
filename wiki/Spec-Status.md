@@ -11,7 +11,7 @@
 | 方針 | Project Charter を最上位文書として採用 | 対応済み |
 | 方針 | プロジェクト方向を「ゲームエンジン + AI 探索」として定義 | 対応済み |
 | 方針 | Python は遊戯王ルールを持たない | 対応済み |
-| データフロー | `manifest.json` + `cards.jsonl` を受け取り、`ingest -> transform -> validate -> analyze` を実行 | 対応済み |
+| データフロー | `manifest.json` + `cards.jsonl` を受け取り、`ingest -> transform -> validate -> analyze` を実行 | legacy / 廃止対象 |
 | DSL形状 | `card.info` を廃止し `card.props` を採用 | 反映済み |
 | DSL形状 | `effects[]` 配下で `actions[]` を正規形として採用 | 反映済み |
 | DSL互換 | 旧 `action` フィールドをレガシーフォールバックとして許容 | 対応済み |
@@ -30,8 +30,9 @@ V0.1 は完成したゲームエンジンではなく、設計基盤の確立で
 
 - Project Charter を最上位方針として採用
 - README / Architecture / Roadmap / Glossary を V0.1 baseline として整備
-- v0.1 minimal state/action semantics を engine boundary contract として定義
+- v0.1 minimal state/action semantics を過去の検討記録として保持
 - Python は遊戯王ルールを持たず、ocgcore / EDOPro Lua を将来の真実源とする方針を明文化
+- DSL CORE を探索エンジン入力から除外し、廃止対象とする方針を明文化
 
 ## 3. V0.2 planned
 

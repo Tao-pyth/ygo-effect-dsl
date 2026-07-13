@@ -17,12 +17,12 @@ V0.2 の主な作業は次の通りです。
 - Bridge interface / mock adapter を実装する
 - Replay round-trip smoke test を追加する
 
-## 継続して維持する v0.0 基盤
+## 廃止対象として残る v0.0 基盤
 
-v0.0 の目的は、transform 出力を測定可能で信頼できる形にすることです。これは V0.2 以降も後続 engine への入力基盤として維持します。
+v0.0 の目的は、transform 出力を測定可能で信頼できる形にすることでした。現在はエンジン入力ではなく、互換維持のため一時的に残る legacy / deprecated / removal target です。
 
 - DSL grammar を現在の transform 出力と同期する
-- `actions[]` を canonical action 表現として安定させる
+- `actions[]` を legacy DSL 内の canonical action 表現として安定させる
 - `targets[]` と `target_id` の関係を検証できるようにする
 - validation severity を `error` / `warning` / `info` に分ける
 - analyze で action coverage、target 解決率、warning 件数を追えるようにする

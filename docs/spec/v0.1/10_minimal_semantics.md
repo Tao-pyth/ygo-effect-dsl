@@ -1,11 +1,11 @@
 # ygoEffectDSL Spec v0.1 - Minimal Semantics
 
-> Status: Established baseline / no full engine implementation
+> Status: Historical baseline / legacy DSL CORE / no full engine implementation
 > Last updated: 2026-07-13
 
 V0.1 defines a read-only state model and a narrow action vocabulary. A V0.1 reader may produce candidate state deltas, but this spec does not require the repo to execute real duel state transitions.
 
-This document is an engine-boundary contract. It explains how the existing DSL Conversion CORE can feed future Replay, Search, and Evaluation work without putting Yu-Gi-Oh! rules into Python.
+This document is a historical record of an earlier engine-boundary idea. Under the current Charter and ADR-0003, the existing DSL Conversion CORE must not feed future Replay, Search, or Evaluation work.
 
 ## Read-Only State Model
 
@@ -77,7 +77,7 @@ tests should prefer `actions[]`.
 
 ## Initial DSL Action Vocabulary
 
-This vocabulary is not the final Search Engine Action model. It is the first bridge vocabulary from current DSL `actions[]` to future engine actions.
+This vocabulary is not the final exploration Action model. It was an earlier bridge vocabulary idea from current DSL `actions[]` to high-level engine actions and is now deprecated.
 
 The common action schema is:
 
@@ -232,11 +232,11 @@ State delta:
 - add or update `Flags.negated_effect_ids`.
 - no zone movement unless another action says to destroy, banish, or send.
 
-## Relation To Future Engine Actions
+## Historical Relation To Future Engine Actions
 
-The future Search Engine is expected to use higher-level actions such as NormalSummon, SpecialSummon, ActivateEffect, SelectCard, SelectOption, and EndTurn. The DSL actions in this document are lower-level semantic candidates extracted from card text.
+The current Search Engine direction should use higher-level actions such as NormalSummon, SpecialSummon, ActivateEffect, SelectCard, SelectOption, and EndTurn from ocgcore / EDOPro Lua via Bridge / DecisionRequest. The DSL actions in this document are legacy semantic candidates extracted from card text and must not be used as the source of engine actions.
 
-The conversion path is therefore:
+The deprecated conversion path was:
 
 ```text
 DSL actions[] / targets[]
@@ -245,10 +245,10 @@ V0.1 state/action candidate
   ▼
 Bridge / Replay compatible Action
   ▼
-Search Engine Action
+deprecated high-level action idea
 ```
 
-V0.1 only defines the first two steps.
+This path is not the current Primary Runtime Path. The current path is ocgcore / EDOPro Lua -> Bridge -> Replay / Search / Evaluation.
 
 ## Validation Notes
 

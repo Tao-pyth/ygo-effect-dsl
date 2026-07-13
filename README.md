@@ -1,12 +1,12 @@
 # ygo-effect-dsl
 
-`ygo-effect-dsl` は、遊戯王 OCG のカード効果テキストを構造化 DSL に変換し、将来的な展開探索、妨害耐性解析、リカバリ解析、デッキ評価につなげるための研究 CORE です。
+`ygo-effect-dsl` は、遊戯王 OCG の展開探索、妨害耐性解析、リカバリ解析、デッキ評価を再現可能にするためのゲーム木探索エンジン基盤です。
 
-V0.1 では、単なる DSL 変換ツールではなく「ゲームエンジン + AI 探索」へ進むための方針、責務境界、文書階層を確立します。現時点の実装は ingest / transform / validate / analyze パイプラインが中心ですが、これらは将来の Bridge、Replay、Search、Evaluation を支える前処理基盤として扱います。
+カード効果とルールの真実源は ocgcore / EDOPro Lua です。既存の DSL CORE は過去の実験由来の legacy / deprecated / removal target であり、探索エンジンの前段、補助分析基盤、Action 生成元として扱いません。
 
 ## V0.1 の位置付け
 
-V0.1 は完成したゲームエンジンではありません。V0.1 の目的は、以後の破壊的変更を許容できるだけの設計方針を固定し、現在の DSL 変換基盤を次のエンジン設計へ接続することです。
+V0.1 は完成したゲームエンジンではありません。V0.1 の目的は、以後の破壊的変更を許容できるだけの設計方針を固定し、実行系を ocgcore / EDOPro Lua 中心へ移すことです。
 
 V0.1 で確立するもの:
 
@@ -15,7 +15,7 @@ V0.1 で確立するもの:
 - Python は遊戯王のルールを持たず、ルールの真実源を ocgcore / EDOPro Lua に置く。
 - Action、Replay、Bridge、Evaluation、Search の責務を分離する。
 - Replay 可能性、Peak Board、END_TURN、State Evaluation / Action Evaluation 分離を将来設計の前提にする。
-- 既存の DSL 変換、検証、分析機能を V0.1 以降の入力基盤として維持する。
+- 既存の DSL 変換、検証、分析機能は互換維持のため一時残置し、廃止対象として隔離する。
 
 V0.1 でまだ実装しないもの:
 
@@ -54,6 +54,7 @@ Implementation
 - [ADR: Project Charter](docs/adr/0000_project_charter.md)
 - [ADR: Replay Baseline](docs/adr/0001_replay_baseline.md)
 - [ADR: Python Does Not Own Rules](docs/adr/0002_python_does_not_own_rules.md)
+- [ADR: Deprecate DSL CORE](docs/adr/0003_deprecate_dsl_core.md)
 - [V0.1 Overview](docs/spec/v0.1/00_overview.md)
 - [V0.1 Minimal Semantics](docs/spec/v0.1/10_minimal_semantics.md)
 - [V0.1 First 10 One-Step Applications](docs/spec/v0.1/20_first_10_applications.md)
@@ -67,7 +68,7 @@ Implementation
 
 ## 現在の実装範囲
 
-現在のコードは、ETL 出力を受け取り、DSL YAML を生成し、検証と分析を行う研究パイプラインです。
+現在のコードには、ETL 出力を受け取り、DSL YAML を生成し、検証と分析を行う legacy パイプラインが残っています。
 
 ```text
 manifest.json / cards.jsonl
@@ -83,7 +84,17 @@ analyze
 reports / metrics
 ```
 
-この段階で重要なのは、DSL 出力を測定可能かつレビュー可能にすることです。将来の状態遷移や探索は、まず Action と Target を安定して抽出できることに依存します。
+このパイプラインは既存テストと互換維持のため一時的に残します。探索エンジンの実行系入力、合法手判定、Action 生成元として使ってはいけません。
+
+Primary Runtime Path:
+
+```text
+ocgcore / EDOPro Lua
+  ▼
+Bridge
+  ▼
+Replay / Search / Evaluation
+```
 
 ## 5 分で動かす
 
@@ -149,7 +160,7 @@ Python をインストールせずに artifact を試す場合の例:
 
 ## Analyze Metrics
 
-`analyze` は V0.1 以降も重要な開発フィードバックです。
+`analyze` は legacy DSL CORE の互換確認用フィードバックです。
 
 - `stats.action_type_coverage`: 変換が出力している action type
 - `stats.targets_count.resolution_rate`: `target_id` が `targets[]` に解決できている割合
@@ -157,7 +168,7 @@ Python をインストールせずに artifact を試す場合の例:
 - `quality.empty_block_ratio`: 空の semantic block の比率
 - `validation.severity_counts` / `validation.code_counts`: 診断の重大度とコード
 
-これらは、将来の Search Engine の品質以前に、入力 DSL の信頼性を測るための基盤です。
+これらは既存DSL機能の互換確認に限って利用します。Search Engine の品質や入力妥当性の根拠にはしません。
 
 ## Scope
 
@@ -168,8 +179,8 @@ Included:
 - DSL contract validation
 - conversion quality analysis
 - representative benchmark と golden regression
-- V0.1 state/action semantics の文書化
-- 将来の game engine / AI search へ向けた設計基盤
+- legacy DSL CORE の廃止方針の明文化
+- game engine / AI search へ向けた Bridge / Replay 設計基盤
 
 Excluded for now:
 

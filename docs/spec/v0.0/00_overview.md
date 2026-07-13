@@ -1,13 +1,13 @@
 # ygoEffectDSL Spec v0.0 - Overview
 
-> **Status**: Historical baseline / maintained under Project Charter
+> **Status**: Historical baseline / legacy DSL CORE / removal target
 > **Last updated**: 2026-07-13
 
 ## 目的
 
-v0.0 は、遊戯王カードの効果テキストを機械処理可能な DSL へ変換し、変換結果を検証・分析できるようにする研究用ベースラインである。
+v0.0 は、遊戯王カードの効果テキストを機械処理可能な DSL へ変換し、変換結果を検証・分析できるようにする過去の研究用ベースラインである。
 
-v0.0 の中心は、完全なゲーム実行ではなく、後続の Bridge、Replay、Search、Evaluation が読める Action / Target / Cost / Restriction / Diagnostics を安定して出力することである。
+現在の Project Charter では、DSL CORE は探索エンジンの前段ではなく legacy / deprecated / removal target である。v0.0 の Action / Target / Cost / Restriction / Diagnostics は既存互換の観測対象であり、Bridge、Replay、Search、Evaluation の入力根拠にしない。
 
 ## 非目的
 
@@ -27,9 +27,9 @@ v0.0 の中心は、完全なゲーム実行ではなく、後続の Bridge、Re
 
 ## Charter との関係
 
-`docs/00_project_charter.md` が最上位方針である。v0.0 は Charter の長期目標に向けた DSL Conversion CORE であり、Python-only game engine ではない。
+`docs/00_project_charter.md` が最上位方針である。v0.0 は過去の DSL Conversion CORE であり、Python-only game engine ではない。
 
-状態や action の意味は、将来の Bridge / Replay / Search / Evaluation に渡す候補情報として扱う。実ルールの真実源は ocgcore / EDOPro Lua である。
+状態や action の意味は、現在の探索エンジン設計には接続しない。実行系入力と実ルールの真実源は ocgcore / EDOPro Lua である。
 
 ## 用語
 
@@ -38,7 +38,7 @@ v0.0 の中心は、完全なゲーム実行ではなく、後続の Bridge、Re
 - **Action**: 効果が行う処理候補。v0.0 では `actions[]` が canonical。
 - **Target**: action / cost / condition が参照する対象候補。
 - **Diagnostics**: 未解決、曖昧、互換 fallback などの観測点。
-- **State candidate**: 将来の state/action semantics が読む候補情報。v0.0 では実行しない。
+- **State candidate**: 過去の v0.1 検討で使われた候補情報。現在の探索エンジン入力ではない。
 
 ## 参照
 

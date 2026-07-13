@@ -1,11 +1,11 @@
 # ygoEffectDSL Spec v0.1 - First 10 One-Step Applications
 
-> Status: Established baseline / representative candidates
+> Status: Historical baseline / representative legacy candidates
 > Last updated: 2026-07-13
 
-This table maps the first 10 representative benchmark cards to V0.1 one-step application candidates. It uses the current v0.0 DSL shape as input and records what a future reader should be able to infer before any real engine execution exists.
+This table maps the first 10 representative benchmark cards to historical V0.1 one-step application candidates. It uses the v0.0 DSL shape as input and records what the earlier DSL-reader idea attempted to infer before any real engine execution existed.
 
-These rows are not duel simulations. They are checks that current `actions[]` and `targets[]` contain enough information to support the future engine boundary described in [Project Charter](../../00_project_charter.md).
+These rows are not duel simulations. Under ADR-0003, they are not a future engine boundary and must not be used as Search Engine input.
 
 | CID | Card name | Main action | Required target information | Expected one-step state change | Unresolved risk |
 | --- | --- | --- | --- | --- | --- |
@@ -34,4 +34,4 @@ The first 10 cards deliberately include easy actions and rough edges:
 - 9010 should expose cost/action ordering without duplicating the cost in
   `actions[]`.
 
-These candidates define the first verifiable bridge from v0.0 `actions[]` and `targets[]` to V0.1 state/action semantics without implementing an engine.
+These candidates remain only as a historical record of the attempted bridge from v0.0 `actions[]` and `targets[]` to V0.1 state/action semantics. The current Primary Runtime Path is ocgcore / EDOPro Lua -> Bridge -> Replay / Search / Evaluation.

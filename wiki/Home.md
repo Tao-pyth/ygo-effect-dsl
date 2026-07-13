@@ -6,9 +6,9 @@
 
 ## このプロジェクトの目的
 
-`ygo-effect-dsl` は、遊戯王カードの効果テキストを機械処理しやすいDSLへ変換し、将来の展開探索、妨害耐性解析、リカバリ解析、デッキ評価へ接続するための研究用COREです。
+`ygo-effect-dsl` は、遊戯王 OCG の展開探索、妨害耐性解析、リカバリ解析、デッキ評価を再現可能にするためのゲーム木探索エンジン基盤です。
 
-現在の基準は V0.1 Project Charter です。v0.0 の変換基盤を維持しながら、V0.2 では Bridge / Replay の最小実装へ進みます。完全なゲームエンジンや Python でのルール再実装は目標にしません。
+現在の基準は Project Charter と ADR-0003 です。v0.0 の変換基盤は legacy / deprecated / removal target であり、V0.2 では ocgcore / EDOPro Lua 由来の Bridge / Replay の最小実装へ進みます。Python でのルール再実装は目標にしません。
 
 ## まず読むページ
 
@@ -37,13 +37,13 @@ python -m ygo_effect_dsl analyze data/dsl_out/yaml --out data/reports
 
 ## 現在大事にしていること
 
-v0.0 は研究用の変換ベースラインです。V0.1 以降では、これを将来の Bridge / Replay / Search / Evaluation へ渡す入力基盤として扱います。
+v0.0 は過去の研究用変換ベースラインです。現在は探索エンジンの入力基盤ではなく、互換維持のため一時残置される廃止対象です。
 
 - `card`、`effects[]`、`actions[]`、`targets[]` の形を安定させる
 - 未解決の意味を無理に消さず、warning として可視化する
 - golden test と analyze metrics で変換品質を追跡する
 - Python に遊戯王ルールを持たせず、ocgcore / EDOPro Lua を将来の真実源にする
-- Replay 可能性と Bridge 境界へ接続できる入力を作る
+- Replay 可能性と Bridge 境界は ocgcore / EDOPro Lua 由来の入力で設計する
 
 ## 公式仕様へのリンク
 
