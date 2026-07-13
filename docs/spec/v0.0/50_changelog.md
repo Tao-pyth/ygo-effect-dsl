@@ -4,6 +4,9 @@
 
 ## Unreleased
 
+- docs: expand the authoritative Project Charter with the full responsibility
+  map for documentation, source layout, search, replay, bridge, evaluation,
+  experiment, logging, statistics, data, ADRs, roadmap, and long-term goals.
 - docs: establish V0.1 as the Project Charter and architecture baseline for
   future game engine + AI search work, update README, add Architecture,
   Roadmap, Glossary, and ADR-0000, and clarify that current DSL conversion
