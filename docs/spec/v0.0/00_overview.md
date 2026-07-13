@@ -1,29 +1,49 @@
-# ygoEffectDSL Spec v0.0 (Draft) — Overview
+# ygoEffectDSL Spec v0.0 - Overview
 
-> **Status**: Draft (experimental)  
-> **Last updated**: 2026-02-28
+> **Status**: Historical baseline / maintained under Project Charter
+> **Last updated**: 2026-07-13
 
-## 目的（Goal）
-- 遊戯王カードの効果テキストを、機械処理可能な DSL（構造化データ）へ変換する。
-- その DSL を用いて、状態遷移（State Transition）として効果適用を記述・探索可能にする。
+## 目的
 
-## 非目的（Non-goals）
-- 対戦相手の介入（レスポンス/妨害）を含む完全なルール再現（※将来検討）
-- 確率モデル/最適化（※将来検討）
-- ETL（API取得・画像取得・SQLite正規化）
+v0.0 は、遊戯王カードの効果テキストを機械処理可能な DSL へ変換し、変換結果を検証・分析できるようにする研究用ベースラインである。
 
-## 対象範囲（Scope）
-- 入力：ETLが生成した `cards.jsonl`（英語/日本語テキストを含む）
-- 出力：効果DSL（YAML/JSON）
-- 探索：自ターン展開（相手レスポンス無し）を前提にした状態遷移
+v0.0 の中心は、完全なゲーム実行ではなく、後続の Bridge、Replay、Search、Evaluation が読める Action / Target / Cost / Restriction / Diagnostics を安定して出力することである。
 
-## 用語（Glossary）
-- **State**: 盤面スナップショット（手札/場/墓地/除外/デッキ など）
-- **Effect**: カード効果（テキスト上の1効果単位）
-- **Transition**: 効果適用による State → State の変換
-- **Trigger / Condition / Cost / Action / Restriction**: DSLの主要構成要素
+## 非目的
+
+- Python による遊戯王ルール再実装
+- ocgcore の代替ルールエンジン
+- 実 duel の状態遷移実行
+- チェーン、優先権、相手レスポンスを含む完全な対戦シミュレーション
+- 確率モデル、最適化、探索アルゴリズム
+- ETL 領域の API 取得、画像取得、SQLite 正規化
+
+## 対象範囲
+
+- 入力: ETL が生成した `manifest.json` と `cards.jsonl`
+- 出力: DSL YAML / JSON
+- 検証: DSL shape、diagnostics、互換 fallback、未解決 target / action の可視化
+- 分析: action coverage、target resolution、unmatched fragments、validation counts
+
+## Charter との関係
+
+`docs/00_project_charter.md` が最上位方針である。v0.0 は Charter の長期目標に向けた DSL Conversion CORE であり、Python-only game engine ではない。
+
+状態や action の意味は、将来の Bridge / Replay / Search / Evaluation に渡す候補情報として扱う。実ルールの真実源は ocgcore / EDOPro Lua である。
+
+## 用語
+
+- **DSL**: カード効果テキストを構造化した変換結果。
+- **Effect**: カードテキスト中の効果単位。
+- **Action**: 効果が行う処理候補。v0.0 では `actions[]` が canonical。
+- **Target**: action / cost / condition が参照する対象候補。
+- **Diagnostics**: 未解決、曖昧、互換 fallback などの観測点。
+- **State candidate**: 将来の state/action semantics が読む候補情報。v0.0 では実行しない。
 
 ## 参照
-- docs/spec/v0.0/10_grammar.md（構文）
-- docs/spec/v0.0/20_semantics.md（意味論・評価順序）
-- docs/spec/v0.0/30_examples.md（例）
+
+- [Grammar](10_grammar.md)
+- [Semantics](20_semantics.md)
+- [Examples](30_examples.md)
+- [Validation](40_validation.md)
+- [Representative Benchmark Policy](60_representative_benchmark.md)

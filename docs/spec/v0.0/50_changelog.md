@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- docs: align v0.0 semantics, wiki pages, and ADRs with the Project Charter;
+  replace the old State -> State execution framing with conversion semantics
+  and engine-boundary candidates, add ADR-0001/0002, and rename the transform
+  rule engine to `PatternRuleEngine` to avoid implying Python owns game rules.
 - docs: expand the authoritative Project Charter with the full responsibility
   map for documentation, source layout, search, replay, bridge, evaluation,
   experiment, logging, statistics, data, ADRs, roadmap, and long-term goals.

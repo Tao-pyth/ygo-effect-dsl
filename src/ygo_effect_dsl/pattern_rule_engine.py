@@ -7,7 +7,9 @@ from typing import Any
 from ygo_effect_dsl.models import Rule
 
 
-class RuleEngine:
+class PatternRuleEngine:
+    """Applies text-pattern transform rules, not Yu-Gi-Oh! game rules."""
+
     def __init__(self, overwrite: bool = False):
         self.overwrite = overwrite
 

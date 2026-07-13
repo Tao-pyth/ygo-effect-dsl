@@ -52,6 +52,8 @@ Implementation
 - [Glossary](docs/glossary.md)
 - [Documentation Policy](docs/documentation_policy.md)
 - [ADR: Project Charter](docs/adr/0000_project_charter.md)
+- [ADR: Replay Baseline](docs/adr/0001_replay_baseline.md)
+- [ADR: Python Does Not Own Rules](docs/adr/0002_python_does_not_own_rules.md)
 - [V0.1 Overview](docs/spec/v0.1/00_overview.md)
 - [V0.1 Minimal Semantics](docs/spec/v0.1/10_minimal_semantics.md)
 - [V0.1 First 10 One-Step Applications](docs/spec/v0.1/20_first_10_applications.md)

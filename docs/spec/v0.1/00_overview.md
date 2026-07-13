@@ -74,6 +74,8 @@ The first V0.1 technical question is:
 - [Minimal Semantics](10_minimal_semantics.md)
 - [First 10 One-Step Applications](20_first_10_applications.md)
 - [ADR-0000: Project Charter](../../adr/0000_project_charter.md)
+- [ADR-0001: Replay Baseline](../../adr/0001_replay_baseline.md)
+- [ADR-0002: Python Does Not Own Rules](../../adr/0002_python_does_not_own_rules.md)
 
 ## Non-Goals
 

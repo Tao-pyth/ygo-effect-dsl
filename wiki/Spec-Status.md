@@ -1,12 +1,16 @@
 # Spec Status Matrix
 
-このページは、現時点で **実装・運用済みの仕様** と、**ロードマップ上で検討中の仕様** を整理した一覧です。  
-基準日は **2026-05-12**。
+このページは、現時点で実装・運用済みの仕様と、ロードマップ上で検討中の仕様を整理した補助資料です。
 
-## 1) 現在のプロジェクトが満たしている仕様（v0.0系）
+基準日は **2026-07-13**。最上位方針は [Project Charter](../docs/00_project_charter.md) です。
+
+## 1. 現在のプロジェクトが満たしている仕様
 
 | 区分 | 仕様項目 | 現状 |
-|---|---|---|
+| --- | --- | --- |
+| 方針 | Project Charter を最上位文書として採用 | 対応済み |
+| 方針 | プロジェクト方向を「ゲームエンジン + AI 探索」として定義 | 対応済み |
+| 方針 | Python は遊戯王ルールを持たない | 対応済み |
 | データフロー | `manifest.json` + `cards.jsonl` を受け取り、`ingest -> transform -> validate -> analyze` を実行 | 対応済み |
 | DSL形状 | `card.info` を廃止し `card.props` を採用 | 反映済み |
 | DSL形状 | `effects[]` 配下で `actions[]` を正規形として採用 | 反映済み |
@@ -18,40 +22,51 @@
 | 分析 | target reference resolution rate の集計 | 対応済み |
 | 分析 | unmatched fragment のランキング | 対応済み |
 | 分析 | validation severity/code 別集計 | 対応済み |
-| ルール辞書 | `negate` のスターター action rule | 対応済み |
 | 品質保証 | representative-card データセット + golden 比較テスト | 対応済み |
-| 位置づけ | v0.0 は「完全なゲーム意味論」より「変換の安定性・診断」を優先 | 現行方針 |
 
----
+## 2. V0.1 baseline
 
-## 2) ロードマップ上で検討されている仕様
+V0.1 は完成したゲームエンジンではなく、設計基盤の確立です。
 
-### v0.1 (Planned)
-- 型の厳格化
-- カード例（fixtures/examples）の拡充
-- `validate` の強化
+- Project Charter を最上位方針として採用
+- README / Architecture / Roadmap / Glossary を V0.1 baseline として整備
+- v0.1 minimal state/action semantics を engine boundary contract として定義
+- Python は遊戯王ルールを持たず、ocgcore / EDOPro Lua を将来の真実源とする方針を明文化
 
-### v0.2+ (Planned)
-- チェーン / スタックの段階導入
-- 探索エンジン（状態ハッシュ、枝刈り）
+## 3. V0.2 planned
 
-### README上の中期計画（v0.1開始時の方向性）
-- 最小の状態モデル（`Deck`, `Hand`, `Field`, `GY`, `Banished`, `Extra`, `Flags`）
-- 狭い action 語彙（`draw`, `add_to_hand`, `send_to_gy`, `destroy`, `special_summon`, `banish`, `negate`）
+V0.2 は Bridge / Replay baseline です。GitHub milestone と issue で管理しています。
 
----
+- Replay baseline ADR
+- Python does not own rules ADR
+- Bridge / Replay specifications
+- Minimal Replay model
+- Bridge interface boundary
+- Replay smoke test
 
-## 3) 仕様境界（現時点で対象外 / 非目標）
+## 4. V0.3+ planned
+
+- Random Search
+- END_TURN action
+- Peak Board tracking
+- State Evaluation prototype
+- route logging
+
+Beam Search、MCTS、妨害注入、Recovery 探索はさらに後の段階で扱います。
+
+## 5. 仕様境界
+
+現時点で対象外または非目標のもの:
 
 - 相手レスポンスを含む完全な対戦ルール再現
-- 確率モデル / 最適化
-- ETL領域（API取得・画像取得・SQLite正規化）
-- フル chain/stack シミュレーション
+- Python による遊戯王ルール再実装
+- ocgcore の代替実装
+- ETL 領域の API 取得、画像取得、SQLite 正規化
+- フル chain / stack simulation
 - 完全な相手インタラクションモデル
 
----
+## 6. 補足
 
-## 4) 補足
-
-- 正式な仕様本文は `docs/spec/v0.0/*` が正本。
-- 本ページは、Spec本文・Changelog・Roadmap・README の差分を実務向けに再整理したサマリ。
+- 最上位方針は `docs/00_project_charter.md`。
+- 正式な仕様本文は `docs/spec/*`。
+- Wiki は、Spec 本文、Changelog、Roadmap、README の差分を実務向けに再整理したサマリ。
