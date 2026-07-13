@@ -103,7 +103,7 @@ set contributor expectations. Review these targets when preparing a release:
 
 - `README.md` for current version status, quickstart behavior, and release
   links
-- `docs/documentation_policy.md` when release documentation ownership changes
+- `docs/40_documentation_policy.md` when release documentation ownership changes
 - `docs/spec/` files when DSL behavior or compatibility changes
 - `docs/spec/*/50_changelog.md` or a future top-level changelog for release
   notes

@@ -33,7 +33,7 @@
 
 COREが読む入力は、ETLが出力する成果物です。
 
-- [Input Contract](../docs/contract/input_contract.md)
+- [Input Contract](../docs/contract/00_input_contract.md)
 - `manifest.json`
 - `cards.jsonl`
 

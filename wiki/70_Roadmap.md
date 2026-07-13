@@ -1,6 +1,6 @@
 # Roadmap
 
-このページは、`ygo-effect-dsl` の現在地と今後の進め方をまとめた補助資料です。最上位方針は [Project Charter](../docs/00_project_charter.md)、正式なロードマップは [docs/roadmap.md](../docs/roadmap.md)、詳細な仕様変更は [Changelog](../docs/spec/v0.0/50_changelog.md) を参照してください。
+このページは、`ygo-effect-dsl` の現在地と今後の進め方をまとめた補助資料です。最上位方針は [Project Charter](../docs/00_project_charter.md)、正式なロードマップは [docs/20_roadmap.md](../docs/20_roadmap.md)、詳細な仕様変更は [Changelog](../docs/spec/v0.0/50_changelog.md) を参照してください。
 
 ## 現在の焦点: V0.1 baseline から V0.2 Bridge / Replay へ
 

@@ -54,4 +54,4 @@ v0.0 は過去の研究用変換ベースラインです。現在は探索エン
 - [Examples](../docs/spec/v0.0/30_examples.md)
 - [Validation](../docs/spec/v0.0/40_validation.md)
 - [Changelog](../docs/spec/v0.0/50_changelog.md)
-- [Input Contract](../docs/contract/input_contract.md)
+- [Input Contract](../docs/contract/00_input_contract.md)

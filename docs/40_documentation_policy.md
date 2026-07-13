@@ -38,9 +38,10 @@ Recommended formal structure:
 ```text
 docs/
   00_project_charter.md
-  architecture.md
-  roadmap.md
-  glossary.md
+  10_architecture.md
+  20_roadmap.md
+  30_glossary.md
+  40_documentation_policy.md
   adr/
   contract/
   spec/
@@ -49,6 +50,28 @@ docs/
   release/
   validation/
 ```
+
+## File Naming Rule
+
+Markdown documents under `docs/` and `wiki/` should use a two-digit ordering
+prefix:
+
+```text
+00_most_important.md
+10_next_topic.md
+20_follow_up_topic.md
+```
+
+Use `00_` for the entry point or most important file in each folder. Prefer
+increments of 10 for stable documents so new files can be inserted later without
+renaming the whole folder. Use high numbers such as `90_` or `99_` for
+brainstorming notes, templates, and support material.
+
+Do not apply this rule to Python modules, pytest files, GitHub workflow files,
+ADR files, or data contract files such as `manifest.json` and `cards.jsonl`,
+because those names are controlled by language, tool, or decision-log
+conventions. ADR files keep the existing four-digit sequence such as
+`0000_project_charter.md`.
 
 The existing `docs/spec/` tree is the source of truth for versioned DSL behavior.
 Future GitHub Pages publishing should prefer `docs/` as the input tree because
@@ -75,11 +98,11 @@ Recommended supporting structure:
 
 ```text
 wiki/
-  japanese/
-  roadmap/
-  design_notes/
-  contributor_notes/
-  examples/
+  00_Home.md
+  10_Getting-Started.md
+  20_Concepts.md
+  30_Spec-Index.md
+  40_Spec-Status.md
 ```
 
 ## Migration Rule

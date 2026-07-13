@@ -5,7 +5,7 @@ Status: support note
 ## Migration Record
 
 - Previous location: `README.md`
-- New location: `docs/release/pending_local_commits.md`
+- New location: `docs/release/10_pending_local_commits.md`
 - Document type: release and publishing support note
 - Related change: V0.1 Project Charter / README reorganization
 
