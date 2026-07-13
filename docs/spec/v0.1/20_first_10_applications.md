@@ -1,11 +1,11 @@
-# ygoEffectDSL Spec v0.1 (Draft) - First 10 One-Step Applications
+# ygoEffectDSL Spec v0.1 - First 10 One-Step Applications
 
-> Status: Draft / representative candidates
-> Last updated: 2026-05-13
+> Status: Established baseline / representative candidates
+> Last updated: 2026-07-13
 
-This table maps the first 10 representative benchmark cards to v0.1 one-step
-application candidates. It uses the current v0.0 DSL shape as input and records
-what a future reader should be able to infer.
+This table maps the first 10 representative benchmark cards to V0.1 one-step application candidates. It uses the current v0.0 DSL shape as input and records what a future reader should be able to infer before any real engine execution exists.
+
+These rows are not duel simulations. They are checks that current `actions[]` and `targets[]` contain enough information to support the future engine boundary described in [Project Charter](../../00_project_charter.md).
 
 | CID | Card name | Main action | Required target information | Expected one-step state change | Unresolved risk |
 | --- | --- | --- | --- | --- | --- |
@@ -34,6 +34,4 @@ The first 10 cards deliberately include easy actions and rough edges:
 - 9010 should expose cost/action ordering without duplicating the cost in
   `actions[]`.
 
-These candidates are enough for Issue #16 because they define the first
-verifiable bridge from v0.0 `actions[]` and `targets[]` to v0.1 state/action
-semantics without implementing an engine.
+These candidates define the first verifiable bridge from v0.0 `actions[]` and `targets[]` to V0.1 state/action semantics without implementing an engine.

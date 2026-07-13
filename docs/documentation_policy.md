@@ -7,11 +7,14 @@ can tell which documents define behavior and which documents explain context.
 
 `ygo-effect-dsl` is being stabilized as a research CORE for converting
 Yu-Gi-Oh! effect text into DSL, validating the result, and analyzing conversion
-quality. Documentation therefore has two jobs:
+quality. From V0.1 onward, documentation also establishes the path from DSL
+conversion toward a future game engine + AI search system. Documentation
+therefore has three jobs:
 
 - preserve formal contracts that tests, golden snapshots, and releases depend on
 - keep design notes and Japanese explanations easy to read while the project is
   still changing quickly
+- keep long-term engine/search decisions aligned with the Project Charter
 
 ## docs/ Is The Formal Area
 
@@ -34,6 +37,10 @@ Recommended formal structure:
 
 ```text
 docs/
+  00_project_charter.md
+  architecture.md
+  roadmap.md
+  glossary.md
   adr/
   contract/
   spec/
