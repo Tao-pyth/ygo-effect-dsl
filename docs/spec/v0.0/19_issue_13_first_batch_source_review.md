@@ -15,7 +15,7 @@ URL as the source pointer, then review the regenerated representative golden
 snapshot when Python is available.
 
 Before applying this first batch, follow the
-[Local Verification Prerequisites](../../../README.md#local-verification-prerequisites).
+[Local Verification Prerequisites](60_representative_benchmark.md#local-verification-prerequisites).
 If Python 3.10+, editable install, pytest, representative golden regeneration,
 or analyze report review cannot run locally, stop before changing
 `tests/datasets/representative_cards/cards.jsonl` or

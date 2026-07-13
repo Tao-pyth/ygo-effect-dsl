@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- docs: establish V0.1 as the Project Charter and architecture baseline for
+  future game engine + AI search work, update README, add Architecture,
+  Roadmap, Glossary, and ADR-0000, and clarify that current DSL conversion
+  remains the measurable input layer rather than the final product.
 - ci: add representative golden preview workflow that can regenerate
   `tests/golden/representative_cards/expected.json` in GitHub Actions and
   publish the result as a review artifact without committing it.

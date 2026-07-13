@@ -1,11 +1,11 @@
-# ygoEffectDSL Spec v0.1 (Draft) - Minimal Semantics
+# ygoEffectDSL Spec v0.1 - Minimal Semantics
 
-> Status: Draft / no engine implementation
-> Last updated: 2026-05-13
+> Status: Established baseline / no full engine implementation
+> Last updated: 2026-07-13
 
-v0.1 defines a read-only state model and a narrow action vocabulary. A v0.1
-reader may produce candidate state deltas, but this spec does not require the
-repo to execute those deltas.
+V0.1 defines a read-only state model and a narrow action vocabulary. A V0.1 reader may produce candidate state deltas, but this spec does not require the repo to execute real duel state transitions.
+
+This document is an engine-boundary contract. It explains how the existing DSL Conversion CORE can feed future Replay, Search, and Evaluation work without putting Yu-Gi-Oh! rules into Python.
 
 ## Read-Only State Model
 
@@ -39,8 +39,7 @@ analysis, but v0.1 does not require a full card object. `Flags` stores
 turn-scoped or effect-scoped facts such as "normal_summoned_this_turn",
 "negated_effect_ids", and "once_per_turn_used".
 
-The model is read-only for v0.1 docs: an application candidate records the
-expected delta instead of mutating the source snapshot.
+The model is read-only for V0.1 docs: an application candidate records the expected delta instead of mutating the source snapshot. Real legality and state transition authority remains outside Python and must eventually come from ocgcore / EDOPro Lua integration.
 
 ## Target Records
 
@@ -76,7 +75,9 @@ If `actions[]` is empty and legacy `action` is non-empty, the reader may produce
 a compatibility candidate and should keep a diagnostic note. New v0.1 docs and
 tests should prefer `actions[]`.
 
-## Initial Action Vocabulary
+## Initial DSL Action Vocabulary
+
+This vocabulary is not the final Search Engine Action model. It is the first bridge vocabulary from current DSL `actions[]` to future engine actions.
 
 The common action schema is:
 
@@ -230,6 +231,24 @@ State delta:
 
 - add or update `Flags.negated_effect_ids`.
 - no zone movement unless another action says to destroy, banish, or send.
+
+## Relation To Future Engine Actions
+
+The future Search Engine is expected to use higher-level actions such as NormalSummon, SpecialSummon, ActivateEffect, SelectCard, SelectOption, and EndTurn. The DSL actions in this document are lower-level semantic candidates extracted from card text.
+
+The conversion path is therefore:
+
+```text
+DSL actions[] / targets[]
+  ▼
+V0.1 state/action candidate
+  ▼
+Bridge / Replay compatible Action
+  ▼
+Search Engine Action
+```
+
+V0.1 only defines the first two steps.
 
 ## Validation Notes
 
