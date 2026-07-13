@@ -9,7 +9,7 @@ from ygo_effect_dsl.ingest.jsonl_reader import load_dataset, resolve_dataset_pat
 from ygo_effect_dsl.io_input import load_inputs
 from ygo_effect_dsl.pipeline.core import transform_card
 from ygo_effect_dsl.report import TransformReporter
-from ygo_effect_dsl.rule_engine import RuleEngine
+from ygo_effect_dsl.pattern_rule_engine import PatternRuleEngine
 from ygo_effect_dsl.yaml_writer import write_yaml_by_cid
 
 logger = logging.getLogger("ygo_effect_dsl")
@@ -59,7 +59,7 @@ def run_transform(args: Namespace) -> int:
         for stage, rules in dictionary.rules_by_stage.items():
             logger.debug("loaded rules stage=%s count=%d", stage, len(rules))
 
-    engine = RuleEngine()
+    engine = PatternRuleEngine()
     reporter = TransformReporter()
 
     start = time.time()

@@ -11,7 +11,7 @@
 - v0.0 stabilization: DSL 出力が測定可能で、回帰を検出できる状態に近づいているか。
 - analyze / validate: 次に直すべき dictionary、transform、contract の課題が出力から読めるか。
 - representative benchmark / golden: 代表カードと golden test が意図しない DSL 変更を検出できるか。
-- `actions[]` / `targets[]`: canonical action と target 参照が、将来の状態遷移に必要な情報を持っているか。
+- `actions[]` / `targets[]`: canonical action と target 参照が、将来の Bridge / Replay / Search / Evaluation に渡す候補情報を持っているか。
 - v0.1 connection: v0.0 の診断や DSL 形状が、最小 state/action semantics へつながるか。
 - 日本語での追跡性: 新人日本語プログラマーが、課題、根拠、次に見るファイルを追えるか。
 

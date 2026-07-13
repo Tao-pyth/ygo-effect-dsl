@@ -2,22 +2,22 @@
 
 このWikiは、`ygo-effect-dsl` を初めて読む人や、仕様の全体像を短時間でつかみたい人のための日本語ガイドです。
 
-正確な仕様の一次情報はリポジトリ内の `docs/spec/` です。Wikiは、その仕様を読みやすく案内するチュートリアル、用語集、運用メモとして扱います。
+最上位方針はリポジトリ内の `docs/00_project_charter.md` です。正確な仕様の一次情報は `docs/` です。Wikiは、その方針と仕様を読みやすく案内するチュートリアル、用語集、運用メモとして扱います。
 
 ## このプロジェクトの目的
 
-`ygo-effect-dsl` は、遊戯王カードの効果テキストを機械処理しやすいDSLへ変換し、変換結果を検証・分析するための研究用COREです。
+`ygo-effect-dsl` は、遊戯王カードの効果テキストを機械処理しやすいDSLへ変換し、将来の展開探索、妨害耐性解析、リカバリ解析、デッキ評価へ接続するための研究用COREです。
 
-現在の主な目標は v0.0 の安定化です。完全なゲームエンジンを作る前に、まず変換結果の構造を安定させ、どこまで意味を抽出できているかを測れる状態にします。
+現在の基準は V0.1 Project Charter です。v0.0 の変換基盤を維持しながら、V0.2 では Bridge / Replay の最小実装へ進みます。完全なゲームエンジンや Python でのルール再実装は目標にしません。
 
 ## まず読むページ
 
 - [[Getting-Started]]: サンプルデータを使って `ingest -> transform -> validate -> analyze` を動かす手順
-- [[Concepts]]: DSL、Effect、Action、Target、State Transition などの基本概念
+- [[Concepts]]: DSL、Effect、Action、Target、State Candidate などの基本概念
 - [[Spec-Index]]: `docs/spec/` の読み方と、各仕様ファイルの役割
 - [[Examples-Gallery]]: DSL YAML の最小例と、よくある効果の表現例
 - [[FAQ]]: v0.0、検証結果、ETLとの関係などのよくある質問
-- [[Roadmap]]: v0.0 から v0.1 以降に向けた進め方
+- [[Roadmap]]: V0.1 baseline から V0.2 以降に向けた進め方
 
 ## 5分で見る開発ループ
 
@@ -35,17 +35,19 @@ python -m ygo_effect_dsl analyze data/dsl_out/yaml --out data/reports
 - transform レポート: `data/dsl_out/reports/`
 - analyze レポート: `data/reports/analysis_report.json`
 
-## v0.0で大事にしていること
+## 現在大事にしていること
 
-v0.0 は研究用の変換ベースラインです。意味解釈の完全性よりも、安定した構造と診断可能性を優先します。
+v0.0 は研究用の変換ベースラインです。V0.1 以降では、これを将来の Bridge / Replay / Search / Evaluation へ渡す入力基盤として扱います。
 
 - `card`、`effects[]`、`actions[]`、`targets[]` の形を安定させる
 - 未解決の意味を無理に消さず、warning として可視化する
 - golden test と analyze metrics で変換品質を追跡する
-- v0.1 の最小 state/action semantics に進むための足場を作る
+- Python に遊戯王ルールを持たせず、ocgcore / EDOPro Lua を将来の真実源にする
+- Replay 可能性と Bridge 境界へ接続できる入力を作る
 
 ## 公式仕様へのリンク
 
+- [Project Charter](../docs/00_project_charter.md)
 - [Spec Overview](../docs/spec/v0.0/00_overview.md)
 - [Grammar](../docs/spec/v0.0/10_grammar.md)
 - [Semantics](../docs/spec/v0.0/20_semantics.md)

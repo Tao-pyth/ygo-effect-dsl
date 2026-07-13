@@ -8,7 +8,7 @@ from typing import Any
 from ygo_effect_dsl.io_input import extract_card_fields
 from ygo_effect_dsl.models import LoadedDictionary, StageOutcome, TransformResult
 from ygo_effect_dsl.normalize import normalize_card_texts
-from ygo_effect_dsl.rule_engine import RuleEngine
+from ygo_effect_dsl.pattern_rule_engine import PatternRuleEngine
 
 logger = logging.getLogger("ygo_effect_dsl")
 
@@ -245,7 +245,7 @@ def _apply_candidates(
     rules: list[Any],
     payload: dict[str, Any],
     params: dict[str, list[Any]],
-    engine: RuleEngine,
+    engine: PatternRuleEngine,
     source_text: str = "",
 ) -> tuple[dict[str, Any], list[str], list[dict[str, str]]]:
     out = payload
@@ -265,7 +265,7 @@ def _apply_action_candidates(
     candidates: list[str],
     rules: list[Any],
     params: dict[str, list[Any]],
-    engine: RuleEngine,
+    engine: PatternRuleEngine,
     source_text: str = "",
 ) -> tuple[list[dict[str, Any]], list[str], list[dict[str, Any]], list[dict[str, Any]]]:
     actions: list[dict[str, Any]] = []
@@ -321,7 +321,7 @@ def _apply_action_candidates(
     return actions, hits, unmatched, details
 
 
-def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: RuleEngine) -> TransformResult:
+def transform_card(card: dict[str, Any], dictionary: LoadedDictionary, engine: PatternRuleEngine) -> TransformResult:
     fields = extract_card_fields(card)
     output = _base_output(fields, {})
     effect = output["effects"][0]

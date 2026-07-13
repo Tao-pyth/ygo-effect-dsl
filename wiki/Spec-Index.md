@@ -8,10 +8,25 @@
 | --- | --- | --- |
 | [00 Overview](../docs/spec/v0.0/00_overview.md) | v0.0の目的、スコープ、用語 | 全体像を知りたい人 |
 | [10 Grammar](../docs/spec/v0.0/10_grammar.md) | DSL YAMLの構造、必須キー、action/target形式 | transformerやvalidatorを触る人 |
-| [20 Semantics](../docs/spec/v0.0/20_semantics.md) | State Transitionとしての意味論 | v0.1以降の状態モデルを考える人 |
+| [20 Semantics](../docs/spec/v0.0/20_semantics.md) | 変換結果の読み方、Action/Target候補、diagnostics | 後続 engine 境界を考える人 |
 | [30 Examples](../docs/spec/v0.0/30_examples.md) | DSLの具体例 | 出力例から理解したい人 |
 | [40 Validation](../docs/spec/v0.0/40_validation.md) | severity、diagnostic code、validate CLIの読み方 | 変換品質を改善する人 |
 | [50 Changelog](../docs/spec/v0.0/50_changelog.md) | 仕様・CLI・変換・検証・fixture変更の記録 | 変更履歴を追う人 |
+
+## v0.1 Spec
+
+| File | 内容 | まず読むべき人 |
+| --- | --- | --- |
+| [V0.1 Overview](../docs/spec/v0.1/00_overview.md) | Project Charter との接続、engine boundary、非目標 | V0.1 以降の方向性を確認する人 |
+| [Minimal Semantics](../docs/spec/v0.1/10_minimal_semantics.md) | read-only state/action candidate の契約 | Bridge / Replay / Search の境界を考える人 |
+| [First 10 One-Step Applications](../docs/spec/v0.1/20_first_10_applications.md) | 代表カードから読み取る one-step candidate | 変換結果と後続 engine 境界の接続を確認する人 |
+
+## Project Decisions
+
+- [Project Charter](../docs/00_project_charter.md)
+- [ADR-0000: Project Charter](../docs/adr/0000_project_charter.md)
+- [ADR-0001: Replay Baseline](../docs/adr/0001_replay_baseline.md)
+- [ADR-0002: Python Does Not Own Rules](../docs/adr/0002_python_does_not_own_rules.md)
 
 ## Input Contract
 
