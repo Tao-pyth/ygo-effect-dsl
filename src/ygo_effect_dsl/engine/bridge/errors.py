@@ -11,3 +11,7 @@ class InvalidBridgeMessageError(BridgeError):
 
 class UnsupportedBridgeMessageError(BridgeError):
     """Raised when a valid Message uses a message_type outside the V0.2 mock vocabulary."""
+
+
+class InvalidBridgeResponseError(BridgeError):
+    """Raised when a Python response does not match its DecisionRequest."""
