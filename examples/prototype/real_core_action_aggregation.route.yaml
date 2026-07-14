@@ -1,0 +1,5294 @@
+checkpoints:
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 2
+      position: 10
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 2
+      position: 10
+      slot: 1
+    state_hash: state_67323b9818f2735e14ca6806079075aeea203d797fae96c54ba41e1c0ae1ed0d
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 2
+        monster_zone: 0
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 0
+    hand_count: 2
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_e05bec4954e2809f6803258511a2640039422a4ed6c6b47189f8315d68090683
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 0
+        metric: field_count
+        raw_value: 0
+        resolution: observed
+        resolved_value: 0
+        weight: 10
+      - contribution: 2
+        metric: hand_count
+        raw_value: 2
+        resolution: observed
+        resolved_value: 2
+        weight: 1
+      total_score: 2
+    total_score: 2
+    vector:
+      field_count: 0
+      hand_count: 2
+  legal_stop:
+    can_stop: false
+    evidence:
+      chain_count: 0
+      pending_request_type: select_place
+      process_state: awaiting_response
+      state_hash: state_67323b9818f2735e14ca6806079075aeea203d797fae96c54ba41e1c0ae1ed0d
+    reason: pending_request
+  phase: main1
+  score: 2
+  state_hash: state_67323b9818f2735e14ca6806079075aeea203d797fae96c54ba41e1c0ae1ed0d
+  step: 0
+  success: false
+  turn: 1
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 2
+      position: 10
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 4
+      position: 1
+      slot: 0
+    state_hash: state_f1509b1256538e1ec3764c21d273960edccc94abff571812ca8aa818a154c1fc
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 1
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 1
+    hand_count: 1
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_86f30a8df416e318e28ebf5f10222ace6f2ad06b06043f5a591861b9578bdbf8
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 10
+        metric: field_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 10
+      - contribution: 1
+        metric: hand_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 1
+      total_score: 11
+    total_score: 11
+    vector:
+      field_count: 1
+      hand_count: 1
+  legal_stop:
+    can_stop: false
+    evidence:
+      chain_count: 0
+      pending_request_type: select_chain
+      process_state: awaiting_response
+      state_hash: state_f1509b1256538e1ec3764c21d273960edccc94abff571812ca8aa818a154c1fc
+    reason: pending_request
+  phase: main1
+  score: 11
+  state_hash: state_f1509b1256538e1ec3764c21d273960edccc94abff571812ca8aa818a154c1fc
+  step: 1
+  success: true
+  turn: 1
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 2
+      position: 10
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 4
+      position: 1
+      slot: 0
+    state_hash: state_ecb5221fa1712ff3709b9a12f827b48d44391f96e3d300782994f92315ac0583
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 1
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 1
+    hand_count: 1
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_86f30a8df416e318e28ebf5f10222ace6f2ad06b06043f5a591861b9578bdbf8
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 10
+        metric: field_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 10
+      - contribution: 1
+        metric: hand_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 1
+      total_score: 11
+    total_score: 11
+    vector:
+      field_count: 1
+      hand_count: 1
+  legal_stop:
+    can_stop: false
+    evidence:
+      chain_count: 0
+      pending_request_type: select_chain
+      process_state: awaiting_response
+      state_hash: state_ecb5221fa1712ff3709b9a12f827b48d44391f96e3d300782994f92315ac0583
+    reason: pending_request
+  phase: main1
+  score: 11
+  state_hash: state_ecb5221fa1712ff3709b9a12f827b48d44391f96e3d300782994f92315ac0583
+  step: 2
+  success: true
+  turn: 1
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 2
+      position: 10
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 4
+      position: 1
+      slot: 0
+    state_hash: state_625255e7f464c3e88d57d6b391ed504f1d8a632b096525e145569e18309a00d8
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 1
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 1
+    hand_count: 1
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_86f30a8df416e318e28ebf5f10222ace6f2ad06b06043f5a591861b9578bdbf8
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 10
+        metric: field_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 10
+      - contribution: 1
+        metric: hand_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 1
+      total_score: 11
+    total_score: 11
+    vector:
+      field_count: 1
+      hand_count: 1
+  legal_stop:
+    can_stop: false
+    evidence:
+      chain_count: 0
+      pending_request_type: select_effect_yes_no
+      process_state: awaiting_response
+      state_hash: state_625255e7f464c3e88d57d6b391ed504f1d8a632b096525e145569e18309a00d8
+    reason: pending_request
+  phase: main1
+  score: 11
+  state_hash: state_625255e7f464c3e88d57d6b391ed504f1d8a632b096525e145569e18309a00d8
+  step: 3
+  success: true
+  turn: 1
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 2
+      position: 10
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 4
+      position: 1
+      slot: 0
+    state_hash: state_81c703b6c44a857405bb21ae0ff2bc7e709d1438e8b376630ee6e6cd1f0059b2
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 1
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 1
+    hand_count: 1
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_86f30a8df416e318e28ebf5f10222ace6f2ad06b06043f5a591861b9578bdbf8
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 10
+        metric: field_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 10
+      - contribution: 1
+        metric: hand_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 1
+      total_score: 11
+    total_score: 11
+    vector:
+      field_count: 1
+      hand_count: 1
+  legal_stop:
+    can_stop: false
+    evidence:
+      chain_count: 1
+      pending_request_type: select_card
+      process_state: awaiting_response
+      state_hash: state_81c703b6c44a857405bb21ae0ff2bc7e709d1438e8b376630ee6e6cd1f0059b2
+    reason: chain_active
+  phase: main1
+  score: 11
+  state_hash: state_81c703b6c44a857405bb21ae0ff2bc7e709d1438e8b376630ee6e6cd1f0059b2
+  step: 4
+  success: true
+  turn: 1
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 4
+      position: 1
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 16
+      position: 5
+      slot: 0
+    state_hash: state_443e08c4827a4bd474cb95100c0ea5176496cbb60ffd6978e604c885dc98663c
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 1
+        hand: 0
+        monster_zone: 1
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 1
+    hand_count: 0
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 10
+        metric: field_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 10
+      - contribution: 0
+        metric: hand_count
+        raw_value: 0
+        resolution: observed
+        resolved_value: 0
+        weight: 1
+      total_score: 10
+    total_score: 10
+    vector:
+      field_count: 1
+      hand_count: 0
+  legal_stop:
+    can_stop: false
+    evidence:
+      chain_count: 1
+      pending_request_type: select_card
+      process_state: awaiting_response
+      state_hash: state_443e08c4827a4bd474cb95100c0ea5176496cbb60ffd6978e604c885dc98663c
+    reason: chain_active
+  phase: main1
+  score: 10
+  state_hash: state_443e08c4827a4bd474cb95100c0ea5176496cbb60ffd6978e604c885dc98663c
+  step: 5
+  success: true
+  turn: 1
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 4
+      position: 1
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 16
+      position: 5
+      slot: 0
+    state_hash: state_046615ca16aca5a42f35c3402e88c15b8812a20d3f25fdacdfa955329479e361
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 1
+        hand: 0
+        monster_zone: 1
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 1
+    hand_count: 0
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 10
+        metric: field_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 10
+      - contribution: 0
+        metric: hand_count
+        raw_value: 0
+        resolution: observed
+        resolved_value: 0
+        weight: 1
+      total_score: 10
+    total_score: 10
+    vector:
+      field_count: 1
+      hand_count: 0
+  legal_stop:
+    can_stop: false
+    evidence:
+      chain_count: 1
+      pending_request_type: select_option
+      process_state: awaiting_response
+      state_hash: state_046615ca16aca5a42f35c3402e88c15b8812a20d3f25fdacdfa955329479e361
+    reason: chain_active
+  phase: main1
+  score: 10
+  state_hash: state_046615ca16aca5a42f35c3402e88c15b8812a20d3f25fdacdfa955329479e361
+  step: 6
+  success: true
+  turn: 1
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 4
+      position: 1
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 16
+      position: 5
+      slot: 0
+    state_hash: state_4d0ecbfdca63bbf55487c5c48bf9ee8dbe63525d5ee83316645b8f67240b0f66
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 1
+        hand: 0
+        monster_zone: 1
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 1
+    hand_count: 0
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 10
+        metric: field_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 10
+      - contribution: 0
+        metric: hand_count
+        raw_value: 0
+        resolution: observed
+        resolved_value: 0
+        weight: 1
+      total_score: 10
+    total_score: 10
+    vector:
+      field_count: 1
+      hand_count: 0
+  legal_stop:
+    can_stop: false
+    evidence:
+      chain_count: 1
+      pending_request_type: select_chain
+      process_state: awaiting_response
+      state_hash: state_4d0ecbfdca63bbf55487c5c48bf9ee8dbe63525d5ee83316645b8f67240b0f66
+    reason: chain_active
+  phase: main1
+  score: 10
+  state_hash: state_4d0ecbfdca63bbf55487c5c48bf9ee8dbe63525d5ee83316645b8f67240b0f66
+  step: 7
+  success: true
+  turn: 1
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 4
+      position: 1
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 16
+      position: 5
+      slot: 0
+    state_hash: state_bee640a46a66daf93d9eb875fd76f53d71b18a2629c2eb0baa81601e0e87fba3
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 1
+        hand: 0
+        monster_zone: 1
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 1
+    hand_count: 0
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 10
+        metric: field_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 10
+      - contribution: 0
+        metric: hand_count
+        raw_value: 0
+        resolution: observed
+        resolved_value: 0
+        weight: 1
+      total_score: 10
+    total_score: 10
+    vector:
+      field_count: 1
+      hand_count: 0
+  legal_stop:
+    can_stop: false
+    evidence:
+      chain_count: 1
+      pending_request_type: select_chain
+      process_state: awaiting_response
+      state_hash: state_bee640a46a66daf93d9eb875fd76f53d71b18a2629c2eb0baa81601e0e87fba3
+    reason: chain_active
+  phase: main1
+  score: 10
+  state_hash: state_bee640a46a66daf93d9eb875fd76f53d71b18a2629c2eb0baa81601e0e87fba3
+  step: 8
+  success: true
+  turn: 1
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 4
+      position: 1
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 16
+      position: 5
+      slot: 0
+    state_hash: state_4f6759816f6b4ca124b3f5e22a1b773eb29da7ca08ec66a8407ac9204f9ed6eb
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 1
+        hand: 0
+        monster_zone: 1
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 1
+    hand_count: 0
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 10
+        metric: field_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 10
+      - contribution: 0
+        metric: hand_count
+        raw_value: 0
+        resolution: observed
+        resolved_value: 0
+        weight: 1
+      total_score: 10
+    total_score: 10
+    vector:
+      field_count: 1
+      hand_count: 0
+  legal_stop:
+    can_stop: false
+    evidence:
+      chain_count: 0
+      pending_request_type: select_chain
+      process_state: awaiting_response
+      state_hash: state_4f6759816f6b4ca124b3f5e22a1b773eb29da7ca08ec66a8407ac9204f9ed6eb
+    reason: pending_request
+  phase: main1
+  score: 10
+  state_hash: state_4f6759816f6b4ca124b3f5e22a1b773eb29da7ca08ec66a8407ac9204f9ed6eb
+  step: 9
+  success: true
+  turn: 1
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 4
+      position: 1
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 16
+      position: 5
+      slot: 0
+    state_hash: state_dbbd4d3ff14594f4d7519f97da6fc041cb21f38294b4a1af0dcf5c55353b8a31
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 1
+        hand: 0
+        monster_zone: 1
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 1
+    hand_count: 0
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 10
+        metric: field_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 10
+      - contribution: 0
+        metric: hand_count
+        raw_value: 0
+        resolution: observed
+        resolved_value: 0
+        weight: 1
+      total_score: 10
+    total_score: 10
+    vector:
+      field_count: 1
+      hand_count: 0
+  legal_stop:
+    can_stop: false
+    evidence:
+      chain_count: 0
+      pending_request_type: select_chain
+      process_state: awaiting_response
+      state_hash: state_dbbd4d3ff14594f4d7519f97da6fc041cb21f38294b4a1af0dcf5c55353b8a31
+    reason: pending_request
+  phase: main1
+  score: 10
+  state_hash: state_dbbd4d3ff14594f4d7519f97da6fc041cb21f38294b4a1af0dcf5c55353b8a31
+  step: 10
+  success: true
+  turn: 1
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 4
+      position: 1
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 16
+      position: 5
+      slot: 0
+    state_hash: state_cac356bd5f751fe887751aafdd0bc7d091be943318728cc6bd76db94d08007ce
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 1
+        hand: 0
+        monster_zone: 1
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 1
+    hand_count: 0
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 10
+        metric: field_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 10
+      - contribution: 0
+        metric: hand_count
+        raw_value: 0
+        resolution: observed
+        resolved_value: 0
+        weight: 1
+      total_score: 10
+    total_score: 10
+    vector:
+      field_count: 1
+      hand_count: 0
+  legal_stop:
+    can_stop: true
+    evidence:
+      chain_count: 0
+      core_control_candidate: control:end_turn
+      pending_request_type: select_idle_command
+      process_state: awaiting_response
+      state_hash: state_cac356bd5f751fe887751aafdd0bc7d091be943318728cc6bd76db94d08007ce
+      stop_action_kind: STOP_LINE
+    reason: core_end_turn_available
+  phase: main1
+  score: 10
+  state_hash: state_cac356bd5f751fe887751aafdd0bc7d091be943318728cc6bd76db94d08007ce
+  step: 11
+  success: true
+  turn: 1
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 4
+      position: 1
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 16
+      position: 5
+      slot: 0
+    state_hash: state_ddc736eb5c78f2c998a95b7fe5ef5a1e4be10468676fcbfe156b8df568ba8c00
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 1
+        hand: 0
+        monster_zone: 1
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 1
+    hand_count: 0
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 10
+        metric: field_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 10
+      - contribution: 0
+        metric: hand_count
+        raw_value: 0
+        resolution: observed
+        resolved_value: 0
+        weight: 1
+      total_score: 10
+    total_score: 10
+    vector:
+      field_count: 1
+      hand_count: 0
+  legal_stop:
+    can_stop: false
+    evidence:
+      chain_count: 0
+      pending_request_type: select_chain
+      process_state: awaiting_response
+      state_hash: state_ddc736eb5c78f2c998a95b7fe5ef5a1e4be10468676fcbfe156b8df568ba8c00
+    reason: pending_request
+  phase: main1
+  score: 10
+  state_hash: state_ddc736eb5c78f2c998a95b7fe5ef5a1e4be10468676fcbfe156b8df568ba8c00
+  step: 12
+  success: true
+  turn: 1
+- board_summary:
+    life_points:
+      '0': 8000
+      '1': 8000
+    public_cards:
+    - code: 97268402
+      controller: 0
+      location: 4
+      position: 1
+      slot: 0
+    - code: 97268402
+      controller: 0
+      location: 16
+      position: 5
+      slot: 0
+    state_hash: state_0e36b3e0bc875155bca8e9b4b7651c28671ecbff53b02cfa7f40e52149cafcee
+    zone_counts:
+      '0':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 1
+        hand: 0
+        monster_zone: 1
+        spell_trap_zone: 0
+      '1':
+        banished: 0
+        deck: 0
+        extra_deck: 0
+        graveyard: 0
+        hand: 1
+        monster_zone: 0
+        spell_trap_zone: 0
+  evaluation:
+    field_count: 1
+    hand_count: 0
+  evaluation_result:
+    evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+    evaluator_id: real_core_board_count
+    evaluator_version: '1'
+    explanations: []
+    schema_version: evaluation-result-v1
+    score_breakdown:
+      breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+      missing_metrics: []
+      schema_version: score-breakdown-v1
+      terms:
+      - contribution: 10
+        metric: field_count
+        raw_value: 1
+        resolution: observed
+        resolved_value: 1
+        weight: 10
+      - contribution: 0
+        metric: hand_count
+        raw_value: 0
+        resolution: observed
+        resolved_value: 0
+        weight: 1
+      total_score: 10
+    total_score: 10
+    vector:
+      field_count: 1
+      hand_count: 0
+  legal_stop:
+    can_stop: true
+    evidence:
+      chain_count: 0
+      core_control_candidate: control:end_turn
+      pending_request_type: select_idle_command
+      process_state: awaiting_response
+      state_hash: state_0e36b3e0bc875155bca8e9b4b7651c28671ecbff53b02cfa7f40e52149cafcee
+      stop_action_kind: STOP_LINE
+    reason: core_end_turn_available
+  phase: main1
+  score: 10
+  state_hash: state_0e36b3e0bc875155bca8e9b4b7651c28671ecbff53b02cfa7f40e52149cafcee
+  step: 13
+  success: true
+  turn: 2
+dsl: ygo-route
+experiment:
+  deck:
+    id: effect_veiler_two_player_fixture
+    source: fixed
+  durability_evaluate_at: opponent_main1_after_end_phase_and_turn_start_processing
+  evaluate_at: legal_stop
+  evaluator:
+    config:
+      hand_weight: 1
+      missing_value_policy: error
+      monster_weight: 10
+      temporary_value_policy: exclude_expired_or_unverified_v1
+    id: real_core_board_count
+    version: '1'
+  experiment_id: prototype_real_core_action_aggregation
+  information_mode: complete_information
+  information_policy:
+    deck_order: known
+    opening_hand: fixed
+    policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+    sampling_reference: null
+    schema_version: information-policy-v1
+  interruption:
+    definitions: []
+    mode: none
+  objective: validate_ocgcore_action_aggregation_roles
+  player:
+    perspective: 0
+    starting_player: 0
+  prototype:
+    adapter: ocgcore-v11
+    pending_validation: []
+    scenario_id: real_core_effect_veiler_normal_summon_v1
+    validated_contracts:
+    - binary_decision_decode
+    - binary_response_encode
+    - core_state_query
+    - core_derived_legal_stop
+    - card_instance_identity
+    - exact_search_state_equivalence
+    - end_phase_durability
+    - fresh_process_replay
+    - configured_interruption_execution
+    - sampled_interruption_manifest
+    - pluggable_evaluator_registry
+    - score_breakdown_persistence
+    - temporary_effect_evaluation_policy
+    - ocgcore_temporary_effect_observation
+    - ocgcore_action_aggregation_roles
+  replay:
+    strict_versions: true
+  runner:
+    adapter: real_core_prototype
+    fixture_script_id: action_aggregation_lifecycle_v1
+    scenario_id: real_core_effect_veiler_normal_summon_v1
+  schema_version: 0.3b
+  search:
+    budget:
+      max_nodes: 48
+    parameters: {}
+    strategy: scripted_real_core
+  success_predicate:
+    config:
+      min_count: 1
+      player: 0
+      zone: monster_zone
+    id: real_core_min_monster_count
+    version: '1'
+  turn_limit: 2
+information_audit:
+  accesses:
+  - decision: allowed
+    field: deck_order
+    owner: 0
+    purpose: initialize fixed real-core deck order
+    sequence: 0
+  - decision: allowed
+    field: hand_identity
+    owner: 0
+    purpose: initialize fixed real-core opening hand
+    sequence: 1
+  - decision: allowed
+    field: hand_identity
+    owner: 1
+    purpose: initialize fixed real-core interruption hand
+    sequence: 2
+  - decision: allowed
+    field: public_state
+    owner: null
+    purpose: capture and evaluate replay checkpoints
+    sequence: 3
+  audit_id: infoaudit_cbdd131edb6f20b6c3a5eb1f6856a42230ed5fb6a92064d5fb061a3e836f595a
+  leak_count: 0
+  leaks: []
+  policy:
+    deck_order: known
+    information_mode: complete_information
+    opening_hand: fixed
+    policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+    sampling_reference: null
+    schema_version: information-policy-v1
+    viewer: null
+  schema_version: information-audit-v1
+interruptions: []
+lineage:
+  fork_step: null
+  parent_route_id: null
+presentation:
+  action_aggregation:
+    groups:
+    - action_ids:
+      - act_60bcd1e9d815dbecb852373ba772b81758ae57727892ff81acb6e8e7a9bc917a
+      action_occurrence_ids:
+      - aocc_29ccc432980d4e864e61f7ea0bb89bb6b11106cb47fad6b77d4b24ac90333d63
+      atomic_steps:
+      - 0
+      comparison_key: cmpkey_bb500e2b84a39a2e8c79ff553c33e31e7b714a42b245c0b8921caa07a0120e06
+      composite_id: cmpact_ccf8aedd28a81080cc740b6da96e56f6fee8b64386e46636bbac06b33e10a627
+      costs: []
+      options: []
+      parts:
+      - action_id: act_60bcd1e9d815dbecb852373ba772b81758ae57727892ff81acb6e8e7a9bc917a
+        action_kind: NORMAL_SUMMON
+        action_occurrence_id: aocc_29ccc432980d4e864e61f7ea0bb89bb6b11106cb47fad6b77d4b24ac90333d63
+        request_type: select_idle_command
+        role: primary
+        selections:
+        - candidate_id: normal_summon:0
+          card_ref:
+            controller: 0
+            location: 2
+            public_card_id: 97268402
+            sequence: 0
+          effect_ref: null
+          kind: card
+          label: '97268402'
+          order: null
+          value: null
+        step: 0
+      primary_kind: NORMAL_SUMMON
+      selections: []
+      targets: []
+    - action_ids:
+      - act_e1dd90bedf93d68ec57c5ab4ff5509c25161b242fd2f686f85cd847a0b44e9f7
+      action_occurrence_ids:
+      - aocc_80d5cc9528b7ca45fb4fe8ea81a824032b256aab777e27fada534b3ec25809c6
+      atomic_steps:
+      - 1
+      comparison_key: cmpkey_d37b7fc79a29c6874c848f3853bac294f8028dba7db42f3a46e4211816f9f02e
+      composite_id: cmpact_7c9be9849c3572cfb4565a1058e65530d743a24f0ea117730c92a0d05f8de303
+      costs: []
+      options: []
+      parts:
+      - action_id: act_e1dd90bedf93d68ec57c5ab4ff5509c25161b242fd2f686f85cd847a0b44e9f7
+        action_kind: SELECT_ZONE
+        action_occurrence_id: aocc_80d5cc9528b7ca45fb4fe8ea81a824032b256aab777e27fada534b3ec25809c6
+        request_type: select_place
+        role: selection
+        selections:
+        - candidate_id: zone:0:4:0
+          card_ref: null
+          effect_ref: null
+          kind: zone
+          label: 0:4:0
+          order: null
+          value: null
+        step: 1
+      primary_kind: SELECT_ZONE
+      selections:
+      - candidate_id: zone:0:4:0
+        card_ref: null
+        effect_ref: null
+        kind: zone
+        label: 0:4:0
+        order: null
+        value: null
+      targets: []
+    - action_ids:
+      - act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123
+      action_occurrence_ids:
+      - aocc_cebeaf08cd08eca2aee1e8c0c23982c21fad1b75bdb8581a9147fdb7b7973883
+      atomic_steps:
+      - 2
+      comparison_key: cmpkey_23c91cd599be57810f803d74865a193254698757eb9b949c9d14682ed3c2cdbf
+      composite_id: cmpact_fc8cca0b79903778453e3b097b1498eb16307174ba717ce3890441333f0f9fd3
+      costs: []
+      options: []
+      parts:
+      - action_id: act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123
+        action_kind: PASS
+        action_occurrence_id: aocc_cebeaf08cd08eca2aee1e8c0c23982c21fad1b75bdb8581a9147fdb7b7973883
+        request_type: select_chain
+        role: control
+        selections:
+        - candidate_id: control:pass
+          card_ref: null
+          effect_ref: null
+          kind: pass
+          label: Pass
+          order: null
+          value: null
+        step: 2
+      primary_kind: PASS
+      selections: []
+      targets: []
+    - action_ids:
+      - act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da
+      action_occurrence_ids:
+      - aocc_c23d8b2b560d27707e86a22cf3d5e9f1ab700f52a1e0492724d19100b5d00bea
+      atomic_steps:
+      - 3
+      comparison_key: cmpkey_3dbd96abd1eb354b34a794c417a352a36670b694d2c3ca450d1d37dcb6f258fb
+      composite_id: cmpact_2efa94ba97689b659e7e74eec204b4d6b08e51d8242888073835a26090babdf5
+      costs: []
+      options: []
+      parts:
+      - action_id: act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da
+        action_kind: PASS
+        action_occurrence_id: aocc_c23d8b2b560d27707e86a22cf3d5e9f1ab700f52a1e0492724d19100b5d00bea
+        request_type: select_chain
+        role: control
+        selections:
+        - candidate_id: control:pass
+          card_ref: null
+          effect_ref: null
+          kind: pass
+          label: Pass
+          order: null
+          value: null
+        step: 3
+      primary_kind: PASS
+      selections: []
+      targets: []
+    - action_ids:
+      - act_ec315e8732643a06d9fa894ac8de9161ff64af5c8bf5231327b775516829bcbe
+      - act_9954179a9885be47f14a3d8ed9789b0a555958ff001ff048d382676799623a1c
+      - act_971a192581031076fdb7fba3616c3d2aa5dc8ed8d7672f0a4810c265e9a3b58c
+      - act_e34511877add1549948e0897e8d573c5076a8040163f91cd4eb238fbab49da78
+      action_occurrence_ids:
+      - aocc_69088c8fb0eb538c5fbea4cf60b35b9413253bcd3eee7e1d16e4887aa582794a
+      - aocc_94b2cbd4f6d432bcd989303165c087ea78e792fd9bb010847fa64778c36ec24c
+      - aocc_401428af3b32cbd38d19f23ceb4fc58383e77f3d1352d70f0caa201f84f339a4
+      - aocc_056e4935ef13f09fee52cf9f748c202d97eb7fa98809227ddbc34bacfb628fb5
+      atomic_steps:
+      - 4
+      - 5
+      - 6
+      - 7
+      comparison_key: cmpkey_f1ce106d354f8d88f51221465d8c9cb1d0c564729c434b87beccdc987069c623
+      composite_id: cmpact_3a475a50e1ed5059cd2777c2ade5a90d66baeda34442112222e4a0dd4177a944
+      costs:
+      - candidate_id: card:0
+        card_ref:
+          controller: 0
+          location: 2
+          position: 10
+          public_card_id: 97268402
+          sequence: 0
+        effect_ref: null
+        kind: card
+        label: '97268402'
+        order: null
+        value: null
+      options:
+      - candidate_id: option:0
+        card_ref: null
+        effect_ref: null
+        kind: option
+        label: '70'
+        order: null
+        value: null
+      parts:
+      - action_id: act_ec315e8732643a06d9fa894ac8de9161ff64af5c8bf5231327b775516829bcbe
+        action_kind: ACTIVATE_EFFECT
+        action_occurrence_id: aocc_69088c8fb0eb538c5fbea4cf60b35b9413253bcd3eee7e1d16e4887aa582794a
+        request_type: select_effect_yes_no
+        role: primary
+        selections:
+        - candidate_id: choice:1
+          card_ref:
+            controller: 0
+            location: 4
+            position: 1
+            public_card_id: 97268402
+            sequence: 0
+          effect_ref:
+            description: 221
+          kind: effect
+          label: 'Yes'
+          order: null
+          value: null
+        step: 4
+      - action_id: act_9954179a9885be47f14a3d8ed9789b0a555958ff001ff048d382676799623a1c
+        action_kind: SELECT_CARD
+        action_occurrence_id: aocc_94b2cbd4f6d432bcd989303165c087ea78e792fd9bb010847fa64778c36ec24c
+        request_type: select_card
+        role: cost
+        selections:
+        - candidate_id: card:0
+          card_ref:
+            controller: 0
+            location: 2
+            position: 10
+            public_card_id: 97268402
+            sequence: 0
+          effect_ref: null
+          kind: card
+          label: '97268402'
+          order: null
+          value: null
+        step: 5
+      - action_id: act_971a192581031076fdb7fba3616c3d2aa5dc8ed8d7672f0a4810c265e9a3b58c
+        action_kind: SELECT_CARD
+        action_occurrence_id: aocc_401428af3b32cbd38d19f23ceb4fc58383e77f3d1352d70f0caa201f84f339a4
+        request_type: select_card
+        role: target
+        selections:
+        - candidate_id: card:0
+          card_ref:
+            controller: 0
+            location: 4
+            position: 1
+            public_card_id: 97268402
+            sequence: 0
+          effect_ref: null
+          kind: card
+          label: '97268402'
+          order: null
+          value: null
+        step: 6
+      - action_id: act_e34511877add1549948e0897e8d573c5076a8040163f91cd4eb238fbab49da78
+        action_kind: SELECT_OPTION
+        action_occurrence_id: aocc_056e4935ef13f09fee52cf9f748c202d97eb7fa98809227ddbc34bacfb628fb5
+        request_type: select_option
+        role: option
+        selections:
+        - candidate_id: option:0
+          card_ref: null
+          effect_ref: null
+          kind: option
+          label: '70'
+          order: null
+          value: null
+        step: 7
+      primary_kind: ACTIVATE_EFFECT
+      selections: []
+      targets:
+      - candidate_id: card:0
+        card_ref:
+          controller: 0
+          location: 4
+          position: 1
+          public_card_id: 97268402
+          sequence: 0
+        effect_ref: null
+        kind: card
+        label: '97268402'
+        order: null
+        value: null
+    - action_ids:
+      - act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da
+      action_occurrence_ids:
+      - aocc_99ffc43aae8ad350c0ce6c1982627c1679a27b80789e9b82888f7b7c7e6c40d9
+      atomic_steps:
+      - 8
+      comparison_key: cmpkey_3dbd96abd1eb354b34a794c417a352a36670b694d2c3ca450d1d37dcb6f258fb
+      composite_id: cmpact_6e47e4ce258f1dbed915bf7dc69c33b446465cbe4ea81256424fbfc6fd8cc942
+      costs: []
+      options: []
+      parts:
+      - action_id: act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da
+        action_kind: PASS
+        action_occurrence_id: aocc_99ffc43aae8ad350c0ce6c1982627c1679a27b80789e9b82888f7b7c7e6c40d9
+        request_type: select_chain
+        role: control
+        selections:
+        - candidate_id: control:pass
+          card_ref: null
+          effect_ref: null
+          kind: pass
+          label: Pass
+          order: null
+          value: null
+        step: 8
+      primary_kind: PASS
+      selections: []
+      targets: []
+    - action_ids:
+      - act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123
+      action_occurrence_ids:
+      - aocc_9a13f807242c9bfa6afb5cb03edc2ac625553f7e71eb2f535d5e05bacc8d6251
+      atomic_steps:
+      - 9
+      comparison_key: cmpkey_23c91cd599be57810f803d74865a193254698757eb9b949c9d14682ed3c2cdbf
+      composite_id: cmpact_27c395f5a0a3d5f2cd4a6b5aa941c688c30cf50f8c9a9093fa050ba089deb602
+      costs: []
+      options: []
+      parts:
+      - action_id: act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123
+        action_kind: PASS
+        action_occurrence_id: aocc_9a13f807242c9bfa6afb5cb03edc2ac625553f7e71eb2f535d5e05bacc8d6251
+        request_type: select_chain
+        role: control
+        selections:
+        - candidate_id: control:pass
+          card_ref: null
+          effect_ref: null
+          kind: pass
+          label: Pass
+          order: null
+          value: null
+        step: 9
+      primary_kind: PASS
+      selections: []
+      targets: []
+    - action_ids:
+      - act_4dc313540b880cb1567d3feef4d1de689010c704e45dcd3c1ec33debae9279a7
+      action_occurrence_ids:
+      - aocc_cd249d36b55a8a9a156c6ae66275fe1738665d737c8391cf894c501ab7ccb149
+      atomic_steps:
+      - 10
+      comparison_key: cmpkey_7bd2028b2ec4316f8d9efa50fbdcbba6c70ff2c4200557b188d1bb199954b07c
+      composite_id: cmpact_e8b619c05ae4cbdacd921898e55ee15439bef7aab7078ce03e3f8d6b9866aa8f
+      costs: []
+      options: []
+      parts:
+      - action_id: act_4dc313540b880cb1567d3feef4d1de689010c704e45dcd3c1ec33debae9279a7
+        action_kind: PASS
+        action_occurrence_id: aocc_cd249d36b55a8a9a156c6ae66275fe1738665d737c8391cf894c501ab7ccb149
+        request_type: select_chain
+        role: control
+        selections:
+        - candidate_id: control:pass
+          card_ref: null
+          effect_ref: null
+          kind: pass
+          label: Pass
+          order: null
+          value: null
+        step: 10
+      primary_kind: PASS
+      selections: []
+      targets: []
+    - action_ids:
+      - act_677ff7568130d444ecdaa42bbf356ef1fe59d83db6e894c4ee583a3fffb99971
+      action_occurrence_ids:
+      - aocc_2f8acf52182d8791e75973f6d55ec3a2438882414f5d745eb917e223913b6c71
+      atomic_steps:
+      - 11
+      comparison_key: cmpkey_e4f6fb83237b50598b97a9273c4878470578630539578f8e12b606e8c1a79b28
+      composite_id: cmpact_3dd802194c39c0639442417796b7818e9a9a6042a496449e8c4410c502c070cf
+      costs: []
+      options: []
+      parts:
+      - action_id: act_677ff7568130d444ecdaa42bbf356ef1fe59d83db6e894c4ee583a3fffb99971
+        action_kind: PASS
+        action_occurrence_id: aocc_2f8acf52182d8791e75973f6d55ec3a2438882414f5d745eb917e223913b6c71
+        request_type: select_chain
+        role: control
+        selections:
+        - candidate_id: control:pass
+          card_ref: null
+          effect_ref: null
+          kind: pass
+          label: Pass
+          order: null
+          value: null
+        step: 11
+      primary_kind: PASS
+      selections: []
+      targets: []
+    - action_ids:
+      - act_e6d04fe91160b3ed539a0b2282ede9c0f511f92b7d2b57ab012ed94fcd597ac2
+      action_occurrence_ids:
+      - aocc_9f6a0f95069b58b7843d55061d593aa45da465637ea05d00e2be562849763bb3
+      atomic_steps:
+      - 12
+      comparison_key: cmpkey_e0e2057be4e7ef5e54e7d40ac5acb90def8c2d0e61fac1fc7f4afcb0965f51d3
+      composite_id: cmpact_e679cec0eb2f21693c9824c1698c7dea91f38cb7dc7c5179e6af8d37222920d9
+      costs: []
+      options: []
+      parts:
+      - action_id: act_e6d04fe91160b3ed539a0b2282ede9c0f511f92b7d2b57ab012ed94fcd597ac2
+        action_kind: END_TURN
+        action_occurrence_id: aocc_9f6a0f95069b58b7843d55061d593aa45da465637ea05d00e2be562849763bb3
+        request_type: select_idle_command
+        role: control
+        selections:
+        - candidate_id: control:end_turn
+          card_ref: null
+          effect_ref: null
+          kind: end_turn
+          label: End turn
+          order: null
+          value: null
+        step: 12
+      primary_kind: END_TURN
+      selections: []
+      targets: []
+    - action_ids:
+      - act_d23eeafd1565538ee8e93a07a4a1043e34e5a8c4301afedbc7714945fdb3ac8c
+      action_occurrence_ids:
+      - aocc_630cec52931a28aae1dd5da2368a951725f4b659983cf19858d42071ee4ff027
+      atomic_steps:
+      - 13
+      comparison_key: cmpkey_ef7a0da572830c2149d2322fb1833e6535f67332c982b4a35187a45b4ac7c632
+      composite_id: cmpact_574013da11fc8692aebb6b9cdeec7474fb360151ec64438d0baacfe46ea63d31
+      costs: []
+      options: []
+      parts:
+      - action_id: act_d23eeafd1565538ee8e93a07a4a1043e34e5a8c4301afedbc7714945fdb3ac8c
+        action_kind: PASS
+        action_occurrence_id: aocc_630cec52931a28aae1dd5da2368a951725f4b659983cf19858d42071ee4ff027
+        request_type: select_chain
+        role: control
+        selections:
+        - candidate_id: control:pass
+          card_ref: null
+          effect_ref: null
+          kind: pass
+          label: Pass
+          order: null
+          value: null
+        step: 13
+      primary_kind: PASS
+      selections: []
+      targets: []
+    links:
+    - action_occurrence_id: aocc_29ccc432980d4e864e61f7ea0bb89bb6b11106cb47fad6b77d4b24ac90333d63
+      composite_id: cmpact_ccf8aedd28a81080cc740b6da96e56f6fee8b64386e46636bbac06b33e10a627
+      part_index: 0
+      step: 0
+    - action_occurrence_id: aocc_80d5cc9528b7ca45fb4fe8ea81a824032b256aab777e27fada534b3ec25809c6
+      composite_id: cmpact_7c9be9849c3572cfb4565a1058e65530d743a24f0ea117730c92a0d05f8de303
+      part_index: 0
+      step: 1
+    - action_occurrence_id: aocc_cebeaf08cd08eca2aee1e8c0c23982c21fad1b75bdb8581a9147fdb7b7973883
+      composite_id: cmpact_fc8cca0b79903778453e3b097b1498eb16307174ba717ce3890441333f0f9fd3
+      part_index: 0
+      step: 2
+    - action_occurrence_id: aocc_c23d8b2b560d27707e86a22cf3d5e9f1ab700f52a1e0492724d19100b5d00bea
+      composite_id: cmpact_2efa94ba97689b659e7e74eec204b4d6b08e51d8242888073835a26090babdf5
+      part_index: 0
+      step: 3
+    - action_occurrence_id: aocc_69088c8fb0eb538c5fbea4cf60b35b9413253bcd3eee7e1d16e4887aa582794a
+      composite_id: cmpact_3a475a50e1ed5059cd2777c2ade5a90d66baeda34442112222e4a0dd4177a944
+      part_index: 0
+      step: 4
+    - action_occurrence_id: aocc_94b2cbd4f6d432bcd989303165c087ea78e792fd9bb010847fa64778c36ec24c
+      composite_id: cmpact_3a475a50e1ed5059cd2777c2ade5a90d66baeda34442112222e4a0dd4177a944
+      part_index: 1
+      step: 5
+    - action_occurrence_id: aocc_401428af3b32cbd38d19f23ceb4fc58383e77f3d1352d70f0caa201f84f339a4
+      composite_id: cmpact_3a475a50e1ed5059cd2777c2ade5a90d66baeda34442112222e4a0dd4177a944
+      part_index: 2
+      step: 6
+    - action_occurrence_id: aocc_056e4935ef13f09fee52cf9f748c202d97eb7fa98809227ddbc34bacfb628fb5
+      composite_id: cmpact_3a475a50e1ed5059cd2777c2ade5a90d66baeda34442112222e4a0dd4177a944
+      part_index: 3
+      step: 7
+    - action_occurrence_id: aocc_99ffc43aae8ad350c0ce6c1982627c1679a27b80789e9b82888f7b7c7e6c40d9
+      composite_id: cmpact_6e47e4ce258f1dbed915bf7dc69c33b446465cbe4ea81256424fbfc6fd8cc942
+      part_index: 0
+      step: 8
+    - action_occurrence_id: aocc_9a13f807242c9bfa6afb5cb03edc2ac625553f7e71eb2f535d5e05bacc8d6251
+      composite_id: cmpact_27c395f5a0a3d5f2cd4a6b5aa941c688c30cf50f8c9a9093fa050ba089deb602
+      part_index: 0
+      step: 9
+    - action_occurrence_id: aocc_cd249d36b55a8a9a156c6ae66275fe1738665d737c8391cf894c501ab7ccb149
+      composite_id: cmpact_e8b619c05ae4cbdacd921898e55ee15439bef7aab7078ce03e3f8d6b9866aa8f
+      part_index: 0
+      step: 10
+    - action_occurrence_id: aocc_2f8acf52182d8791e75973f6d55ec3a2438882414f5d745eb917e223913b6c71
+      composite_id: cmpact_3dd802194c39c0639442417796b7818e9a9a6042a496449e8c4410c502c070cf
+      part_index: 0
+      step: 11
+    - action_occurrence_id: aocc_9f6a0f95069b58b7843d55061d593aa45da465637ea05d00e2be562849763bb3
+      composite_id: cmpact_e679cec0eb2f21693c9824c1698c7dea91f38cb7dc7c5179e6af8d37222920d9
+      part_index: 0
+      step: 12
+    - action_occurrence_id: aocc_630cec52931a28aae1dd5da2368a951725f4b659983cf19858d42071ee4ff027
+      composite_id: cmpact_574013da11fc8692aebb6b9cdeec7474fb360151ec64438d0baacfe46ea63d31
+      part_index: 0
+      step: 13
+    schema_version: '2'
+  action_aggregation_evidence:
+    chain_lifecycle:
+    - batch_path: replay.events[4].core_output.frames
+      frame_index: 0
+      message_name: MSG_CHAINING
+      message_type: 70
+      payload_hex: b232cc0500040000000001000000000400000000460000000000000001000000
+    - batch_path: replay.events[7].core_output.frames
+      frame_index: 1
+      message_name: MSG_CHAINED
+      message_type: 71
+      payload_hex: '01'
+    - batch_path: replay.events[9].core_output.frames
+      frame_index: 0
+      message_name: MSG_CHAIN_SOLVING
+      message_type: 72
+      payload_hex: '01'
+    - batch_path: replay.events[9].core_output.frames
+      frame_index: 1
+      message_name: MSG_CHAIN_SOLVED
+      message_type: 73
+      payload_hex: '01'
+    - batch_path: replay.events[9].core_output.frames
+      frame_index: 2
+      message_name: MSG_CHAIN_END
+      message_type: 74
+      payload_hex: ''
+    evidence_id: actaggev_f91b84f4ceef778388cf3a79a22cdeb4f0dd73ec1148fbcfc4e8251b975b3405
+    fallback_steps:
+    - 1
+    group_boundaries:
+    - boundary_kind: msg_chained
+      end_after_response_step: 7
+      end_frame_index: 1
+      end_message_type: 71
+      group_key: ocgcore-activation:aocc_69088c8fb0eb538c5fbea4cf60b35b9413253bcd3eee7e1d16e4887aa582794a
+      group_kind: activation_setup
+      start_step: 4
+    method: ocgcore-lifecycle-v2
+    role_evidence:
+    - evidence:
+        basis: action_kind
+        value: ACTIVATE_EFFECT
+      group_key: ocgcore-activation:aocc_69088c8fb0eb538c5fbea4cf60b35b9413253bcd3eee7e1d16e4887aa582794a
+      group_kind: activation_setup
+      role: primary
+      step: 4
+    - evidence:
+        basis: selected_card_reason_cost_move
+        card:
+          code: 97268402
+          current:
+            controller: 0
+            location: 16
+            position: 5
+            sequence: 0
+          previous:
+            controller: 0
+            location: 2
+            position: 10
+            sequence: 0
+        frame_index: 0
+        message_type: 50
+        reason: 16512
+        reason_mask: 128
+      group_key: ocgcore-activation:aocc_69088c8fb0eb538c5fbea4cf60b35b9413253bcd3eee7e1d16e4887aa582794a
+      group_kind: activation_setup
+      role: cost
+      step: 5
+    - evidence:
+        basis: select_hint_target
+        description: 551
+        frame_index: 1
+        hint_type: 3
+        message_type: 2
+        player: 0
+      group_key: ocgcore-activation:aocc_69088c8fb0eb538c5fbea4cf60b35b9413253bcd3eee7e1d16e4887aa582794a
+      group_kind: activation_setup
+      role: target
+      step: 6
+    - evidence:
+        basis: selection_message_type
+        request_type: select_option
+      group_key: ocgcore-activation:aocc_69088c8fb0eb538c5fbea4cf60b35b9413253bcd3eee7e1d16e4887aa582794a
+      group_kind: activation_setup
+      role: option
+      step: 7
+    schema_version: ocgcore-action-aggregation-evidence-v2
+  validation:
+    method: ocgcore-lifecycle-v2
+    status: validated
+replay:
+  events:
+  - action:
+      action_id: act_60bcd1e9d815dbecb852373ba772b81758ae57727892ff81acb6e8e7a9bc917a
+      effect_ref: null
+      kind: NORMAL_SUMMON
+      player: 0
+      request_signature: req_3ad6a27c2f0ec8fb647deb9c3dad4eb7e644af427d8522e8197a8cf45fb87764
+      schema_version: 0.3a
+      selections:
+      - candidate_id: normal_summon:0
+        card_ref:
+          controller: 0
+          instance_id: null
+          location: hand
+          owner: 0
+          public_card_id: 97268402
+          sequence: 0
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source: null
+    action_id: act_60bcd1e9d815dbecb852373ba772b81758ae57727892ff81acb6e8e7a9bc917a
+    action_occurrence_id: aocc_29ccc432980d4e864e61f7ea0bb89bb6b11106cb47fad6b77d4b24ac90333d63
+    chain_index: 0
+    core_input_ref: input_702695024d05106e15ccdada16eb8590151a023abb138d33c3c68ab0a235862a
+    core_output:
+      batch_id: batch_04c5277e34496d03dd0b0fca10201e164857bffbe91d2e39e845d0f06319d120
+      frames:
+      - frame_index: 0
+        message_type: 2
+        payload_hex: 0300b232cc0500000000
+        payload_sha256: b2ed91a29fed0180b710b5fccf029b9ca0a191d8b1251400748c0c33cba4237e
+      - frame_index: 1
+        message_type: 18
+        payload_hex: 0001e0ffffff
+        payload_sha256: 714b1f48893293decc819fd2a9f5afe32023d947cffae6d9bb64fbfcb5b44916
+      logs: []
+      progress_events: []
+      random_events: []
+      request_signature: req_a7662b0219c1d8c0da0af0f12949bb7d8604623f51fdecdf2c81f7ba559dd3be
+      resulting_state_hash: state_67323b9818f2735e14ca6806079075aeea203d797fae96c54ba41e1c0ae1ed0d
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_3ad6a27c2f0ec8fb647deb9c3dad4eb7e644af427d8522e8197a8cf45fb87764
+      request_type: select_idle_command
+      response_hex: '00000000'
+      response_length: 4
+      response_sha256: df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119
+      selected_candidate_ids:
+      - normal_summon:0
+    failure: null
+    node_id: real_core_node_0
+    request:
+      candidates:
+      - candidate_id: normal_summon:0
+        card_ref:
+          controller: 0
+          location: 2
+          public_card_id: 97268402
+          sequence: 0
+        effect_ref: null
+        kind: card
+        label: '97268402'
+        payload:
+          action_kind: NORMAL_SUMMON
+          response_codec: int32
+          response_value: 0
+      - candidate_id: normal_summon:1
+        card_ref:
+          controller: 0
+          location: 2
+          public_card_id: 97268402
+          sequence: 1
+        effect_ref: null
+        kind: card
+        label: '97268402'
+        payload:
+          action_kind: NORMAL_SUMMON
+          response_codec: int32
+          response_value: 65536
+      - candidate_id: set_monster:0
+        card_ref:
+          controller: 0
+          location: 2
+          public_card_id: 97268402
+          sequence: 0
+        effect_ref: null
+        kind: card
+        label: '97268402'
+        payload:
+          action_kind: SET_MONSTER
+          response_codec: int32
+          response_value: 3
+      - candidate_id: set_monster:1
+        card_ref:
+          controller: 0
+          location: 2
+          public_card_id: 97268402
+          sequence: 1
+        effect_ref: null
+        kind: card
+        label: '97268402'
+        payload:
+          action_kind: SET_MONSTER
+          response_codec: int32
+          response_value: 65539
+      - candidate_id: control:end_turn
+        card_ref: null
+        effect_ref: null
+        kind: end_turn
+        label: End turn
+        payload:
+          action_kind: END_TURN
+          response_codec: int32
+          response_value: 7
+      - candidate_id: control:shuffle_hand
+        card_ref: null
+        effect_ref: null
+        kind: command
+        label: Shuffle hand
+        payload:
+          action_kind: SHUFFLE_HAND
+          response_codec: int32
+          response_value: 8
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          can_shuffle: true
+          message_name: select_idle_command
+          message_type: 11
+          to_battle_phase: false
+          to_end_phase: true
+        phase: ''
+        priority_player: 0
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 0
+      request_id: real_core_effect_veiler_normal_summon_v1:0
+      request_schema_version: 0.3a
+      request_signature: req_3ad6a27c2f0ec8fb647deb9c3dad4eb7e644af427d8522e8197a8cf45fb87764
+      request_type: select_idle_command
+    request_signature: req_3ad6a27c2f0ec8fb647deb9c3dad4eb7e644af427d8522e8197a8cf45fb87764
+    state_hash_after: state_67323b9818f2735e14ca6806079075aeea203d797fae96c54ba41e1c0ae1ed0d
+    state_hash_before: state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f
+    step: 0
+    timestamp: null
+    turn: 1
+    turn_action_index: 0
+  - action:
+      action_id: act_e1dd90bedf93d68ec57c5ab4ff5509c25161b242fd2f686f85cd847a0b44e9f7
+      effect_ref: null
+      kind: SELECT_ZONE
+      player: 0
+      request_signature: req_a7662b0219c1d8c0da0af0f12949bb7d8604623f51fdecdf2c81f7ba559dd3be
+      schema_version: 0.3a
+      selections:
+      - candidate_id: zone:0:4:0
+        card_ref: null
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source: null
+    action_id: act_e1dd90bedf93d68ec57c5ab4ff5509c25161b242fd2f686f85cd847a0b44e9f7
+    action_occurrence_id: aocc_80d5cc9528b7ca45fb4fe8ea81a824032b256aab777e27fada534b3ec25809c6
+    chain_index: 0
+    core_input_ref: input_2861f812aee05aefaef1ee44a5c7c7ba8384b48d405a4f9b94b31243ac2d00ff
+    core_output:
+      batch_id: batch_706d436cd2133249ebebff9cbe0174bcca0ce9cb4c0201f548c9d52c6d650c7b
+      frames:
+      - frame_index: 0
+        message_type: 50
+        payload_hex: b232cc050002000000000a0000000004000000000100000000000000
+        payload_sha256: c9468fe6183764a6ff082c4cddf1fffa7219236e9aadff57ce29c739ba9dd3fc
+      - frame_index: 1
+        message_type: 60
+        payload_hex: b232cc0500040000000001000000
+        payload_sha256: 93c1ee1604fbaef94db2a38875f82396579bbcf7cbd0844fa17939ac90e4229c
+      - frame_index: 2
+        message_type: 16
+        payload_hex: '000000000000000000000000000000'
+        payload_sha256: 5322fecfc92a5e3248a297a3df3eddfb9bd9049504272e4f572b87fa36d4b3bd
+      logs: []
+      progress_events: []
+      random_events: []
+      request_signature: req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479
+      resulting_state_hash: state_f1509b1256538e1ec3764c21d273960edccc94abff571812ca8aa818a154c1fc
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_a7662b0219c1d8c0da0af0f12949bb7d8604623f51fdecdf2c81f7ba559dd3be
+      request_type: select_place
+      response_hex: '000400'
+      response_length: 3
+      response_sha256: 37223cf78c709774ca15609b06d0fc02331a00cbcf5ed63521399e5a9c0066d9
+      selected_candidate_ids:
+      - zone:0:4:0
+    failure: null
+    node_id: real_core_node_1
+    request:
+      candidates:
+      - candidate_id: zone:0:4:0
+        card_ref: null
+        effect_ref: null
+        kind: zone
+        label: 0:4:0
+        payload:
+          action_kind: SELECT_ZONE
+          response_codec: place_triplets
+          response_controller: 0
+          response_location: 4
+          response_sequence: 0
+      - candidate_id: zone:0:4:1
+        card_ref: null
+        effect_ref: null
+        kind: zone
+        label: 0:4:1
+        payload:
+          action_kind: SELECT_ZONE
+          response_codec: place_triplets
+          response_controller: 0
+          response_location: 4
+          response_sequence: 1
+      - candidate_id: zone:0:4:2
+        card_ref: null
+        effect_ref: null
+        kind: zone
+        label: 0:4:2
+        payload:
+          action_kind: SELECT_ZONE
+          response_codec: place_triplets
+          response_controller: 0
+          response_location: 4
+          response_sequence: 2
+      - candidate_id: zone:0:4:3
+        card_ref: null
+        effect_ref: null
+        kind: zone
+        label: 0:4:3
+        payload:
+          action_kind: SELECT_ZONE
+          response_codec: place_triplets
+          response_controller: 0
+          response_location: 4
+          response_sequence: 3
+      - candidate_id: zone:0:4:4
+        card_ref: null
+        effect_ref: null
+        kind: zone
+        label: 0:4:4
+        payload:
+          action_kind: SELECT_ZONE
+          response_codec: place_triplets
+          response_controller: 0
+          response_location: 4
+          response_sequence: 4
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          count: 1
+          message_name: select_place
+          message_type: 18
+          unavailable_mask: 4294967264
+        phase: ''
+        priority_player: 0
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 0
+      request_id: real_core_effect_veiler_normal_summon_v1:1
+      request_schema_version: 0.3a
+      request_signature: req_a7662b0219c1d8c0da0af0f12949bb7d8604623f51fdecdf2c81f7ba559dd3be
+      request_type: select_place
+    request_signature: req_a7662b0219c1d8c0da0af0f12949bb7d8604623f51fdecdf2c81f7ba559dd3be
+    state_hash_after: state_f1509b1256538e1ec3764c21d273960edccc94abff571812ca8aa818a154c1fc
+    state_hash_before: state_67323b9818f2735e14ca6806079075aeea203d797fae96c54ba41e1c0ae1ed0d
+    step: 1
+    timestamp: null
+    turn: 1
+    turn_action_index: 1
+  - action:
+      action_id: act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123
+      effect_ref: null
+      kind: PASS
+      player: 0
+      request_signature: req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479
+      schema_version: 0.3a
+      selections:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source: null
+    action_id: act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123
+    action_occurrence_id: aocc_cebeaf08cd08eca2aee1e8c0c23982c21fad1b75bdb8581a9147fdb7b7973883
+    chain_index: 0
+    core_input_ref: input_4cf6740351181db08c796c49796bc54488813ed993e5fe337345da05c0816480
+    core_output:
+      batch_id: batch_993b3a2f3372b2c5bc54d80ad38587c90e6468f6ad6239d849cf143bd2664ed1
+      frames:
+      - frame_index: 0
+        message_type: 16
+        payload_hex: '010000000000000000000000000000'
+        payload_sha256: e4e7ae3760c6a55c7d504bcbc1200faa4e1acd6b32a694d4f4f51d8cfbec8a12
+      logs: []
+      progress_events: []
+      random_events: []
+      request_signature: req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5
+      resulting_state_hash: state_ecb5221fa1712ff3709b9a12f827b48d44391f96e3d300782994f92315ac0583
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479
+      request_type: select_chain
+      response_hex: ffffffff
+      response_length: 4
+      response_sha256: ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e
+      selected_candidate_ids:
+      - control:pass
+    failure: null
+    node_id: real_core_node_2
+    request:
+      candidates:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        kind: pass
+        label: Pass
+        payload:
+          action_kind: PASS
+          response_codec: int32
+          response_value: -1
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          forced: false
+          hint_timing_opponent: 0
+          hint_timing_player: 0
+          message_name: select_chain
+          message_type: 16
+          special_count: 0
+        phase: ''
+        priority_player: 0
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 0
+      request_id: real_core_effect_veiler_normal_summon_v1:2
+      request_schema_version: 0.3a
+      request_signature: req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479
+      request_type: select_chain
+    request_signature: req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479
+    state_hash_after: state_ecb5221fa1712ff3709b9a12f827b48d44391f96e3d300782994f92315ac0583
+    state_hash_before: state_f1509b1256538e1ec3764c21d273960edccc94abff571812ca8aa818a154c1fc
+    step: 2
+    timestamp: null
+    turn: 1
+    turn_action_index: 2
+  - action:
+      action_id: act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da
+      effect_ref: null
+      kind: PASS
+      player: 1
+      request_signature: req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5
+      schema_version: 0.3a
+      selections:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source: null
+    action_id: act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da
+    action_occurrence_id: aocc_c23d8b2b560d27707e86a22cf3d5e9f1ab700f52a1e0492724d19100b5d00bea
+    chain_index: 0
+    core_input_ref: input_1ca30f230443c7fb1d63aa015456e30116ba2ac29884922c9fe0f5f8c81529bb
+    core_output:
+      batch_id: batch_0a69b629c5d8b38626e7ed3add26054d5d76b87ccedfc1db2681e351920c3db4
+      frames:
+      - frame_index: 0
+        message_type: 61
+        payload_hex: ''
+        payload_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      - frame_index: 1
+        message_type: 12
+        payload_hex: 00b232cc0500040000000001000000dd00000000000000
+        payload_sha256: a4dccec2122a6ef618b8944551ea66204aae8bec53c65e1f962feb652bd0f5a0
+      logs: []
+      progress_events: []
+      random_events: []
+      request_signature: req_80971f6a55be385701ad1d18f38bb7665287ea088b73585862bb91160390c796
+      resulting_state_hash: state_625255e7f464c3e88d57d6b391ed504f1d8a632b096525e145569e18309a00d8
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5
+      request_type: select_chain
+      response_hex: ffffffff
+      response_length: 4
+      response_sha256: ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e
+      selected_candidate_ids:
+      - control:pass
+    failure: null
+    node_id: real_core_node_3
+    request:
+      candidates:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        kind: pass
+        label: Pass
+        payload:
+          action_kind: PASS
+          response_codec: int32
+          response_value: -1
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          forced: false
+          hint_timing_opponent: 0
+          hint_timing_player: 0
+          message_name: select_chain
+          message_type: 16
+          special_count: 0
+        phase: ''
+        priority_player: 1
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 1
+      request_id: real_core_effect_veiler_normal_summon_v1:3
+      request_schema_version: 0.3a
+      request_signature: req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5
+      request_type: select_chain
+    request_signature: req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5
+    state_hash_after: state_625255e7f464c3e88d57d6b391ed504f1d8a632b096525e145569e18309a00d8
+    state_hash_before: state_ecb5221fa1712ff3709b9a12f827b48d44391f96e3d300782994f92315ac0583
+    step: 3
+    timestamp: null
+    turn: 1
+    turn_action_index: 3
+  - action:
+      action_id: act_ec315e8732643a06d9fa894ac8de9161ff64af5c8bf5231327b775516829bcbe
+      effect_ref: null
+      kind: ACTIVATE_EFFECT
+      player: 0
+      request_signature: req_80971f6a55be385701ad1d18f38bb7665287ea088b73585862bb91160390c796
+      schema_version: 0.3a
+      selections:
+      - candidate_id: choice:1
+        card_ref:
+          controller: 0
+          instance_id: null
+          location: monster_zone
+          owner: 0
+          public_card_id: 97268402
+          sequence: 0
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source:
+        controller: 0
+        instance_id: null
+        location: monster_zone
+        owner: 0
+        public_card_id: 97268402
+        sequence: 0
+    action_id: act_ec315e8732643a06d9fa894ac8de9161ff64af5c8bf5231327b775516829bcbe
+    action_occurrence_id: aocc_69088c8fb0eb538c5fbea4cf60b35b9413253bcd3eee7e1d16e4887aa582794a
+    chain_index: 0
+    core_input_ref: input_be1e5f8efe37e07c51ed3c354530c7aa1bee65c67a2763e654ae8c90c7560281
+    core_output:
+      batch_id: batch_45f2d3998310ddb5cb8bbd9276a897b7260b3058502fff57dd87ddd633fe3e5d
+      frames:
+      - frame_index: 0
+        message_type: 70
+        payload_hex: b232cc0500040000000001000000000400000000460000000000000001000000
+        payload_sha256: 99658c04ec0a8e6f8542fb60d7b154a7194985f0bec1fb49565ebad39bc96fb2
+      - frame_index: 1
+        message_type: 2
+        payload_hex: 0300f501000000000000
+        payload_sha256: 7907ba46e9dac581f02ad5e772a83708e174dbdc787818ba076fa39be2470ff0
+      - frame_index: 2
+        message_type: 15
+        payload_hex: 0000010000000100000001000000b232cc050002000000000a000000
+        payload_sha256: 39f630d75d0ac49c90279a478ba6ce927708f0492fa3f635e361af9eeeee29aa
+      logs: []
+      progress_events: []
+      random_events: []
+      request_signature: req_630e9c39097d7d5f696f73b57ab213e60d2566d7712cff3065a5b7a9043845cd
+      resulting_state_hash: state_81c703b6c44a857405bb21ae0ff2bc7e709d1438e8b376630ee6e6cd1f0059b2
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_80971f6a55be385701ad1d18f38bb7665287ea088b73585862bb91160390c796
+      request_type: select_effect_yes_no
+      response_hex: '01000000'
+      response_length: 4
+      response_sha256: 67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450
+      selected_candidate_ids:
+      - choice:1
+    failure: null
+    node_id: real_core_node_4
+    request:
+      candidates:
+      - candidate_id: choice:0
+        card_ref:
+          controller: 0
+          location: 4
+          position: 1
+          public_card_id: 97268402
+          sequence: 0
+        effect_ref:
+          description: 221
+        kind: decline
+        label: 'No'
+        payload:
+          action_kind: DECLINE
+          response_codec: int32
+          response_value: 0
+      - candidate_id: choice:1
+        card_ref:
+          controller: 0
+          location: 4
+          position: 1
+          public_card_id: 97268402
+          sequence: 0
+        effect_ref:
+          description: 221
+        kind: effect
+        label: 'Yes'
+        payload:
+          action_kind: ACTIVATE_EFFECT
+          response_codec: int32
+          response_value: 1
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          description: 221
+          message_name: select_effect_yes_no
+          message_type: 12
+        phase: ''
+        priority_player: 0
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 0
+      request_id: real_core_effect_veiler_normal_summon_v1:4
+      request_schema_version: 0.3a
+      request_signature: req_80971f6a55be385701ad1d18f38bb7665287ea088b73585862bb91160390c796
+      request_type: select_effect_yes_no
+    request_signature: req_80971f6a55be385701ad1d18f38bb7665287ea088b73585862bb91160390c796
+    state_hash_after: state_81c703b6c44a857405bb21ae0ff2bc7e709d1438e8b376630ee6e6cd1f0059b2
+    state_hash_before: state_625255e7f464c3e88d57d6b391ed504f1d8a632b096525e145569e18309a00d8
+    step: 4
+    timestamp: null
+    turn: 1
+    turn_action_index: 4
+  - action:
+      action_id: act_9954179a9885be47f14a3d8ed9789b0a555958ff001ff048d382676799623a1c
+      effect_ref: null
+      kind: SELECT_CARD
+      player: 0
+      request_signature: req_630e9c39097d7d5f696f73b57ab213e60d2566d7712cff3065a5b7a9043845cd
+      schema_version: 0.3a
+      selections:
+      - candidate_id: card:0
+        card_ref:
+          controller: 0
+          instance_id: null
+          location: hand
+          owner: 0
+          public_card_id: 97268402
+          sequence: 0
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source: null
+    action_id: act_9954179a9885be47f14a3d8ed9789b0a555958ff001ff048d382676799623a1c
+    action_occurrence_id: aocc_94b2cbd4f6d432bcd989303165c087ea78e792fd9bb010847fa64778c36ec24c
+    chain_index: 1
+    core_input_ref: input_ec4c98b17c432eb646601fa4093b1d2d2ce80a5d67925cafce725b2a2ca10b9d
+    core_output:
+      batch_id: batch_ff4eb3025c7bdfb886a7b86a1e614b80843cbc0b8249e03e1f2d5d58a5761a6e
+      frames:
+      - frame_index: 0
+        message_type: 50
+        payload_hex: b232cc050002000000000a0000000010000000000500000080400000
+        payload_sha256: d929262e3d4e732aa411e03727b5214262c222c5dce875ba44e0599e6fdf2871
+      - frame_index: 1
+        message_type: 2
+        payload_hex: '03002702000000000000'
+        payload_sha256: 21c9758d5bf8f55e2c3ad823ca46b3b1ac37d66767c5ab2b9675b0de223a9d1a
+      - frame_index: 2
+        message_type: 15
+        payload_hex: 0000010000000100000001000000b232cc0500040000000001000000
+        payload_sha256: f9c292ee3ddb92fdf74b037ae326d721f4fcf8948e82888d37c6831022176dd4
+      logs: []
+      progress_events: []
+      random_events: []
+      request_signature: req_f0959b02525f928a2c3704c5926fa27c0890d7f6f54737e90ba004b96dd5ac08
+      resulting_state_hash: state_443e08c4827a4bd474cb95100c0ea5176496cbb60ffd6978e604c885dc98663c
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_630e9c39097d7d5f696f73b57ab213e60d2566d7712cff3065a5b7a9043845cd
+      request_type: select_card
+      response_hex: '020000000100000000'
+      response_length: 9
+      response_sha256: 444ff305bf349e98184abf7c48cf053c21854bc6b9e15fd3316a4bca43e07857
+      selected_candidate_ids:
+      - card:0
+    failure: null
+    node_id: real_core_node_5
+    request:
+      candidates:
+      - candidate_id: card:0
+        card_ref:
+          controller: 0
+          location: 2
+          position: 10
+          public_card_id: 97268402
+          sequence: 0
+        effect_ref: null
+        kind: card
+        label: '97268402'
+        payload:
+          response_codec: card_indices
+          response_index: 0
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          cancelable: false
+          core_max: 1
+          core_min: 1
+          message_name: select_card
+          message_type: 15
+        phase: ''
+        priority_player: 0
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 0
+      request_id: real_core_effect_veiler_normal_summon_v1:5
+      request_schema_version: 0.3a
+      request_signature: req_630e9c39097d7d5f696f73b57ab213e60d2566d7712cff3065a5b7a9043845cd
+      request_type: select_card
+    request_signature: req_630e9c39097d7d5f696f73b57ab213e60d2566d7712cff3065a5b7a9043845cd
+    state_hash_after: state_443e08c4827a4bd474cb95100c0ea5176496cbb60ffd6978e604c885dc98663c
+    state_hash_before: state_81c703b6c44a857405bb21ae0ff2bc7e709d1438e8b376630ee6e6cd1f0059b2
+    step: 5
+    timestamp: null
+    turn: 1
+    turn_action_index: 5
+  - action:
+      action_id: act_971a192581031076fdb7fba3616c3d2aa5dc8ed8d7672f0a4810c265e9a3b58c
+      effect_ref: null
+      kind: SELECT_CARD
+      player: 0
+      request_signature: req_f0959b02525f928a2c3704c5926fa27c0890d7f6f54737e90ba004b96dd5ac08
+      schema_version: 0.3a
+      selections:
+      - candidate_id: card:0
+        card_ref:
+          controller: 0
+          instance_id: null
+          location: monster_zone
+          owner: 0
+          public_card_id: 97268402
+          sequence: 0
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source: null
+    action_id: act_971a192581031076fdb7fba3616c3d2aa5dc8ed8d7672f0a4810c265e9a3b58c
+    action_occurrence_id: aocc_401428af3b32cbd38d19f23ceb4fc58383e77f3d1352d70f0caa201f84f339a4
+    chain_index: 1
+    core_input_ref: input_0492b7e920803a676f7f9c54e45e1f54244e7f4e3d4fcbac7ac4c9293e00b218
+    core_output:
+      batch_id: batch_3fcb88e3db559a8a820a0907a9e589e395b29ef0afd38250e5864d09fe2dad7d
+      frames:
+      - frame_index: 0
+        message_type: 83
+        payload_hex: '0100000000040000000001000000'
+        payload_sha256: 1ffe9035aeadb0fbe6dc077db6518324a73fb33d0075d1b93b2245ff9362ea68
+      - frame_index: 1
+        message_type: 14
+        payload_hex: '000246000000000000004700000000000000'
+        payload_sha256: 5a7c8474b4d9f6a4c9a06dc4588c1d175a00ecf3bfdbd6697d273307bdc0f3c0
+      logs: []
+      progress_events: []
+      random_events: []
+      request_signature: req_363255f76ea11ea18d736979f0b566be765f6f97131922a941b66fec34f4ed3b
+      resulting_state_hash: state_046615ca16aca5a42f35c3402e88c15b8812a20d3f25fdacdfa955329479e361
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_f0959b02525f928a2c3704c5926fa27c0890d7f6f54737e90ba004b96dd5ac08
+      request_type: select_card
+      response_hex: '020000000100000000'
+      response_length: 9
+      response_sha256: 444ff305bf349e98184abf7c48cf053c21854bc6b9e15fd3316a4bca43e07857
+      selected_candidate_ids:
+      - card:0
+    failure: null
+    node_id: real_core_node_6
+    request:
+      candidates:
+      - candidate_id: card:0
+        card_ref:
+          controller: 0
+          location: 4
+          position: 1
+          public_card_id: 97268402
+          sequence: 0
+        effect_ref: null
+        kind: card
+        label: '97268402'
+        payload:
+          response_codec: card_indices
+          response_index: 0
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          cancelable: false
+          core_max: 1
+          core_min: 1
+          message_name: select_card
+          message_type: 15
+        phase: ''
+        priority_player: 0
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 0
+      request_id: real_core_effect_veiler_normal_summon_v1:6
+      request_schema_version: 0.3a
+      request_signature: req_f0959b02525f928a2c3704c5926fa27c0890d7f6f54737e90ba004b96dd5ac08
+      request_type: select_card
+    request_signature: req_f0959b02525f928a2c3704c5926fa27c0890d7f6f54737e90ba004b96dd5ac08
+    state_hash_after: state_046615ca16aca5a42f35c3402e88c15b8812a20d3f25fdacdfa955329479e361
+    state_hash_before: state_443e08c4827a4bd474cb95100c0ea5176496cbb60ffd6978e604c885dc98663c
+    step: 6
+    timestamp: null
+    turn: 1
+    turn_action_index: 6
+  - action:
+      action_id: act_e34511877add1549948e0897e8d573c5076a8040163f91cd4eb238fbab49da78
+      effect_ref: null
+      kind: SELECT_OPTION
+      player: 0
+      request_signature: req_363255f76ea11ea18d736979f0b566be765f6f97131922a941b66fec34f4ed3b
+      schema_version: 0.3a
+      selections:
+      - candidate_id: option:0
+        card_ref: null
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source: null
+    action_id: act_e34511877add1549948e0897e8d573c5076a8040163f91cd4eb238fbab49da78
+    action_occurrence_id: aocc_056e4935ef13f09fee52cf9f748c202d97eb7fa98809227ddbc34bacfb628fb5
+    chain_index: 1
+    core_input_ref: input_19d12e0456da7d7b911766fefa1c7941cdf605ca8d1fc1b8fb3f42319ff3b300
+    core_output:
+      batch_id: batch_222c58e96d0460831ff4a98dc171e6ffab6be685a4144ba0f0f5e4e77cf4abe0
+      frames:
+      - frame_index: 0
+        message_type: 2
+        payload_hex: '04004600000000000000'
+        payload_sha256: ef76632c40fee5ea023ae77517654136b75711e56de5ac406f54bc9edb8bacee
+      - frame_index: 1
+        message_type: 71
+        payload_hex: '01'
+        payload_sha256: 4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a
+      - frame_index: 2
+        message_type: 16
+        payload_hex: '010000000000000000000000000000'
+        payload_sha256: e4e7ae3760c6a55c7d504bcbc1200faa4e1acd6b32a694d4f4f51d8cfbec8a12
+      logs: []
+      progress_events: []
+      random_events: []
+      request_signature: req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5
+      resulting_state_hash: state_4d0ecbfdca63bbf55487c5c48bf9ee8dbe63525d5ee83316645b8f67240b0f66
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_363255f76ea11ea18d736979f0b566be765f6f97131922a941b66fec34f4ed3b
+      request_type: select_option
+      response_hex: '00000000'
+      response_length: 4
+      response_sha256: df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119
+      selected_candidate_ids:
+      - option:0
+    failure: null
+    node_id: real_core_node_7
+    request:
+      candidates:
+      - candidate_id: option:0
+        card_ref: null
+        effect_ref: null
+        kind: option
+        label: '70'
+        payload:
+          option_description: 70
+          response_codec: int32
+          response_value: 0
+      - candidate_id: option:1
+        card_ref: null
+        effect_ref: null
+        kind: option
+        label: '71'
+        payload:
+          option_description: 71
+          response_codec: int32
+          response_value: 1
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          message_name: select_option
+          message_type: 14
+        phase: ''
+        priority_player: 0
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 0
+      request_id: real_core_effect_veiler_normal_summon_v1:7
+      request_schema_version: 0.3a
+      request_signature: req_363255f76ea11ea18d736979f0b566be765f6f97131922a941b66fec34f4ed3b
+      request_type: select_option
+    request_signature: req_363255f76ea11ea18d736979f0b566be765f6f97131922a941b66fec34f4ed3b
+    state_hash_after: state_4d0ecbfdca63bbf55487c5c48bf9ee8dbe63525d5ee83316645b8f67240b0f66
+    state_hash_before: state_046615ca16aca5a42f35c3402e88c15b8812a20d3f25fdacdfa955329479e361
+    step: 7
+    timestamp: null
+    turn: 1
+    turn_action_index: 7
+  - action:
+      action_id: act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da
+      effect_ref: null
+      kind: PASS
+      player: 1
+      request_signature: req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5
+      schema_version: 0.3a
+      selections:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source: null
+    action_id: act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da
+    action_occurrence_id: aocc_99ffc43aae8ad350c0ce6c1982627c1679a27b80789e9b82888f7b7c7e6c40d9
+    chain_index: 1
+    core_input_ref: input_1ca30f230443c7fb1d63aa015456e30116ba2ac29884922c9fe0f5f8c81529bb
+    core_output:
+      batch_id: batch_8c64153da635aed76a0bbec8d7cd18ae33de639def09d9bf549980132688855a
+      frames:
+      - frame_index: 0
+        message_type: 16
+        payload_hex: '000000000000000000000000000000'
+        payload_sha256: 5322fecfc92a5e3248a297a3df3eddfb9bd9049504272e4f572b87fa36d4b3bd
+      logs: []
+      progress_events: []
+      random_events: []
+      request_signature: req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479
+      resulting_state_hash: state_bee640a46a66daf93d9eb875fd76f53d71b18a2629c2eb0baa81601e0e87fba3
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5
+      request_type: select_chain
+      response_hex: ffffffff
+      response_length: 4
+      response_sha256: ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e
+      selected_candidate_ids:
+      - control:pass
+    failure: null
+    node_id: real_core_node_8
+    request:
+      candidates:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        kind: pass
+        label: Pass
+        payload:
+          action_kind: PASS
+          response_codec: int32
+          response_value: -1
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          forced: false
+          hint_timing_opponent: 0
+          hint_timing_player: 0
+          message_name: select_chain
+          message_type: 16
+          special_count: 0
+        phase: ''
+        priority_player: 1
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 1
+      request_id: real_core_effect_veiler_normal_summon_v1:8
+      request_schema_version: 0.3a
+      request_signature: req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5
+      request_type: select_chain
+    request_signature: req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5
+    state_hash_after: state_bee640a46a66daf93d9eb875fd76f53d71b18a2629c2eb0baa81601e0e87fba3
+    state_hash_before: state_4d0ecbfdca63bbf55487c5c48bf9ee8dbe63525d5ee83316645b8f67240b0f66
+    step: 8
+    timestamp: null
+    turn: 1
+    turn_action_index: 8
+  - action:
+      action_id: act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123
+      effect_ref: null
+      kind: PASS
+      player: 0
+      request_signature: req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479
+      schema_version: 0.3a
+      selections:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source: null
+    action_id: act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123
+    action_occurrence_id: aocc_9a13f807242c9bfa6afb5cb03edc2ac625553f7e71eb2f535d5e05bacc8d6251
+    chain_index: 1
+    core_input_ref: input_4cf6740351181db08c796c49796bc54488813ed993e5fe337345da05c0816480
+    core_output:
+      batch_id: batch_5cee7dfd0dffb1cbd636c637c338bddb690f8f5e4a13f86891391043cbbf8191
+      frames:
+      - frame_index: 0
+        message_type: 72
+        payload_hex: '01'
+        payload_sha256: 4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a
+      - frame_index: 1
+        message_type: 73
+        payload_hex: '01'
+        payload_sha256: 4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a
+      - frame_index: 2
+        message_type: 74
+        payload_hex: ''
+        payload_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      - frame_index: 3
+        message_type: 16
+        payload_hex: 000000008000000080000000000000
+        payload_sha256: bc50124cc47c9f37481aa4617b49991e28a693f438dcb09e76ecbc076a05d5d7
+      logs: []
+      progress_events: []
+      random_events: []
+      request_signature: req_616924be6e345483c5b7f4e8987c4a3da3cdda7241fc7023afde5788764901e6
+      resulting_state_hash: state_4f6759816f6b4ca124b3f5e22a1b773eb29da7ca08ec66a8407ac9204f9ed6eb
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479
+      request_type: select_chain
+      response_hex: ffffffff
+      response_length: 4
+      response_sha256: ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e
+      selected_candidate_ids:
+      - control:pass
+    failure: null
+    node_id: real_core_node_9
+    request:
+      candidates:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        kind: pass
+        label: Pass
+        payload:
+          action_kind: PASS
+          response_codec: int32
+          response_value: -1
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          forced: false
+          hint_timing_opponent: 0
+          hint_timing_player: 0
+          message_name: select_chain
+          message_type: 16
+          special_count: 0
+        phase: ''
+        priority_player: 0
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 0
+      request_id: real_core_effect_veiler_normal_summon_v1:9
+      request_schema_version: 0.3a
+      request_signature: req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479
+      request_type: select_chain
+    request_signature: req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479
+    state_hash_after: state_4f6759816f6b4ca124b3f5e22a1b773eb29da7ca08ec66a8407ac9204f9ed6eb
+    state_hash_before: state_bee640a46a66daf93d9eb875fd76f53d71b18a2629c2eb0baa81601e0e87fba3
+    step: 9
+    timestamp: null
+    turn: 1
+    turn_action_index: 9
+  - action:
+      action_id: act_4dc313540b880cb1567d3feef4d1de689010c704e45dcd3c1ec33debae9279a7
+      effect_ref: null
+      kind: PASS
+      player: 0
+      request_signature: req_616924be6e345483c5b7f4e8987c4a3da3cdda7241fc7023afde5788764901e6
+      schema_version: 0.3a
+      selections:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source: null
+    action_id: act_4dc313540b880cb1567d3feef4d1de689010c704e45dcd3c1ec33debae9279a7
+    action_occurrence_id: aocc_cd249d36b55a8a9a156c6ae66275fe1738665d737c8391cf894c501ab7ccb149
+    chain_index: 0
+    core_input_ref: input_a7adbc1f678a7a568fe20c8a76f8afab4b7836ac20f89b943af593e9c4c1545c
+    core_output:
+      batch_id: batch_e150741f4de3a385cbd224a1b5340ec3ed5e6f2387d337213d7de68924b908a8
+      frames:
+      - frame_index: 0
+        message_type: 16
+        payload_hex: 010000008000000080000000000000
+        payload_sha256: cdc34d5996e37b733aa1b41b080caab85af99c4db8de78d084d6a72cc6885f0f
+      logs: []
+      progress_events: []
+      random_events: []
+      request_signature: req_da74b9f240d65d28e5465319cbd87dd694c5cdfba3e43a1bc6e5df2b3174f540
+      resulting_state_hash: state_dbbd4d3ff14594f4d7519f97da6fc041cb21f38294b4a1af0dcf5c55353b8a31
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_616924be6e345483c5b7f4e8987c4a3da3cdda7241fc7023afde5788764901e6
+      request_type: select_chain
+      response_hex: ffffffff
+      response_length: 4
+      response_sha256: ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e
+      selected_candidate_ids:
+      - control:pass
+    failure: null
+    node_id: real_core_node_10
+    request:
+      candidates:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        kind: pass
+        label: Pass
+        payload:
+          action_kind: PASS
+          response_codec: int32
+          response_value: -1
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          forced: false
+          hint_timing_opponent: 32768
+          hint_timing_player: 32768
+          message_name: select_chain
+          message_type: 16
+          special_count: 0
+        phase: ''
+        priority_player: 0
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 0
+      request_id: real_core_effect_veiler_normal_summon_v1:10
+      request_schema_version: 0.3a
+      request_signature: req_616924be6e345483c5b7f4e8987c4a3da3cdda7241fc7023afde5788764901e6
+      request_type: select_chain
+    request_signature: req_616924be6e345483c5b7f4e8987c4a3da3cdda7241fc7023afde5788764901e6
+    state_hash_after: state_dbbd4d3ff14594f4d7519f97da6fc041cb21f38294b4a1af0dcf5c55353b8a31
+    state_hash_before: state_4f6759816f6b4ca124b3f5e22a1b773eb29da7ca08ec66a8407ac9204f9ed6eb
+    step: 10
+    timestamp: null
+    turn: 1
+    turn_action_index: 10
+  - action:
+      action_id: act_677ff7568130d444ecdaa42bbf356ef1fe59d83db6e894c4ee583a3fffb99971
+      effect_ref: null
+      kind: PASS
+      player: 1
+      request_signature: req_da74b9f240d65d28e5465319cbd87dd694c5cdfba3e43a1bc6e5df2b3174f540
+      schema_version: 0.3a
+      selections:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source: null
+    action_id: act_677ff7568130d444ecdaa42bbf356ef1fe59d83db6e894c4ee583a3fffb99971
+    action_occurrence_id: aocc_2f8acf52182d8791e75973f6d55ec3a2438882414f5d745eb917e223913b6c71
+    chain_index: 0
+    core_input_ref: input_abf59e85ce12487cd0cf1bf10482e1d07b0efc329a992550ed256037d645fdc5
+    core_output:
+      batch_id: batch_5c17de8d13882a9745208c064b8fa4ec5b456ad72fc801d1fea7ebac4b8c2a42
+      frames:
+      - frame_index: 0
+        message_type: 11
+        payload_hex: '00000000000000000000000000000000000000000000000000000100'
+        payload_sha256: 2dec6419aa7265bf14d952c7b56cfd77d7b6f39833d24c0e8e4ab1c079511cbc
+      logs: []
+      progress_events: []
+      random_events: []
+      request_signature: req_5027d4c7b50e9095556fe72526dc8d1178dec655d18b9e43d7ee79279e646a9e
+      resulting_state_hash: state_cac356bd5f751fe887751aafdd0bc7d091be943318728cc6bd76db94d08007ce
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_da74b9f240d65d28e5465319cbd87dd694c5cdfba3e43a1bc6e5df2b3174f540
+      request_type: select_chain
+      response_hex: ffffffff
+      response_length: 4
+      response_sha256: ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e
+      selected_candidate_ids:
+      - control:pass
+    failure: null
+    node_id: real_core_node_11
+    request:
+      candidates:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        kind: pass
+        label: Pass
+        payload:
+          action_kind: PASS
+          response_codec: int32
+          response_value: -1
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          forced: false
+          hint_timing_opponent: 32768
+          hint_timing_player: 32768
+          message_name: select_chain
+          message_type: 16
+          special_count: 0
+        phase: ''
+        priority_player: 1
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 1
+      request_id: real_core_effect_veiler_normal_summon_v1:11
+      request_schema_version: 0.3a
+      request_signature: req_da74b9f240d65d28e5465319cbd87dd694c5cdfba3e43a1bc6e5df2b3174f540
+      request_type: select_chain
+    request_signature: req_da74b9f240d65d28e5465319cbd87dd694c5cdfba3e43a1bc6e5df2b3174f540
+    state_hash_after: state_cac356bd5f751fe887751aafdd0bc7d091be943318728cc6bd76db94d08007ce
+    state_hash_before: state_dbbd4d3ff14594f4d7519f97da6fc041cb21f38294b4a1af0dcf5c55353b8a31
+    step: 11
+    timestamp: null
+    turn: 1
+    turn_action_index: 11
+  - action:
+      action_id: act_e6d04fe91160b3ed539a0b2282ede9c0f511f92b7d2b57ab012ed94fcd597ac2
+      effect_ref: null
+      kind: END_TURN
+      player: 0
+      request_signature: req_5027d4c7b50e9095556fe72526dc8d1178dec655d18b9e43d7ee79279e646a9e
+      schema_version: 0.3a
+      selections:
+      - candidate_id: control:end_turn
+        card_ref: null
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source: null
+    action_id: act_e6d04fe91160b3ed539a0b2282ede9c0f511f92b7d2b57ab012ed94fcd597ac2
+    action_occurrence_id: aocc_9f6a0f95069b58b7843d55061d593aa45da465637ea05d00e2be562849763bb3
+    chain_index: 0
+    core_input_ref: input_f6e32f6c5bd5f458192d6cc5d833b896b9a5ee1a18c12f5a918f9e3384270bed
+    core_output:
+      batch_id: batch_05360e64c12ca3ae949b362d8c8d7f6ace49db24f296f054bf1ac7b68e1192e3
+      frames:
+      - frame_index: 0
+        message_type: 2
+        payload_hex: '01011700000000000000'
+        payload_sha256: ad054f0cd495ffc711937310872379bc9f0c271cc01de4819d771aed7657e587
+      - frame_index: 1
+        message_type: 16
+        payload_hex: '010000000000000400000000000000'
+        payload_sha256: 5fa9c4204e7c7efbf8b5320a7371763a02a4d5ff147dfddc12720963f855daf9
+      logs: []
+      progress_events: []
+      random_events: []
+      request_signature: req_75d1d44f0c025906b74df5223afab7a0995c3b99de0aac8be4eaad3d863d51c5
+      resulting_state_hash: state_ddc736eb5c78f2c998a95b7fe5ef5a1e4be10468676fcbfe156b8df568ba8c00
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_5027d4c7b50e9095556fe72526dc8d1178dec655d18b9e43d7ee79279e646a9e
+      request_type: select_idle_command
+      response_hex: '07000000'
+      response_length: 4
+      response_sha256: e8613f5a5bc9f9feeda32a8e7c80b69dd4878e47b6a91723fb15eb84236b6a2b
+      selected_candidate_ids:
+      - control:end_turn
+    failure: null
+    node_id: real_core_node_12
+    request:
+      candidates:
+      - candidate_id: control:end_turn
+        card_ref: null
+        effect_ref: null
+        kind: end_turn
+        label: End turn
+        payload:
+          action_kind: END_TURN
+          response_codec: int32
+          response_value: 7
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          can_shuffle: false
+          message_name: select_idle_command
+          message_type: 11
+          to_battle_phase: false
+          to_end_phase: true
+        phase: ''
+        priority_player: 0
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 0
+      request_id: real_core_effect_veiler_normal_summon_v1:12
+      request_schema_version: 0.3a
+      request_signature: req_5027d4c7b50e9095556fe72526dc8d1178dec655d18b9e43d7ee79279e646a9e
+      request_type: select_idle_command
+    request_signature: req_5027d4c7b50e9095556fe72526dc8d1178dec655d18b9e43d7ee79279e646a9e
+    state_hash_after: state_ddc736eb5c78f2c998a95b7fe5ef5a1e4be10468676fcbfe156b8df568ba8c00
+    state_hash_before: state_cac356bd5f751fe887751aafdd0bc7d091be943318728cc6bd76db94d08007ce
+    step: 12
+    timestamp: null
+    turn: 1
+    turn_action_index: 12
+  - action:
+      action_id: act_d23eeafd1565538ee8e93a07a4a1043e34e5a8c4301afedbc7714945fdb3ac8c
+      effect_ref: null
+      kind: PASS
+      player: 1
+      request_signature: req_75d1d44f0c025906b74df5223afab7a0995c3b99de0aac8be4eaad3d863d51c5
+      schema_version: 0.3a
+      selections:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        order: null
+        payload_ref: candidate.payload
+        value: null
+      source: null
+    action_id: act_d23eeafd1565538ee8e93a07a4a1043e34e5a8c4301afedbc7714945fdb3ac8c
+    action_occurrence_id: aocc_630cec52931a28aae1dd5da2368a951725f4b659983cf19858d42071ee4ff027
+    chain_index: 0
+    core_input_ref: input_d15912b8b92f875ea5a9711b3523479629677e993fd99e11bb0b9cb4d6a440a7
+    core_output:
+      batch_id: batch_ea9c5c5805f83a8a605852b10bb13ca958664e3d48bad2e8350a19cbd2d1a1b8
+      frames:
+      - frame_index: 0
+        message_type: 41
+        payload_hex: '0002'
+        payload_sha256: fcf0a6c700dd13e274b6fba8deea8dd9b26e4eedde3495717cac8408c9c5177f
+      - frame_index: 1
+        message_type: 40
+        payload_hex: '01'
+        payload_sha256: 4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a
+      - frame_index: 2
+        message_type: 41
+        payload_hex: '0100'
+        payload_sha256: 47dc540c94ceb704a23875c11273e16bb0b8a87aed84de911f2133568115f254
+      - frame_index: 3
+        message_type: 2
+        payload_hex: 01011b00000000000000
+        payload_sha256: a7d1666aa374ab1b48edb21e2d561190e70006c7fbf3b20f3c8567a7b8b564ba
+      - frame_index: 4
+        message_type: 41
+        payload_hex: '0200'
+        payload_sha256: 99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8
+      - frame_index: 5
+        message_type: 41
+        payload_hex: '0400'
+        payload_sha256: c0ba8a33ac67f44abff5984dfbb6f56c46b880ac2b86e1f23e7fa9c402c53ae7
+      - frame_index: 6
+        message_type: 11
+        payload_hex: 0101000000b232cc05010200000000000000000000000001000000b232cc050102000000000000000000000000010100
+        payload_sha256: b00ba62375beac9d36b86aa6fbb8f76de024829edd31f6012b019fd23ffef96d
+      logs: []
+      progress_events:
+      - frame_index: 0
+        kind: new_phase
+        message_type: 41
+        outcome:
+          phase: 512
+          phase_name: end
+        progress_event_id: prog_5b923583ffa7500a5051b4482b48404a6797f31215e1cbc9542a9d611645b05b
+        resulting_state_hash: state_0e36b3e0bc875155bca8e9b4b7651c28671ecbff53b02cfa7f40e52149cafcee
+        schema_version: ocgcore-progress-event-v1
+      - frame_index: 1
+        kind: new_turn
+        message_type: 40
+        outcome:
+          turn_player: 1
+        progress_event_id: prog_a460acac6e320bf8000516bd2d1232123be66bef4376621aaa9fe6e77ed56140
+        resulting_state_hash: state_0e36b3e0bc875155bca8e9b4b7651c28671ecbff53b02cfa7f40e52149cafcee
+        schema_version: ocgcore-progress-event-v1
+      - frame_index: 2
+        kind: new_phase
+        message_type: 41
+        outcome:
+          phase: 1
+          phase_name: draw
+        progress_event_id: prog_266d4798b204ee09aab64f8830d36dcfbfa55664e2f87ddf9cad711e9a1d9fd9
+        resulting_state_hash: state_0e36b3e0bc875155bca8e9b4b7651c28671ecbff53b02cfa7f40e52149cafcee
+        schema_version: ocgcore-progress-event-v1
+      - frame_index: 4
+        kind: new_phase
+        message_type: 41
+        outcome:
+          phase: 2
+          phase_name: standby
+        progress_event_id: prog_c74847509955bc30977ab724d456aaa4b8b3095978160d8bb251e4ef77779f80
+        resulting_state_hash: state_0e36b3e0bc875155bca8e9b4b7651c28671ecbff53b02cfa7f40e52149cafcee
+        schema_version: ocgcore-progress-event-v1
+      - frame_index: 5
+        kind: new_phase
+        message_type: 41
+        outcome:
+          phase: 4
+          phase_name: main1
+        progress_event_id: prog_a5156fc74324f2d47262efe824d001b29363abb4521e6616bda214e9f4ffd9b3
+        resulting_state_hash: state_0e36b3e0bc875155bca8e9b4b7651c28671ecbff53b02cfa7f40e52149cafcee
+        schema_version: ocgcore-progress-event-v1
+      random_events: []
+      request_signature: req_35fb6c70e6d3e70f787d17fefeb5551dbdf35c45266302c16c2bf6a9f6f78b46
+      resulting_state_hash: state_0e36b3e0bc875155bca8e9b4b7651c28671ecbff53b02cfa7f40e52149cafcee
+      schema_version: ocgcore-output-trace-v2
+    core_response:
+      codec_version: ocgcore-api-11.0-response-v1
+      request_signature: req_75d1d44f0c025906b74df5223afab7a0995c3b99de0aac8be4eaad3d863d51c5
+      request_type: select_chain
+      response_hex: ffffffff
+      response_length: 4
+      response_sha256: ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e
+      selected_candidate_ids:
+      - control:pass
+    failure: null
+    node_id: real_core_node_13
+    request:
+      candidates:
+      - candidate_id: control:pass
+        card_ref: null
+        effect_ref: null
+        kind: pass
+        label: Pass
+        payload:
+          action_kind: PASS
+          response_codec: int32
+          response_value: -1
+      constraints:
+        allow_duplicates: false
+        max_selections: 1
+        min_selections: 1
+        ordered: false
+        required: true
+      context:
+        chain: []
+        extra:
+          forced: false
+          hint_timing_opponent: 4
+          hint_timing_player: 0
+          message_name: select_chain
+          message_type: 16
+          special_count: 0
+        phase: ''
+        priority_player: 1
+        request_source: ocgcore
+        turn_player: null
+        version_metadata:
+          ocgcore_api: '11.0'
+          ocgcore_protocol: ocgcore-api-11.0
+        visible_board: {}
+      player: 1
+      request_id: real_core_effect_veiler_normal_summon_v1:13
+      request_schema_version: 0.3a
+      request_signature: req_75d1d44f0c025906b74df5223afab7a0995c3b99de0aac8be4eaad3d863d51c5
+      request_type: select_chain
+    request_signature: req_75d1d44f0c025906b74df5223afab7a0995c3b99de0aac8be4eaad3d863d51c5
+    state_hash_after: state_0e36b3e0bc875155bca8e9b4b7651c28671ecbff53b02cfa7f40e52149cafcee
+    state_hash_before: state_ddc736eb5c78f2c998a95b7fe5ef5a1e4be10468676fcbfe156b8df568ba8c00
+    step: 13
+    timestamp: null
+    turn: 1
+    turn_action_index: 13
+  information_policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+  initial_core_output:
+    batch_id: batch_50da599997024f9a2b96091b7509fa789dceeff30becf74f731f958e690c2024
+    frames:
+    - frame_index: 0
+      message_type: 40
+      payload_hex: '00'
+      payload_sha256: 6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d
+    - frame_index: 1
+      message_type: 33
+      payload_hex: 0002000000b232cc05b232cc05
+      payload_sha256: d7bf76b6ee36a9f6bdebfd5fb0433a7574a6bc6576e76f10dffa147a2bf811dd
+    - frame_index: 2
+      message_type: 33
+      payload_hex: 0101000000b232cc05
+      payload_sha256: f5b85bcefe221cc7b57a90da5aa68109d2d2d7f8cdeb6b36729812b37d820cb5
+    - frame_index: 3
+      message_type: 41
+      payload_hex: '0100'
+      payload_sha256: 47dc540c94ceb704a23875c11273e16bb0b8a87aed84de911f2133568115f254
+    - frame_index: 4
+      message_type: 2
+      payload_hex: 01001b00000000000000
+      payload_sha256: e4086e65930e78555a7e3f7a328373234a48a3c665b956b255d672ed123fce04
+    - frame_index: 5
+      message_type: 41
+      payload_hex: '0200'
+      payload_sha256: 99be5efb88ca2013bd8e4eb035fd42d5245468fe9afa70d8ba9c1c419a48c4e8
+    - frame_index: 6
+      message_type: 41
+      payload_hex: '0400'
+      payload_sha256: c0ba8a33ac67f44abff5984dfbb6f56c46b880ac2b86e1f23e7fa9c402c53ae7
+    - frame_index: 7
+      message_type: 11
+      payload_hex: 0002000000b232cc05000200000000b232cc05000201000000000000000000000002000000b232cc05000200000000b232cc050002010000000000000000000000000101
+      payload_sha256: 45e63587788bd94cbe04dac98e4be09b15c93e5bb7a0aeaab18dcb57a1ad6445
+    logs: []
+    progress_events:
+    - frame_index: 0
+      kind: new_turn
+      message_type: 40
+      outcome:
+        turn_player: 0
+      progress_event_id: prog_7d7ef6fca47d2fdb938be20cce43b73994e10dbc62a43cec8b384f7d272e0925
+      resulting_state_hash: state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f
+      schema_version: ocgcore-progress-event-v1
+    - frame_index: 3
+      kind: new_phase
+      message_type: 41
+      outcome:
+        phase: 1
+        phase_name: draw
+      progress_event_id: prog_5d5dbedf1ef790fbfc5cc00a4528ded202915dac30fc600db84dce0d4426c0e3
+      resulting_state_hash: state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f
+      schema_version: ocgcore-progress-event-v1
+    - frame_index: 5
+      kind: new_phase
+      message_type: 41
+      outcome:
+        phase: 2
+        phase_name: standby
+      progress_event_id: prog_3f4ec9712bce64e5fdd0cd5143d119ac378d188b81ebf6b6dc229ce2f382d326
+      resulting_state_hash: state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f
+      schema_version: ocgcore-progress-event-v1
+    - frame_index: 6
+      kind: new_phase
+      message_type: 41
+      outcome:
+        phase: 4
+        phase_name: main1
+      progress_event_id: prog_ef436a4314d10605845270fb9aafc753edeadc6d4b599c40f2fa6c2368efd07c
+      resulting_state_hash: state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f
+      schema_version: ocgcore-progress-event-v1
+    random_events:
+    - frame_index: 1
+      kind: shuffle_hand
+      message_type: 33
+      outcome:
+        codes:
+        - 97268402
+        - 97268402
+        player: 0
+        zone_order:
+        - controller: 0
+          fields:
+          - flag: 1
+            name: code
+            value: 97268402
+          - flag: 2
+            name: position
+            value: 10
+          - flag: 4
+            name: alias
+            value: 97268402
+          - flag: 8
+            name: type
+            value: 4129
+          - flag: 16
+            name: level
+            value: 1
+          - flag: 32
+            name: rank
+            value: 0
+          - flag: 64
+            name: attribute
+            value: 16
+          - flag: 128
+            name: race
+            value: 2
+          - flag: 256
+            name: attack
+            value: 0
+          - flag: 512
+            name: defense
+            value: 0
+          - flag: 1024
+            name: base_attack
+            value: 0
+          - flag: 2048
+            name: base_defense
+            value: 0
+          - flag: 4096
+            name: reason
+            value: 0
+          - flag: 8192
+            name: reason_card
+            value:
+              controller: 0
+              location: 0
+              position: 0
+              sequence: 0
+          - flag: 16384
+            name: equip_card
+            value:
+              controller: 0
+              location: 0
+              position: 0
+              sequence: 0
+          - flag: 32768
+            name: target_cards
+            value: []
+          - flag: 65536
+            name: overlay_cards
+            value: []
+          - flag: 131072
+            name: counters
+            value: []
+          - flag: 262144
+            name: owner
+            value: 0
+          - flag: 524288
+            name: status
+            value: 1024
+          - flag: 1048576
+            name: is_public
+            value: 0
+          - flag: 2097152
+            name: left_scale
+            value: 0
+          - flag: 4194304
+            name: right_scale
+            value: 0
+          - flag: 8388608
+            name: link
+            value:
+              markers: 0
+              rating: 0
+          - flag: 16777216
+            name: is_hidden
+            value: 0
+          - flag: 33554432
+            name: cover
+            value: 0
+          instance_key: 0:2:0
+          location: 2
+          slot: 0
+        - controller: 0
+          fields:
+          - flag: 1
+            name: code
+            value: 97268402
+          - flag: 2
+            name: position
+            value: 10
+          - flag: 4
+            name: alias
+            value: 97268402
+          - flag: 8
+            name: type
+            value: 4129
+          - flag: 16
+            name: level
+            value: 1
+          - flag: 32
+            name: rank
+            value: 0
+          - flag: 64
+            name: attribute
+            value: 16
+          - flag: 128
+            name: race
+            value: 2
+          - flag: 256
+            name: attack
+            value: 0
+          - flag: 512
+            name: defense
+            value: 0
+          - flag: 1024
+            name: base_attack
+            value: 0
+          - flag: 2048
+            name: base_defense
+            value: 0
+          - flag: 4096
+            name: reason
+            value: 0
+          - flag: 8192
+            name: reason_card
+            value:
+              controller: 0
+              location: 0
+              position: 0
+              sequence: 0
+          - flag: 16384
+            name: equip_card
+            value:
+              controller: 0
+              location: 0
+              position: 0
+              sequence: 0
+          - flag: 32768
+            name: target_cards
+            value: []
+          - flag: 65536
+            name: overlay_cards
+            value: []
+          - flag: 131072
+            name: counters
+            value: []
+          - flag: 262144
+            name: owner
+            value: 0
+          - flag: 524288
+            name: status
+            value: 1024
+          - flag: 1048576
+            name: is_public
+            value: 0
+          - flag: 2097152
+            name: left_scale
+            value: 0
+          - flag: 4194304
+            name: right_scale
+            value: 0
+          - flag: 8388608
+            name: link
+            value:
+              markers: 0
+              rating: 0
+          - flag: 16777216
+            name: is_hidden
+            value: 0
+          - flag: 33554432
+            name: cover
+            value: 0
+          instance_key: 0:2:1
+          location: 2
+          slot: 1
+      random_event_id: rnd_1326e7590427508a55b674296457d30e69f9834e7a81ce49d8849abe8dc25350
+      resulting_state_hash: state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f
+      schema_version: ocgcore-random-event-v2
+    - frame_index: 2
+      kind: shuffle_hand
+      message_type: 33
+      outcome:
+        codes:
+        - 97268402
+        player: 1
+        zone_order:
+        - controller: 1
+          fields:
+          - flag: 1
+            name: code
+            value: 97268402
+          - flag: 2
+            name: position
+            value: 10
+          - flag: 4
+            name: alias
+            value: 97268402
+          - flag: 8
+            name: type
+            value: 4129
+          - flag: 16
+            name: level
+            value: 1
+          - flag: 32
+            name: rank
+            value: 0
+          - flag: 64
+            name: attribute
+            value: 16
+          - flag: 128
+            name: race
+            value: 2
+          - flag: 256
+            name: attack
+            value: 0
+          - flag: 512
+            name: defense
+            value: 0
+          - flag: 1024
+            name: base_attack
+            value: 0
+          - flag: 2048
+            name: base_defense
+            value: 0
+          - flag: 4096
+            name: reason
+            value: 0
+          - flag: 8192
+            name: reason_card
+            value:
+              controller: 0
+              location: 0
+              position: 0
+              sequence: 0
+          - flag: 16384
+            name: equip_card
+            value:
+              controller: 0
+              location: 0
+              position: 0
+              sequence: 0
+          - flag: 32768
+            name: target_cards
+            value: []
+          - flag: 65536
+            name: overlay_cards
+            value: []
+          - flag: 131072
+            name: counters
+            value: []
+          - flag: 262144
+            name: owner
+            value: 1
+          - flag: 524288
+            name: status
+            value: 1024
+          - flag: 1048576
+            name: is_public
+            value: 0
+          - flag: 2097152
+            name: left_scale
+            value: 0
+          - flag: 4194304
+            name: right_scale
+            value: 0
+          - flag: 8388608
+            name: link
+            value:
+              markers: 0
+              rating: 0
+          - flag: 16777216
+            name: is_hidden
+            value: 0
+          - flag: 33554432
+            name: cover
+            value: 0
+          instance_key: '1:2:0'
+          location: 2
+          slot: 0
+      random_event_id: rnd_28a275f8ed756b434eb481d958948f3b300f589fe7b630ebcee1f12acb8a15f5
+      resulting_state_hash: state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f
+      schema_version: ocgcore-random-event-v2
+    request_signature: req_3ad6a27c2f0ec8fb647deb9c3dad4eb7e644af427d8522e8197a8cf45fb87764
+    resulting_state_hash: state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f
+    schema_version: ocgcore-output-trace-v2
+  initial_snapshot:
+    display_metadata: {}
+    environment:
+      asset_lock_id: ocgcore-assets-202504-v1
+      card_database_commit: f89c9a4be9a5f193e29b788e3cf880563f4f79b4
+      card_scripts_commit: c8e9c0bcd026a5ccc303bbc73881b8f86f818657
+      decision_protocol: ocgcore-api-11.0
+      direct_random_trace:
+        enabled: true
+        instrumentation_id: rnginst_5d3d5277a106e8e76d91255abb3f814a9a76d72e80ebacf3212d41c19b27fd4a
+        record_format: prefix|draw_index|minimum|maximum|result
+        schema_version: ocgcore-direct-random-trace-v2
+        script_name: ygo_effect_dsl_direct_random_trace.lua
+        script_sha256: 88bcc50cdf2802e3e5c30b6e149516a5461b4161f894099ddb6f629d91a1b2df
+        transport: ocgcore_log_handler_from_script_v1
+      fixture_script_id: action_aggregation_lifecycle_v1
+      fixture_script_sha256: fd2d16e69c36389da38fbec3acb50e6e4dc1f8dd820a65d6f2e1e65e44179a9b
+      ocgcore_api: '11.0'
+      ocgcore_binary_sha256: 03e360cf694f5ac6ba686de1d3bec7ccde3f3233d01bfe3265884a18ce1b9028
+      ocgcore_lock_id: ocgcore-v11.0-win-x64-msvc-v1
+      scenario_id: real_core_effect_veiler_normal_summon_v1
+      seed:
+      - 1
+      - 2
+      - 3
+      - 4
+      snapshot_schema: ocgcore-query-v1
+    field_state:
+      chain: []
+      chain_count: 0
+      duel_options: 0
+      players:
+      - banished_count: 0
+        deck_count: 0
+        extra_deck_count: 0
+        face_up_extra_count: 0
+        graveyard_count: 0
+        hand_count: 2
+        life_points: 8000
+        monster_zones:
+        - null
+        - null
+        - null
+        - null
+        - null
+        - null
+        - null
+        player: 0
+        spell_trap_zones:
+        - null
+        - null
+        - null
+        - null
+        - null
+        - null
+        - null
+        - null
+      - banished_count: 0
+        deck_count: 0
+        extra_deck_count: 0
+        face_up_extra_count: 0
+        graveyard_count: 0
+        hand_count: 1
+        life_points: 8000
+        monster_zones:
+        - null
+        - null
+        - null
+        - null
+        - null
+        - null
+        - null
+        player: 1
+        spell_trap_zones:
+        - null
+        - null
+        - null
+        - null
+        - null
+        - null
+        - null
+        - null
+    identity_completeness: query_api_projection
+    missing_identity_fields:
+    - effect_usage_history
+    - lua_global_state
+    - remaining_normal_summon_constraints
+    - temporary_rule_constraints_not_exposed_by_query_api
+    pending_request:
+      candidate_action_kinds:
+      - NORMAL_SUMMON
+      - NORMAL_SUMMON
+      - SET_MONSTER
+      - SET_MONSTER
+      - END_TURN
+      - SHUFFLE_HAND
+      candidate_ids:
+      - normal_summon:0
+      - normal_summon:1
+      - set_monster:0
+      - set_monster:1
+      - control:end_turn
+      - control:shuffle_hand
+      forced: false
+      player: 0
+      request_signature: req_3ad6a27c2f0ec8fb647deb9c3dad4eb7e644af427d8522e8197a8cf45fb87764
+      request_type: select_idle_command
+    process_state: awaiting_response
+    schema_version: ocgcore-query-v1
+    state_hash: state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f
+    state_identity:
+      completeness: query_api_projection
+      constraints:
+        observation_status: unavailable_from_ocgcore_query_api
+      engine_state:
+        environment:
+          asset_lock_id: ocgcore-assets-202504-v1
+          card_database_commit: f89c9a4be9a5f193e29b788e3cf880563f4f79b4
+          card_scripts_commit: c8e9c0bcd026a5ccc303bbc73881b8f86f818657
+          decision_protocol: ocgcore-api-11.0
+          direct_random_trace:
+            enabled: true
+            instrumentation_id: rnginst_5d3d5277a106e8e76d91255abb3f814a9a76d72e80ebacf3212d41c19b27fd4a
+            record_format: prefix|draw_index|minimum|maximum|result
+            schema_version: ocgcore-direct-random-trace-v2
+            script_name: ygo_effect_dsl_direct_random_trace.lua
+            script_sha256: 88bcc50cdf2802e3e5c30b6e149516a5461b4161f894099ddb6f629d91a1b2df
+            transport: ocgcore_log_handler_from_script_v1
+          fixture_script_id: action_aggregation_lifecycle_v1
+          fixture_script_sha256: fd2d16e69c36389da38fbec3acb50e6e4dc1f8dd820a65d6f2e1e65e44179a9b
+          ocgcore_api: '11.0'
+          ocgcore_binary_sha256: 03e360cf694f5ac6ba686de1d3bec7ccde3f3233d01bfe3265884a18ce1b9028
+          ocgcore_lock_id: ocgcore-v11.0-win-x64-msvc-v1
+          scenario_id: real_core_effect_veiler_normal_summon_v1
+          seed:
+          - 1
+          - 2
+          - 3
+          - 4
+          snapshot_schema: ocgcore-query-v1
+        snapshot_schema_version: ocgcore-query-v1
+      history:
+        chain: []
+        effect_usage_observation_status: unavailable_from_ocgcore_query_api
+      information_mode: complete_information
+      missing_fields:
+      - effect_usage_history
+      - lua_global_state
+      - remaining_normal_summon_constraints
+      - temporary_rule_constraints_not_exposed_by_query_api
+      pending_request:
+        candidate_action_kinds:
+        - NORMAL_SUMMON
+        - NORMAL_SUMMON
+        - SET_MONSTER
+        - SET_MONSTER
+        - END_TURN
+        - SHUFFLE_HAND
+        candidate_ids:
+        - normal_summon:0
+        - normal_summon:1
+        - set_monster:0
+        - set_monster:1
+        - control:end_turn
+        - control:shuffle_hand
+        forced: false
+        player: 0
+        request_signature: req_3ad6a27c2f0ec8fb647deb9c3dad4eb7e644af427d8522e8197a8cf45fb87764
+        request_type: select_idle_command
+      private_state:
+        zones:
+        - cards: []
+          controller: 0
+          location: 1
+          location_name: deck
+        - cards:
+          - controller: 0
+            fields:
+            - flag: 1
+              name: code
+              value: 97268402
+            - flag: 2
+              name: position
+              value: 10
+            - flag: 4
+              name: alias
+              value: 97268402
+            - flag: 8
+              name: type
+              value: 4129
+            - flag: 16
+              name: level
+              value: 1
+            - flag: 32
+              name: rank
+              value: 0
+            - flag: 64
+              name: attribute
+              value: 16
+            - flag: 128
+              name: race
+              value: 2
+            - flag: 256
+              name: attack
+              value: 0
+            - flag: 512
+              name: defense
+              value: 0
+            - flag: 1024
+              name: base_attack
+              value: 0
+            - flag: 2048
+              name: base_defense
+              value: 0
+            - flag: 4096
+              name: reason
+              value: 0
+            - flag: 8192
+              name: reason_card
+              value:
+                controller: 0
+                location: 0
+                position: 0
+                sequence: 0
+            - flag: 16384
+              name: equip_card
+              value:
+                controller: 0
+                location: 0
+                position: 0
+                sequence: 0
+            - flag: 32768
+              name: target_cards
+              value: []
+            - flag: 65536
+              name: overlay_cards
+              value: []
+            - flag: 131072
+              name: counters
+              value: []
+            - flag: 262144
+              name: owner
+              value: 0
+            - flag: 524288
+              name: status
+              value: 1024
+            - flag: 1048576
+              name: is_public
+              value: 0
+            - flag: 2097152
+              name: left_scale
+              value: 0
+            - flag: 4194304
+              name: right_scale
+              value: 0
+            - flag: 8388608
+              name: link
+              value:
+                markers: 0
+                rating: 0
+            - flag: 16777216
+              name: is_hidden
+              value: 0
+            - flag: 33554432
+              name: cover
+              value: 0
+            instance_key: 0:2:0
+            location: 2
+            slot: 0
+          - controller: 0
+            fields:
+            - flag: 1
+              name: code
+              value: 97268402
+            - flag: 2
+              name: position
+              value: 10
+            - flag: 4
+              name: alias
+              value: 97268402
+            - flag: 8
+              name: type
+              value: 4129
+            - flag: 16
+              name: level
+              value: 1
+            - flag: 32
+              name: rank
+              value: 0
+            - flag: 64
+              name: attribute
+              value: 16
+            - flag: 128
+              name: race
+              value: 2
+            - flag: 256
+              name: attack
+              value: 0
+            - flag: 512
+              name: defense
+              value: 0
+            - flag: 1024
+              name: base_attack
+              value: 0
+            - flag: 2048
+              name: base_defense
+              value: 0
+            - flag: 4096
+              name: reason
+              value: 0
+            - flag: 8192
+              name: reason_card
+              value:
+                controller: 0
+                location: 0
+                position: 0
+                sequence: 0
+            - flag: 16384
+              name: equip_card
+              value:
+                controller: 0
+                location: 0
+                position: 0
+                sequence: 0
+            - flag: 32768
+              name: target_cards
+              value: []
+            - flag: 65536
+              name: overlay_cards
+              value: []
+            - flag: 131072
+              name: counters
+              value: []
+            - flag: 262144
+              name: owner
+              value: 0
+            - flag: 524288
+              name: status
+              value: 1024
+            - flag: 1048576
+              name: is_public
+              value: 0
+            - flag: 2097152
+              name: left_scale
+              value: 0
+            - flag: 4194304
+              name: right_scale
+              value: 0
+            - flag: 8388608
+              name: link
+              value:
+                markers: 0
+                rating: 0
+            - flag: 16777216
+              name: is_hidden
+              value: 0
+            - flag: 33554432
+              name: cover
+              value: 0
+            instance_key: 0:2:1
+            location: 2
+            slot: 1
+          controller: 0
+          location: 2
+          location_name: hand
+        - cards:
+          - null
+          - null
+          - null
+          - null
+          - null
+          - null
+          - null
+          controller: 0
+          location: 4
+          location_name: monster_zone
+        - cards:
+          - null
+          - null
+          - null
+          - null
+          - null
+          - null
+          - null
+          - null
+          controller: 0
+          location: 8
+          location_name: spell_trap_zone
+        - cards: []
+          controller: 0
+          location: 16
+          location_name: graveyard
+        - cards: []
+          controller: 0
+          location: 32
+          location_name: banished
+        - cards: []
+          controller: 0
+          location: 64
+          location_name: extra_deck
+        - cards: []
+          controller: 1
+          location: 1
+          location_name: deck
+        - cards:
+          - controller: 1
+            fields:
+            - flag: 1
+              name: code
+              value: 97268402
+            - flag: 2
+              name: position
+              value: 10
+            - flag: 4
+              name: alias
+              value: 97268402
+            - flag: 8
+              name: type
+              value: 4129
+            - flag: 16
+              name: level
+              value: 1
+            - flag: 32
+              name: rank
+              value: 0
+            - flag: 64
+              name: attribute
+              value: 16
+            - flag: 128
+              name: race
+              value: 2
+            - flag: 256
+              name: attack
+              value: 0
+            - flag: 512
+              name: defense
+              value: 0
+            - flag: 1024
+              name: base_attack
+              value: 0
+            - flag: 2048
+              name: base_defense
+              value: 0
+            - flag: 4096
+              name: reason
+              value: 0
+            - flag: 8192
+              name: reason_card
+              value:
+                controller: 0
+                location: 0
+                position: 0
+                sequence: 0
+            - flag: 16384
+              name: equip_card
+              value:
+                controller: 0
+                location: 0
+                position: 0
+                sequence: 0
+            - flag: 32768
+              name: target_cards
+              value: []
+            - flag: 65536
+              name: overlay_cards
+              value: []
+            - flag: 131072
+              name: counters
+              value: []
+            - flag: 262144
+              name: owner
+              value: 1
+            - flag: 524288
+              name: status
+              value: 1024
+            - flag: 1048576
+              name: is_public
+              value: 0
+            - flag: 2097152
+              name: left_scale
+              value: 0
+            - flag: 4194304
+              name: right_scale
+              value: 0
+            - flag: 8388608
+              name: link
+              value:
+                markers: 0
+                rating: 0
+            - flag: 16777216
+              name: is_hidden
+              value: 0
+            - flag: 33554432
+              name: cover
+              value: 0
+            instance_key: '1:2:0'
+            location: 2
+            slot: 0
+          controller: 1
+          location: 2
+          location_name: hand
+        - cards:
+          - null
+          - null
+          - null
+          - null
+          - null
+          - null
+          - null
+          controller: 1
+          location: 4
+          location_name: monster_zone
+        - cards:
+          - null
+          - null
+          - null
+          - null
+          - null
+          - null
+          - null
+          - null
+          controller: 1
+          location: 8
+          location_name: spell_trap_zone
+        - cards: []
+          controller: 1
+          location: 16
+          location_name: graveyard
+        - cards: []
+          controller: 1
+          location: 32
+          location_name: banished
+        - cards: []
+          controller: 1
+          location: 64
+          location_name: extra_deck
+      public_state:
+        field_state:
+          chain: []
+          chain_count: 0
+          duel_options: 0
+          players:
+          - banished_count: 0
+            deck_count: 0
+            extra_deck_count: 0
+            face_up_extra_count: 0
+            graveyard_count: 0
+            hand_count: 2
+            life_points: 8000
+            monster_zones:
+            - null
+            - null
+            - null
+            - null
+            - null
+            - null
+            - null
+            player: 0
+            spell_trap_zones:
+            - null
+            - null
+            - null
+            - null
+            - null
+            - null
+            - null
+            - null
+          - banished_count: 0
+            deck_count: 0
+            extra_deck_count: 0
+            face_up_extra_count: 0
+            graveyard_count: 0
+            hand_count: 1
+            life_points: 8000
+            monster_zones:
+            - null
+            - null
+            - null
+            - null
+            - null
+            - null
+            - null
+            player: 1
+            spell_trap_zones:
+            - null
+            - null
+            - null
+            - null
+            - null
+            - null
+            - null
+            - null
+        process_state: awaiting_response
+      sampling_reference: null
+      schema_version: ygo-state-id-v1
+      state_id: state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f
+      viewer: null
+    zones:
+    - cards: []
+      controller: 0
+      location: 1
+      location_name: deck
+    - cards:
+      - controller: 0
+        fields:
+        - flag: 1
+          name: code
+          value: 97268402
+        - flag: 2
+          name: position
+          value: 10
+        - flag: 4
+          name: alias
+          value: 97268402
+        - flag: 8
+          name: type
+          value: 4129
+        - flag: 16
+          name: level
+          value: 1
+        - flag: 32
+          name: rank
+          value: 0
+        - flag: 64
+          name: attribute
+          value: 16
+        - flag: 128
+          name: race
+          value: 2
+        - flag: 256
+          name: attack
+          value: 0
+        - flag: 512
+          name: defense
+          value: 0
+        - flag: 1024
+          name: base_attack
+          value: 0
+        - flag: 2048
+          name: base_defense
+          value: 0
+        - flag: 4096
+          name: reason
+          value: 0
+        - flag: 8192
+          name: reason_card
+          value:
+            controller: 0
+            location: 0
+            position: 0
+            sequence: 0
+        - flag: 16384
+          name: equip_card
+          value:
+            controller: 0
+            location: 0
+            position: 0
+            sequence: 0
+        - flag: 32768
+          name: target_cards
+          value: []
+        - flag: 65536
+          name: overlay_cards
+          value: []
+        - flag: 131072
+          name: counters
+          value: []
+        - flag: 262144
+          name: owner
+          value: 0
+        - flag: 524288
+          name: status
+          value: 1024
+        - flag: 1048576
+          name: is_public
+          value: 0
+        - flag: 2097152
+          name: left_scale
+          value: 0
+        - flag: 4194304
+          name: right_scale
+          value: 0
+        - flag: 8388608
+          name: link
+          value:
+            markers: 0
+            rating: 0
+        - flag: 16777216
+          name: is_hidden
+          value: 0
+        - flag: 33554432
+          name: cover
+          value: 0
+        instance_key: 0:2:0
+        location: 2
+        slot: 0
+      - controller: 0
+        fields:
+        - flag: 1
+          name: code
+          value: 97268402
+        - flag: 2
+          name: position
+          value: 10
+        - flag: 4
+          name: alias
+          value: 97268402
+        - flag: 8
+          name: type
+          value: 4129
+        - flag: 16
+          name: level
+          value: 1
+        - flag: 32
+          name: rank
+          value: 0
+        - flag: 64
+          name: attribute
+          value: 16
+        - flag: 128
+          name: race
+          value: 2
+        - flag: 256
+          name: attack
+          value: 0
+        - flag: 512
+          name: defense
+          value: 0
+        - flag: 1024
+          name: base_attack
+          value: 0
+        - flag: 2048
+          name: base_defense
+          value: 0
+        - flag: 4096
+          name: reason
+          value: 0
+        - flag: 8192
+          name: reason_card
+          value:
+            controller: 0
+            location: 0
+            position: 0
+            sequence: 0
+        - flag: 16384
+          name: equip_card
+          value:
+            controller: 0
+            location: 0
+            position: 0
+            sequence: 0
+        - flag: 32768
+          name: target_cards
+          value: []
+        - flag: 65536
+          name: overlay_cards
+          value: []
+        - flag: 131072
+          name: counters
+          value: []
+        - flag: 262144
+          name: owner
+          value: 0
+        - flag: 524288
+          name: status
+          value: 1024
+        - flag: 1048576
+          name: is_public
+          value: 0
+        - flag: 2097152
+          name: left_scale
+          value: 0
+        - flag: 4194304
+          name: right_scale
+          value: 0
+        - flag: 8388608
+          name: link
+          value:
+            markers: 0
+            rating: 0
+        - flag: 16777216
+          name: is_hidden
+          value: 0
+        - flag: 33554432
+          name: cover
+          value: 0
+        instance_key: 0:2:1
+        location: 2
+        slot: 1
+      controller: 0
+      location: 2
+      location_name: hand
+    - cards:
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      controller: 0
+      location: 4
+      location_name: monster_zone
+    - cards:
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      controller: 0
+      location: 8
+      location_name: spell_trap_zone
+    - cards: []
+      controller: 0
+      location: 16
+      location_name: graveyard
+    - cards: []
+      controller: 0
+      location: 32
+      location_name: banished
+    - cards: []
+      controller: 0
+      location: 64
+      location_name: extra_deck
+    - cards: []
+      controller: 1
+      location: 1
+      location_name: deck
+    - cards:
+      - controller: 1
+        fields:
+        - flag: 1
+          name: code
+          value: 97268402
+        - flag: 2
+          name: position
+          value: 10
+        - flag: 4
+          name: alias
+          value: 97268402
+        - flag: 8
+          name: type
+          value: 4129
+        - flag: 16
+          name: level
+          value: 1
+        - flag: 32
+          name: rank
+          value: 0
+        - flag: 64
+          name: attribute
+          value: 16
+        - flag: 128
+          name: race
+          value: 2
+        - flag: 256
+          name: attack
+          value: 0
+        - flag: 512
+          name: defense
+          value: 0
+        - flag: 1024
+          name: base_attack
+          value: 0
+        - flag: 2048
+          name: base_defense
+          value: 0
+        - flag: 4096
+          name: reason
+          value: 0
+        - flag: 8192
+          name: reason_card
+          value:
+            controller: 0
+            location: 0
+            position: 0
+            sequence: 0
+        - flag: 16384
+          name: equip_card
+          value:
+            controller: 0
+            location: 0
+            position: 0
+            sequence: 0
+        - flag: 32768
+          name: target_cards
+          value: []
+        - flag: 65536
+          name: overlay_cards
+          value: []
+        - flag: 131072
+          name: counters
+          value: []
+        - flag: 262144
+          name: owner
+          value: 1
+        - flag: 524288
+          name: status
+          value: 1024
+        - flag: 1048576
+          name: is_public
+          value: 0
+        - flag: 2097152
+          name: left_scale
+          value: 0
+        - flag: 4194304
+          name: right_scale
+          value: 0
+        - flag: 8388608
+          name: link
+          value:
+            markers: 0
+            rating: 0
+        - flag: 16777216
+          name: is_hidden
+          value: 0
+        - flag: 33554432
+          name: cover
+          value: 0
+        instance_key: '1:2:0'
+        location: 2
+        slot: 0
+      controller: 1
+      location: 2
+      location_name: hand
+    - cards:
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      controller: 1
+      location: 4
+      location_name: monster_zone
+    - cards:
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      - null
+      controller: 1
+      location: 8
+      location_name: spell_trap_zone
+    - cards: []
+      controller: 1
+      location: 16
+      location_name: graveyard
+    - cards: []
+      controller: 1
+      location: 32
+      location_name: banished
+    - cards: []
+      controller: 1
+      location: 64
+      location_name: extra_deck
+  manifest:
+    environment:
+      assets:
+        card_database_commit: f89c9a4be9a5f193e29b788e3cf880563f4f79b4
+        card_scripts_commit: c8e9c0bcd026a5ccc303bbc73881b8f86f818657
+        constant_sha256: 9fbd72bcd67fc9b2f987598d876e6cbc335bf48c7d968a68d1de7b91221af9e4
+        database_sha256: c49a077285e1d999f32056cb65303b75e311e859b4486c48f41772a193069225
+        lock_id: ocgcore-assets-202504-v1
+        utility_sha256: ffef0a67fc2443067d4a1b8b93d5f700f08b186e978e3a03b145219f7c398c0d
+      core:
+        api: '11.0'
+        binary_sha256: 03e360cf694f5ac6ba686de1d3bec7ccde3f3233d01bfe3265884a18ce1b9028
+        custom_patches: []
+        lock_id: ocgcore-v11.0-win-x64-msvc-v1
+        source_commit: 158aebe758be3c46249c75d602e3f16d63d2ef31
+      fixture_script:
+        id: action_aggregation_lifecycle_v1
+        name: c97268402.lua
+        purpose: cost_target_option_action_aggregation
+        sha256: fd2d16e69c36389da38fbec3acb50e6e4dc1f8dd820a65d6f2e1e65e44179a9b
+      instrumentation:
+        direct_random_trace:
+          enabled: true
+          instrumentation_id: rnginst_5d3d5277a106e8e76d91255abb3f814a9a76d72e80ebacf3212d41c19b27fd4a
+          record_format: prefix|draw_index|minimum|maximum|result
+          schema_version: ocgcore-direct-random-trace-v2
+          script_name: ygo_effect_dsl_direct_random_trace.lua
+          script_sha256: 88bcc50cdf2802e3e5c30b6e149516a5461b4161f894099ddb6f629d91a1b2df
+          transport: ocgcore_log_handler_from_script_v1
+      project:
+        bridge_protocol: ocgcore-api-11.0
+        replay_schema: 0.3a
+        snapshot_schema: ocgcore-query-v1
+    initial_conditions:
+      deck_order_in_snapshot: true
+      fixed_hands:
+        '0':
+        - 97268402
+        - 97268402
+        '1':
+        - 97268402
+      information_policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+      snapshot_hash: state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f
+      snapshot_kind: complete_information
+      starting_player: 0
+    manifest_hash: manifest_7a0123cff36d9bfd13a21ede1b3003585f4ddfe57dc7a63c7209cd383f09d4cd
+    missing_requirements: []
+    randomness:
+      core_seed:
+      - 1
+      - 2
+      - 3
+      - 4
+      interruption_sampling: null
+      python_random_used: false
+      python_seed: null
+      trace_policy: raw-core-frames-and-script-log-random-events-v3
+    reproducible: true
+    rules:
+      duel_flags: 0
+      forbidden_limited_list: none-fixed-scenario
+      master_rule: ocgcore-duel-flags:0
+      unsafe_lua_libraries: false
+    schema_version: ygo-replay-manifest-v1
+  random_events:
+  - after_response_step: null
+    frame_index: 1
+    kind: shuffle_hand
+    message_type: 33
+    outcome:
+      codes:
+      - 97268402
+      - 97268402
+      player: 0
+      zone_order:
+      - controller: 0
+        fields:
+        - flag: 1
+          name: code
+          value: 97268402
+        - flag: 2
+          name: position
+          value: 10
+        - flag: 4
+          name: alias
+          value: 97268402
+        - flag: 8
+          name: type
+          value: 4129
+        - flag: 16
+          name: level
+          value: 1
+        - flag: 32
+          name: rank
+          value: 0
+        - flag: 64
+          name: attribute
+          value: 16
+        - flag: 128
+          name: race
+          value: 2
+        - flag: 256
+          name: attack
+          value: 0
+        - flag: 512
+          name: defense
+          value: 0
+        - flag: 1024
+          name: base_attack
+          value: 0
+        - flag: 2048
+          name: base_defense
+          value: 0
+        - flag: 4096
+          name: reason
+          value: 0
+        - flag: 8192
+          name: reason_card
+          value:
+            controller: 0
+            location: 0
+            position: 0
+            sequence: 0
+        - flag: 16384
+          name: equip_card
+          value:
+            controller: 0
+            location: 0
+            position: 0
+            sequence: 0
+        - flag: 32768
+          name: target_cards
+          value: []
+        - flag: 65536
+          name: overlay_cards
+          value: []
+        - flag: 131072
+          name: counters
+          value: []
+        - flag: 262144
+          name: owner
+          value: 0
+        - flag: 524288
+          name: status
+          value: 1024
+        - flag: 1048576
+          name: is_public
+          value: 0
+        - flag: 2097152
+          name: left_scale
+          value: 0
+        - flag: 4194304
+          name: right_scale
+          value: 0
+        - flag: 8388608
+          name: link
+          value:
+            markers: 0
+            rating: 0
+        - flag: 16777216
+          name: is_hidden
+          value: 0
+        - flag: 33554432
+          name: cover
+          value: 0
+        instance_key: 0:2:0
+        location: 2
+        slot: 0
+      - controller: 0
+        fields:
+        - flag: 1
+          name: code
+          value: 97268402
+        - flag: 2
+          name: position
+          value: 10
+        - flag: 4
+          name: alias
+          value: 97268402
+        - flag: 8
+          name: type
+          value: 4129
+        - flag: 16
+          name: level
+          value: 1
+        - flag: 32
+          name: rank
+          value: 0
+        - flag: 64
+          name: attribute
+          value: 16
+        - flag: 128
+          name: race
+          value: 2
+        - flag: 256
+          name: attack
+          value: 0
+        - flag: 512
+          name: defense
+          value: 0
+        - flag: 1024
+          name: base_attack
+          value: 0
+        - flag: 2048
+          name: base_defense
+          value: 0
+        - flag: 4096
+          name: reason
+          value: 0
+        - flag: 8192
+          name: reason_card
+          value:
+            controller: 0
+            location: 0
+            position: 0
+            sequence: 0
+        - flag: 16384
+          name: equip_card
+          value:
+            controller: 0
+            location: 0
+            position: 0
+            sequence: 0
+        - flag: 32768
+          name: target_cards
+          value: []
+        - flag: 65536
+          name: overlay_cards
+          value: []
+        - flag: 131072
+          name: counters
+          value: []
+        - flag: 262144
+          name: owner
+          value: 0
+        - flag: 524288
+          name: status
+          value: 1024
+        - flag: 1048576
+          name: is_public
+          value: 0
+        - flag: 2097152
+          name: left_scale
+          value: 0
+        - flag: 4194304
+          name: right_scale
+          value: 0
+        - flag: 8388608
+          name: link
+          value:
+            markers: 0
+            rating: 0
+        - flag: 16777216
+          name: is_hidden
+          value: 0
+        - flag: 33554432
+          name: cover
+          value: 0
+        instance_key: 0:2:1
+        location: 2
+        slot: 1
+    random_event_id: rnd_1326e7590427508a55b674296457d30e69f9834e7a81ce49d8849abe8dc25350
+    resulting_state_hash: state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f
+    schema_version: ocgcore-random-event-v2
+  - after_response_step: null
+    frame_index: 2
+    kind: shuffle_hand
+    message_type: 33
+    outcome:
+      codes:
+      - 97268402
+      player: 1
+      zone_order:
+      - controller: 1
+        fields:
+        - flag: 1
+          name: code
+          value: 97268402
+        - flag: 2
+          name: position
+          value: 10
+        - flag: 4
+          name: alias
+          value: 97268402
+        - flag: 8
+          name: type
+          value: 4129
+        - flag: 16
+          name: level
+          value: 1
+        - flag: 32
+          name: rank
+          value: 0
+        - flag: 64
+          name: attribute
+          value: 16
+        - flag: 128
+          name: race
+          value: 2
+        - flag: 256
+          name: attack
+          value: 0
+        - flag: 512
+          name: defense
+          value: 0
+        - flag: 1024
+          name: base_attack
+          value: 0
+        - flag: 2048
+          name: base_defense
+          value: 0
+        - flag: 4096
+          name: reason
+          value: 0
+        - flag: 8192
+          name: reason_card
+          value:
+            controller: 0
+            location: 0
+            position: 0
+            sequence: 0
+        - flag: 16384
+          name: equip_card
+          value:
+            controller: 0
+            location: 0
+            position: 0
+            sequence: 0
+        - flag: 32768
+          name: target_cards
+          value: []
+        - flag: 65536
+          name: overlay_cards
+          value: []
+        - flag: 131072
+          name: counters
+          value: []
+        - flag: 262144
+          name: owner
+          value: 1
+        - flag: 524288
+          name: status
+          value: 1024
+        - flag: 1048576
+          name: is_public
+          value: 0
+        - flag: 2097152
+          name: left_scale
+          value: 0
+        - flag: 4194304
+          name: right_scale
+          value: 0
+        - flag: 8388608
+          name: link
+          value:
+            markers: 0
+            rating: 0
+        - flag: 16777216
+          name: is_hidden
+          value: 0
+        - flag: 33554432
+          name: cover
+          value: 0
+        instance_key: '1:2:0'
+        location: 2
+        slot: 0
+    random_event_id: rnd_28a275f8ed756b434eb481d958948f3b300f589fe7b630ebcee1f12acb8a15f5
+    resulting_state_hash: state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f
+    schema_version: ocgcore-random-event-v2
+  schema_version: 0.3a
+  seeds:
+    duel_seed_0: 1
+    duel_seed_1: 2
+    duel_seed_2: 3
+    duel_seed_3: 4
+  strict_versions: true
+  version_metadata:
+    asset_lock_id: ocgcore-assets-202504-v1
+    card_database_commit: f89c9a4be9a5f193e29b788e3cf880563f4f79b4
+    card_scripts_commit: c8e9c0bcd026a5ccc303bbc73881b8f86f818657
+    decision_protocol: ocgcore-api-11.0
+    direct_random_trace:
+      enabled: true
+      instrumentation_id: rnginst_5d3d5277a106e8e76d91255abb3f814a9a76d72e80ebacf3212d41c19b27fd4a
+      record_format: prefix|draw_index|minimum|maximum|result
+      schema_version: ocgcore-direct-random-trace-v2
+      script_name: ygo_effect_dsl_direct_random_trace.lua
+      script_sha256: 88bcc50cdf2802e3e5c30b6e149516a5461b4161f894099ddb6f629d91a1b2df
+      transport: ocgcore_log_handler_from_script_v1
+    fixture_script_id: action_aggregation_lifecycle_v1
+    fixture_script_sha256: fd2d16e69c36389da38fbec3acb50e6e4dc1f8dd820a65d6f2e1e65e44179a9b
+    ocgcore_api: '11.0'
+    ocgcore_binary_sha256: 03e360cf694f5ac6ba686de1d3bec7ccde3f3233d01bfe3265884a18ce1b9028
+    ocgcore_lock_id: ocgcore-v11.0-win-x64-msvc-v1
+    snapshot_schema: ocgcore-query-v1
+result:
+  diagnostics: []
+  durability:
+    after:
+      checkpoint_step: 13
+      evaluation:
+        field_count: 1
+        hand_count: 0
+      evaluation_result:
+        evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+        evaluator_id: real_core_board_count
+        evaluator_version: '1'
+        explanations: []
+        schema_version: evaluation-result-v1
+        score_breakdown:
+          breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+          missing_metrics: []
+          schema_version: score-breakdown-v1
+          terms:
+          - contribution: 10
+            metric: field_count
+            raw_value: 1
+            resolution: observed
+            resolved_value: 1
+            weight: 10
+          - contribution: 0
+            metric: hand_count
+            raw_value: 0
+            resolution: observed
+            resolved_value: 0
+            weight: 1
+          total_score: 10
+        total_score: 10
+        vector:
+          field_count: 1
+          hand_count: 0
+      phase: main1
+      score: 10
+      state_hash: state_0e36b3e0bc875155bca8e9b4b7651c28671ecbff53b02cfa7f40e52149cafcee
+      success: true
+      turn: 2
+    before:
+      checkpoint_step: 11
+      evaluation:
+        field_count: 1
+        hand_count: 0
+      evaluation_result:
+        evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+        evaluator_id: real_core_board_count
+        evaluator_version: '1'
+        explanations: []
+        schema_version: evaluation-result-v1
+        score_breakdown:
+          breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+          missing_metrics: []
+          schema_version: score-breakdown-v1
+          terms:
+          - contribution: 10
+            metric: field_count
+            raw_value: 1
+            resolution: observed
+            resolved_value: 1
+            weight: 10
+          - contribution: 0
+            metric: hand_count
+            raw_value: 0
+            resolution: observed
+            resolved_value: 0
+            weight: 1
+          total_score: 10
+        total_score: 10
+        vector:
+          field_count: 1
+          hand_count: 0
+      phase: main1
+      score: 10
+      state_hash: state_cac356bd5f751fe887751aafdd0bc7d091be943318728cc6bd76db94d08007ce
+      success: true
+      turn: 1
+    delta:
+      evaluation:
+        field_count: 0
+        hand_count: 0
+      score: 0
+      score_breakdown:
+        after_breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+        before_breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+        comparison_id: scorecmp_b096c4a12457239395831690f1c6ff3222a255efb129bbe7014514a8b6bb9813
+        schema_version: score-comparison-v1
+        terms:
+        - after_contribution: 10
+          after_resolved_value: 1
+          after_weight: 10
+          before_contribution: 10
+          before_resolved_value: 1
+          before_weight: 10
+          contribution_delta: 0
+          metric: field_count
+        - after_contribution: 0
+          after_resolved_value: 0
+          after_weight: 1
+          before_contribution: 0
+          before_resolved_value: 0
+          before_weight: 1
+          contribution_delta: 0
+          metric: hand_count
+        total_score_delta: 0
+    evaluation_timing:
+      after: opponent_main1_after_end_phase_and_turn_start_processing
+      before: legal_stop_before_end_turn
+    schema_version: peak-durability-v1
+    state_changed: true
+    success_retained: true
+  evaluation_explanation:
+    temporary_effects:
+      components:
+      - boundary_evidence: observed_active
+        component_id: field_count:observed_after_turn_boundary
+        exclusion_reason: null
+        expires_at: null
+        included_in_durable_value: true
+        metric: field_count
+        permanence: persistent
+        source_ref:
+          checkpoint_step: 13
+          evidence: core_state_observed_at_evaluation_boundary
+          state_hash: state_0e36b3e0bc875155bca8e9b4b7651c28671ecbff53b02cfa7f40e52149cafcee
+        value: 1
+      evaluation_boundary:
+        chain_index: 0
+        phase: main1
+        turn: 2
+        turn_action_index: 0
+      explanations: []
+      overvaluation_prevention:
+        applied: false
+        excluded_component_ids: []
+        metrics_with_prevented_overvaluation: []
+        unverified_component_ids: []
+      report_id: teval_807c41be4e79ffe8192b1ac3b465931a95f4f6a71981fe89968bdb54c4a34717
+      schema_version: temporary-effect-evaluation-v1
+      values:
+        field_count:
+          durable: 1
+          excluded_temporary: 0
+          raw: 1
+  final_request_signature: req_35fb6c70e6d3e70f787d17fefeb5551dbdf35c45266302c16c2bf6a9f6f78b46
+  peak_board:
+    checkpoint_step: 11
+    evaluation:
+      field_count: 1
+      hand_count: 0
+    evaluation_result:
+      evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+      evaluator_id: real_core_board_count
+      evaluator_version: '1'
+      explanations: []
+      schema_version: evaluation-result-v1
+      score_breakdown:
+        breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+        missing_metrics: []
+        schema_version: score-breakdown-v1
+        terms:
+        - contribution: 10
+          metric: field_count
+          raw_value: 1
+          resolution: observed
+          resolved_value: 1
+          weight: 10
+        - contribution: 0
+          metric: hand_count
+          raw_value: 0
+          resolution: observed
+          resolved_value: 0
+          weight: 1
+        total_score: 10
+      total_score: 10
+      vector:
+        field_count: 1
+        hand_count: 0
+    phase: main1
+    score: 10
+    state_hash: state_cac356bd5f751fe887751aafdd0bc7d091be943318728cc6bd76db94d08007ce
+    stop_reason: core_end_turn_available
+    success: true
+    turn: 1
+  request_signatures:
+  - req_3ad6a27c2f0ec8fb647deb9c3dad4eb7e644af427d8522e8197a8cf45fb87764
+  - req_a7662b0219c1d8c0da0af0f12949bb7d8604623f51fdecdf2c81f7ba559dd3be
+  - req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479
+  - req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5
+  - req_80971f6a55be385701ad1d18f38bb7665287ea088b73585862bb91160390c796
+  - req_630e9c39097d7d5f696f73b57ab213e60d2566d7712cff3065a5b7a9043845cd
+  - req_f0959b02525f928a2c3704c5926fa27c0890d7f6f54737e90ba004b96dd5ac08
+  - req_363255f76ea11ea18d736979f0b566be765f6f97131922a941b66fec34f4ed3b
+  - req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5
+  - req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479
+  - req_616924be6e345483c5b7f4e8987c4a3da3cdda7241fc7023afde5788764901e6
+  - req_da74b9f240d65d28e5465319cbd87dd694c5cdfba3e43a1bc6e5df2b3174f540
+  - req_5027d4c7b50e9095556fe72526dc8d1178dec655d18b9e43d7ee79279e646a9e
+  - req_75d1d44f0c025906b74df5223afab7a0995c3b99de0aac8be4eaad3d863d51c5
+  - req_35fb6c70e6d3e70f787d17fefeb5551dbdf35c45266302c16c2bf6a9f6f78b46
+  success: true
+  terminal_board:
+    checkpoint_step: 13
+    evaluation:
+      field_count: 1
+      hand_count: 0
+    evaluation_result:
+      evaluator_config_hash: evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254
+      evaluator_id: real_core_board_count
+      evaluator_version: '1'
+      explanations: []
+      schema_version: evaluation-result-v1
+      score_breakdown:
+        breakdown_id: score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f
+        missing_metrics: []
+        schema_version: score-breakdown-v1
+        terms:
+        - contribution: 10
+          metric: field_count
+          raw_value: 1
+          resolution: observed
+          resolved_value: 1
+          weight: 10
+        - contribution: 0
+          metric: hand_count
+          raw_value: 0
+          resolution: observed
+          resolved_value: 0
+          weight: 1
+        total_score: 10
+      total_score: 10
+      vector:
+        field_count: 1
+        hand_count: 0
+    phase: main1
+    score: 10
+    state_hash: state_0e36b3e0bc875155bca8e9b4b7651c28671ecbff53b02cfa7f40e52149cafcee
+    stop_reason: core_end_turn_available
+    success: true
+    turn: 2
+route_id: route_32af1e3bdd1f7a3460f2e236439029dedb5002d0b44e7d51db31756b2124c52c
+schema_version: '0.1'
+status: complete

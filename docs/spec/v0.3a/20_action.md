@@ -1,6 +1,6 @@
 # Action Specification
 
-Status: V0.3a specification baseline
+Status: Frozen pre-search contract (ADR-0007)
 
 Last updated: 2026-07-13
 
@@ -38,9 +38,13 @@ class Action:
 
 ## Granularity
 
+Normative decision: [ADR-0006](../../adr/0006_action_granularity.md).
+
 Action の粒度は「1つの DecisionRequest への応答」とする。
 効果発動、対象選択、コスト選択、解決時選択は、core が別 DecisionRequest として提示する場合は別 Action として記録する。
 core が同一 DecisionRequest 内に複数選択を含める場合は、1 Action の `selections` に順序付きで記録する。
+
+複数のatomic Actionを人間向けにまとめたcomposite operationは派生表示データであり、Replay event、探索edge、Action ID、妨害位置を置き換えない。core入力を伴わない自動処理はActionを生成せず、`STOP_LINE`だけを明示的なsynthetic search-control Actionとする。
 
 この方針により、Python はカードごとの処理手順を推測しない。
 Action 境界は core から見える要求境界に従う。
@@ -100,6 +104,23 @@ Bridge は core / Lua 由来の識別情報を優先する。
 
 `action_id` は表示名、ログ時刻、探索 node id、run id に依存しない。
 同じ DecisionRequest に同じ選択を返す Action は同じ `action_id` になる。
+同名・同一カード番号の候補は Candidate ID と CardRef の個体位置で区別するため、異なる個体を選べば異なる `action_id` になる。
+
+## Action Occurrence ID
+
+`action_id` は選択内容の意味的な同一性を表し、実行回数は表さない。同じ効果に同じ選択を複数回返す場合、`action_id` が同じでもよい。Replay上の個々の実行は `action_occurrence_id` で識別する。
+
+`action_occurrence_id` は次の canonical input から生成する。
+
+- occurrence schema version
+- `action_id`
+- Replayの`step`
+- 実行前の`state_hash_before`
+- `turn`
+- 0始まりの`turn_action_index`
+- 0をチェーン外とする`chain_index`
+
+`state_hash_before`を`action_id`へ含めない。これにより、同じ意思決定を探索ノード間で比較できる一方、`action_occurrence_id`では実行前Stateとの対応を検証できる。ターン、ターン内順序、チェーン深度のいずれかが異なる実行も別の`action_occurrence_id`になる。
 
 ## Control Actions
 
@@ -116,12 +137,15 @@ Bridge は core / Lua 由来の識別情報を優先する。
 表示用 Action は report / UI のために label、card name、effect text summary を持ってよい。
 Replay 用 Action は deterministic replay のために `action_id`, `request_signature`, `kind`, `selections`, `payload_ref` を持つ。
 Replay 用 Action は表示文字列に依存してはならない。
+細粒度Actionから表示用複合Actionへの変換契約は[Action Aggregation Specification](25_action_aggregation.md)に定義する。
 
 ## Acceptance Criteria
 
 - Action は 1 DecisionRequest への応答として定義されている。
 - 効果発動、対象選択、コスト選択の分割規則が core request 境界に従うと明記されている。
 - `action_id` が表示名、run id、node id に依存しない。
+- 同名カードの個体と同じ効果の複数回実行を区別できる。
+- `action_occurrence_id`と実行前State、ターン順序、チェーン番号の関係が定義されている。
 - `STOP_LINE` と `END_TURN` が別概念として定義されている。
 
 ## Future Contract Tests
@@ -129,5 +153,7 @@ Replay 用 Action は表示文字列に依存してはならない。
 - `test_action_round_trip`
 - `test_action_id_is_stable_for_same_request_and_selection`
 - `test_action_id_ignores_display_label`
+- `test_action_id_distinguishes_same_named_card_instances`
+- `test_action_occurrence_id_distinguishes_repeated_execution_coordinates`
 - `test_action_distinguishes_stop_line_and_end_turn`
 - `test_action_supports_ordered_multi_selection`

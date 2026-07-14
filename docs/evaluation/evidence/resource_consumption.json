@@ -1,0 +1,134 @@
+{
+  "calibration": {
+    "follow_up_issue": 108,
+    "status": "provisional_expert_weights",
+    "validation_required": "multi_deck_same_state_alternatives_and_blind_human_ranking"
+  },
+  "default_config": {
+    "weights": {
+      "extra_deck_net_decrease": 1,
+      "hand_net_decrease": 1,
+      "life_point_loss": 0.001,
+      "normal_summon_uses": 1
+    }
+  },
+  "evaluator_id": "route_resource_consumption",
+  "evaluator_version": "1",
+  "evidence_id": "resourceevidence_e9dad86006758d9c2fa6492d8291555b944ef85b5b14d9f860df76f10f64345b",
+  "metric": "resource_consumption_v1",
+  "normalization": {
+    "minimum_consumption": {
+      "metric": "resource_consumption_v1",
+      "route_ids": [
+        "route_47b95157fc40de5ea0f56ee248b6e52a320d209a3580b69a7105fddf3fdeaebb",
+        "route_5cac80cf38a05052cfeccc0710bd54498ed96897003db7b2248ef9a63b8220f7",
+        "route_ec560e9558b534852d8611ae05f55f497416e712ddb5bc3b483bb7ab1c7258fa"
+      ],
+      "selection_rule": "minimum",
+      "status": "available",
+      "value": 2.0
+    },
+    "report_id": "routenorm_48dbf6a13f1fc2367fa6f1dcbf59eb374564d4d7d44f4587d0fec13cc3a0683f",
+    "schema_version": "route-normalization-v2"
+  },
+  "routes": [
+    {
+      "explicit_cost_record_count": 1,
+      "filename": "real_core_action_aggregation.route.yaml",
+      "perspective_vector": {
+        "banished_net_increase": 0,
+        "deck_net_decrease": 0,
+        "explicit_cost_cards": 1,
+        "extra_deck_net_decrease": 0,
+        "graveyard_net_increase": 1,
+        "hand_net_decrease": 2,
+        "life_point_loss": 0,
+        "monster_zone_net_decrease": 0,
+        "normal_summon_uses": 1,
+        "special_summon_actions": 0,
+        "spell_trap_zone_net_decrease": 0
+      },
+      "resource_report_id": "resourceeval_4f960d96b56f48b447661c8980e96e6307e65bff3eea8582910cbb8fadfe1a02",
+      "route_id": "route_32af1e3bdd1f7a3460f2e236439029dedb5002d0b44e7d51db31756b2124c52c",
+      "scalar_total": 3.0,
+      "source_state_hashes": {
+        "initial": "state_7726d1dfdd6005d491dd7f5e76134bfea6d6b603acfcf3524e0b039c7535c76f",
+        "target": "state_cac356bd5f751fe887751aafdd0bc7d091be943318728cc6bd76db94d08007ce"
+      }
+    },
+    {
+      "explicit_cost_record_count": 0,
+      "filename": "real_core_effect_veiler.route.yaml",
+      "perspective_vector": {
+        "banished_net_increase": 0,
+        "deck_net_decrease": 0,
+        "explicit_cost_cards": 0,
+        "extra_deck_net_decrease": 0,
+        "graveyard_net_increase": 0,
+        "hand_net_decrease": 1,
+        "life_point_loss": 0,
+        "monster_zone_net_decrease": 0,
+        "normal_summon_uses": 1,
+        "special_summon_actions": 0,
+        "spell_trap_zone_net_decrease": 0
+      },
+      "resource_report_id": "resourceeval_6c412677f9fa109cdc43cad5037f23eca41f48f1935c5820bfd1db5c67cf26f3",
+      "route_id": "route_5cac80cf38a05052cfeccc0710bd54498ed96897003db7b2248ef9a63b8220f7",
+      "scalar_total": 2.0,
+      "source_state_hashes": {
+        "initial": "state_42ab36efff1c965f5f13c28e5626a8867b86036731271b23b5ebeeb8ebf69da0",
+        "target": "state_4968625b80f0a4e36f3ed19fae43acda8229a4b896ad9640ba9bd6093eb8377b"
+      }
+    },
+    {
+      "explicit_cost_record_count": 0,
+      "filename": "real_core_effect_veiler_interrupted.route.yaml",
+      "perspective_vector": {
+        "banished_net_increase": 0,
+        "deck_net_decrease": 0,
+        "explicit_cost_cards": 0,
+        "extra_deck_net_decrease": 0,
+        "graveyard_net_increase": 0,
+        "hand_net_decrease": 1,
+        "life_point_loss": 0,
+        "monster_zone_net_decrease": 0,
+        "normal_summon_uses": 1,
+        "special_summon_actions": 0,
+        "spell_trap_zone_net_decrease": 0
+      },
+      "resource_report_id": "resourceeval_a7e4940cc377b7df6e431b56377d77f7b69ec1ef5a69bdfd19e183efabf59403",
+      "route_id": "route_ec560e9558b534852d8611ae05f55f497416e712ddb5bc3b483bb7ab1c7258fa",
+      "scalar_total": 2.0,
+      "source_state_hashes": {
+        "initial": "state_42ab36efff1c965f5f13c28e5626a8867b86036731271b23b5ebeeb8ebf69da0",
+        "target": "state_2ccfdb31499972aa8e19543bd66a811152800d4164acfe2afd19881bfee676d3"
+      }
+    },
+    {
+      "explicit_cost_record_count": 0,
+      "filename": "real_core_temporary_atk.route.yaml",
+      "perspective_vector": {
+        "banished_net_increase": 0,
+        "deck_net_decrease": 0,
+        "explicit_cost_cards": 0,
+        "extra_deck_net_decrease": 0,
+        "graveyard_net_increase": 0,
+        "hand_net_decrease": 1,
+        "life_point_loss": 0,
+        "monster_zone_net_decrease": 0,
+        "normal_summon_uses": 1,
+        "special_summon_actions": 0,
+        "spell_trap_zone_net_decrease": 0
+      },
+      "resource_report_id": "resourceeval_e8a38e0c15b62ef086565e68c22990485527672aad7ec0744f4dd18ff5fe5854",
+      "route_id": "route_47b95157fc40de5ea0f56ee248b6e52a320d209a3580b69a7105fddf3fdeaebb",
+      "scalar_total": 2.0,
+      "source_state_hashes": {
+        "initial": "state_2f7401bc968225020547d314ab8931746465ca2e989df00adbddb6cfa2195834",
+        "target": "state_f803d7bbb5f561c509250c961d7c520156100dc08bd6396d26e4386505a6dda4"
+      }
+    }
+  ],
+  "scalar_truth_source": "initial_to_checkpoint_net_state_delta_plus_action_usage",
+  "schema_version": "route-resource-consumption-evidence-v1"
+}

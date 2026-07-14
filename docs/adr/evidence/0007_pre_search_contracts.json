@@ -1,0 +1,28 @@
+{
+  "schema_version": "architecture-freeze-v1",
+  "decision_issue": 83,
+  "frozen_at": "2026-07-13",
+  "contracts": {
+    "bridge_protocol": "ocgcore-api-11.0",
+    "replay": "0.3a",
+    "state_identity": "ygo-state-id-v1",
+    "evaluation_result": "evaluation-result-v1",
+    "score_breakdown": "score-breakdown-v1",
+    "experiment": "0.3a",
+    "route_dsl": "0.1"
+  },
+  "post_freeze_extensions": {
+    "experiment_current": "0.3b",
+    "experiment_legacy_migration_source": "0.3a",
+    "information_policy": "information-policy-v1"
+  },
+  "frozen_specifications": [
+    "docs/spec/v0.3a/10_bridge_decision_request.md",
+    "docs/spec/v0.3a/20_action.md",
+    "docs/spec/v0.3a/30_replay_determinism.md",
+    "docs/spec/v0.3a/40_state_identity.md",
+    "docs/spec/v0.3a/50_peak_board.md",
+    "docs/spec/v0.3a/60_evaluation_experiment.md"
+  ],
+  "non_blocking_verification_issues": [91, 92, 93, 94, 95, 96]
+}

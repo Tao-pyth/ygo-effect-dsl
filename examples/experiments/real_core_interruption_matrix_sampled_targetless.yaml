@@ -1,0 +1,81 @@
+schema_version: "0.3b"
+experiment_id: prototype_interruption_matrix_sampled_targetless
+objective: hidden_hand_sampling_with_interruption
+deck: {id: interruption_candidate_matrix_fixture, source: fixed}
+player: {starting_player: 0, perspective: 0}
+turn_limit: 2
+information_mode: sampled_private_state
+information_policy:
+  schema_version: information-policy-v1
+  policy_id: infopol_e6c2e4256464651f69115f85867da1f108f1d3ca44f2ca6987dacb478c5735ef
+  deck_order: unknown
+  opening_hand: probability_distribution
+  sampling_reference:
+    schema_version: opening-hand-sampling-v1
+    sampler_id: stable-digest-mod-v1
+    seed: 20260714
+    sampled_owners: [1]
+    sampling_policy_id: handsampol_cd5607267725cd1baa1c2a4ae1c0c8eabdb837fea227b11d8c150dbc8d3248f4
+    candidates:
+      - weight: 1
+        hands_by_player:
+          "1": [14558127, 27204311, 73642296]
+      - weight: 1
+        hands_by_player:
+          "1": [14558127, 73642296]
+evaluate_at: legal_stop
+durability_evaluate_at: opponent_main1_after_end_phase_and_turn_start_processing
+success_predicate:
+  id: real_core_min_monster_count
+  version: "1"
+  config: {player: 0, zone: monster_zone, min_count: 2}
+evaluator:
+  id: real_core_board_count
+  version: "1"
+  config:
+    hand_weight: 1
+    missing_value_policy: error
+    monster_weight: 10
+    temporary_value_policy: exclude_expired_or_unverified_v1
+search:
+  strategy: scripted_real_core
+  budget: {max_nodes: 32}
+interruption:
+  mode: scripted
+  definitions:
+    - id: sampled_targetless_hand_v1
+      interruption_type: targetless_hand
+      source_player: 1
+      source_card_code: 14558127
+      base_route_id: route_da4cb53e6394eaf1889f69a3e9fc08e8e7c425586bf765ad9015b7ab6f91ab0f
+      target:
+        action_id: act_7301914511e86205514470d415ab1573fdfa9956d4dcd284c60cbf9417c8658f
+        action_occurrence_id: aocc_1f9022f859350bce994cd7f4194c23f9ea1a4f18e3dafc3094e0f06b698827ae
+        chain_index: 1
+        effect_ref: null
+        player: 1
+        request_signature: req_9968977841bb2da68b4e619a3d7240a02140063e9b647cc3d2d2dc2a0f7c283b
+        schema_version: interruption-target-v1
+        source: null
+        state_hash_before: state_5f44b599f8ff2f3a438b42d38619036e7e5bebe6f37526c503b8e9bd42c611b7
+        step: 5
+        target_id: inttarget_7b89e97179dd1f55e2cc40a8cbebcb6aa4d55874436e6dd81516a97ba0c0e027
+        turn: 1
+        turn_action_index: 5
+      candidate_policy:
+        schema_version: core-interruption-candidate-policy-v1
+        activation:
+          schema_version: core-interruption-step-v1
+          role: activation
+          request_type: select_chain
+          player: 1
+          selection_count: 1
+          selector:
+            kind: effect
+            card_ref: {controller: 1, location: 2, public_card_id: 14558127}
+        responses: []
+replay: {strict_versions: true}
+runner:
+  adapter: real_core_prototype
+  fixture_script_id: interruption_candidate_matrix_v1
+  scenario_id: real_core_interruption_candidate_matrix_v1

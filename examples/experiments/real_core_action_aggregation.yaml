@@ -1,0 +1,48 @@
+schema_version: "0.3b"
+experiment_id: prototype_real_core_action_aggregation
+objective: validate_ocgcore_action_aggregation_roles
+deck:
+  id: effect_veiler_two_player_fixture
+  source: fixed
+player:
+  starting_player: 0
+  perspective: 0
+turn_limit: 2
+information_mode: complete_information
+information_policy:
+  schema_version: information-policy-v1
+  policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+  deck_order: known
+  opening_hand: fixed
+  sampling_reference: null
+evaluate_at: legal_stop
+durability_evaluate_at: opponent_main1_after_end_phase_and_turn_start_processing
+success_predicate:
+  id: real_core_min_monster_count
+  version: "1"
+  config:
+    player: 0
+    zone: monster_zone
+    min_count: 1
+evaluator:
+  id: real_core_board_count
+  version: "1"
+  config:
+    hand_weight: 1
+    missing_value_policy: error
+    monster_weight: 10
+    temporary_value_policy: exclude_expired_or_unverified_v1
+search:
+  strategy: scripted_real_core
+  budget:
+    max_nodes: 48
+  parameters: {}
+interruption:
+  mode: none
+  definitions: []
+replay:
+  strict_versions: true
+runner:
+  adapter: real_core_prototype
+  scenario_id: real_core_effect_veiler_normal_summon_v1
+  fixture_script_id: action_aggregation_lifecycle_v1

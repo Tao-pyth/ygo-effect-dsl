@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-07-13T07:43:09.153812+00:00",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "python": "3.13.7 (tags/v3.13.7:bcee1c3, Aug 14 2025, 14:15:11) [MSC v.1944 64 bit (AMD64)]",
+  "runtime": {
+    "binary": "ocgcore.dll",
+    "sha256": "03e360cf694f5ac6ba686de1d3bec7ccde3f3233d01bfe3265884a18ce1b9028",
+    "api": {
+      "major": 11,
+      "minor": 0
+    }
+  },
+  "fixture": {
+    "name": "create_destroy_fixed_seed",
+    "runs_per_mode": 100,
+    "final_state_hash": "d934aa06e86bbc7b076257a151123d1ecb5f587cc7fc351ea026944879c3894f"
+  },
+  "in_process": {
+    "startup_us": 868.8,
+    "process_rss_bytes": 28278784,
+    "one_action_latency": {
+      "runs": 100,
+      "min_us": 114.3,
+      "median_us": 123.0,
+      "p95_us": 242.6,
+      "max_us": 379.1
+    }
+  },
+  "isolated_worker": {
+    "startup_us": 626841.7,
+    "process_rss_bytes": 8388608,
+    "one_action_latency": {
+      "runs": 100,
+      "min_us": 207.2,
+      "median_us": 286.9,
+      "p95_us": 412.3,
+      "max_us": 590.3
+    },
+    "ipc": {
+      "schema_version": 1,
+      "framing": "newline-delimited canonical JSON (spike only)",
+      "max_frame_bytes": 1048576
+    },
+    "worker_kind": "packaged_executable"
+  },
+  "termination": {
+    "in_process_native_crash_probe": {
+      "caller_process_terminated": true,
+      "return_code": 3221226505
+    },
+    "in_process_hang_probe": {
+      "caller_blocked_until_external_timeout": true,
+      "timeout_ms": 250
+    }
+  },
+  "recovery": {
+    "worker_native_crash": {
+      "main_process_survived": true,
+      "error": "WorkerDiedError",
+      "replacement_worker_succeeded": true
+    },
+    "worker_hang": {
+      "main_process_survived": true,
+      "error": "WorkerTimeoutError",
+      "timeout_ms": 250,
+      "replacement_worker_succeeded": true
+    },
+    "callback_error": {
+      "error_code": "callback_error",
+      "exception_crossed_c_abi": false,
+      "worker_remained_usable": true
+    },
+    "api_mismatch": {
+      "failed_before_ready": true,
+      "diagnostic": "version_mismatch: expected 99.99, got 11.0"
+    }
+  },
+  "deterministic_pool_assignment": {
+    "formula": "task_ordinal % pool_size",
+    "example_pool_size": 4,
+    "first_eight_slots": [
+      0,
+      1,
+      2,
+      3,
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "packaging_smoke": {
+    "ok": true,
+    "executable": "ygo-ocgcore-worker.exe",
+    "size": 8273974,
+    "sha256": "3789ac1ec0936605814417fc430892f55ec1118a06e2c9f5270a6517a03ab147"
+  }
+}

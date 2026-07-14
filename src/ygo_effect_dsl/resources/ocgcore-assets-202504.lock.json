@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "lock_id": "ocgcore-assets-202504-v1",
+  "compatible_core_api": {
+    "major": 11,
+    "minor": 0
+  },
+  "repositories": {
+    "card_scripts": {
+      "directory": "CardScripts",
+      "repository": "https://github.com/ProjectIgnis/CardScripts.git",
+      "ref": "20250420",
+      "commit": "c8e9c0bcd026a5ccc303bbc73881b8f86f818657",
+      "tree": "8796d294eaea50ca58ccd8560bb0511923dcc364",
+      "license": "AGPL-3.0-or-later",
+      "required_files": {
+        "constant.lua": {
+          "size": 40032,
+          "sha256": "9fbd72bcd67fc9b2f987598d876e6cbc335bf48c7d968a68d1de7b91221af9e4"
+        },
+        "utility.lua": {
+          "size": 87837,
+          "sha256": "ffef0a67fc2443067d4a1b8b93d5f700f08b186e978e3a03b145219f7c398c0d"
+        },
+        "official/c97268402.lua": {
+          "size": 1867,
+          "sha256": "a2d9241ca503828e62853ad5e694c5bb35a1f4167322d5729e7943c6f7773442"
+        }
+      }
+    },
+    "card_database": {
+      "directory": "BabelCDB",
+      "repository": "https://github.com/ProjectIgnis/BabelCDB.git",
+      "ref": "20250419",
+      "commit": "f89c9a4be9a5f193e29b788e3cf880563f4f79b4",
+      "tree": "2468d312ab6e7bdbc403f3764ee24f9062f61335",
+      "license": "NOASSERTION",
+      "required_files": {
+        "cards.cdb": {
+          "size": 6930432,
+          "sha256": "c49a077285e1d999f32056cb65303b75e311e859b4486c48f41772a193069225"
+        }
+      }
+    }
+  },
+  "policy": {
+    "runtime_network_access": false,
+    "redistribute_assets": false,
+    "license_review_required": true
+  }
+}

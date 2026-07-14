@@ -1,0 +1,70 @@
+schema_version: "0.3b"
+experiment_id: prototype_interruption_effect_negation
+objective: real_core_effect_negation_controlled_comparison
+deck: {id: interruption_effect_negation_fixture, source: fixed}
+player: {starting_player: 0, perspective: 0}
+turn_limit: 2
+information_mode: complete_information
+information_policy:
+  schema_version: information-policy-v1
+  policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+  deck_order: known
+  opening_hand: fixed
+  sampling_reference: null
+evaluate_at: legal_stop
+durability_evaluate_at: opponent_main1_after_end_phase_and_turn_start_processing
+success_predicate:
+  id: real_core_min_monster_count
+  version: "1"
+  config: {player: 0, zone: monster_zone, min_count: 2}
+evaluator:
+  id: real_core_board_count
+  version: "1"
+  config:
+    hand_weight: 1
+    missing_value_policy: error
+    monster_weight: 10
+    temporary_value_policy: exclude_expired_or_unverified_v1
+search:
+  strategy: scripted_real_core
+  budget: {max_nodes: 32}
+  parameters: {}
+interruption:
+  mode: scripted
+  definitions:
+    - id: effect_negation_targetless_v1
+      interruption_type: effect_negation_targetless
+      source_player: 1
+      source_card_code: 14558127
+      base_route_id: route_fd4dbc990f3236070e0d9f370b628bed8a1c501678d575fdffcaeeed923ef0d8
+      target:
+        action_id: act_7301914511e86205514470d415ab1573fdfa9956d4dcd284c60cbf9417c8658f
+        action_occurrence_id: aocc_a44d01d97b412c001a6aa05b26b1e52535d60e4ad6d960001d349c41d2310546
+        chain_index: 1
+        effect_ref: null
+        player: 1
+        request_signature: req_9968977841bb2da68b4e619a3d7240a02140063e9b647cc3d2d2dc2a0f7c283b
+        schema_version: interruption-target-v1
+        source: null
+        state_hash_before: state_82d5c926c00cdbdb459e63c80784650904df5496bcad3910995cd2aaf190e364
+        step: 5
+        target_id: inttarget_046dbe2a224bffa18fb3e4098df6e277e7150486d1d80bb72f2a3cae2d5f7598
+        turn: 1
+        turn_action_index: 5
+      candidate_policy:
+        schema_version: core-interruption-candidate-policy-v1
+        activation:
+          schema_version: core-interruption-step-v1
+          role: activation
+          request_type: select_chain
+          player: 1
+          selection_count: 1
+          selector:
+            kind: effect
+            card_ref: {controller: 1, location: 2, public_card_id: 14558127}
+        responses: []
+replay: {strict_versions: true}
+runner:
+  adapter: real_core_prototype
+  fixture_script_id: interruption_effect_negation_v1
+  scenario_id: real_core_interruption_effect_negation_v1

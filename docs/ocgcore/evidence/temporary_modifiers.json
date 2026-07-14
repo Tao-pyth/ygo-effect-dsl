@@ -1,0 +1,139 @@
+{
+  "evidence_id": "tempevidence_fc5ef2d45da723175780db8a5fa5c89d4b2685d3663adc3490893341aa3c63f1",
+  "expiration_normalization": [
+    {
+      "dsl_boundary": "end_of_chain",
+      "ocgcore_reset": "RESET_CHAIN",
+      "required_evidence": "post-chain query transition"
+    },
+    {
+      "dsl_boundary": "end_of_phase",
+      "ocgcore_reset": "RESET_PHASE with a non-End-Phase flag",
+      "required_evidence": "post-phase query transition"
+    },
+    {
+      "dsl_boundary": "end_of_turn",
+      "ocgcore_reset": "RESET_PHASE with PHASE_END",
+      "required_evidence": "post-END_TURN query transition"
+    }
+  ],
+  "proofs": {
+    "effect_negate": {
+      "boundary_evidence": "observed_expired",
+      "durable_evaluation": {
+        "durable": 0,
+        "excluded_temporary": 1,
+        "raw": 1
+      },
+      "expiration": {
+        "boundary": "end_of_turn",
+        "chain_index": null,
+        "phase": null,
+        "turn": 1,
+        "turn_action_index": null
+      },
+      "metric": "effect_disabled",
+      "modifier_kind": "effect_disabled",
+      "observation_id": "tempobs_70a702b2e598f048c0c4a32e5c95e1244d77263541078f31bc394f829797eed6",
+      "points": {
+        "active": {
+          "checkpoint_step": 10,
+          "phase": "main1",
+          "state_hash": "state_2ccfdb31499972aa8e19543bd66a811152800d4164acfe2afd19881bfee676d3",
+          "turn": 1,
+          "value": 1
+        },
+        "baseline": {
+          "checkpoint_step": 4,
+          "phase": "main1",
+          "state_hash": "state_4d43d74f449e3188df46d552454342df96f9febac1d85c422eac08774108e4e2",
+          "turn": 1,
+          "value": 0
+        },
+        "expired": {
+          "checkpoint_step": 12,
+          "phase": "main1",
+          "state_hash": "state_f67fd0873d6bfd80b0b72629d67d9271b8e4185109a5fc208cc69de87dbd0fbe",
+          "turn": 2,
+          "value": 0
+        }
+      },
+      "route_id": "route_ec560e9558b534852d8611ae05f55f497416e712ddb5bc3b483bb7ab1c7258fa",
+      "source_ref": {
+        "card_code": 97268402,
+        "card_scripts_commit": "c8e9c0bcd026a5ccc303bbc73881b8f86f818657",
+        "evidence_kind": "pinned_card_script_plus_query_transition",
+        "reset_expression": "RESETS_STANDARD_PHASE_END",
+        "script_name": "c97268402.lua",
+        "script_sha256": "a2d9241ca503828e62853ad5e694c5bb35a1f4167322d5729e7943c6f7773442",
+        "status_mask": 1
+      },
+      "transition": {
+        "activated": true,
+        "active_delta": 1,
+        "expired_delta": 0,
+        "returned_to_baseline": true
+      }
+    },
+    "temporary_attack": {
+      "boundary_evidence": "observed_expired",
+      "durable_evaluation": {
+        "durable": 0,
+        "excluded_temporary": 500,
+        "raw": 500
+      },
+      "expiration": {
+        "boundary": "end_of_turn",
+        "chain_index": null,
+        "phase": null,
+        "turn": 1,
+        "turn_action_index": null
+      },
+      "metric": "attack",
+      "modifier_kind": "attack_delta",
+      "observation_id": "tempobs_29ec4c92720f0218f7b642ae09b08cbfa0e65f2616987f0b212cefd3e467db2e",
+      "points": {
+        "active": {
+          "checkpoint_step": 5,
+          "phase": "main1",
+          "state_hash": "state_f803d7bbb5f561c509250c961d7c520156100dc08bd6396d26e4386505a6dda4",
+          "turn": 1,
+          "value": 500
+        },
+        "baseline": {
+          "checkpoint_step": -1,
+          "phase": "main1",
+          "state_hash": "state_2f7401bc968225020547d314ab8931746465ca2e989df00adbddb6cfa2195834",
+          "turn": 1,
+          "value": 0
+        },
+        "expired": {
+          "checkpoint_step": 7,
+          "phase": "main1",
+          "state_hash": "state_fc5fb04026748f32de59c536a1b4a010ba3bdb0a016e8300b00c7b2fa27cc1a1",
+          "turn": 2,
+          "value": 0
+        }
+      },
+      "route_id": "route_47b95157fc40de5ea0f56ee248b6e52a320d209a3580b69a7105fddf3fdeaebb",
+      "source_ref": {
+        "evidence_kind": "pinned_fixture_script_plus_query_transition",
+        "id": "temporary_atk_end_phase_v1",
+        "name": "c97268402.lua",
+        "reset_expression": "RESET_PHASE+PHASE_END",
+        "sha256": "1359ec60e1d66f387d852d20fb2651aa2f561269cb71724ed3d83d6e6d0cd428"
+      },
+      "transition": {
+        "activated": true,
+        "active_delta": 500,
+        "expired_delta": 0,
+        "returned_to_baseline": true
+      }
+    }
+  },
+  "schema_version": "ocgcore-temporary-modifier-evidence-v1",
+  "unverified_policy": {
+    "durable_value": 0,
+    "rule": "A modifier without a pinned reset source and a query-observed return to baseline remains unverified."
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "completeness": "exact",
+  "constraints": {
+    "locks": [],
+    "normal_summon_available": true,
+    "special_summon": {
+      "allowed": true,
+      "restrictions": []
+    }
+  },
+  "engine_state": {
+    "core_version": "fixture-v1",
+    "random_state_reference": "seed:1,2,3,4"
+  },
+  "history": {
+    "chain": [],
+    "lingering_effects": [],
+    "used_effect_keys": []
+  },
+  "information_mode": "complete_information",
+  "missing_fields": [],
+  "pending_request": {
+    "request_signature": "req_fixture",
+    "request_type": "select_idle_command"
+  },
+  "private_state": {
+    "deck_order": [100, 200],
+    "hands": {
+      "0": [300],
+      "1": []
+    }
+  },
+  "public_state": {
+    "chain": [],
+    "field": {
+      "0": [],
+      "1": []
+    },
+    "life_points": {
+      "0": 8000,
+      "1": 8000
+    },
+    "phase": "main1",
+    "priority_player": 0,
+    "turn": 1,
+    "turn_player": 0
+  },
+  "sampling_reference": null,
+  "schema_version": "ygo-state-id-v1",
+  "viewer": null
+}

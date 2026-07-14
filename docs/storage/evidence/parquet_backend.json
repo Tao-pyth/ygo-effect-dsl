@@ -1,0 +1,101 @@
+{
+  "backend": {
+    "implementation": "pyarrow_direct",
+    "optional_dependency": "pyarrow==25.0.0",
+    "runtime_version": "25.0.0"
+  },
+  "distribution_probe": {
+    "cold_import": {
+      "command": "python -c import pyarrow, pyarrow.parquet",
+      "median_ms": 254.326,
+      "samples_ms": [
+        254.326,
+        232.411,
+        286.704,
+        259.982,
+        235.516
+      ],
+      "succeeded": true
+    },
+    "installed_pyarrow": {
+      "package_size_bytes": 85439441,
+      "version": "25.0.0"
+    },
+    "platform": {
+      "machine": "AMD64",
+      "python": "3.13.7",
+      "system": "Windows",
+      "version": "10.0.26200"
+    },
+    "polars_wheels": {
+      "files": [
+        {
+          "filename": "polars-1.42.1-py3-none-any.whl",
+          "sha256": "3c0c65cdfa21a621650c4bdcbbccf93964d052fd766c3e70e84a55d961c259fd",
+          "size_bytes": 837622
+        },
+        {
+          "filename": "polars_runtime_32-1.42.1-cp310-abi3-win_amd64.whl",
+          "sha256": "e9364c26da389a8b7339e4d29e20a3d12af730247e6ed3b7804bddce2477f428",
+          "size_bytes": 52715432
+        }
+      ],
+      "total_size_bytes": 53553054
+    },
+    "pyarrow_wheel": {
+      "filename": "pyarrow-25.0.0-cp313-cp313-win_amd64.whl",
+      "sha256": "77c8d1ae46a44b4006e8db1cc977bbcc6ce4873c92f74137d68e45503b97fb18",
+      "size_bytes": 27861162
+    },
+    "selection": {
+      "backend": "pyarrow_direct",
+      "reason": "direct schema metadata, nullable-column migration, and partition control without a dataframe dependency"
+    }
+  },
+  "evidence_id": "parquetevidence_d715ef89e639f4f4159c85d5695a2e2b7b273caa63740a2349335d64a8d0b69c",
+  "functional": {
+    "artifact": {
+      "batch_id": "aggbatch_71922d2913c8b6dfdd3de75b3d875cb654a80159ecee531ca4de49ad3a83a7ad",
+      "catalog_published": true,
+      "parquet_sha256": "e0ecfffd8c79e638b2af8a37df1a23e4b3bfde23defc8cc5398faa852edbb1e8",
+      "relative_path": "evaluator_version=1/experiment_id=prototype_real_core_action_aggregation/run_date=2026-07-13/part-aggbatch_71922d2913c8b6dfdd3de75b3d875cb654a80159ecee531ca4de49ad3a83a7ad.parquet",
+      "row_count": 1
+    },
+    "partition_keys": [
+      "evaluator_version",
+      "experiment_id",
+      "run_date"
+    ],
+    "publication_order": [
+      "validate_jsonl",
+      "require_completed_catalog_run",
+      "write_and_reread_temporary_parquet",
+      "atomic_replace",
+      "register_sqlite_reference"
+    ],
+    "record": {
+      "action_count": 14,
+      "aggregation_record_id": "aggrecord_288dfef180d5cb4d9179765e36093da83bc31f8a15ec3f1b0b6bb6144bf42fa0",
+      "evaluator_config_hash": "evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254",
+      "evaluator_id": "real_core_board_count",
+      "evaluator_version": "1",
+      "experiment_id": "prototype_real_core_action_aggregation",
+      "resource_consumption": 3.0,
+      "route_id": "route_32af1e3bdd1f7a3460f2e236439029dedb5002d0b44e7d51db31756b2124c52c",
+      "run_date": "2026-07-13",
+      "run_id": "run_parquet_evidence",
+      "schema_version": "aggregation-v1",
+      "score": 10.0,
+      "state_hash": "state_cac356bd5f751fe887751aafdd0bc7d091be943318728cc6bd76db94d08007ce",
+      "success": true,
+      "target_board": "peak_board"
+    },
+    "round_trip_equal": true,
+    "schema_evolution": {
+      "missing_nullable_metric_reads_as_null": true,
+      "type_change_requires_explicit_migration": true
+    },
+    "schema_version": "aggregation-v1"
+  },
+  "schema_version": "parquet-backend-evidence-v1"
+}

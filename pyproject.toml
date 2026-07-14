@@ -5,11 +5,16 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ygo-effect-dsl"
 version = "0.1.0"
-description = "CORE: ingest JSONL (etl output) -> transform to DSL YAML -> analyze -> optional IR compile"
+description = "Reproducible Yu-Gi-Oh! route search and Route Information DSL"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
   "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+analytics = [
+  "pyarrow==25.0.0",
 ]
 
 [project.scripts]
@@ -18,3 +23,6 @@ ygo-effect-dsl = "ygo_effect_dsl.cli.main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+"ygo_effect_dsl.resources" = ["*.json"]

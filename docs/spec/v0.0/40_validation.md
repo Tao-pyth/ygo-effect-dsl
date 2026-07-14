@@ -5,7 +5,7 @@
 
 この文書は、`validate` が返す diagnostics の読み方と、v0.0 で守るべき severity/code の契約を定義する。
 
-v0.0 の validation は「遊戯王の効果として完全に正しいか」ではなく、「legacy DSL として読める形か」を確認する。新人プログラマーは、まず `error` と `warning` の違いを押さえると追いやすい。
+v0.0のvalidationは「遊戯王の効果として完全に正しいか」ではなく、「旧カードテキスト変換物として読める形か」を確認する。Route DSLの検証には `validate-route` を使う。新人プログラマーは、まず `error` と `warning` の違いを押さえると追いやすい。
 
 ## 1. 基本方針
 

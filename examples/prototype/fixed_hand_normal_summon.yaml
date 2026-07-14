@@ -1,0 +1,88 @@
+schema_version: "0.1"
+scenario_id: fixed_hand_normal_summon
+version_metadata:
+  ocgcore: scripted-not-ocgcore
+  edo_lua_scripts: scripted-not-edopro
+seeds:
+  duel_seed: 1
+  shuffle_seed: 2
+experiment:
+  schema_version: "0.3a"
+  experiment_id: prototype_fixed_hand_normal_summon
+  objective: fixed_hand_runtime_slice
+  deck:
+    id: prototype_single_card_fixture
+    source: fixed
+  player:
+    starting_player: 0
+    perspective: 0
+  turn_limit: 1
+  information_mode: complete_information
+  evaluate_at: legal_stop
+  success_predicate:
+    id: prototype_min_monster_count
+    version: "0"
+    config:
+      path: players.player_0.monster_zone
+      min_count: 1
+  evaluator:
+    id: prototype_path_count
+    version: "0"
+    config:
+      metrics:
+        - name: field_count
+          path: players.player_0.monster_zone
+          weight: 10
+        - name: hand_count
+          path: players.player_0.hand
+          weight: 1
+  search:
+    strategy: scripted
+    budget:
+      max_nodes: 1
+  interruption:
+    mode: none
+    definitions: []
+  replay:
+    strict_versions: true
+initial_state:
+  turn: 1
+  phase: main1
+  turn_player: 0
+  chain: []
+  players:
+    player_0:
+      hand: [proto_card_001]
+      monster_zone: []
+    player_1:
+      hand: []
+      monster_zone: []
+steps:
+  - request:
+      request_type: select_idle_command
+      player: 0
+      constraints:
+        min_selections: 1
+        max_selections: 1
+      candidates:
+        - candidate_id: normal_summon_proto_card_001
+          kind: card
+          label: Prototype Card 001
+          payload:
+            action_kind: NORMAL_SUMMON
+            value: proto_card_001
+    select: [normal_summon_proto_card_001]
+    next_state:
+      turn: 1
+      phase: main1
+      turn_player: 0
+      chain: []
+      players:
+        player_0:
+          hand: []
+          monster_zone: [proto_card_001]
+        player_1:
+          hand: []
+          monster_zone: []
+    can_stop: true
+    stop_reason: legal_stop

@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "policy_id": "prototype-local-only-v1",
+  "legal_review_required": true,
+  "project": {
+    "license": "NOASSERTION",
+    "release_status": "blocked",
+    "reason": "The repository has no root LICENSE file. Publishing source does not establish an express reuse grant."
+  },
+  "artifacts": {
+    "ocgcore": {
+      "kind": "source_and_binary",
+      "source": "https://github.com/edo9300/ygopro-core/tree/v11.0",
+      "license": "AGPL-3.0-or-later",
+      "local_prototype_acquisition": true,
+      "include_in_release": false,
+      "commercial_bundle_status": "blocked",
+      "review_requirements": [
+        "choose a compatible project license",
+        "retain copyright and license notices",
+        "provide corresponding source and build information",
+        "record modifications",
+        "complete legal review"
+      ]
+    },
+    "card_scripts": {
+      "kind": "lua_source_assets",
+      "source": "https://github.com/ProjectIgnis/CardScripts/tree/20250420",
+      "license": "AGPL-3.0-or-later",
+      "local_prototype_acquisition": true,
+      "include_in_release": false,
+      "commercial_bundle_status": "blocked",
+      "review_requirements": [
+        "choose a compatible project license",
+        "retain copyright and license notices",
+        "provide corresponding source",
+        "record modifications",
+        "complete legal review"
+      ]
+    },
+    "card_database": {
+      "kind": "sqlite_asset",
+      "source": "https://github.com/ProjectIgnis/BabelCDB/tree/20250419",
+      "license": "NOASSERTION",
+      "local_prototype_acquisition": true,
+      "include_in_release": false,
+      "commercial_bundle_status": "blocked",
+      "review_requirements": [
+        "obtain an explicit license or written redistribution permission",
+        "record attribution requirements",
+        "complete legal review"
+      ]
+    },
+    "lua": {
+      "kind": "embedded_source_dependency",
+      "source": "https://github.com/lua/lua/tree/1ab3208a1fceb12fca8f24ba57d6e13c5bff15e3",
+      "license": "MIT",
+      "local_prototype_acquisition": true,
+      "include_in_release": false,
+      "commercial_bundle_status": "not_evaluated",
+      "review_requirements": [
+        "retain the copyright and permission notice",
+        "complete release composition review"
+      ]
+    },
+    "premake": {
+      "kind": "bootstrap_tool",
+      "source": "https://github.com/premake/premake-core/tree/v5.0.0-beta2",
+      "license": "BSD-3-Clause",
+      "local_prototype_acquisition": true,
+      "include_in_release": false,
+      "commercial_bundle_status": "not_evaluated",
+      "review_requirements": [
+        "retain the copyright, license conditions, and disclaimer",
+        "complete release composition review"
+      ]
+    }
+  },
+  "repository_material": {
+    "allowed": [
+      "dependency coordinates, commit IDs, tree IDs, and hashes",
+      "build and verification code that does not contain copied third-party source",
+      "generated route records that do not embed third-party source or database rows"
+    ],
+    "forbidden": [
+      "ocgcore binaries or copied source",
+      "CardScripts Lua files",
+      "BabelCDB database files",
+      "downloaded bootstrap executables"
+    ]
+  },
+  "controls": {
+    "external_files_location": "user_cache_only",
+    "runtime_network_access": false,
+    "implicit_download": false,
+    "system_wide_install": false,
+    "release_requires_explicit_artifact_allowlist": true
+  }
+}

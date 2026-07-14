@@ -1,0 +1,460 @@
+{
+  "checks": {
+    "control_change_preserves_owner": true,
+    "draw_search_and_salvage_are_distinguished": true,
+    "field_grave_and_banished_moves_are_observed": true,
+    "fresh_worker_route_identity_is_stable": true,
+    "hand_deck_and_set_shuffles_are_observed": true
+  },
+  "evidence_id": "cardmoveev_b5a7710a18f89fec1b90ded84ad64392797b2071fa5306ecaa4da6a5c44203ef",
+  "fresh_worker_process_count": 2,
+  "run": {
+    "action_ids": [
+      "act_09db3f27381ce8796628e8cdeb2db173063585ffb9e3b98dbb619186069c697b",
+      "act_09db3f27381ce8796628e8cdeb2db173063585ffb9e3b98dbb619186069c697b",
+      "act_09db3f27381ce8796628e8cdeb2db173063585ffb9e3b98dbb619186069c697b",
+      "act_09db3f27381ce8796628e8cdeb2db173063585ffb9e3b98dbb619186069c697b",
+      "act_09db3f27381ce8796628e8cdeb2db173063585ffb9e3b98dbb619186069c697b",
+      "act_09db3f27381ce8796628e8cdeb2db173063585ffb9e3b98dbb619186069c697b",
+      "act_acab367307bdc3e37e9b4369263fd6128d2ac142139c0062a29eaed7e98bfb6f",
+      "act_09db3f27381ce8796628e8cdeb2db173063585ffb9e3b98dbb619186069c697b",
+      "act_09db3f27381ce8796628e8cdeb2db173063585ffb9e3b98dbb619186069c697b",
+      "act_09db3f27381ce8796628e8cdeb2db173063585ffb9e3b98dbb619186069c697b"
+    ],
+    "final_request_signature": "req_6306adad3c2975936934f92817906d98a87247e2212aa72b0f3a00594f4c05f9",
+    "provenance": {
+      "authority": "ocgcore_lua_card_get_card_id_v1",
+      "instances": [
+        {
+          "card_code": 97268402,
+          "instance_id": "corecard_14fefefb9efcacbe8843e0216d781ed439414218a15f49cd3aa711658111348a",
+          "is_token": false,
+          "owner": 1
+        },
+        {
+          "card_code": 97268402,
+          "instance_id": "corecard_174a36e440e918474005900bc461eb38dcc7258bc5c7cf50f4d48b39294c26e7",
+          "is_token": false,
+          "owner": 0
+        },
+        {
+          "card_code": 97268402,
+          "instance_id": "corecard_2890b88ab9eae59829db9f45fc83eb4334a4edc04803f3f14fd9ed6109e84051",
+          "is_token": false,
+          "owner": 0
+        },
+        {
+          "card_code": 97268402,
+          "instance_id": "corecard_46de0c95ffb7e57e76a47b1bd76b439e96242c544e960c5f63bc9ffedf7c47ec",
+          "is_token": false,
+          "owner": 0
+        },
+        {
+          "card_code": 97268402,
+          "instance_id": "corecard_573ed2a3b74fd36ef431cc03a7fb9444c92122567c96ec9df8de94d4ac0d7a5e",
+          "is_token": false,
+          "owner": 0
+        },
+        {
+          "card_code": 97268402,
+          "instance_id": "corecard_58fe912fd7b3b5738343b3d97d2f6ed34bef8144a98d9646aaabd0f3c9430d7d",
+          "is_token": false,
+          "owner": 0
+        },
+        {
+          "card_code": 97268402,
+          "instance_id": "corecard_6ee14fbea344efd24716c352a468a0aeed9187fd36b5c7b45a79a271df9d7d05",
+          "is_token": false,
+          "owner": 0
+        },
+        {
+          "card_code": 97268402,
+          "instance_id": "corecard_a3cf2c90613c8451cce35fbc0c2c11b161d770e7d8e1f540ad4b45c9c5569fb6",
+          "is_token": false,
+          "owner": 0
+        },
+        {
+          "card_code": 97268402,
+          "instance_id": "corecard_c38bd148bbfbcea4aa053d1b44a86cd0f4162d2e4810ba0e6afa0d73ba12b74c",
+          "is_token": false,
+          "owner": 0
+        },
+        {
+          "card_code": 97268402,
+          "instance_id": "corecard_e72e73d130cf54cc4bb7e61828aa4a8439d0e0cad561f496eaa14bd1ead89336",
+          "is_token": false,
+          "owner": 0
+        }
+      ],
+      "knowledge_policy": {
+        "hidden_identity": "omitted",
+        "opponent_reidentification": "viewer_scoped_new_alias_after_knowledge_loss",
+        "owner_identity": "persistent_instance_id"
+      },
+      "movement_transitions": [
+        {
+          "after": {
+            "controller": 0,
+            "location": 2,
+            "sequence": 2
+          },
+          "before": {
+            "controller": 0,
+            "location": 1,
+            "sequence": 2
+          },
+          "boundary": "to_hand",
+          "instance_id": "corecard_573ed2a3b74fd36ef431cc03a7fb9444c92122567c96ec9df8de94d4ac0d7a5e",
+          "movement_kind": "draw",
+          "owner": 0,
+          "scan_id": 2,
+          "transition_id": "cardmove_a1e8a261e28b2c323fd75798ed96efc0fa8b07b71fd65a7b21534274261d7594"
+        },
+        {
+          "after": {
+            "controller": 0,
+            "location": 2,
+            "sequence": 3
+          },
+          "before": {
+            "controller": 0,
+            "location": 1,
+            "sequence": 1
+          },
+          "boundary": "to_hand",
+          "instance_id": "corecard_e72e73d130cf54cc4bb7e61828aa4a8439d0e0cad561f496eaa14bd1ead89336",
+          "movement_kind": "search",
+          "owner": 0,
+          "scan_id": 5,
+          "transition_id": "cardmove_5253428362a712035640b2136d70e48f4c43b3369586c448a56ad7087f83846b"
+        },
+        {
+          "after": {
+            "controller": 0,
+            "location": 2,
+            "sequence": 4
+          },
+          "before": {
+            "controller": 0,
+            "location": 16,
+            "sequence": 0
+          },
+          "boundary": "to_hand",
+          "instance_id": "corecard_46de0c95ffb7e57e76a47b1bd76b439e96242c544e960c5f63bc9ffedf7c47ec",
+          "movement_kind": "salvage",
+          "owner": 0,
+          "scan_id": 8,
+          "transition_id": "cardmove_89550ee2b06719bdce4531e3d75c5f872ef0bb35ebd025ce00c27b5b06f7f4e7"
+        },
+        {
+          "after": {
+            "controller": 0,
+            "location": 8,
+            "sequence": 1
+          },
+          "before": {
+            "controller": 0,
+            "location": 8,
+            "sequence": 0
+          },
+          "boundary": "move",
+          "instance_id": "corecard_6ee14fbea344efd24716c352a468a0aeed9187fd36b5c7b45a79a271df9d7d05",
+          "movement_kind": "sequence_change",
+          "owner": 0,
+          "scan_id": 13,
+          "transition_id": "cardmove_a06d51fab0b1bbd65b67022ffaa0e1aa68738f25afa386f4077b115956b6c1ce"
+        },
+        {
+          "after": {
+            "controller": 0,
+            "location": 8,
+            "sequence": 0
+          },
+          "before": {
+            "controller": 0,
+            "location": 8,
+            "sequence": 1
+          },
+          "boundary": "move",
+          "instance_id": "corecard_58fe912fd7b3b5738343b3d97d2f6ed34bef8144a98d9646aaabd0f3c9430d7d",
+          "movement_kind": "sequence_change",
+          "owner": 0,
+          "scan_id": 13,
+          "transition_id": "cardmove_a0a1a386e278ea81556acebec4b10658bdb860f700cc0188e21051c8c7e0bcc7"
+        },
+        {
+          "after": {
+            "controller": 0,
+            "location": 4,
+            "sequence": 1
+          },
+          "before": {
+            "controller": 1,
+            "location": 4,
+            "sequence": 0
+          },
+          "boundary": "move",
+          "instance_id": "corecard_14fefefb9efcacbe8843e0216d781ed439414218a15f49cd3aa711658111348a",
+          "movement_kind": "control_change",
+          "owner": 1,
+          "scan_id": 16,
+          "transition_id": "cardmove_12b999d456e138400b7cb1a9f1674fa7755cd7342dbe5f3b4dbbdb534a932fa5"
+        },
+        {
+          "after": {
+            "controller": 0,
+            "location": 16,
+            "sequence": 0
+          },
+          "before": {
+            "controller": 0,
+            "location": 4,
+            "sequence": 0
+          },
+          "boundary": "to_grave",
+          "instance_id": "corecard_174a36e440e918474005900bc461eb38dcc7258bc5c7cf50f4d48b39294c26e7",
+          "movement_kind": "location_move",
+          "owner": 0,
+          "scan_id": 20,
+          "transition_id": "cardmove_2370f1c12a0d271679fbde54f10a5087e1bb98f0898a987cdf3fe5bf4130073f"
+        },
+        {
+          "after": {
+            "controller": 1,
+            "location": 32,
+            "sequence": 0
+          },
+          "before": {
+            "controller": 0,
+            "location": 4,
+            "sequence": 1
+          },
+          "boundary": "removed",
+          "instance_id": "corecard_14fefefb9efcacbe8843e0216d781ed439414218a15f49cd3aa711658111348a",
+          "movement_kind": "control_change",
+          "owner": 1,
+          "scan_id": 23,
+          "transition_id": "cardmove_bbc5bddf46124fd3f2b107ac08045fb877c7a9bdaeddbeaa50aeb7db53f596c9"
+        }
+      ],
+      "provenance_id": "cardprov_9c09857f17a15139a8c40fecd57553fa85ec7025833b8e37d1f7c1e604241b4f",
+      "request_boundaries": [
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "movement:10",
+          "request_type": "select_card",
+          "scan_id": 26
+        }
+      ],
+      "scan_boundaries": [
+        {
+          "boundary": "startup",
+          "card_count": 10,
+          "scan_id": 1,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "to_hand",
+          "card_count": 10,
+          "scan_id": 2,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "move",
+          "card_count": 10,
+          "scan_id": 3,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "request_0",
+          "card_count": 10,
+          "scan_id": 4,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "to_hand",
+          "card_count": 10,
+          "scan_id": 5,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "move",
+          "card_count": 10,
+          "scan_id": 6,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "request_1",
+          "card_count": 10,
+          "scan_id": 7,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "to_hand",
+          "card_count": 10,
+          "scan_id": 8,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "move",
+          "card_count": 10,
+          "scan_id": 9,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "request_2",
+          "card_count": 10,
+          "scan_id": 10,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "request_3",
+          "card_count": 10,
+          "scan_id": 11,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "request_4",
+          "card_count": 10,
+          "scan_id": 12,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "move",
+          "card_count": 10,
+          "scan_id": 13,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "request_5",
+          "card_count": 10,
+          "scan_id": 14,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "request_6",
+          "card_count": 10,
+          "scan_id": 15,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "move",
+          "card_count": 10,
+          "scan_id": 16,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "control_changed",
+          "card_count": 10,
+          "scan_id": 17,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "move",
+          "card_count": 10,
+          "scan_id": 18,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "request_7",
+          "card_count": 10,
+          "scan_id": 19,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "to_grave",
+          "card_count": 10,
+          "scan_id": 20,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "move",
+          "card_count": 10,
+          "scan_id": 21,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "request_8",
+          "card_count": 10,
+          "scan_id": 22,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "removed",
+          "card_count": 10,
+          "scan_id": 23,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "move",
+          "card_count": 10,
+          "scan_id": 24,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "request_9",
+          "card_count": 10,
+          "scan_id": 25,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        },
+        {
+          "boundary": "request_10",
+          "card_count": 10,
+          "scan_id": 26,
+          "schema_version": "ocgcore-card-instance-trace-v2"
+        }
+      ],
+      "schema_version": "card-instance-provenance-v2",
+      "scope_id": "cardinstscope_d6d25c7ac1b95d9191ca09b409dc05875a7126d51e074730f125ffebffa8f9d5",
+      "shuffle_boundaries": [
+        {
+          "message_type": 32,
+          "mutation": "shuffle_deck",
+          "request_id": "movement:3",
+          "scan_id": 11
+        },
+        {
+          "message_type": 33,
+          "mutation": "shuffle_hand",
+          "request_id": "movement:4",
+          "scan_id": 12
+        },
+        {
+          "message_type": 36,
+          "mutation": "shuffle_set_card",
+          "request_id": "movement:5",
+          "scan_id": 14
+        }
+      ]
+    },
+    "request_signatures": [
+      "req_7bbe6ab0ae13dd5b143a91d279d735ff2434d60ec55b09d302bc86709d4342a5",
+      "req_7bbe6ab0ae13dd5b143a91d279d735ff2434d60ec55b09d302bc86709d4342a5",
+      "req_7bbe6ab0ae13dd5b143a91d279d735ff2434d60ec55b09d302bc86709d4342a5",
+      "req_7bbe6ab0ae13dd5b143a91d279d735ff2434d60ec55b09d302bc86709d4342a5",
+      "req_7bbe6ab0ae13dd5b143a91d279d735ff2434d60ec55b09d302bc86709d4342a5",
+      "req_7bbe6ab0ae13dd5b143a91d279d735ff2434d60ec55b09d302bc86709d4342a5",
+      "req_863eb79c86cf17a3da2a0fb0c1b0e26db008695bb94c838596b047d23bb1adc5",
+      "req_7bbe6ab0ae13dd5b143a91d279d735ff2434d60ec55b09d302bc86709d4342a5",
+      "req_7bbe6ab0ae13dd5b143a91d279d735ff2434d60ec55b09d302bc86709d4342a5",
+      "req_7bbe6ab0ae13dd5b143a91d279d735ff2434d60ec55b09d302bc86709d4342a5",
+      "req_6306adad3c2975936934f92817906d98a87247e2212aa72b0f3a00594f4c05f9"
+    ],
+    "route_id": "route_2724b845256be0fa3aad4353a9a8c10e964bc6a7f56a1e5200f0e405ec2b393e",
+    "scope_id": "cardinstscope_d6d25c7ac1b95d9191ca09b409dc05875a7126d51e074730f125ffebffa8f9d5",
+    "state_hashes": [
+      "state_063fbe080b721465d3d75074f63a628fc18d2279a46dc5624bc7d0111ab8d986",
+      "state_86cae1319042919dc3e764f1c8539ee64250a52bceb847e30e31172312691207",
+      "state_bb0f4e512985e1d6704951dc06563d2fd0cc54339c8cf049eb36e49daa3bb5d1",
+      "state_bb0f4e512985e1d6704951dc06563d2fd0cc54339c8cf049eb36e49daa3bb5d1",
+      "state_bb0f4e512985e1d6704951dc06563d2fd0cc54339c8cf049eb36e49daa3bb5d1",
+      "state_2f456d5ca28d11d3dd3e858a4fb5f16baf1435609315741524c3cbee061158ea",
+      "state_bc101a9e3ddba016f84694bc309fff08805c444463fdab0e2d087b678f9f999f",
+      "state_1c9d135b5e4cb97ce7e0709cbaee598a9419129802ccab1dbc4f584019acdaa1",
+      "state_4d50aefb3fdff46fa08c7d426f516a54336a1e9842dfebd38df8b855536a3cda",
+      "state_4b0646e9b3cf90d57d381e2594e099a11a36a2b43edcafb51588b36f41f42203",
+      "state_2f28b802cb5e4b200e1518c3002d228ebeceabb50b0ae3349304d345eb5e79bb"
+    ]
+  },
+  "schema_version": "card-instance-movement-evidence-v2"
+}

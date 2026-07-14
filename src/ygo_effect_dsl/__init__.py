@@ -1,10 +1,9 @@
-"""Legacy DSL conversion package.
+"""Reproducible Yu-Gi-Oh! route search and Route Information DSL package.
 
-This package is not part of the game-tree search engine runtime.
-The project rule authority is ocgcore + EDOPro Lua, and this DSL layer must not
-be used as an execution source, legality source, or action-generation source.
-
-Removal target after the V0.2 Bridge / Replay baseline is established.
+ocgcore and EDOPro Lua own card behavior, legality, and state transitions.
+Python records, searches, evaluates, and compares the resulting routes.
 """
 
-__all__ = []
+from ygo_effect_dsl.project_identity import PROJECT_IDENTITY
+
+__all__ = ["PROJECT_IDENTITY"]

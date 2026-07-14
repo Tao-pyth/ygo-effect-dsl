@@ -1,0 +1,527 @@
+{
+  "attribution": {
+    "attribution_id": "cardattr_37fc26c49c8dc46740d5cbce5804d4d8a3f9a377aa26f6ffd641602d15c793b2",
+    "baseline": {
+      "candidate_instance_ids": [],
+      "comparison_id": "intcompare_9fb8e0c928b91e8361913ac75276e3388061e8b6ad7e9fb0e66f4a1f4b6153d3",
+      "control_route_id": "route_2415157064739b01a1c6d46fcc65a640155352fb9ee612cad3c5dae3af95651b",
+      "control_success": true,
+      "interrupted_route_id": "route_4f46211a7f1e09f6961942ce947e622b5a87c4c6c6ed489ab719b3aa74c93f21",
+      "interrupted_success": false,
+      "trial_id": "baseline_no_additional_card"
+    },
+    "counterfactual": {
+      "method": "paired-exact-replay-2x2-v1",
+      "trials": [
+        {
+          "candidate_instance_ids": [
+            "corecard_1fd86ced4c0e5ffb608ce67e140e8134990300bffdf6dea06a22896be933cb4f"
+          ],
+          "card_effect_under_interruption": 1,
+          "comparison_id": "intcompare_463e7d303065123e0d825b17907775513fe754209b68c454ba0b1f94cb753de3",
+          "control_effect": 0,
+          "control_route_id": "route_3a4f4c3323a95a84706dfac1bd56bce8aca234fa8d6ef1b7e1f3627b0dc07e60",
+          "control_success": true,
+          "difference_in_differences": 1,
+          "interrupted_route_id": "route_9113cedcbb0aedd82c5ed4c6964c84b3529d03fc5d3a9445527075d3c16065ac",
+          "interrupted_success": true,
+          "trial_id": "recovery_card_23434538"
+        }
+      ]
+    },
+    "information_scope": {
+      "candidate_owner": 0,
+      "mode": "complete_information",
+      "opponent_hidden_identifiers_embedded": false,
+      "perspective": 0,
+      "publication_boundary": "candidate_provenance_only"
+    },
+    "instance_identity_scope": {
+      "duplicate_same_code_policy": "compare_persistent_instance_id",
+      "hand_sequence_may_compact": true,
+      "matching_method": "ocgcore-card-id-authority-v2"
+    },
+    "minimal_required_sets": [
+      [
+        "corecard_1fd86ced4c0e5ffb608ce67e140e8134990300bffdf6dea06a22896be933cb4f"
+      ]
+    ],
+    "origin_taxonomy": [
+      "fixed_opening_hand",
+      "draw",
+      "search",
+      "salvage",
+      "generated_token",
+      "opponent"
+    ],
+    "provenance": [
+      {
+        "card_code": 23434538,
+        "initial_observations": [
+          {
+            "control_route_id": "route_3a4f4c3323a95a84706dfac1bd56bce8aca234fa8d6ef1b7e1f3627b0dc07e60",
+            "initial_location": "hand",
+            "initial_sequence": 1,
+            "interrupted_route_id": "route_9113cedcbb0aedd82c5ed4c6964c84b3529d03fc5d3a9445527075d3c16065ac"
+          }
+        ],
+        "instance_id": "corecard_1fd86ced4c0e5ffb608ce67e140e8134990300bffdf6dea06a22896be933cb4f",
+        "manifest_evidence": [
+          {
+            "control_route_id": "route_3a4f4c3323a95a84706dfac1bd56bce8aca234fa8d6ef1b7e1f3627b0dc07e60",
+            "interrupted_route_id": "route_9113cedcbb0aedd82c5ed4c6964c84b3529d03fc5d3a9445527075d3c16065ac",
+            "source": "replay.initial_snapshot.persistent_instance_id"
+          }
+        ],
+        "matching_method": "ocgcore-card-id-authority-v2",
+        "origin_kind": "fixed_opening_hand",
+        "owner": 0,
+        "schema_version": "card-instance-provenance-v2",
+        "usage_evidence": [
+          {
+            "action_id": "act_ff982c7cae1ba83f4318db776ad7ba791d35cfdebcb2d591f18bff4bb1525fec",
+            "action_kind": "ACTIVATE_EFFECT",
+            "card_ref": {
+              "controller": 0,
+              "instance_id": "corecard_1fd86ced4c0e5ffb608ce67e140e8134990300bffdf6dea06a22896be933cb4f",
+              "location": "hand",
+              "owner": 0,
+              "public_card_id": 23434538,
+              "sequence": 0
+            },
+            "reference_role": "selection",
+            "step": 9
+          },
+          {
+            "action_id": "act_ff982c7cae1ba83f4318db776ad7ba791d35cfdebcb2d591f18bff4bb1525fec",
+            "action_kind": "ACTIVATE_EFFECT",
+            "card_ref": {
+              "controller": 0,
+              "instance_id": "corecard_1fd86ced4c0e5ffb608ce67e140e8134990300bffdf6dea06a22896be933cb4f",
+              "location": "hand",
+              "owner": 0,
+              "public_card_id": 23434538,
+              "sequence": 0
+            },
+            "reference_role": "source",
+            "step": 9
+          }
+        ]
+      }
+    ],
+    "schema_version": "additional-card-attribution-v2",
+    "status": "verified_minimal_required_sets",
+    "subset_coverage_missing": [],
+    "target_board": "peak_board"
+  },
+  "checks": {
+    "action_state_route_and_attribution_repeat_across_fresh_workers": true,
+    "all_card_candidate_requests_use_complete_boundary_scans": true,
+    "attribution_uses_persistent_instance_identity": true,
+    "public_route_json_omits_raw_card_id_and_probe_logs": true,
+    "representative_route_identity_covers_token_owner_and_compaction": true
+  },
+  "evidence_id": "cardv2ev_1a8366abe0c68baab381566f9eef485447c2dd9ed824c2125cf31eaef453b393",
+  "fresh_worker_process_count": 2,
+  "provenance_schema_version": "card-instance-provenance-v2",
+  "routes": {
+    "control_no_card": {
+      "action_ids": [
+        "act_20f1ce2bb42d1ebc9d473f3a63c8430820bd31e935686d28bd3785c9d31fce0e",
+        "act_e1dd90bedf93d68ec57c5ab4ff5509c25161b242fd2f686f85cd847a0b44e9f7",
+        "act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123",
+        "act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da",
+        "act_6b90137f48d992f3227aa0ab6d7e55e9e13b6f7e1b3b5b3bef02a7e3d7d05860",
+        "act_e17eb75ee17d2ef88f547ad9f1e50356a938223ddf25287c8ffef8c6452962c8",
+        "act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123",
+        "act_acab367307bdc3e37e9b4369263fd6128d2ac142139c0062a29eaed7e98bfb6f",
+        "act_4f84a363ce870f30ff1ff4de7861f77e736589fc09eeff9c0750172a4a7a5a32",
+        "act_ab2bc62aee230f7f786eea5610222f88f8c7a7ff400692fbdd39da9eac1e13a0",
+        "act_e6d04fe91160b3ed539a0b2282ede9c0f511f92b7d2b57ab012ed94fcd597ac2",
+        "act_7aded69f8f6c575c39fe411a40a70d128fa8d2b24254c7ea4c24f82ccfdcae1e"
+      ],
+      "checkpoint_state_hashes": [
+        "state_f83987b9e0ebaf15c9229b806b5f1ad5ce476f96f40b3bf2e6e859619996e4ca",
+        "state_22fcccb4d6be5e706f05b35861a2dffcc305f44686a0bacf90210581aed72721",
+        "state_cd140b6f430ca8404e157c3033ab7bfe4c230fd7f275f20da066363c1021449e",
+        "state_e972b1740ce768196657123af87164c20b82b004e040d2cef923cb8e79d38153",
+        "state_83d22aab3e8d9f09c825b127d27bb938d2cd50987b4fc33945754a0eaaa3f171",
+        "state_af3fc0d2ff63819a3cee2ae60ad6577f24d189284f047cbcbffb5e2b617e12ae",
+        "state_6c0779a21cc0080fc5b79b0ba95ac58f3f8afe7e202976fbed8caac6c3423d99",
+        "state_55b232aa4b8b5024363d145477d43ab335cedc861fc1c2d7cdc505100456fc1f",
+        "state_5181b003b59f21fd66b7bb349dcdbe264a7cdb3ba28a2598cd98202a7ac474ea",
+        "state_646b415a0ad8c1155922258758d449d20ef6976ebe613454fdcde2e4a452eb9a",
+        "state_4ccf2ff5fc82356c4911febcfc3094b3ed083a6aba66b3b8b96842ae3a2a72ca",
+        "state_4f6500504b35f8466351f3105faef1bf9d6e21b23cf2b375a76389e0a2095642"
+      ],
+      "initial_state_hash": "state_e795e06effc72d9b129d2ba149d254d3ebebc4cec76b6c215c069527533a3bfd",
+      "instance_owners": [
+        0,
+        1
+      ],
+      "movement_kinds": [
+        "generated_token",
+        "location_move"
+      ],
+      "private_trace_absent": true,
+      "provenance_id": "cardprov_273f890a98311112ca7a598c583b86a557cddfb11fe5c09d56be6edc9d74c6e4",
+      "request_boundaries": [
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:0",
+          "request_type": "select_idle_command",
+          "scan_id": 9
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:4",
+          "request_type": "select_effect_yes_no",
+          "scan_id": 16
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:5",
+          "request_type": "select_chain",
+          "scan_id": 19
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:9",
+          "request_type": "select_chain",
+          "scan_id": 29
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:11",
+          "request_type": "select_chain",
+          "scan_id": 31
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:12",
+          "request_type": "select_idle_command",
+          "scan_id": 44
+        }
+      ],
+      "request_signatures": [
+        "req_a18d559ff673038aaedf06bc4c385ce34127efe40e95d70e149d4ad666793587",
+        "req_a7662b0219c1d8c0da0af0f12949bb7d8604623f51fdecdf2c81f7ba559dd3be",
+        "req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479",
+        "req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5",
+        "req_395ba62c7ab1886103789ff37f71b23d4c5b930c05b583001edb5fcc745a90c7",
+        "req_b1ba71abcd4c5edcd541929d2656a21197fab541fe225f3e1f15c9899513b94a",
+        "req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479",
+        "req_863eb79c86cf17a3da2a0fb0c1b0e26db008695bb94c838596b047d23bb1adc5",
+        "req_c75dc981171e516c27064e8c3675b3b2023bb7493411fe9c746c7522297831c7",
+        "req_e9b8d1e548a3d9a11f632c241fef2727ea46918e7070a91745ec62c8133496a5",
+        "req_5027d4c7b50e9095556fe72526dc8d1178dec655d18b9e43d7ee79279e646a9e",
+        "req_16b254e8ccda8ea9d409c7a219fdc354f7362ff33f0ec4ac4331b4148aa2ba9d",
+        "req_879f9a2240b47278a68fdd3a6a9c13c992586042b4bb8e4b249ac2358a9792a6"
+      ],
+      "route_id": "route_2415157064739b01a1c6d46fcc65a640155352fb9ee612cad3c5dae3af95651b",
+      "shuffle_kinds": [
+        "shuffle_hand"
+      ],
+      "terminal_state_hash": "state_4f6500504b35f8466351f3105faef1bf9d6e21b23cf2b375a76389e0a2095642"
+    },
+    "control_with_card": {
+      "action_ids": [
+        "act_26891328a1bd4dde0a59911352a7ce764ede0e11f1c3683b9e0ab4966203fd0a",
+        "act_e1dd90bedf93d68ec57c5ab4ff5509c25161b242fd2f686f85cd847a0b44e9f7",
+        "act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123",
+        "act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da",
+        "act_6b90137f48d992f3227aa0ab6d7e55e9e13b6f7e1b3b5b3bef02a7e3d7d05860",
+        "act_a967dee79bfdc46b5e2bd106ee293e2a699acee9084753553beba829906056bc",
+        "act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123",
+        "act_acab367307bdc3e37e9b4369263fd6128d2ac142139c0062a29eaed7e98bfb6f",
+        "act_4f84a363ce870f30ff1ff4de7861f77e736589fc09eeff9c0750172a4a7a5a32",
+        "act_0f7e6e5858dbe91bf19da77e6bd75fc978f0a7b5ea79df1d920022285da22583",
+        "act_e6d04fe91160b3ed539a0b2282ede9c0f511f92b7d2b57ab012ed94fcd597ac2",
+        "act_4b187447d79fbfc35134cc82b5a6ba070398b8a811e4959afe8d75ceea216d90"
+      ],
+      "checkpoint_state_hashes": [
+        "state_0660d6be6b7f39608d7fff7c44cab9f68d0eedccc0be4f697e5fb468fc01b6e7",
+        "state_94b0a0e3b4e6a9f725c52a722ee02177fd6ca90067ca1692a603de3a85b37e77",
+        "state_0ab8c5f701422a34657dead8a9b5ecc02256475c039945192ba6cfdfb47d71da",
+        "state_5f85e3f932edc056143a436ac61ac1608569015bd783ac91569504f80e4c7697",
+        "state_2904b213c00349704e9c7c9ff59350d8561bba14ca538063d883e2d72afacd08",
+        "state_3a966b15631256088c90debb7b98a71fd7cba9e3d39b5315f5734d7cefa8d1a9",
+        "state_14cb15c6d25c1808d3dde4e9e6bdc0e14cc7f36db69666e5b4f428d01db48384",
+        "state_2dcbf90f65c9d79b2117989044f784d9164889b82768db01051b612ad71a64a2",
+        "state_4865d8dc4f297f2cc4d59b17fd63d307b77316d20167825b03c4af835214cd46",
+        "state_47a630c822fba1c4b2af9110159970f66e1e1c291a4762371ecab10178e66fa2",
+        "state_499ec26c853daca37372a0cd1f3c3a54a373aa069e88e12e4c4046ce58e61b96",
+        "state_77af5cc01ad6157eba4562c11d99d2ca7a105ad8ac2b7a1bb90cb88360fb9b2d"
+      ],
+      "initial_state_hash": "state_e2ac8d03e54af1756de322e2a559af96e53b8b5adf551bbb8074742b77277f96",
+      "instance_owners": [
+        0,
+        1
+      ],
+      "movement_kinds": [
+        "generated_token",
+        "location_move",
+        "sequence_change"
+      ],
+      "private_trace_absent": true,
+      "provenance_id": "cardprov_a5ef9b9d7b36367bebcd10f40864fe05d5dee53698cb4f092a1f1d6d63e953de",
+      "request_boundaries": [
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:0",
+          "request_type": "select_idle_command",
+          "scan_id": 9
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:4",
+          "request_type": "select_effect_yes_no",
+          "scan_id": 16
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:5",
+          "request_type": "select_chain",
+          "scan_id": 19
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:9",
+          "request_type": "select_chain",
+          "scan_id": 29
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:11",
+          "request_type": "select_chain",
+          "scan_id": 31
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:12",
+          "request_type": "select_idle_command",
+          "scan_id": 44
+        }
+      ],
+      "request_signatures": [
+        "req_8491e4d2e356dc518ca439ea1d43c5b683287476198297c7a25927073adf86b9",
+        "req_a7662b0219c1d8c0da0af0f12949bb7d8604623f51fdecdf2c81f7ba559dd3be",
+        "req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479",
+        "req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5",
+        "req_395ba62c7ab1886103789ff37f71b23d4c5b930c05b583001edb5fcc745a90c7",
+        "req_50a415c43cab8c25ee11b962077e760c567d714a92316dd529b53d530f96bb28",
+        "req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479",
+        "req_863eb79c86cf17a3da2a0fb0c1b0e26db008695bb94c838596b047d23bb1adc5",
+        "req_c75dc981171e516c27064e8c3675b3b2023bb7493411fe9c746c7522297831c7",
+        "req_19dbfd977edf5dbbf6d5d15971571ac42d988198ac458f4836dc73412ac08a32",
+        "req_5027d4c7b50e9095556fe72526dc8d1178dec655d18b9e43d7ee79279e646a9e",
+        "req_94b6c01a1e778f469563126622216a4f5a302d2844e12122e73cb2eae34e1d98",
+        "req_593aa29b614ca1c1140aed8b9e35d9db5492f7ef0596f201eed48fb503b36418"
+      ],
+      "route_id": "route_3a4f4c3323a95a84706dfac1bd56bce8aca234fa8d6ef1b7e1f3627b0dc07e60",
+      "shuffle_kinds": [
+        "shuffle_hand"
+      ],
+      "terminal_state_hash": "state_77af5cc01ad6157eba4562c11d99d2ca7a105ad8ac2b7a1bb90cb88360fb9b2d"
+    },
+    "interrupted_no_card": {
+      "action_ids": [
+        "act_20f1ce2bb42d1ebc9d473f3a63c8430820bd31e935686d28bd3785c9d31fce0e",
+        "act_e1dd90bedf93d68ec57c5ab4ff5509c25161b242fd2f686f85cd847a0b44e9f7",
+        "act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123",
+        "act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da",
+        "act_6b90137f48d992f3227aa0ab6d7e55e9e13b6f7e1b3b5b3bef02a7e3d7d05860",
+        "act_94b073fd57eafde544903aece62758ec780ad41e7ea8129652a128ce9d54d8d3",
+        "act_17c94a8d2732a501552139785f1e1a18d63db00fe4789673d4b00a223f243e1c",
+        "act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123",
+        "act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da",
+        "act_4dc313540b880cb1567d3feef4d1de689010c704e45dcd3c1ec33debae9279a7",
+        "act_677ff7568130d444ecdaa42bbf356ef1fe59d83db6e894c4ee583a3fffb99971",
+        "act_e6d04fe91160b3ed539a0b2282ede9c0f511f92b7d2b57ab012ed94fcd597ac2",
+        "act_d23eeafd1565538ee8e93a07a4a1043e34e5a8c4301afedbc7714945fdb3ac8c"
+      ],
+      "checkpoint_state_hashes": [
+        "state_f83987b9e0ebaf15c9229b806b5f1ad5ce476f96f40b3bf2e6e859619996e4ca",
+        "state_22fcccb4d6be5e706f05b35861a2dffcc305f44686a0bacf90210581aed72721",
+        "state_cd140b6f430ca8404e157c3033ab7bfe4c230fd7f275f20da066363c1021449e",
+        "state_e972b1740ce768196657123af87164c20b82b004e040d2cef923cb8e79d38153",
+        "state_83d22aab3e8d9f09c825b127d27bb938d2cd50987b4fc33945754a0eaaa3f171",
+        "state_510919bf1c444fe51fae15c3c25e05f2263c0d1f1301fcef9349096b9e688828",
+        "state_c5c7678d0af4a67f0303e072055f55d06727e941bfce6e7adf96c721c906118a",
+        "state_ad5c01062c296ea50e3b8e9e130e180f27e095fc8d354110fb730b1eb24bedbc",
+        "state_5036a8a80f358babfe4754ca51e1e00b6adff03b32a16cbbe4d5fe08a803da48",
+        "state_e557180c6ffa34c76f0089558dc4bef957d7d4a96b733a76f12ec3277ba78fc6",
+        "state_62414d7395ed79aa06e5cad0424862d33600ee8bec7672ef571b0657eb228b0d",
+        "state_54645a217209f61d7bb70be82bc0bbb62e8e0dd266f0babcb881daacb879fe89",
+        "state_c3aee550930b7f30bc4ab91f30abf678f611602bb07da070109026960b95dd71"
+      ],
+      "initial_state_hash": "state_e795e06effc72d9b129d2ba149d254d3ebebc4cec76b6c215c069527533a3bfd",
+      "instance_owners": [
+        0,
+        1
+      ],
+      "movement_kinds": [
+        "location_move"
+      ],
+      "private_trace_absent": true,
+      "provenance_id": "cardprov_5f343e6c2129c00f095491dbd89b8c09ad0e8c40f1a59e9263af76563f40be0c",
+      "request_boundaries": [
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:0",
+          "request_type": "select_idle_command",
+          "scan_id": 9
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:4",
+          "request_type": "select_effect_yes_no",
+          "scan_id": 16
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:5",
+          "request_type": "select_chain",
+          "scan_id": 19
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:6",
+          "request_type": "select_card",
+          "scan_id": 22
+        }
+      ],
+      "request_signatures": [
+        "req_a18d559ff673038aaedf06bc4c385ce34127efe40e95d70e149d4ad666793587",
+        "req_a7662b0219c1d8c0da0af0f12949bb7d8604623f51fdecdf2c81f7ba559dd3be",
+        "req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479",
+        "req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5",
+        "req_395ba62c7ab1886103789ff37f71b23d4c5b930c05b583001edb5fcc745a90c7",
+        "req_b1ba71abcd4c5edcd541929d2656a21197fab541fe225f3e1f15c9899513b94a",
+        "req_ed6c9d64c51c84cbae7d45d8d4de79227b3404590b178109422834d64ffcdf69",
+        "req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479",
+        "req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5",
+        "req_616924be6e345483c5b7f4e8987c4a3da3cdda7241fc7023afde5788764901e6",
+        "req_da74b9f240d65d28e5465319cbd87dd694c5cdfba3e43a1bc6e5df2b3174f540",
+        "req_5027d4c7b50e9095556fe72526dc8d1178dec655d18b9e43d7ee79279e646a9e",
+        "req_75d1d44f0c025906b74df5223afab7a0995c3b99de0aac8be4eaad3d863d51c5",
+        "req_3032f16a283f8f845fcebc08f2764a6b3599ef3a3b171effc43ec726063849b4"
+      ],
+      "route_id": "route_4f46211a7f1e09f6961942ce947e622b5a87c4c6c6ed489ab719b3aa74c93f21",
+      "shuffle_kinds": [
+        "shuffle_hand"
+      ],
+      "terminal_state_hash": "state_c3aee550930b7f30bc4ab91f30abf678f611602bb07da070109026960b95dd71"
+    },
+    "interrupted_with_card": {
+      "action_ids": [
+        "act_26891328a1bd4dde0a59911352a7ce764ede0e11f1c3683b9e0ab4966203fd0a",
+        "act_e1dd90bedf93d68ec57c5ab4ff5509c25161b242fd2f686f85cd847a0b44e9f7",
+        "act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123",
+        "act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da",
+        "act_6b90137f48d992f3227aa0ab6d7e55e9e13b6f7e1b3b5b3bef02a7e3d7d05860",
+        "act_a8001b46fbb2c7a18e489b841b78ed9a12c861291e73b547528f0eb15e0f6754",
+        "act_17c94a8d2732a501552139785f1e1a18d63db00fe4789673d4b00a223f243e1c",
+        "act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123",
+        "act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da",
+        "act_ff982c7cae1ba83f4318db776ad7ba791d35cfdebcb2d591f18bff4bb1525fec",
+        "act_9f1874fc0846ad19736651fa739d1a494e1c8a2c6f9d3d2964490a4d9bc239da",
+        "act_f445144bea1e7b9d4f8d7812d205db6bdf5a3f81d832c8c8eb4463d6ef166123",
+        "act_acab367307bdc3e37e9b4369263fd6128d2ac142139c0062a29eaed7e98bfb6f",
+        "act_4f84a363ce870f30ff1ff4de7861f77e736589fc09eeff9c0750172a4a7a5a32",
+        "act_ecbc4ea3477cc2ff538d9717359e3ce4c07d6f06da12bf021655eadf4f527258",
+        "act_e6d04fe91160b3ed539a0b2282ede9c0f511f92b7d2b57ab012ed94fcd597ac2",
+        "act_d23eeafd1565538ee8e93a07a4a1043e34e5a8c4301afedbc7714945fdb3ac8c"
+      ],
+      "checkpoint_state_hashes": [
+        "state_0660d6be6b7f39608d7fff7c44cab9f68d0eedccc0be4f697e5fb468fc01b6e7",
+        "state_94b0a0e3b4e6a9f725c52a722ee02177fd6ca90067ca1692a603de3a85b37e77",
+        "state_0ab8c5f701422a34657dead8a9b5ecc02256475c039945192ba6cfdfb47d71da",
+        "state_5f85e3f932edc056143a436ac61ac1608569015bd783ac91569504f80e4c7697",
+        "state_2904b213c00349704e9c7c9ff59350d8561bba14ca538063d883e2d72afacd08",
+        "state_7d832906e517405ca5a623bf3a2ee86c2d5c45612259fec3d0949992a2dd3d45",
+        "state_57b11e0a44cf298659523fbdfa3f0c02397856e7ecc768a3fdeb3ecae770a4af",
+        "state_ed34b69a3e4207579edea5e03afaf2280165fa5989ae51b9132a863fad3449d1",
+        "state_36a551680108b7120b960c0ef4cae6c0cc2283ce5f1af8886e2d757fcc8d4b3c",
+        "state_cafd64b0c4ee9538ee84c6b8e2d1d8b31d4db03c5cafd05888b72e602e43c20f",
+        "state_8957cbffbb91bbb7b2b98863c5c7c5f322b812d6b2e91be854b94ae1be36d8a9",
+        "state_053447eddaaa8e22bb885c22bf7789fd9ca866145aa6c26f42fd3c2856d09fde",
+        "state_b6dcd9647817df3c23f7ffc5243794453ca523733f74d0d6c014834a09cb9f6e",
+        "state_3ae011a7bbe0317e524790a11466d3cd1d53d8d260e2e737af63b367bdd931b4",
+        "state_357a90b6b1a936306fb608144f2897b75a3c796ceadd54fe684bfc043289a6c7",
+        "state_24e76beb22ac38aa98dff7589acc172f4a15e670b122547c4e42f5ce6fce7257",
+        "state_b2a50ab3e919aa785f3df6af0c9b50ad49b9ba46e75b5b253800d8774de2e278"
+      ],
+      "initial_state_hash": "state_e2ac8d03e54af1756de322e2a559af96e53b8b5adf551bbb8074742b77277f96",
+      "instance_owners": [
+        0,
+        1
+      ],
+      "movement_kinds": [
+        "location_move",
+        "sequence_change"
+      ],
+      "private_trace_absent": true,
+      "provenance_id": "cardprov_289160cc38e636176c2a889553b9906cbbaf82494b4990e2fba7c1b8418265d8",
+      "request_boundaries": [
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:0",
+          "request_type": "select_idle_command",
+          "scan_id": 9
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:4",
+          "request_type": "select_effect_yes_no",
+          "scan_id": 16
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:5",
+          "request_type": "select_chain",
+          "scan_id": 19
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:6",
+          "request_type": "select_card",
+          "scan_id": 22
+        },
+        {
+          "mode": "complete_scan_in_request_batch",
+          "request_id": "real_core_recovery_attribution_v1:9",
+          "request_type": "select_chain",
+          "scan_id": 34
+        }
+      ],
+      "request_signatures": [
+        "req_8491e4d2e356dc518ca439ea1d43c5b683287476198297c7a25927073adf86b9",
+        "req_a7662b0219c1d8c0da0af0f12949bb7d8604623f51fdecdf2c81f7ba559dd3be",
+        "req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479",
+        "req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5",
+        "req_395ba62c7ab1886103789ff37f71b23d4c5b930c05b583001edb5fcc745a90c7",
+        "req_50a415c43cab8c25ee11b962077e760c567d714a92316dd529b53d530f96bb28",
+        "req_ed6c9d64c51c84cbae7d45d8d4de79227b3404590b178109422834d64ffcdf69",
+        "req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479",
+        "req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5",
+        "req_ce85ad8f6a303f1c7567eccea82575aa245c8354c3f55a628b6add72b561c2d0",
+        "req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5",
+        "req_2903946a641c054f6162d97b1b0fced52a45cb3209a41ac3b2497f4391abe479",
+        "req_863eb79c86cf17a3da2a0fb0c1b0e26db008695bb94c838596b047d23bb1adc5",
+        "req_c75dc981171e516c27064e8c3675b3b2023bb7493411fe9c746c7522297831c7",
+        "req_144159e7bda9f7bf7bcda121ea463e3eee4e65768d059efdc3c56e42991b2f43",
+        "req_5027d4c7b50e9095556fe72526dc8d1178dec655d18b9e43d7ee79279e646a9e",
+        "req_75d1d44f0c025906b74df5223afab7a0995c3b99de0aac8be4eaad3d863d51c5",
+        "req_3032f16a283f8f845fcebc08f2764a6b3599ef3a3b171effc43ec726063849b4"
+      ],
+      "route_id": "route_9113cedcbb0aedd82c5ed4c6964c84b3529d03fc5d3a9445527075d3c16065ac",
+      "shuffle_kinds": [
+        "shuffle_hand"
+      ],
+      "terminal_state_hash": "state_b2a50ab3e919aa785f3df6af0c9b50ad49b9ba46e75b5b253800d8774de2e278"
+    }
+  },
+  "schema_version": "card-instance-route-evidence-v2",
+  "trace_schema_version": "ocgcore-card-instance-trace-v2"
+}

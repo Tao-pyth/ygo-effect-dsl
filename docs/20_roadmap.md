@@ -1,93 +1,101 @@
 # Roadmap
 
-Status: V0.3a planning baseline
+Status: Route DSL transition
 
 Last updated: 2026-07-13
 
-## 1. V0.0 まで
+## 1. Completed Foundations
 
-V0.0 は legacy DSL 変換基盤の安定化を目的とした段階である。
+- Project Charterと責務境界
+- Pythonがカードルールを所有しないADR
+- DecisionRequest、Action、Replay v0.3aの最小契約
+- request signatureとaction IDの決定性
+- STOP_LINEとEND_TURNの分離仕様
+- Peak Board、Evaluation、Experimentの仕様
+- 旧カードテキスト変換を本流から除外する判断
+- Route DSL 0.1の責務、最小schema、validator、fixture
 
-- ETL export artifact の ingest
-- DSL YAML への transform
-- validate による contract check
-- analyze による変換品質の可視化
-- representative benchmark と golden regression
+## 2. Current Phase: Route DSL Baseline
 
-この段階では、完全なゲーム状態遷移を実装しない。
-現在の方針では、この DSL CORE は探索エンジンの入力基盤ではなく、legacy / deprecated / removal target として扱う。
+現在の目的は、Route DSLを単なる文書名ではなく、後続実装が出力できる安定した成果物契約にすることである。
 
-## 2. V0.1
+- Replay eventとRoute checkpointの参照規則を固定する
+- Peak Board / Terminal Boardの保存形を固定する
+- interruption / recovery lineageをfixtureで具体化する
+- Route IDのcanonical生成規則を定義する
+- YAML / JSON serializerとround-trip testを追加する
+- legacy card-text codeを `legacy/` へ隔離する移行計画を確定する
 
-V0.1 は設計基盤を確立する段階である。
+## 3. Milestone A: Fixed-Hand Runtime Slice
 
-- Project Charter の採用
-- README の更新
-- Architecture 文書の追加
-- V0.1 minimal semantics の再定義
-- ADR による設計判断の記録
+固定デッキ、固定初手、先攻1ターン、妨害なしに限定し、実ocgcoreから一つのRoute DSLを生成する。
 
-V0.1 では、既存 DSL CORE を legacy / deprecated / removal target として明記し、実行系を ocgcore / EDOPro Lua -> Bridge へ移す方針を文書化する。
+1. ocgcore buildとEDOPro assetsのversion固定
+2. デュエル初期化
+3. core Message decoder
+4. DecisionRequest生成
+5. Action encoder
+6. Replay executor
+7. legal stop判定
+8. checkpoint / state hash生成
+9. 単純評価器とPeak Board追跡
+10. Route DSL出力と再実行検証
 
-## 3. V0.2
+完了条件は、生成したRoute DSLのReplayを新規プロセスで再実行し、全DecisionRequest署名と最終state hashが一致することである。
 
-V0.2 では、Bridge と Replay の最小実装を目的とする。
+## 4. Milestone B: Search
 
-- Action-like dict と正式 Action model の境界整理
-- Replay history / serializer の最小実装
-- ocgcore 連携調査
-- Message decoder / encoder の設計
-- synthetic fixture による replay smoke test
-
-V0.2 の Bridge / Replay は mock / interface baseline であり、DecisionRequest、Action ID、Replay 決定性保証は V0.3a で上位契約として仕様化する。
-
-## 4. V0.3a
-
-V0.3a では探索アルゴリズム実装に入る前に、境界、再現性、状態表現を仕様として固定する。
-V0.2 の mock Bridge / Replay baseline は維持し、後続実装が従う上位契約を定義する。
-
-成果物:
-
-- Bridge / DecisionRequest specification
-- Action specification
-- Replay determinism specification
-- State identity specification
-- Peak Board / legal stop specification
-- Evaluation / Experiment specification
-
-V0.3a では Python dataclass、serializer、CLI、探索実装、契約テスト実装は変更しない。
-完了条件は、後続実装者が追加判断なしで型、保存形式、署名、停止条件、評価設定を実装できる状態になっていることである。
-
-## 5. V0.3b
-
-V0.3b では V0.3a の境界仕様に従い、Search と Evaluation の最小垂直スライスを実装する。
-
+- exhaustive search for small fixtures
 - Random Search
-- END_TURN action
-- Peak Board tracking
-- State Evaluation prototype
-- route logging
-- V0.3a contract tests
-
-探索戦略の詳細最適化は、Bridge、Action、Replay、State の契約テストが安定してから扱う。
-
-## 6. V0.4 以降
-
-V0.4 以降は探索品質と実験基盤を拡張する。
-
-- Beam Search
-- MCTS
-- interruption injection
-- recovery search
-- statistics export
-- DuckDB / Parquet support
-- transposition table
+- search budget (`max_nodes`, `max_seconds`, `max_depth`)
+- STOP_LINE候補
+- deterministic tie-break
 - prefix Replay cache
-- deterministic aggregation
+- route deduplication by state identity
 
-妨害注入、リカバリ、非公開情報 sampling、並列化は、Replay 決定性と State identity の仕様に依存するため、V0.3a/V0.3b の完了後に実装する。
+完了条件は、同じseedと予算で同じ最良Route DSLを得られることである。
 
-## 7. 長期目標
+## 5. Milestone C: Interruption and Recovery
 
-長期目標は、遊戯王 OCG の展開探索、妨害耐性、リカバリ、デッキ評価を再現可能に自動化することである。
-ルールの真実源は ocgcore / EDOPro Lua とし、Python は探索、Replay、評価、統計、実験制御を担当する。
+- Action / effect / chain位置による妨害指定
+- 妨害使用可否のocgcore検証
+- base routeのprefix Replay
+- 妨害後のSearch再開
+- child Route DSLとlineage
+- 妨害前後の評価差、成功条件差、資源差の比較
+- 追加カードの2×2実core counterfactual、provenance、最小必要集合
+
+## 6. Milestone D: Deck Experiments
+
+- ランダム初手、固定初手、条件付き初手
+- 重複カードを考慮した初手組合せ
+- 初動、事故、条件付き初動の分類
+- 初動率、成功率、平均Peak score、盤面分布
+- 妨害耐性、リカバリ成功率
+- デッキ構築差分比較
+- Markdown / CSV / JSON / HTML出力
+
+## 7. Later Work
+
+- Beam Search / MCTS
+- 複数妨害
+- 妨害位置の自動探索
+- 後攻盤面突破
+- 複数ターン探索
+- DuckDB / Parquet
+- snapshot / clone_duel最適化
+- distributed workers
+- 可視化UI
+
+## 8. Explicit Non-Goals for Initial Delivery
+
+- Python製カード効果エンジン
+- カードごとのRoute DSL手書き
+- 全ルート完全列挙
+- 完全な相手AI
+- 勝率予測
+- オンライン対戦クライアント
+
+## 9. Legacy Removal
+
+`ingest / transform / validate / analyze` とカードテキスト辞書は、Route DSL runtimeが依存していないことをテストで固定した後に削除する。旧出力をRoute DSLへ変換するmigrationは作らない。両者は意味的に別形式である。

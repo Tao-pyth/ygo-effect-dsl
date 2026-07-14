@@ -1,0 +1,107 @@
+schema_version: "0.3b"
+experiment_id: prototype_interruption_sequence_stage2
+objective: multi_interruption_staged_lineage
+deck: {id: interruption_sequence_fixture, source: fixed}
+player: {starting_player: 0, perspective: 0}
+turn_limit: 2
+information_mode: complete_information
+information_policy:
+  schema_version: information-policy-v1
+  policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+  deck_order: known
+  opening_hand: fixed
+  sampling_reference: null
+evaluate_at: legal_stop
+durability_evaluate_at: opponent_main1_after_end_phase_and_turn_start_processing
+success_predicate:
+  id: real_core_min_monster_count
+  version: "1"
+  config: {player: 0, zone: monster_zone, min_count: 2}
+evaluator:
+  id: real_core_board_count
+  version: "1"
+  config:
+    hand_weight: 1
+    missing_value_policy: error
+    monster_weight: 10
+    temporary_value_policy: exclude_expired_or_unverified_v1
+search:
+  strategy: scripted_real_core
+  budget: {max_nodes: 48}
+interruption:
+  mode: scripted
+  definitions:
+    - id: sequence_targetless_stage1
+      interruption_type: targetless_hand
+      source_player: 1
+      source_card_code: 14558127
+      base_route_id: route_9967b36a2fe7c032765ecf1dcb3dfe677fdafc2eb10168694d0c24eb82d5cd36
+      target:
+        action_id: act_7301914511e86205514470d415ab1573fdfa9956d4dcd284c60cbf9417c8658f
+        action_occurrence_id: aocc_725380c26bbe1a8a7427bbd206073e57ff6e891e076a94e4bd74b5c72c9f437c
+        chain_index: 1
+        effect_ref: null
+        player: 1
+        request_signature: req_9968977841bb2da68b4e619a3d7240a02140063e9b647cc3d2d2dc2a0f7c283b
+        schema_version: interruption-target-v1
+        source: null
+        state_hash_before: state_6605abe473bc44324bb0c3bb7b6224cb19b4851a776597c3519618e0cf168cf9
+        step: 5
+        target_id: inttarget_95a5d64e834bf7cc5d34e2d74ac3bb9513e5fdf75bb800f43c9191861a70cf76
+        turn: 1
+        turn_action_index: 5
+      candidate_policy:
+        schema_version: core-interruption-candidate-policy-v1
+        activation:
+          schema_version: core-interruption-step-v1
+          role: activation
+          request_type: select_chain
+          player: 1
+          selection_count: 1
+          selector:
+            kind: effect
+            card_ref: {controller: 1, location: 2, public_card_id: 14558127}
+        responses: []
+    - id: sequence_cost_stage2
+      interruption_type: cost_hand
+      source_player: 1
+      source_card_code: 27204311
+      base_route_id: route_a12d4341b6781fbeca5b1fa96cd5c4f08fc89674222e371238147a2a6ef71f87
+      target:
+        action_id: act_d0553f625f8bdece0e94fd4d34bfcd14e3b2a6e0109ef805ad9789d84928c162
+        action_occurrence_id: aocc_256c5825214ca569c0019ece2093f21957508b4fe88ac1cfec496b6c73910350
+        chain_index: 1
+        effect_ref: null
+        player: 1
+        request_signature: req_c6841f32c486a5542b34b0290ed6465aad08da63f4bf15a75746d55811fde3cc
+        schema_version: interruption-target-v1
+        source: null
+        state_hash_before: state_115a452647558322f8adf97985b4551d90db24dff816d8ffbfc6542f147d051e
+        step: 9
+        target_id: inttarget_07377182f3e02112a29be7cf7a7ef2a5b619e63321fd3d80b9bce1da983782a3
+        turn: 1
+        turn_action_index: 9
+      candidate_policy:
+        schema_version: core-interruption-candidate-policy-v1
+        activation:
+          schema_version: core-interruption-step-v1
+          role: activation
+          request_type: select_chain
+          player: 1
+          selection_count: 1
+          selector:
+            kind: effect
+            card_ref: {controller: 1, location: 2, public_card_id: 27204311}
+        responses:
+          - schema_version: core-interruption-step-v1
+            role: cost
+            request_type: select_card
+            player: 1
+            selection_count: 1
+            selector:
+              card_ref: {controller: 1, location: 2, public_card_id: 73642296}
+replay: {strict_versions: true}
+runner:
+  adapter: real_core_prototype
+  fixture_script_id: interruption_sequence_v1
+  scenario_id: real_core_interruption_sequence_v1

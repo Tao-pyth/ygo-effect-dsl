@@ -1,97 +1,180 @@
 # Architecture
 
-Status: V0.1 baseline
+Status: Route DSL baseline
 
-## 1. 方針
+Last updated: 2026-07-13
 
-`ygo-effect-dsl` は、遊戯王 OCG の展開探索エンジンへ進むための研究基盤である。V0.1 以降の実行系は ocgcore / EDOPro Lua を真実源とし、既存 DSL CORE は legacy / deprecated / removal target として隔離する。
+## 1. Architectural Direction
 
-本アーキテクチャは DDD を主軸にしない。責務境界、再現性、探索可能性、評価可能性を優先する。
-
-## 2. レイヤー
+`ygo-effect-dsl` はocgcore / EDOPro Luaを実行系の真実源とし、Pythonを探索・再現・評価・実験制御層とする。Route DSLは実行系の代替ではなく、探索成果物を保存・交換する境界である。
 
 ```text
-Documentation
-  ▼
-ocgcore / EDOPro Lua
-  ▼
-Bridge
-  ▼
-Replay / Search / Evaluation
+Experiment
+  -> Search
+  -> Bridge <-> ocgcore <-> EDOPro Lua
+  -> Replay
+  -> Evaluation
+  -> Route DSL
+  -> Statistics / Comparison / Report
 ```
 
-### Documentation
+## 2. Components
 
-Charter、Architecture、Specifications、ADR を管理する。破壊的変更は、まずここで理由を説明する。
+### Experiment
 
-### Legacy DSL CORE
-
-現在残っている互換維持用の実装範囲である。
-
-```text
-ingest
-  ▼
-transform
-  ▼
-validate
-  ▼
-analyze
-```
-
-ここでは ETL export artifact から DSL YAML を生成し、Action、Target、Cost、Restriction、Diagnostics、Analyze metrics を観測可能にする。ただし、これらは探索エンジンの入力、補助分析基盤、Action 生成元として扱わない。
+デッキ、初手、先攻・後攻、ターン、カードプール、禁止制限、探索予算、妨害、成功条件、評価器を固定する。状態遷移や探索戦略を実装しない。
 
 ### Bridge
 
-ocgcore / EDOPro Lua 由来の Message / DecisionRequest を Python 側へ渡す境界である。Bridge は変換責務のみを持ち、合法性や状態遷移を判断しない。
+ocgcore MessageをDecisionRequestへ変換し、選択されたActionをcore inputへ戻す。候補の合法性はocgcoreの出力に従い、Python独自のカードルールを追加しない。
 
-### Replay / Search / Evaluation
+### Action
 
-将来の中心領域である。
+一つのDecisionRequestへの一つの応答を表す。Action IDはrequest署名と選択内容から決定的に生成する。表示用labelはidentityに含めない。
 
-- Replay: 再現可能な Action 履歴と実験条件を保持する。
-- Search: Action 単位で分岐を探索する。
-- Evaluation: State Evaluation と Action Evaluation を分離して評価する。
+### Replay
 
-### ocgcore / EDOPro Lua
+初期snapshot、version metadata、seed、DecisionRequest署名、Action履歴を保持する。再実行中に署名が一致しなければ失敗し、近い候補へ自動補正しない。
 
-ルールの真実源である。Python はルールを再実装しない。
+### Search
 
-## 3. Target Source Layout
+Replay prefixから候補Actionを分岐させ、探索予算と枝刈りを管理する。状態価値はEvaluationへ委譲し、合法性はBridge / ocgcoreへ委譲する。
 
-長期的な実装構成は次を目標とする。
+### Evaluation
+
+停止可能状態のevaluation vector、score、successを返す。評価器は状態を変更しない。success predicateとscore evaluatorは独立したversion付きpluginとする。
+
+### Route DSL
+
+Replayに探索・分析上の意味を加えた正式成果物である。実験条件、checkpoints、Peak Board、Terminal Board、妨害、lineageを保持する。Route DSL validatorは構造と参照整合性だけを検証する。
+
+### Statistics / Comparison / Report
+
+複数Route DSLを集計し、初動率、事故率、成功率、盤面分布、妨害耐性、リカバリ成功率、カード依存度を計算する。人間向け表示はRoute DSLから派生させる。
+
+## 3. Route DSL Structure
 
 ```text
-src/
+Route Document
+  experiment
+  replay
+    initial_snapshot
+    version_metadata
+    events[]
+      DecisionRequest signature
+      Action
+      state hashes
+  checkpoints[]
+    replay step
+    board summary
+    evaluation
+  result
+    success
+    peak_board
+    terminal_board
+  interruptions[]
+  lineage
+```
+
+Replay eventとActionの `request_signature`、checkpointとresultの `state_hash` は一致しなければならない。表示名やtimestampは決定性の根拠にしない。
+
+## 4. Main Flows
+
+### Search
+
+```text
+Initial Experiment
+  -> initialize ocgcore
+  -> receive DecisionRequest
+  -> enumerate Action candidates
+  -> replay/apply Action
+  -> test legal stop
+  -> evaluate checkpoint
+  -> branch or stop
+  -> build Route DSL
+```
+
+### Interruption and Recovery
+
+```text
+Base Route DSL
+  -> replay to selected step
+  -> ask ocgcore whether interruption is available
+  -> apply interruption
+  -> resume Search
+  -> build child Route DSL with lineage
+  -> compare base and child routes
+```
+
+### Re-evaluation
+
+```text
+Existing Route DSL
+  -> verify Replay or load trusted checkpoints
+  -> run another evaluator / success predicate
+  -> update derived evaluation result
+  -> preserve original Action history
+```
+
+## 5. Data Ownership
+
+| Data | Owner |
+| --- | --- |
+| Card behavior | EDOPro Lua |
+| Legality and state transition | ocgcore |
+| Message conversion | Bridge |
+| Decision identity | DecisionRequest |
+| Player/search choice | Action |
+| Re-execution history | Replay |
+| Branching policy | Search |
+| Board value | Evaluation |
+| Route exchange format | Route DSL |
+| Aggregate metrics | Statistics |
+
+## 6. Source Layout
+
+Current engine contracts are under `src/ygo_effect_dsl/engine/`. Route DSL code is under `src/ygo_effect_dsl/route_dsl/`. The old root-level transform modules remain temporary migration code.
+
+Target layout:
+
+```text
+src/ygo_effect_dsl/
   engine/
+    action/
     bridge/
     replay/
     search/
     evaluation/
-    logging/
-    statistics/
     experiment/
-    util/
+    statistics/
+  route_dsl/
+    validator.py
+    serializer.py
+    migration.py
+  report/
+  legacy/
+    card_text/
 ```
 
-現在の `src/ygo_effect_dsl/` には legacy DSL CORE が残っている。これは `engine/` へ進む前段ではなく、互換維持のための一時残置であり、V0.2 Bridge / Replay baseline 後の破壊的変更で削除対象とする。
+## 7. Dependency Rules
 
-## 4. Responsibility Rules
+- `bridge` は `search`、`evaluation`、`route_dsl` に依存しない。
+- `replay` は探索戦略や評価器に依存しない。
+- `search` は評価結果を利用できるが、評価式を所有しない。
+- `evaluation` は状態を読み取るが、ocgcore入力を送信しない。
+- `route_dsl` はReplay / Actionの保存形を参照できるが、ocgcoreを実行しない。
+- `statistics` と `report` はRoute DSLを読み、探索中の状態を変更しない。
+- legacy card-text modulesからengine / Route DSLへの依存を追加しない。
 
-- Bridge は Message と Action の変換を担当し、ルール判断をしない。
-- Replay は再現性を担当し、探索アルゴリズムを持たない。
-- Search は探索制御を担当し、盤面価値を直接決めない。
-- Evaluation は評価値を担当し、状態遷移そのものを実行しない。
-- Statistics は観測結果を集計し、探索判断を直接変更しない。
-- Experiment は条件比較を担当し、コア責務を混ぜない。
+## 8. Failure Policy
 
-## 5. V0.1 Completion Definition
+- request署名不一致: Replay failure。
+- version不一致: strict modeではfailure。
+- unsupported core message: partial routeとして理由を保存できるが、成功ルートにしない。
+- timeout / budget exhaustion: partial routeとしてTerminal BoardとPeak Boardを区別する。
+- 妨害使用不可: interruption resultとして保存し、Pythonで強制適用しない。
+- Route DSL参照不整合: schema validation failure。
 
-V0.1 の完了条件は、フルエンジン実装ではない。完了条件は次の通りである。
+## 9. Migration Boundary
 
-1. Project Charter が最上位方針として存在する。
-2. README が V0.1 の目的と非目標を説明している。
-3. Primary Runtime Path が ocgcore / EDOPro Lua -> Bridge -> Replay / Search / Evaluation として説明されている。
-4. ADR が Charter 採用理由を記録している。
-5. 既存 ingest / transform / validate / analyze が legacy / deprecated / removal target として明記されている。
-
-この定義により、V0.1 は「設計基盤の確立」として扱う。
+v0.0のカードテキストYAMLはRoute DSLへrenameしない。意味が異なるため自動migration対象にもせず、`legacy card-text artifact` として隔離する。Route DSLはocgcore由来のReplayまたは契約fixtureからのみ生成する。

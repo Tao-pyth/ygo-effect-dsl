@@ -1,0 +1,48 @@
+schema_version: "0.3b"
+experiment_id: prototype_interruption_matrix_sampled_control
+objective: hidden_hand_sampling
+deck: {id: interruption_candidate_matrix_fixture, source: fixed}
+player: {starting_player: 0, perspective: 0}
+turn_limit: 2
+information_mode: sampled_private_state
+information_policy:
+  schema_version: information-policy-v1
+  policy_id: infopol_e6c2e4256464651f69115f85867da1f108f1d3ca44f2ca6987dacb478c5735ef
+  deck_order: unknown
+  opening_hand: probability_distribution
+  sampling_reference:
+    schema_version: opening-hand-sampling-v1
+    sampler_id: stable-digest-mod-v1
+    seed: 20260714
+    sampled_owners: [1]
+    sampling_policy_id: handsampol_cd5607267725cd1baa1c2a4ae1c0c8eabdb837fea227b11d8c150dbc8d3248f4
+    candidates:
+      - weight: 1
+        hands_by_player:
+          "1": [14558127, 27204311, 73642296]
+      - weight: 1
+        hands_by_player:
+          "1": [14558127, 73642296]
+evaluate_at: legal_stop
+durability_evaluate_at: opponent_main1_after_end_phase_and_turn_start_processing
+success_predicate:
+  id: real_core_min_monster_count
+  version: "1"
+  config: {player: 0, zone: monster_zone, min_count: 2}
+evaluator:
+  id: real_core_board_count
+  version: "1"
+  config:
+    hand_weight: 1
+    missing_value_policy: error
+    monster_weight: 10
+    temporary_value_policy: exclude_expired_or_unverified_v1
+search:
+  strategy: scripted_real_core
+  budget: {max_nodes: 32}
+interruption: {mode: none, definitions: []}
+replay: {strict_versions: true}
+runner:
+  adapter: real_core_prototype
+  fixture_script_id: interruption_candidate_matrix_v1
+  scenario_id: real_core_interruption_candidate_matrix_v1

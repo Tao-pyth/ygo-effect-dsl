@@ -1,0 +1,346 @@
+{
+  "evidence_id": "negtimeev_d27be785a4917eeae926d25ba1254580abb58e186cb9af21739364b9fb1b24c3",
+  "failure": {
+    "failure_record": {
+      "category": "interruption_candidate_policy",
+      "context": {
+        "path": "$.interruption.definitions[1].candidate_policy.activation",
+        "request": {
+          "candidates": [
+            {
+              "candidate_id": "control:pass",
+              "card_ref": null,
+              "effect_ref": null,
+              "kind": "pass",
+              "label": "Pass",
+              "payload": {
+                "action_kind": "PASS",
+                "response_codec": "int32",
+                "response_value": -1
+              }
+            }
+          ],
+          "constraints": {
+            "allow_duplicates": false,
+            "max_selections": 1,
+            "min_selections": 1,
+            "ordered": false,
+            "required": true
+          },
+          "context": {
+            "chain": [],
+            "extra": {
+              "forced": false,
+              "hint_timing_opponent": 32768,
+              "hint_timing_player": 32768,
+              "message_name": "select_chain",
+              "message_type": 16,
+              "special_count": 0
+            },
+            "phase": "",
+            "priority_player": 0,
+            "request_source": "ocgcore",
+            "turn_player": null,
+            "version_metadata": {
+              "ocgcore_api": "11.0",
+              "ocgcore_protocol": "ocgcore-api-11.0"
+            },
+            "visible_board": {}
+          },
+          "player": 0,
+          "request_id": "real_core_interruption_missed_timing_v1:8",
+          "request_schema_version": "0.3a",
+          "request_signature": "req_616924be6e345483c5b7f4e8987c4a3da3cdda7241fc7023afde5788764901e6",
+          "request_type": "select_chain"
+        },
+        "step": {
+          "player": 0,
+          "request_type": "select_effect_yes_no",
+          "role": "activation",
+          "schema_version": "core-interruption-step-v1",
+          "selection_count": 1,
+          "selector": {
+            "card_ref": {
+              "controller": 0,
+              "location": 16,
+              "public_card_id": 91800273
+            },
+            "kind": "effect"
+          }
+        }
+      },
+      "disposition": "path_failure",
+      "exception_type": "InterruptionCandidatePolicyError",
+      "message": "$.interruption.definitions[1].candidate_policy.activation: expected request_type 'select_effect_yes_no', got 'select_chain'",
+      "recovery": "stop_path",
+      "retryable": false
+    },
+    "stdout_digest": "workerstdout_7be8aea46207563f212e69deade3ecac99fc96961f259c67e9d3ff3a5f4f7f61"
+  },
+  "routes": {
+    "activation_negation": {
+      "event_count": 12,
+      "final_state_hash": "state_2cfbd08e8ccff8acf34950af77bb4c7f42b9700bfd4d21302109562e24249925",
+      "interruption_validation_evidence_id": "intvalidation_020991895d896a562ac39c3dce0908854f8937e585dc6389aeb77a5f8b403095",
+      "messages": [
+        "MSG_CHAIN_NEGATED"
+      ],
+      "missed_effects": [],
+      "replay_id": "replay_541bc7576369f0497a00945c4008555698d7223d2690332ef9ae60bd5b6fe1f0",
+      "route_id": "route_f9c0d6ffbbb3393105822935e1e4563c985b5a7d67cf0f48812c18705beb4585",
+      "terminal_board": {
+        "checkpoint_step": 11,
+        "evaluation": {
+          "field_count": 2,
+          "hand_count": 0
+        },
+        "evaluation_result": {
+          "evaluator_config_hash": "evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254",
+          "evaluator_id": "real_core_board_count",
+          "evaluator_version": "1",
+          "explanations": [],
+          "schema_version": "evaluation-result-v1",
+          "score_breakdown": {
+            "breakdown_id": "score_51d8e16abbb599a1d5b3d1c05dcf9eccb5edb21e506cac8808baec4a3bf56354",
+            "missing_metrics": [],
+            "schema_version": "score-breakdown-v1",
+            "terms": [
+              {
+                "contribution": 20,
+                "metric": "field_count",
+                "raw_value": 2,
+                "resolution": "observed",
+                "resolved_value": 2,
+                "weight": 10
+              },
+              {
+                "contribution": 0,
+                "metric": "hand_count",
+                "raw_value": 0,
+                "resolution": "observed",
+                "resolved_value": 0,
+                "weight": 1
+              }
+            ],
+            "total_score": 20
+          },
+          "total_score": 20,
+          "vector": {
+            "field_count": 2,
+            "hand_count": 0
+          }
+        },
+        "phase": "main1",
+        "score": 20,
+        "state_hash": "state_2cfbd08e8ccff8acf34950af77bb4c7f42b9700bfd4d21302109562e24249925",
+        "stop_reason": "core_end_turn_available",
+        "success": true,
+        "turn": 2
+      }
+    },
+    "effect_negation": {
+      "event_count": 12,
+      "final_state_hash": "state_34ac154a905c7ec341813ba5c71c2a7c2851916cd47ad690cb0381a1fcecc894",
+      "interruption_validation_evidence_id": "intvalidation_8b1b008a94e92c8e61b3ca5d168810df283131df1d02c9e8dc774c43ed4fc3a0",
+      "messages": [
+        "MSG_CHAIN_DISABLED"
+      ],
+      "missed_effects": [],
+      "replay_id": "replay_47d74a1914eff9e03fcfed62e03b529976f4f1366a0280be5f0df717102d92b7",
+      "route_id": "route_a5de35cd2d68a7d4f4ede3fe985f0e34b4d25f1e0307fe0171487b3ee7484fc1",
+      "terminal_board": {
+        "checkpoint_step": 11,
+        "evaluation": {
+          "field_count": 2,
+          "hand_count": 0
+        },
+        "evaluation_result": {
+          "evaluator_config_hash": "evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254",
+          "evaluator_id": "real_core_board_count",
+          "evaluator_version": "1",
+          "explanations": [],
+          "schema_version": "evaluation-result-v1",
+          "score_breakdown": {
+            "breakdown_id": "score_51d8e16abbb599a1d5b3d1c05dcf9eccb5edb21e506cac8808baec4a3bf56354",
+            "missing_metrics": [],
+            "schema_version": "score-breakdown-v1",
+            "terms": [
+              {
+                "contribution": 20,
+                "metric": "field_count",
+                "raw_value": 2,
+                "resolution": "observed",
+                "resolved_value": 2,
+                "weight": 10
+              },
+              {
+                "contribution": 0,
+                "metric": "hand_count",
+                "raw_value": 0,
+                "resolution": "observed",
+                "resolved_value": 0,
+                "weight": 1
+              }
+            ],
+            "total_score": 20
+          },
+          "total_score": 20,
+          "vector": {
+            "field_count": 2,
+            "hand_count": 0
+          }
+        },
+        "phase": "main1",
+        "score": 20,
+        "state_hash": "state_34ac154a905c7ec341813ba5c71c2a7c2851916cd47ad690cb0381a1fcecc894",
+        "stop_reason": "core_end_turn_available",
+        "success": true,
+        "turn": 2
+      }
+    },
+    "missed_timing": {
+      "event_count": 12,
+      "final_state_hash": "state_9ea04ea3fc6ecfcb63cc1da2b1b621e6741c21e02485c59a7d471916468cf821",
+      "interruption_validation_evidence_id": "intvalidation_3ea71bb6c51fffd3bf41af72deafab41bc5ed5d841f489920c0be821e4acdca0",
+      "messages": [
+        "MSG_MISSED_EFFECT"
+      ],
+      "missed_effects": [
+        {
+          "card_code": 91800273,
+          "controller": 0,
+          "event_step": 7,
+          "frame_index": 4,
+          "location": 16,
+          "position": 5,
+          "sequence": 0
+        }
+      ],
+      "replay_id": "replay_9667c4a832466f8228b09e025eb41a9ab4348a38f472ab8d1ea769f86a07c947",
+      "route_id": "route_bdfc3b2c63822fd00988dc80a93db97b68753a56a4072c59dab073292c3bba0b",
+      "terminal_board": {
+        "checkpoint_step": 11,
+        "evaluation": {
+          "field_count": 1,
+          "hand_count": 0
+        },
+        "evaluation_result": {
+          "evaluator_config_hash": "evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254",
+          "evaluator_id": "real_core_board_count",
+          "evaluator_version": "1",
+          "explanations": [],
+          "schema_version": "evaluation-result-v1",
+          "score_breakdown": {
+            "breakdown_id": "score_29c200a5d3bf5504ad7de518c948024f6b3e22518c4f443f33af06910e05138f",
+            "missing_metrics": [],
+            "schema_version": "score-breakdown-v1",
+            "terms": [
+              {
+                "contribution": 10,
+                "metric": "field_count",
+                "raw_value": 1,
+                "resolution": "observed",
+                "resolved_value": 1,
+                "weight": 10
+              },
+              {
+                "contribution": 0,
+                "metric": "hand_count",
+                "raw_value": 0,
+                "resolution": "observed",
+                "resolved_value": 0,
+                "weight": 1
+              }
+            ],
+            "total_score": 10
+          },
+          "total_score": 10,
+          "vector": {
+            "field_count": 1,
+            "hand_count": 0
+          }
+        },
+        "phase": "main1",
+        "score": 10,
+        "state_hash": "state_9ea04ea3fc6ecfcb63cc1da2b1b621e6741c21e02485c59a7d471916468cf821",
+        "stop_reason": "core_end_turn_available",
+        "success": true,
+        "turn": 2
+      }
+    },
+    "targeted_negation": {
+      "event_count": 13,
+      "final_state_hash": "state_db9ff94c4b7be10573c16b0a5c6982a9b9b001ccf3addaf62e80f52c5e0dedc0",
+      "interruption_validation_evidence_id": "intvalidation_3edbd11158569999afe4875b37b23cdf5d27d633f84226a2bba303783c532a61",
+      "messages": [
+        "MSG_CHAIN_DISABLED"
+      ],
+      "missed_effects": [],
+      "replay_id": "replay_4b5edb9c96230ad4ee35096da532a2fff802782af5d6319c4cd00a6b9c1e674d",
+      "route_id": "route_969e43cf278d9451a8a421a12eddaf40632bee7f22f294546c21b642af2f5d61",
+      "terminal_board": {
+        "checkpoint_step": 12,
+        "evaluation": {
+          "field_count": 2,
+          "hand_count": 0
+        },
+        "evaluation_result": {
+          "evaluator_config_hash": "evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254",
+          "evaluator_id": "real_core_board_count",
+          "evaluator_version": "1",
+          "explanations": [],
+          "schema_version": "evaluation-result-v1",
+          "score_breakdown": {
+            "breakdown_id": "score_51d8e16abbb599a1d5b3d1c05dcf9eccb5edb21e506cac8808baec4a3bf56354",
+            "missing_metrics": [],
+            "schema_version": "score-breakdown-v1",
+            "terms": [
+              {
+                "contribution": 20,
+                "metric": "field_count",
+                "raw_value": 2,
+                "resolution": "observed",
+                "resolved_value": 2,
+                "weight": 10
+              },
+              {
+                "contribution": 0,
+                "metric": "hand_count",
+                "raw_value": 0,
+                "resolution": "observed",
+                "resolved_value": 0,
+                "weight": 1
+              }
+            ],
+            "total_score": 20
+          },
+          "total_score": 20,
+          "vector": {
+            "field_count": 2,
+            "hand_count": 0
+          }
+        },
+        "phase": "main1",
+        "score": 20,
+        "state_hash": "state_db9ff94c4b7be10573c16b0a5c6982a9b9b001ccf3addaf62e80f52c5e0dedc0",
+        "stop_reason": "core_end_turn_available",
+        "success": true,
+        "turn": 2
+      }
+    }
+  },
+  "schema_version": "real-core-negation-timing-evidence-v1",
+  "verification": {
+    "activation_and_effect_cost_equal": true,
+    "activation_and_effect_request_action_equal": true,
+    "activation_negation_observed": true,
+    "effect_negation_observed": true,
+    "fresh_worker_replay_deterministic": true,
+    "missed_effect_observed": true,
+    "missed_request_is_pass_only": true,
+    "negative_failure_deterministic": true,
+    "negative_failure_is_path_stop": true,
+    "routes_validate": true,
+    "targeted_multi_link_observed": true
+  }
+}

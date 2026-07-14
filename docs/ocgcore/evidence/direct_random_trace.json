@@ -1,0 +1,889 @@
+{
+  "checks": {
+    "control_has_no_direct_random_events": true,
+    "instrumentation_records_all_six_direct_draws": true,
+    "int32_boundary_fixed_ranges_preserved": true,
+    "negative_range_preserved": true,
+    "one_argument_range_normalized": true,
+    "repeated_calls_have_contiguous_indices": true,
+    "runtime_identity_differs": true,
+    "same_core_messages": true,
+    "same_request_signature": true,
+    "same_state_transition": true,
+    "transport_uses_no_core_message_frames": true
+  },
+  "control": {
+    "core_message_hex": [
+      "020000002800",
+      "0a000000210001000000b232cc050a000000210101000000b232cc05",
+      "030000002901000b0000000201001b00000000000000",
+      "03000000290200",
+      "03000000290400",
+      "310000000b0001000000b232cc05000200000000000000000000000001000000b232cc050002000000000000000000000000000100"
+    ],
+    "instrumentation": {
+      "enabled": false,
+      "instrumentation_id": "rnginst_af721b3ab69461293486f2644e09e139ee66c45a29d52390b2b311c9a04c0b9b",
+      "record_format": "prefix|draw_index|minimum|maximum|result",
+      "schema_version": "ocgcore-direct-random-trace-v2",
+      "script_name": "ygo_effect_dsl_direct_random_trace.lua",
+      "script_sha256": "88bcc50cdf2802e3e5c30b6e149516a5461b4161f894099ddb6f629d91a1b2df",
+      "transport": "ocgcore_log_handler_from_script_v1"
+    },
+    "random_events": [
+      {
+        "frame_index": 1,
+        "kind": "shuffle_hand",
+        "message_type": 33,
+        "outcome": {
+          "codes": [
+            97268402
+          ],
+          "player": 0,
+          "zone_order": [
+            {
+              "controller": 0,
+              "fields": [
+                {
+                  "flag": 1,
+                  "name": "code",
+                  "value": 97268402
+                },
+                {
+                  "flag": 2,
+                  "name": "position",
+                  "value": 10
+                },
+                {
+                  "flag": 4,
+                  "name": "alias",
+                  "value": 97268402
+                },
+                {
+                  "flag": 8,
+                  "name": "type",
+                  "value": 4129
+                },
+                {
+                  "flag": 16,
+                  "name": "level",
+                  "value": 1
+                },
+                {
+                  "flag": 32,
+                  "name": "rank",
+                  "value": 0
+                },
+                {
+                  "flag": 64,
+                  "name": "attribute",
+                  "value": 16
+                },
+                {
+                  "flag": 128,
+                  "name": "race",
+                  "value": 2
+                },
+                {
+                  "flag": 256,
+                  "name": "attack",
+                  "value": 0
+                },
+                {
+                  "flag": 512,
+                  "name": "defense",
+                  "value": 0
+                },
+                {
+                  "flag": 1024,
+                  "name": "base_attack",
+                  "value": 0
+                },
+                {
+                  "flag": 2048,
+                  "name": "base_defense",
+                  "value": 0
+                },
+                {
+                  "flag": 4096,
+                  "name": "reason",
+                  "value": 0
+                },
+                {
+                  "flag": 8192,
+                  "name": "reason_card",
+                  "value": {
+                    "controller": 0,
+                    "location": 0,
+                    "position": 0,
+                    "sequence": 0
+                  }
+                },
+                {
+                  "flag": 16384,
+                  "name": "equip_card",
+                  "value": {
+                    "controller": 0,
+                    "location": 0,
+                    "position": 0,
+                    "sequence": 0
+                  }
+                },
+                {
+                  "flag": 32768,
+                  "name": "target_cards",
+                  "value": []
+                },
+                {
+                  "flag": 65536,
+                  "name": "overlay_cards",
+                  "value": []
+                },
+                {
+                  "flag": 131072,
+                  "name": "counters",
+                  "value": []
+                },
+                {
+                  "flag": 262144,
+                  "name": "owner",
+                  "value": 0
+                },
+                {
+                  "flag": 524288,
+                  "name": "status",
+                  "value": 1024
+                },
+                {
+                  "flag": 1048576,
+                  "name": "is_public",
+                  "value": 0
+                },
+                {
+                  "flag": 2097152,
+                  "name": "left_scale",
+                  "value": 0
+                },
+                {
+                  "flag": 4194304,
+                  "name": "right_scale",
+                  "value": 0
+                },
+                {
+                  "flag": 8388608,
+                  "name": "link",
+                  "value": {
+                    "markers": 0,
+                    "rating": 0
+                  }
+                },
+                {
+                  "flag": 16777216,
+                  "name": "is_hidden",
+                  "value": 0
+                },
+                {
+                  "flag": 33554432,
+                  "name": "cover",
+                  "value": 0
+                }
+              ],
+              "instance_key": "0:2:0",
+              "location": 2,
+              "slot": 0
+            }
+          ]
+        },
+        "random_event_id": "rnd_478f1875718f536dd6ef07d8c596fb3eb2c57e2df1b947e36fa7b9e0a1301ada",
+        "resulting_state_hash": "state_b754859ea1c9bea025b3b72dc437604d8b4f3aa94f69741f739c6054141dd56f",
+        "schema_version": "ocgcore-random-event-v2"
+      },
+      {
+        "frame_index": 2,
+        "kind": "shuffle_hand",
+        "message_type": 33,
+        "outcome": {
+          "codes": [
+            97268402
+          ],
+          "player": 1,
+          "zone_order": [
+            {
+              "controller": 1,
+              "fields": [
+                {
+                  "flag": 1,
+                  "name": "code",
+                  "value": 97268402
+                },
+                {
+                  "flag": 2,
+                  "name": "position",
+                  "value": 10
+                },
+                {
+                  "flag": 4,
+                  "name": "alias",
+                  "value": 97268402
+                },
+                {
+                  "flag": 8,
+                  "name": "type",
+                  "value": 4129
+                },
+                {
+                  "flag": 16,
+                  "name": "level",
+                  "value": 1
+                },
+                {
+                  "flag": 32,
+                  "name": "rank",
+                  "value": 0
+                },
+                {
+                  "flag": 64,
+                  "name": "attribute",
+                  "value": 16
+                },
+                {
+                  "flag": 128,
+                  "name": "race",
+                  "value": 2
+                },
+                {
+                  "flag": 256,
+                  "name": "attack",
+                  "value": 0
+                },
+                {
+                  "flag": 512,
+                  "name": "defense",
+                  "value": 0
+                },
+                {
+                  "flag": 1024,
+                  "name": "base_attack",
+                  "value": 0
+                },
+                {
+                  "flag": 2048,
+                  "name": "base_defense",
+                  "value": 0
+                },
+                {
+                  "flag": 4096,
+                  "name": "reason",
+                  "value": 0
+                },
+                {
+                  "flag": 8192,
+                  "name": "reason_card",
+                  "value": {
+                    "controller": 0,
+                    "location": 0,
+                    "position": 0,
+                    "sequence": 0
+                  }
+                },
+                {
+                  "flag": 16384,
+                  "name": "equip_card",
+                  "value": {
+                    "controller": 0,
+                    "location": 0,
+                    "position": 0,
+                    "sequence": 0
+                  }
+                },
+                {
+                  "flag": 32768,
+                  "name": "target_cards",
+                  "value": []
+                },
+                {
+                  "flag": 65536,
+                  "name": "overlay_cards",
+                  "value": []
+                },
+                {
+                  "flag": 131072,
+                  "name": "counters",
+                  "value": []
+                },
+                {
+                  "flag": 262144,
+                  "name": "owner",
+                  "value": 1
+                },
+                {
+                  "flag": 524288,
+                  "name": "status",
+                  "value": 1024
+                },
+                {
+                  "flag": 1048576,
+                  "name": "is_public",
+                  "value": 0
+                },
+                {
+                  "flag": 2097152,
+                  "name": "left_scale",
+                  "value": 0
+                },
+                {
+                  "flag": 4194304,
+                  "name": "right_scale",
+                  "value": 0
+                },
+                {
+                  "flag": 8388608,
+                  "name": "link",
+                  "value": {
+                    "markers": 0,
+                    "rating": 0
+                  }
+                },
+                {
+                  "flag": 16777216,
+                  "name": "is_hidden",
+                  "value": 0
+                },
+                {
+                  "flag": 33554432,
+                  "name": "cover",
+                  "value": 0
+                }
+              ],
+              "instance_key": "1:2:0",
+              "location": 2,
+              "slot": 0
+            }
+          ]
+        },
+        "random_event_id": "rnd_54c79a65b46943069d84423045e5338182f947c4aa3a884010431c2542736534",
+        "resulting_state_hash": "state_b754859ea1c9bea025b3b72dc437604d8b4f3aa94f69741f739c6054141dd56f",
+        "schema_version": "ocgcore-random-event-v2"
+      }
+    ],
+    "request_signature": "req_8f4a1cb9385eab74830e37089ee0ca6008fea8db892b309922b0a28cb4515fe6",
+    "state_hash": "state_b754859ea1c9bea025b3b72dc437604d8b4f3aa94f69741f739c6054141dd56f",
+    "trace_logs": []
+  },
+  "fixture": {
+    "card_code": 97268402,
+    "card_data_source": "pinned_babelcdb_record",
+    "card_script_commit": "c8e9c0bcd026a5ccc303bbc73881b8f86f818657",
+    "card_script_path": "official/c97268402.lua",
+    "card_script_sha256": "a2d9241ca503828e62853ad5e694c5bb35a1f4167322d5729e7943c6f7773442",
+    "probe_script_name": "ygo_effect_dsl_direct_random_probe.lua",
+    "probe_script_sha256": "60baf2970a90fbc5f1c9beffc2011cfc05b666fc38099a98e3e4003b9afdddb8",
+    "seed": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "synthetic_card_data_codes": []
+  },
+  "instrumented": {
+    "core_message_hex": [
+      "020000002800",
+      "0a000000210001000000b232cc050a000000210101000000b232cc05",
+      "030000002901000b0000000201001b00000000000000",
+      "03000000290200",
+      "03000000290400",
+      "310000000b0001000000b232cc05000200000000000000000000000001000000b232cc050002000000000000000000000000000100"
+    ],
+    "instrumentation": {
+      "enabled": true,
+      "instrumentation_id": "rnginst_5d3d5277a106e8e76d91255abb3f814a9a76d72e80ebacf3212d41c19b27fd4a",
+      "record_format": "prefix|draw_index|minimum|maximum|result",
+      "schema_version": "ocgcore-direct-random-trace-v2",
+      "script_name": "ygo_effect_dsl_direct_random_trace.lua",
+      "script_sha256": "88bcc50cdf2802e3e5c30b6e149516a5461b4161f894099ddb6f629d91a1b2df",
+      "transport": "ocgcore_log_handler_from_script_v1"
+    },
+    "random_events": [
+      {
+        "kind": "direct_lua_random",
+        "log_index": 0,
+        "log_sequence": 0,
+        "message_type": null,
+        "outcome": {
+          "draw_index": 1,
+          "maximum": 4,
+          "minimum": 0,
+          "result": 0
+        },
+        "random_event_id": "rnd_2c0cae7a42547392f030a73ce563b98634d0c68a4c0615fc33db12cf0fe82ee6",
+        "resulting_state_hash": "state_b754859ea1c9bea025b3b72dc437604d8b4f3aa94f69741f739c6054141dd56f",
+        "schema_version": "ocgcore-random-event-v2",
+        "transport": "ocgcore_log_handler_from_script_v1"
+      },
+      {
+        "kind": "direct_lua_random",
+        "log_index": 1,
+        "log_sequence": 1,
+        "message_type": null,
+        "outcome": {
+          "draw_index": 2,
+          "maximum": 2,
+          "minimum": -2,
+          "result": -2
+        },
+        "random_event_id": "rnd_af7cf270dc74da7bbe9ec9e649c8ab2c37268fd1f9cf236f94516a8efd60d334",
+        "resulting_state_hash": "state_b754859ea1c9bea025b3b72dc437604d8b4f3aa94f69741f739c6054141dd56f",
+        "schema_version": "ocgcore-random-event-v2",
+        "transport": "ocgcore_log_handler_from_script_v1"
+      },
+      {
+        "kind": "direct_lua_random",
+        "log_index": 2,
+        "log_sequence": 2,
+        "message_type": null,
+        "outcome": {
+          "draw_index": 3,
+          "maximum": 1,
+          "minimum": 0,
+          "result": 0
+        },
+        "random_event_id": "rnd_c4b86561a9ba93f8eb34327c2cdc04886c1cf47f4b38132e18e8bf06852deba6",
+        "resulting_state_hash": "state_b754859ea1c9bea025b3b72dc437604d8b4f3aa94f69741f739c6054141dd56f",
+        "schema_version": "ocgcore-random-event-v2",
+        "transport": "ocgcore_log_handler_from_script_v1"
+      },
+      {
+        "kind": "direct_lua_random",
+        "log_index": 3,
+        "log_sequence": 3,
+        "message_type": null,
+        "outcome": {
+          "draw_index": 4,
+          "maximum": 1,
+          "minimum": 0,
+          "result": 0
+        },
+        "random_event_id": "rnd_f7f429dad24f1f4ae71be92aac04571e451ef7812351eb469e2b1baff5526f66",
+        "resulting_state_hash": "state_b754859ea1c9bea025b3b72dc437604d8b4f3aa94f69741f739c6054141dd56f",
+        "schema_version": "ocgcore-random-event-v2",
+        "transport": "ocgcore_log_handler_from_script_v1"
+      },
+      {
+        "kind": "direct_lua_random",
+        "log_index": 4,
+        "log_sequence": 4,
+        "message_type": null,
+        "outcome": {
+          "draw_index": 5,
+          "maximum": -2147483648,
+          "minimum": -2147483648,
+          "result": -2147483648
+        },
+        "random_event_id": "rnd_1b9c95619eb0de07bb90bf0a2640013f07887d61f35e88ff98fdcee0b23e6087",
+        "resulting_state_hash": "state_b754859ea1c9bea025b3b72dc437604d8b4f3aa94f69741f739c6054141dd56f",
+        "schema_version": "ocgcore-random-event-v2",
+        "transport": "ocgcore_log_handler_from_script_v1"
+      },
+      {
+        "kind": "direct_lua_random",
+        "log_index": 5,
+        "log_sequence": 5,
+        "message_type": null,
+        "outcome": {
+          "draw_index": 6,
+          "maximum": 2147483647,
+          "minimum": 2147483647,
+          "result": 2147483647
+        },
+        "random_event_id": "rnd_cf31a275b59949b153ed22402aa90844c23becf1a4fdeeb4f73f6e86e679bd26",
+        "resulting_state_hash": "state_b754859ea1c9bea025b3b72dc437604d8b4f3aa94f69741f739c6054141dd56f",
+        "schema_version": "ocgcore-random-event-v2",
+        "transport": "ocgcore_log_handler_from_script_v1"
+      },
+      {
+        "frame_index": 1,
+        "kind": "shuffle_hand",
+        "message_type": 33,
+        "outcome": {
+          "codes": [
+            97268402
+          ],
+          "player": 0,
+          "zone_order": [
+            {
+              "controller": 0,
+              "fields": [
+                {
+                  "flag": 1,
+                  "name": "code",
+                  "value": 97268402
+                },
+                {
+                  "flag": 2,
+                  "name": "position",
+                  "value": 10
+                },
+                {
+                  "flag": 4,
+                  "name": "alias",
+                  "value": 97268402
+                },
+                {
+                  "flag": 8,
+                  "name": "type",
+                  "value": 4129
+                },
+                {
+                  "flag": 16,
+                  "name": "level",
+                  "value": 1
+                },
+                {
+                  "flag": 32,
+                  "name": "rank",
+                  "value": 0
+                },
+                {
+                  "flag": 64,
+                  "name": "attribute",
+                  "value": 16
+                },
+                {
+                  "flag": 128,
+                  "name": "race",
+                  "value": 2
+                },
+                {
+                  "flag": 256,
+                  "name": "attack",
+                  "value": 0
+                },
+                {
+                  "flag": 512,
+                  "name": "defense",
+                  "value": 0
+                },
+                {
+                  "flag": 1024,
+                  "name": "base_attack",
+                  "value": 0
+                },
+                {
+                  "flag": 2048,
+                  "name": "base_defense",
+                  "value": 0
+                },
+                {
+                  "flag": 4096,
+                  "name": "reason",
+                  "value": 0
+                },
+                {
+                  "flag": 8192,
+                  "name": "reason_card",
+                  "value": {
+                    "controller": 0,
+                    "location": 0,
+                    "position": 0,
+                    "sequence": 0
+                  }
+                },
+                {
+                  "flag": 16384,
+                  "name": "equip_card",
+                  "value": {
+                    "controller": 0,
+                    "location": 0,
+                    "position": 0,
+                    "sequence": 0
+                  }
+                },
+                {
+                  "flag": 32768,
+                  "name": "target_cards",
+                  "value": []
+                },
+                {
+                  "flag": 65536,
+                  "name": "overlay_cards",
+                  "value": []
+                },
+                {
+                  "flag": 131072,
+                  "name": "counters",
+                  "value": []
+                },
+                {
+                  "flag": 262144,
+                  "name": "owner",
+                  "value": 0
+                },
+                {
+                  "flag": 524288,
+                  "name": "status",
+                  "value": 1024
+                },
+                {
+                  "flag": 1048576,
+                  "name": "is_public",
+                  "value": 0
+                },
+                {
+                  "flag": 2097152,
+                  "name": "left_scale",
+                  "value": 0
+                },
+                {
+                  "flag": 4194304,
+                  "name": "right_scale",
+                  "value": 0
+                },
+                {
+                  "flag": 8388608,
+                  "name": "link",
+                  "value": {
+                    "markers": 0,
+                    "rating": 0
+                  }
+                },
+                {
+                  "flag": 16777216,
+                  "name": "is_hidden",
+                  "value": 0
+                },
+                {
+                  "flag": 33554432,
+                  "name": "cover",
+                  "value": 0
+                }
+              ],
+              "instance_key": "0:2:0",
+              "location": 2,
+              "slot": 0
+            }
+          ]
+        },
+        "random_event_id": "rnd_478f1875718f536dd6ef07d8c596fb3eb2c57e2df1b947e36fa7b9e0a1301ada",
+        "resulting_state_hash": "state_b754859ea1c9bea025b3b72dc437604d8b4f3aa94f69741f739c6054141dd56f",
+        "schema_version": "ocgcore-random-event-v2"
+      },
+      {
+        "frame_index": 2,
+        "kind": "shuffle_hand",
+        "message_type": 33,
+        "outcome": {
+          "codes": [
+            97268402
+          ],
+          "player": 1,
+          "zone_order": [
+            {
+              "controller": 1,
+              "fields": [
+                {
+                  "flag": 1,
+                  "name": "code",
+                  "value": 97268402
+                },
+                {
+                  "flag": 2,
+                  "name": "position",
+                  "value": 10
+                },
+                {
+                  "flag": 4,
+                  "name": "alias",
+                  "value": 97268402
+                },
+                {
+                  "flag": 8,
+                  "name": "type",
+                  "value": 4129
+                },
+                {
+                  "flag": 16,
+                  "name": "level",
+                  "value": 1
+                },
+                {
+                  "flag": 32,
+                  "name": "rank",
+                  "value": 0
+                },
+                {
+                  "flag": 64,
+                  "name": "attribute",
+                  "value": 16
+                },
+                {
+                  "flag": 128,
+                  "name": "race",
+                  "value": 2
+                },
+                {
+                  "flag": 256,
+                  "name": "attack",
+                  "value": 0
+                },
+                {
+                  "flag": 512,
+                  "name": "defense",
+                  "value": 0
+                },
+                {
+                  "flag": 1024,
+                  "name": "base_attack",
+                  "value": 0
+                },
+                {
+                  "flag": 2048,
+                  "name": "base_defense",
+                  "value": 0
+                },
+                {
+                  "flag": 4096,
+                  "name": "reason",
+                  "value": 0
+                },
+                {
+                  "flag": 8192,
+                  "name": "reason_card",
+                  "value": {
+                    "controller": 0,
+                    "location": 0,
+                    "position": 0,
+                    "sequence": 0
+                  }
+                },
+                {
+                  "flag": 16384,
+                  "name": "equip_card",
+                  "value": {
+                    "controller": 0,
+                    "location": 0,
+                    "position": 0,
+                    "sequence": 0
+                  }
+                },
+                {
+                  "flag": 32768,
+                  "name": "target_cards",
+                  "value": []
+                },
+                {
+                  "flag": 65536,
+                  "name": "overlay_cards",
+                  "value": []
+                },
+                {
+                  "flag": 131072,
+                  "name": "counters",
+                  "value": []
+                },
+                {
+                  "flag": 262144,
+                  "name": "owner",
+                  "value": 1
+                },
+                {
+                  "flag": 524288,
+                  "name": "status",
+                  "value": 1024
+                },
+                {
+                  "flag": 1048576,
+                  "name": "is_public",
+                  "value": 0
+                },
+                {
+                  "flag": 2097152,
+                  "name": "left_scale",
+                  "value": 0
+                },
+                {
+                  "flag": 4194304,
+                  "name": "right_scale",
+                  "value": 0
+                },
+                {
+                  "flag": 8388608,
+                  "name": "link",
+                  "value": {
+                    "markers": 0,
+                    "rating": 0
+                  }
+                },
+                {
+                  "flag": 16777216,
+                  "name": "is_hidden",
+                  "value": 0
+                },
+                {
+                  "flag": 33554432,
+                  "name": "cover",
+                  "value": 0
+                }
+              ],
+              "instance_key": "1:2:0",
+              "location": 2,
+              "slot": 0
+            }
+          ]
+        },
+        "random_event_id": "rnd_54c79a65b46943069d84423045e5338182f947c4aa3a884010431c2542736534",
+        "resulting_state_hash": "state_b754859ea1c9bea025b3b72dc437604d8b4f3aa94f69741f739c6054141dd56f",
+        "schema_version": "ocgcore-random-event-v2"
+      }
+    ],
+    "request_signature": "req_8f4a1cb9385eab74830e37089ee0ca6008fea8db892b309922b0a28cb4515fe6",
+    "state_hash": "state_b754859ea1c9bea025b3b72dc437604d8b4f3aa94f69741f739c6054141dd56f",
+    "trace_logs": [
+      {
+        "log_index": 0,
+        "log_type": "from_script",
+        "message": "YGO_EFFECT_DSL_RNG_V2|1|0|4|0",
+        "message_sha256": "5683eaedc1948ee22fad552cd09b0269d557969b5e7478c68bc1a6e0740d533c",
+        "sequence": 0
+      },
+      {
+        "log_index": 1,
+        "log_type": "from_script",
+        "message": "YGO_EFFECT_DSL_RNG_V2|2|-2|2|-2",
+        "message_sha256": "f2b4c21828b8957ae5e15d34f55c1a5694e5757d41928dd98290c3ee6a27be93",
+        "sequence": 1
+      },
+      {
+        "log_index": 2,
+        "log_type": "from_script",
+        "message": "YGO_EFFECT_DSL_RNG_V2|3|0|1|0",
+        "message_sha256": "81770e4cd1e7488f364de183d6cfeec5f8167b6f64f87de47f0833ba05054cbc",
+        "sequence": 2
+      },
+      {
+        "log_index": 3,
+        "log_type": "from_script",
+        "message": "YGO_EFFECT_DSL_RNG_V2|4|0|1|0",
+        "message_sha256": "ab31d7e52ac4ba8a6c8e2b86c239fae3d5bcfb45745e0d4ae2202a62f3478cc9",
+        "sequence": 3
+      },
+      {
+        "log_index": 4,
+        "log_type": "from_script",
+        "message": "YGO_EFFECT_DSL_RNG_V2|5|-2147483648|-2147483648|-2147483648",
+        "message_sha256": "876c3f96c3a29dc43d464957bc8238b47d57c41c95499486dc4d5a0c70f0d8cd",
+        "sequence": 4
+      },
+      {
+        "log_index": 5,
+        "log_type": "from_script",
+        "message": "YGO_EFFECT_DSL_RNG_V2|6|2147483647|2147483647|2147483647",
+        "message_sha256": "79d2c1f7397d79c13071a1f4bf1d0b5c104399d3190bae257ee0d20f76794200",
+        "sequence": 5
+      }
+    ]
+  },
+  "ocgcore_binary_sha256": "03e360cf694f5ac6ba686de1d3bec7ccde3f3233d01bfe3265884a18ce1b9028",
+  "schema_version": "ocgcore-direct-random-evidence-v2",
+  "evidence_id": "rngtraceev_a5ae5e14fff54538d528f125fecaea2d7a1c59e50bf64118c4b6341f400bdb62"
+}

@@ -1,0 +1,655 @@
+{
+  "audit_id": "snapshotaudit_9d5ed8c92bb6b7e11272668b9f152b3aee6575f7998e832d06ac2d81a55d58b1",
+  "decision": {
+    "adopt_native_mid_duel_state": false,
+    "cache_reuse_mode": "verified_replay_hint",
+    "fallback": "fresh_worker_replay_prefix",
+    "reason_codes": [
+      "no_public_state_transfer_api",
+      "no_snapshot_format_or_version_contract",
+      "private_lua_rng_processor_pointer_state",
+      "callback_payload_ownership_is_process_local"
+    ]
+  },
+  "internal_transfer_matches": [
+    {
+      "file": "duel.h",
+      "line": 2,
+      "text": "* Copyright (c) 2010-2015, Argon Sun (Fluorohydride)"
+    },
+    {
+      "file": "duel.h",
+      "line": 3,
+      "text": "* Copyright (c) 2016-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>"
+    },
+    {
+      "file": "duel.h",
+      "line": 71,
+      "text": "std::unordered_set<effect*> uncopy;"
+    },
+    {
+      "file": "duel.h",
+      "line": 104,
+      "text": "void restore_assumes();"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 2,
+      "text": "* Copyright (c) 2010-2015, Argon Sun (Fluorohydride)"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 3,
+      "text": "* Copyright (c) 2016-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 302,
+      "text": "pduel->game_field->restore_lp_cost();"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 405,
+      "text": "pduel->game_field->restore_lp_cost();"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 410,
+      "text": "pduel->game_field->restore_lp_cost();"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 424,
+      "text": "pduel->game_field->restore_lp_cost();"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 573,
+      "text": "case RESET_COPY: {"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 574,
+      "text": "return copy_id == reset_level;"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 716,
+      "text": "effect* effect::clone(int32_t majestic) {"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 723,
+      "text": "ceffect->condition = pduel->lua->clone_lua_ref(condition);"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 725,
+      "text": "ceffect->cost = pduel->lua->clone_lua_ref(cost);"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 727,
+      "text": "ceffect->target = pduel->lua->clone_lua_ref(target);"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 729,
+      "text": "ceffect->operation = pduel->lua->clone_lua_ref(operation);"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 731,
+      "text": "ceffect->label_object = pduel->lua->clone_lua_ref(label_object);"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 733,
+      "text": "ceffect->value = pduel->lua->clone_lua_ref(value);"
+    },
+    {
+      "file": "effect.cpp",
+      "line": 734,
+      "text": "if(majestic && is_flag(EFFECT_FLAG2_MAJESTIC_MUST_COPY)) {"
+    },
+    {
+      "file": "effect.h",
+      "line": 2,
+      "text": "* Copyright (c) 2010-2015, Argon Sun (Fluorohydride)"
+    },
+    {
+      "file": "effect.h",
+      "line": 3,
+      "text": "* Copyright (c) 2016-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>"
+    },
+    {
+      "file": "effect.h",
+      "line": 32,
+      "text": "uint16_t copy_id{};"
+    },
+    {
+      "file": "effect.h",
+      "line": 101,
+      "text": "effect* clone(int32_t majestic = FALSE);"
+    },
+    {
+      "file": "field.h",
+      "line": 2,
+      "text": "* Copyright (c) 2010-2015, Argon Sun (Fluorohydride)"
+    },
+    {
+      "file": "field.h",
+      "line": 3,
+      "text": "* Copyright (c) 2017-2025, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>"
+    },
+    {
+      "file": "field.h",
+      "line": 164,
+      "text": "uint16_t copy_id{ 1 };"
+    },
+    {
+      "file": "field.h",
+      "line": 327,
+      "text": "uint32_t copy_reset;"
+    },
+    {
+      "file": "field.h",
+      "line": 328,
+      "text": "uint8_t copy_reset_count;"
+    },
+    {
+      "file": "field.h",
+      "line": 504,
+      "text": "void restore_chain_counter(uint8_t playerid, const chain::applied_chain_counter_t& counters);"
+    },
+    {
+      "file": "field.h",
+      "line": 510,
+      "text": "void restore_lp_cost() {}"
+    },
+    {
+      "file": "field.h",
+      "line": 572,
+      "text": "int32_t check_event_c(effect* peffect, uint8_t playerid, int32_t neglect_con, int32_t neglect_cost, int32_t copy_info, tevent* pe = nullptr);"
+    },
+    {
+      "file": "interpreter.cpp",
+      "line": 2,
+      "text": "* Copyright (c) 2010-2015, Argon Sun (Fluorohydride)"
+    },
+    {
+      "file": "interpreter.cpp",
+      "line": 3,
+      "text": "* Copyright (c) 2016-2025, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>"
+    },
+    {
+      "file": "interpreter.cpp",
+      "line": 259,
+      "text": "//copy value from current_state to new stack"
+    },
+    {
+      "file": "interpreter.cpp",
+      "line": 304,
+      "text": "pduel->restore_assumes();"
+    },
+    {
+      "file": "interpreter.cpp",
+      "line": 538,
+      "text": "pduel->restore_assumes();"
+    },
+    {
+      "file": "interpreter.cpp",
+      "line": 567,
+      "text": "pduel->restore_assumes();"
+    },
+    {
+      "file": "interpreter.cpp",
+      "line": 571,
+      "text": "int32_t interpreter::clone_lua_ref(int32_t lua_ref) {"
+    },
+    {
+      "file": "interpreter.h",
+      "line": 2,
+      "text": "* Copyright (c) 2010-2015, Argon Sun (Fluorohydride)"
+    },
+    {
+      "file": "interpreter.h",
+      "line": 3,
+      "text": "* Copyright (c) 2017-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>"
+    },
+    {
+      "file": "interpreter.h",
+      "line": 95,
+      "text": "int32_t clone_lua_ref(int32_t lua_ref);"
+    },
+    {
+      "file": "libeffect.cpp",
+      "line": 2,
+      "text": "* Copyright (c) 2010-2015, Argon Sun (Fluorohydride)"
+    },
+    {
+      "file": "libeffect.cpp",
+      "line": 3,
+      "text": "* Copyright (c) 2017-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>"
+    },
+    {
+      "file": "libeffect.cpp",
+      "line": 35,
+      "text": "LUA_FUNCTION(Clone) {"
+    },
+    {
+      "file": "libeffect.cpp",
+      "line": 36,
+      "text": "interpreter::pushobject(L, self->clone());"
+    },
+    {
+      "file": "libeffect.cpp",
+      "line": 457,
+      "text": "LUA_FUNCTION(RestoreCountLimit) {"
+    },
+    {
+      "file": "libgroup.cpp",
+      "line": 2,
+      "text": "* Copyright (c) 2010-2015, Argon Sun (Fluorohydride)"
+    },
+    {
+      "file": "libgroup.cpp",
+      "line": 3,
+      "text": "* Copyright (c) 2017-2024, Edoardo Lolletti (edo9300) <edoardo762@gmail.com>"
+    },
+    {
+      "file": "libgroup.cpp",
+      "line": 45,
+      "text": "LUA_FUNCTION(Clone) {"
+    }
+  ],
+  "lock": {
+    "api": {
+      "major": 11,
+      "minor": 0
+    },
+    "commit": "158aebe758be3c46249c75d602e3f16d63d2ef31",
+    "lock_id": "ocgcore-v11.0-win-x64-msvc-v1",
+    "tree": "23915a17e8e0d6b0b64ffc868bf0067a55e00aa0"
+  },
+  "private_state": {
+    "callback_ownership": [
+      {
+        "file": "duel.h",
+        "line": 113,
+        "text": "handle_message_callback(handle_message_payload, message, type);"
+      },
+      {
+        "file": "duel.h",
+        "line": 116,
+        "text": "return read_script_callback(read_script_payload, this, name);"
+      },
+      {
+        "file": "duel.h",
+        "line": 121,
+        "text": "OCG_DataReader read_card_callback;"
+      },
+      {
+        "file": "duel.h",
+        "line": 122,
+        "text": "OCG_ScriptReader read_script_callback;"
+      },
+      {
+        "file": "duel.h",
+        "line": 123,
+        "text": "OCG_LogHandler handle_message_callback;"
+      },
+      {
+        "file": "duel.h",
+        "line": 124,
+        "text": "OCG_DataReaderDone read_card_done_callback;"
+      },
+      {
+        "file": "ocgapi_types.h",
+        "line": 57,
+        "text": "typedef void (*OCG_DataReader)(void* payload, uint32_t code, OCG_CardData* data);"
+      },
+      {
+        "file": "ocgapi_types.h",
+        "line": 58,
+        "text": "typedef void (*OCG_DataReaderDone)(void* payload, OCG_CardData* data);"
+      },
+      {
+        "file": "ocgapi_types.h",
+        "line": 59,
+        "text": "typedef int (*OCG_ScriptReader)(void* payload, OCG_Duel duel, const char* name);"
+      },
+      {
+        "file": "ocgapi_types.h",
+        "line": 60,
+        "text": "typedef void (*OCG_LogHandler)(void* payload, const char* string, int type);"
+      },
+      {
+        "file": "ocgapi_types.h",
+        "line": 67,
+        "text": "OCG_DataReader cardReader;"
+      },
+      {
+        "file": "ocgapi_types.h",
+        "line": 68,
+        "text": "void* payload1; /* relayed to cardReader */"
+      },
+      {
+        "file": "ocgapi_types.h",
+        "line": 69,
+        "text": "OCG_ScriptReader scriptReader;"
+      },
+      {
+        "file": "ocgapi_types.h",
+        "line": 70,
+        "text": "void* payload2; /* relayed to scriptReader */"
+      },
+      {
+        "file": "ocgapi_types.h",
+        "line": 71,
+        "text": "OCG_LogHandler logHandler;"
+      },
+      {
+        "file": "ocgapi_types.h",
+        "line": 72,
+        "text": "void* payload3; /* relayed to errorHandler */"
+      },
+      {
+        "file": "ocgapi_types.h",
+        "line": 73,
+        "text": "OCG_DataReaderDone cardReaderDone;"
+      },
+      {
+        "file": "ocgapi_types.h",
+        "line": 74,
+        "text": "void* payload4; /* relayed to cardReaderDone */"
+      }
+    ],
+    "chain_and_effect_usage": [
+      {
+        "file": "field.h",
+        "line": 239,
+        "text": "chain_array current_chain;"
+      },
+      {
+        "file": "field.h",
+        "line": 287,
+        "text": "effect_count_map effect_count_code;"
+      },
+      {
+        "file": "field.h",
+        "line": 288,
+        "text": "effect_count_map effect_count_code_duel;"
+      },
+      {
+        "file": "field.h",
+        "line": 289,
+        "text": "effect_count_map effect_count_code_chain;"
+      }
+    ],
+    "lua_vm_and_coroutines": [
+      {
+        "file": "duel.h",
+        "line": 94,
+        "text": "if(lua->call_depth)"
+      },
+      {
+        "file": "interpreter.h",
+        "line": 34,
+        "text": "using coroutine_map = std::unordered_map<int32_t, std::pair<lua_State*, int32_t>>;"
+      },
+      {
+        "file": "interpreter.h",
+        "line": 50,
+        "text": "lua_State* lua_state;"
+      },
+      {
+        "file": "interpreter.h",
+        "line": 51,
+        "text": "lua_State* current_state;"
+      },
+      {
+        "file": "interpreter.h",
+        "line": 53,
+        "text": "coroutine_map coroutines;"
+      },
+      {
+        "file": "interpreter.h",
+        "line": 55,
+        "text": "int32_t call_depth;"
+      },
+      {
+        "file": "interpreter.h",
+        "line": 83,
+        "text": "void push_param(lua_State* L, bool is_coroutine = false);"
+      },
+      {
+        "file": "interpreter.h",
+        "line": 100,
+        "text": "inline int call_lua(lua_State* L, int nargs, int nresults);"
+      },
+      {
+        "file": "interpreter.h",
+        "line": 102,
+        "text": "static void pushobject(lua_State* L, lua_obj* obj);"
+      },
+      {
+        "file": "interpreter.h",
+        "line": 103,
+        "text": "static void pushobject(lua_State* L, int32_t lua_ptr);"
+      },
+      {
+        "file": "interpreter.h",
+        "line": 104,
+        "text": "static int pushExpandedTable(lua_State* L, int32_t table_index);"
+      },
+      {
+        "file": "interpreter.h",
+        "line": 105,
+        "text": "static int32_t get_function_handle(lua_State* L, int32_t index);"
+      },
+      {
+        "file": "interpreter.h",
+        "line": 106,
+        "text": "static void print_stacktrace(lua_State* L);"
+      }
+    ],
+    "pending_processor_and_selection": [
+      {
+        "file": "field.h",
+        "line": 198,
+        "text": "using processor_list = std::list<processor_unit>;"
+      },
+      {
+        "file": "field.h",
+        "line": 213,
+        "text": "processor_list units;"
+      },
+      {
+        "file": "field.h",
+        "line": 214,
+        "text": "processor_list subunits;"
+      },
+      {
+        "file": "field.h",
+        "line": 215,
+        "text": "std::optional<processor_unit> reserved;"
+      },
+      {
+        "file": "field.h",
+        "line": 217,
+        "text": "card_vector select_cards;"
+      },
+      {
+        "file": "field.h",
+        "line": 218,
+        "text": "std::vector<std::pair<uint32_t, uint32_t>> select_cards_codes;"
+      },
+      {
+        "file": "field.h",
+        "line": 219,
+        "text": "card_vector unselect_cards;"
+      },
+      {
+        "file": "field.h",
+        "line": 228,
+        "text": "card_vector must_select_cards;"
+      },
+      {
+        "file": "field.h",
+        "line": 238,
+        "text": "chain_list select_chains;"
+      },
+      {
+        "file": "field.h",
+        "line": 374,
+        "text": "processor_list recover_damage_reserve;"
+      }
+    ],
+    "raw_pointer_graph": [
+      {
+        "file": "duel.h",
+        "line": 64,
+        "text": "field* game_field;"
+      },
+      {
+        "file": "duel.h",
+        "line": 65,
+        "text": "interpreter* lua;"
+      },
+      {
+        "file": "duel.h",
+        "line": 66,
+        "text": "std::unordered_set<card*> cards;"
+      },
+      {
+        "file": "duel.h",
+        "line": 67,
+        "text": "std::unordered_set<card*> assumes;"
+      },
+      {
+        "file": "duel.h",
+        "line": 68,
+        "text": "std::unordered_set<group*> groups;"
+      },
+      {
+        "file": "duel.h",
+        "line": 69,
+        "text": "std::unordered_set<group*> sgroups;"
+      },
+      {
+        "file": "duel.h",
+        "line": 70,
+        "text": "std::unordered_set<effect*> effects;"
+      },
+      {
+        "file": "duel.h",
+        "line": 71,
+        "text": "std::unordered_set<effect*> uncopy;"
+      },
+      {
+        "file": "field.h",
+        "line": 117,
+        "text": "using effect_collection = std::unordered_set<effect*>;"
+      },
+      {
+        "file": "field.h",
+        "line": 286,
+        "text": "std::unordered_set<card*> unique_cards[2];"
+      }
+    ],
+    "rng": [
+      {
+        "file": "duel.h",
+        "line": 120,
+        "text": "RNG::Xoshiro256StarStar random;"
+      }
+    ],
+    "transient_buffers_and_messages": [
+      {
+        "file": "duel.h",
+        "line": 62,
+        "text": "std::vector<uint8_t> buff;"
+      },
+      {
+        "file": "duel.h",
+        "line": 63,
+        "text": "std::vector<uint8_t> query_buffer;"
+      },
+      {
+        "file": "duel.h",
+        "line": 119,
+        "text": "std::deque<duel_message> messages;"
+      }
+    ]
+  },
+  "public_api": {
+    "functions": [
+      "OCG_GetVersion",
+      "OCG_CreateDuel",
+      "OCG_DestroyDuel",
+      "OCG_DuelNewCard",
+      "OCG_StartDuel",
+      "OCG_DuelProcess",
+      "OCG_DuelGetMessage",
+      "OCG_DuelSetResponse",
+      "OCG_LoadScript",
+      "OCG_DuelQueryCount",
+      "OCG_DuelQuery",
+      "OCG_DuelQueryLocation",
+      "OCG_DuelQueryField"
+    ],
+    "state_transfer_functions": []
+  },
+  "schema_version": "ocgcore-snapshot-audit-v1",
+  "source": {
+    "files": {
+      "duel.h": {
+        "sha256": "023b66bbc733f8ca43a31dbe8b321eff93fbacf8ac72b182113838eb196464a8",
+        "size": 3462
+      },
+      "effect.cpp": {
+        "sha256": "dc0bb4bb8257ca7d60054c12f52a5ba558ac64802ab2ded0cc552c1b4c56b8c7",
+        "size": 32781
+      },
+      "effect.h": {
+        "sha256": "35d6bfbcb903737eed651c1e776ad710b9899726d986444b6f6c93336f9a6035",
+        "size": 4242
+      },
+      "field.h": {
+        "sha256": "90339de11da75a2492619229491517fcbdd955c4fb851289f8b25c2b7bcaab8e",
+        "size": 35009
+      },
+      "interpreter.cpp": {
+        "sha256": "d2584376b0e57489be0537191e1579ef1a3010e6ee8960caf350f02955f16377",
+        "size": 22479
+      },
+      "interpreter.h": {
+        "sha256": "b8d09563bc8b22bfcd362e302e504f4352a1a6cbfbd4504610757596034182e7",
+        "size": 4443
+      },
+      "libeffect.cpp": {
+        "sha256": "0cf3573aad066bc82c4c5cbf8c819078355d747b0602766feeaa2676af1d0d7f",
+        "size": 13947
+      },
+      "libgroup.cpp": {
+        "sha256": "754eb4e6be1b42000fdcc5ab4629e0d095af37fb8c710e9b212a56b67061281a",
+        "size": 26374
+      },
+      "ocgapi.cpp": {
+        "sha256": "450e806c5259a13ee91166b62f6d1bb042152ff47506ec1405fa30049ad4127f",
+        "size": 10304
+      },
+      "ocgapi.h": {
+        "sha256": "8df3e8cda23fcb33e928da3b97789c8361ed6512616ea06ee9a5ccae8f9d93ba",
+        "size": 1774
+      },
+      "ocgapi_types.h": {
+        "sha256": "07d2dd10ae6a54e8ce13122bbf927f3cff606cb93bea43a18f43f97b0cbd4d51",
+        "size": 2410
+      }
+    },
+    "git_clean": true,
+    "git_revision": "158aebe758be3c46249c75d602e3f16d63d2ef31"
+  }
+}
