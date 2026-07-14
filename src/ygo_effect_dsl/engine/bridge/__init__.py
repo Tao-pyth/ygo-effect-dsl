@@ -6,6 +6,7 @@ from ygo_effect_dsl.engine.bridge.decision import (
     DecisionContext,
     DecisionRequest,
     DecisionResponse,
+    validate_decision_request,
     validate_decision_response,
 )
 from ygo_effect_dsl.engine.bridge.errors import (
@@ -25,5 +26,6 @@ __all__ = [
     "InvalidBridgeResponseError",
     "MockBridge",
     "UnsupportedBridgeMessageError",
+    "validate_decision_request",
     "validate_decision_response",
 ]

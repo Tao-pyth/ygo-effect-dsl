@@ -8,6 +8,7 @@ from typing import Any
 
 from ygo_effect_dsl import __version__
 from ygo_effect_dsl.cli.cmd_analyze import cmd_analyze
+from ygo_effect_dsl.cli.cmd_corpus import cmd_ocgcore_decision_corpus
 from ygo_effect_dsl.cli.cmd_experiment import (
     cmd_experiment_inspect,
     cmd_experiment_interrupt,
@@ -275,6 +276,19 @@ def main() -> int:
     real_deck_qualify.add_argument("--worker-timeout", type=float, default=30.0)
     real_deck_qualify.add_argument("--max-retries", type=int, default=1)
     real_deck_qualify.set_defaults(func=cmd_real_deck_qualify)
+
+    decision_corpus = sub.add_parser(
+        "ocgcore-decision-corpus",
+        help="verify Route Decision frames and write a sanitized shape corpus",
+    )
+    decision_corpus.add_argument(
+        "--route",
+        action="append",
+        required=True,
+        help="Route DSL path; repeat to aggregate multiple real-core Routes",
+    )
+    decision_corpus.add_argument("--out", required=True, help="output corpus JSON path")
+    decision_corpus.set_defaults(func=cmd_ocgcore_decision_corpus)
 
     prototype_run = sub.add_parser(
         "prototype-run",

@@ -11,15 +11,24 @@ from ygo_effect_dsl.external.ocgcore import (
     verify_ocgcore,
     verify_ocgcore_assets,
 )
+from ygo_effect_dsl.engine.bridge.ocgcore.decision_corpus import (
+    build_decision_shape_corpus,
+)
 from ygo_effect_dsl.experiment import load_experiment_document
 from ygo_effect_dsl.prototype import (
     build_real_core_route,
     invoke_real_core_worker_process,
 )
-from ygo_effect_dsl.route_dsl import validate_route_document
+from ygo_effect_dsl.route_dsl import load_route_document, validate_route_document
 
 
 EXPERIMENTS = Path(__file__).parents[1] / "examples" / "experiments"
+ACTION_AGGREGATION_ROUTE = (
+    Path(__file__).parents[1]
+    / "examples"
+    / "prototype"
+    / "real_core_action_aggregation.route.yaml"
+)
 MATRIX_EXPERIMENTS = {
     name: EXPERIMENTS / f"real_core_interruption_matrix_{name}.yaml"
     for name in ("control", "cost", "field_multi_target", "targetless")
@@ -122,6 +131,24 @@ def test_matrix_covers_hand_and_field_activation_sources(
         activation = matrix_routes[name]["replay"]["events"][5]["action"]
         assert activation["source"]["public_card_id"] == card_code
         assert activation["source"]["location"] == location
+
+
+def test_matrix_completes_machine_readable_interruption_shape_coverage(
+    matrix_routes: dict[str, dict[str, Any]],
+) -> None:
+    corpus = build_decision_shape_corpus(
+        [load_route_document(ACTION_AGGREGATION_ROUTE), *matrix_routes.values()]
+    )
+
+    assert set(corpus["coverage"]["categories"]) >= {
+        "cost",
+        "field_source",
+        "hand_source",
+        "multi_target",
+        "targetless",
+    }
+    assert corpus["coverage"]["missing_required_categories"] == []
+    assert corpus["coverage"]["shape_coverage_status"] == "complete"
 
 
 def test_matrix_promotes_negated_and_disabled_chain_edges_to_real_core(
