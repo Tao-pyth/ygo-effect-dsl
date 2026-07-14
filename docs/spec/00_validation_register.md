@@ -40,6 +40,7 @@ Last updated: 2026-07-14
 | `VAL-023` | real-core State dedup | `SearchFrontier v2`でstate completenessを明示し、`query_api_projection`による枝削除を禁止。synthetic exact/projection回帰と実core frontier宣言を検証 | `VERIFIED_LOCAL` | [#192](https://github.com/Tao-pyth/ygo-effect-dsl/issues/192) |
 | `VAL-024` | fresh Replay success artifact | SearchRunと共通のExperiment digest、Route/State/manifest/scenario/runtime/Lua identityを結ぶ`fresh-replay-verification-v1`を一意tempからatomic保存。general-search実core CLIとWindows並行writerで確認 | `VERIFIED_LOCAL` | [#193](https://github.com/Tao-pyth/ygo-effect-dsl/issues/193) |
 | `VAL-025` | 外部3 deck qualification harness | `real-deck-qualification-index-v1`、外部path制約、2回反復、profile witness、distinct deck hash、custom fixture/妨害拒否、atomic sanitized indexをasset不要testで確認。実3 deck証跡は未取得 | `VERIFIED_LOCAL` | [#194](https://github.com/Tao-pyth/ygo-effect-dsl/issues/194) |
+| `VAL-026` | operator walkthrough | editable install/import、doctor/bootstrap/verify、inline/YDK preflight、Search artifact commit、fresh Replay、owned cache復旧、diagnostic routingを現CLIへ同期。既存cacheで10-node inline Search/Replayを手順どおり実行 | `VERIFIED_LOCAL` | [#143](https://github.com/Tao-pyth/ygo-effect-dsl/issues/143) |
 
 ## Verification commands used
 
@@ -62,6 +63,8 @@ python -m ygo_effect_dsl prototype-real-stress --out <external>/worker-failure-a
 `VAL-010`のlocal fixture evidenceは`corpus_id=decisioncorpus_4320f03495f29e9eb79c7489321ddd5c4529c1a812b2ae425f10de010fea9103`、5 Route、63 decision caseで、required 7 categoryがcompleteである。これは固定fixtureのcodec/taxonomy coverageであり、外部3 deck一般性の証明ではない。
 
 `VAL-009`のlocal evidenceは`qualification_id=luaqualification_2d42852ce777de439c149bffc28e347210cebeef31db0b1cce7b219a28acc17a`、official 12,702 script、7 fresh worker、native failure 0、helper 26件、最大worker peak RSS 84,602,880 bytesである。BabelCDB coverageは12,582件で、DB行のない120件はscript-only load確認に限定し、通常deckの利用可能cardとは扱わない。persistent resolver indexは性能不足による未実装ではなく、live path identity検査を維持するため明示的に不採用とした。
+
+`VAL-026`のlocal walkthrough runは10 node/10 Replay、Route `route_1413fc434d81c8259cc2e512e0e2b869289fa802e09306c163027385a8b01246`、terminal State `state_5619746ab2aca3662c747ca7fddb9e269261ae3c58b2bc59f9bee5070f89764a`でfresh Replay一致を確認した。success predicateはfalseであり、接続・artifact整合のsmokeをdeck品質証跡へ拡大解釈しない。
 
 ## Update rule
 

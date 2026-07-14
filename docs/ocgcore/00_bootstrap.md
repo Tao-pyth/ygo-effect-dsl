@@ -1,5 +1,7 @@
 # ocgcore bootstrap
 
+End-to-endのoperator手順は[Real ocgcore operator walkthrough](50_operator_walkthrough.md)を参照する。この文書はbootstrapの設計判断と所有境界に限定する。
+
 ## Decision
 
 The project provisions ocgcore with a project-owned, non-interactive bootstrap. The EDOPro installer is not a dependency: it installs a complete client and does not provide a stable, project-verifiable C API runtime contract. The upstream interactive `scripts/generate.bat` is also not called because it downloads Premake without checking a project-owned checksum.
