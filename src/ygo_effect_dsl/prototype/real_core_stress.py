@@ -21,6 +21,7 @@ from ygo_effect_dsl.engine.search import (
     ParallelTaskResult,
     build_search_node_id,
 )
+from ygo_effect_dsl.io_atomic import atomic_write_text
 from ygo_effect_dsl.prototype.real_core import (
     WORKER_TIMEOUT_SECONDS,
     RealCoreWorkerProcessResult,
@@ -477,7 +478,7 @@ def dump_real_core_stress_report(
 ) -> None:
     output = Path(path)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(
+    atomic_write_text(
+        output,
         json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
     )

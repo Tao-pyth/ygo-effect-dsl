@@ -18,6 +18,7 @@ from ygo_effect_dsl.engine.replay import (
     build_scripted_output_trace,
 )
 from ygo_effect_dsl.experiment import assert_valid_experiment
+from ygo_effect_dsl.io_atomic import atomic_write_text
 from ygo_effect_dsl.prototype.evaluation import PrototypeEvaluation, PrototypePathEvaluator
 from ygo_effect_dsl.prototype.scripted_core import ScriptedCoreSession
 from ygo_effect_dsl.route_dsl import assert_valid_route_document
@@ -56,7 +57,7 @@ def dump_route_document(document: Mapping[str, Any], path: str | Path) -> None:
         text = json.dumps(document, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     else:
         text = yaml.safe_dump(dict(document), allow_unicode=True, sort_keys=False)
-    destination.write_text(text, encoding="utf-8")
+    atomic_write_text(destination, text)
 
 
 def build_prototype_route(scenario: Mapping[str, Any]) -> dict[str, Any]:

@@ -8,7 +8,10 @@ import pytest
 
 from ygo_effect_dsl.cli.cmd_qualification import _profile_inputs
 from ygo_effect_dsl.engine.canonical import stable_digest, to_canonical_data
-from ygo_effect_dsl.engine.search import SEARCH_RUN_RESULT_SCHEMA_VERSION
+from ygo_effect_dsl.engine.search import (
+    SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION,
+    SEARCH_RUN_RESULT_SCHEMA_VERSION,
+)
 from ygo_effect_dsl.experiment import (
     ScenarioManifest,
     ScenarioPreflightResult,
@@ -351,7 +354,14 @@ def test_search_preflight_join_normalizes_tuple_sections() -> None:
     experiment = load_experiment_document(BASE_EXPERIMENT)
     preflight = ScenarioPreflightResult((), _manifest("short"))
     route_id = _id("route_", "1")
+    route_sha256 = "a" * 64
     search_report = {
+        "artifact_commit": {
+            "route_id": route_id,
+            "route_sha256": route_sha256,
+            "schema_version": SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION,
+            "status": "committed",
+        },
         "best_route": {"route_id": route_id},
         "experiment_digest": stable_digest(experiment, prefix="experiment_"),
         "nodes": 1,
@@ -367,10 +377,43 @@ def test_search_preflight_join_normalizes_tuple_sections() -> None:
         search_report,
         experiment=experiment,
         route={"route_id": route_id},
+        route_sha256=route_sha256,
         preflight=preflight,
     )
 
     assert summary["best_route_id"] == route_id
+
+
+def test_search_summary_rejects_route_artifact_hash_mismatch() -> None:
+    experiment = load_experiment_document(BASE_EXPERIMENT)
+    preflight = ScenarioPreflightResult((), _manifest("short"))
+    route_id = _id("route_", "1")
+    search_report = {
+        "artifact_commit": {
+            "route_id": route_id,
+            "route_sha256": "a" * 64,
+            "schema_version": SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION,
+            "status": "committed",
+        },
+        "best_route": {"route_id": route_id},
+        "experiment_digest": stable_digest(experiment, prefix="experiment_"),
+        "nodes": 1,
+        "preflight": to_canonical_data(preflight.to_dict()),
+        "replays": 1,
+        "run_id": _id("searchrun_", "1"),
+        "schema_version": SEARCH_RUN_RESULT_SCHEMA_VERSION,
+        "strategy_id": "random_search_v1",
+        "termination_reason": "max_nodes",
+    }
+
+    with pytest.raises(RealDeckQualificationError, match="artifact commit"):
+        qualification_module._search_summary(
+            search_report,
+            experiment=experiment,
+            route={"route_id": route_id},
+            route_sha256="b" * 64,
+            preflight=preflight,
+        )
 
 
 def _manifest(profile_id: str) -> ScenarioManifest:

@@ -7,13 +7,17 @@ from typing import Any, Protocol
 
 from ygo_effect_dsl.engine.action import Action
 from ygo_effect_dsl.engine.canonical import stable_digest, to_canonical_data
+from ygo_effect_dsl.engine.failures import FailureRecord
 from ygo_effect_dsl.engine.search.parallel import build_search_node_id
 from ygo_effect_dsl.engine.search.termination import SearchBudget, TerminationReason
 
 
-SEARCH_EXECUTOR_SCHEMA_VERSION = "search-executor-v3"
+SEARCH_EXECUTOR_SCHEMA_VERSION = "search-executor-v4"
 SEARCH_FRONTIER_SCHEMA_VERSION = "search-frontier-v2"
-SEARCH_RUN_RESULT_SCHEMA_VERSION = "search-run-result-v3"
+SEARCH_RUN_RESULT_SCHEMA_VERSION = "search-run-result-v4"
+SEARCH_RUN_REPORT_SCHEMA_VERSION = "search-run-report-v1"
+SEARCH_RUN_FAILURE_SCHEMA_VERSION = "search-run-failure-v2"
+SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION = "search-artifact-commit-v1"
 RANDOM_SEARCH_STRATEGY_SCHEMA_VERSION = "random-search-strategy-v1"
 
 
@@ -289,15 +293,17 @@ class SearchExecutor:
                         raise
                     nodes += 1
                     replays += 1
-                    path_failures.append(
-                        {
-                            "action_ids": list(key),
-                            "depth": depth,
-                            "exception_type": type(exc).__name__,
-                            "message": str(exc),
-                            "status": "path_failure",
-                        }
-                    )
+                    path_failure = {
+                        "action_ids": list(key),
+                        "depth": depth,
+                        "exception_type": type(exc).__name__,
+                        "message": str(exc),
+                        "status": "path_failure",
+                    }
+                    failure = getattr(exc, "failure", None)
+                    if isinstance(failure, FailureRecord):
+                        path_failure["failure"] = failure.to_dict()
+                    path_failures.append(path_failure)
                     continue
                 cache[key] = frontier
                 replays += frontier.replay_count

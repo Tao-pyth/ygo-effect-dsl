@@ -27,7 +27,7 @@ Last updated: 2026-07-14
 | `VAL-010` | Message/Decision一般性 | API 11.0 registryと既存fixtureはあるが、任意deckで未知形状が出ない保証はない | `OPEN` | [#141](https://github.com/Tao-pyth/ygo-effect-dsl/issues/141) |
 | `VAL-011` | 妨害timing | targetless/cost/target等の基礎taxonomyはある。damage step、mandatory trigger、SEGOC等は未完了 | `OPEN` | [#123](https://github.com/Tao-pyth/ygo-effect-dsl/issues/123) |
 | `VAL-012` | 10万node実worker性能 | logical workload evidenceはあるが、pool 1/2/4/8/16の実Replay throughput/RSSは未測定 | `OPEN` | [#105](https://github.com/Tao-pyth/ygo-effect-dsl/issues/105), [#128](https://github.com/Tao-pyth/ygo-effect-dsl/issues/128) |
-| `VAL-013` | worker障害 | failure envelopeはあるが、crash/timeout/retry/quarantineのrelease acceptanceを未固定 | `OPEN` | [#142](https://github.com/Tao-pyth/ygo-effect-dsl/issues/142) |
+| `VAL-013` | worker障害 | version付きfrontier attempt/quarantine、retry exhaustion、structured Search failure、Route先行/report commit markerを実装。実core stress `realcorestress_a6868c...`でcrash/timeout/callback例外、pool 1/2/4、完了順独立、fresh replacement、全process終了を確認 | `VERIFIED_LOCAL` | [#142](https://github.com/Tao-pyth/ygo-effect-dsl/issues/142) |
 | `VAL-014` | supported platform | lockはWindows x64/MSVC。Linux/macOSと複数Python versionのsupport宣言は未確定 | `OPEN` | [#135](https://github.com/Tao-pyth/ygo-effect-dsl/issues/135) |
 | `VAL-015` | Beam/MCTS | interface接続点のみ。ordering、statistics、決定性、実装は未完了 | `OPEN` | [#145](https://github.com/Tao-pyth/ygo-effect-dsl/issues/145)-[#149](https://github.com/Tao-pyth/ygo-effect-dsl/issues/149) |
 | `VAL-016` | PlayerView | private-view real Replay、redaction、leak auditは未実装 | `OPEN` | [#125](https://github.com/Tao-pyth/ygo-effect-dsl/issues/125), [#150](https://github.com/Tao-pyth/ygo-effect-dsl/issues/150), [#151](https://github.com/Tao-pyth/ygo-effect-dsl/issues/151) |
@@ -50,9 +50,12 @@ python -m ygo_effect_dsl ocgcore-assets-verify
 python -m ygo_effect_dsl experiment-search examples/experiments/general_search_inline.yaml --out <temp>/best.route.yaml --search-report <temp>/report.json
 python -m ygo_effect_dsl experiment-replay examples/experiments/general_search_inline.yaml <temp>/best.route.yaml
 python -m ygo_effect_dsl real-deck-qualify --experiment short=<external>/short.yaml --experiment long=<external>/long.yaml --experiment grave_banish=<external>/grave-banish.yaml --artifact-root <external>/raw --index-out <sanitized-index>.json
+python -m ygo_effect_dsl prototype-real-stress --out <external>/worker-failure-acceptance.json --pool-sizes 1,2,4 --tasks 4
 ```
 
 `VAL-006`のlocal smoke結果は`nodes=10`、`replays=10`、`worker_invocations=10`、`worker_retries=0`、terminationは`max_nodes`だった。これは接続確認であり、成功predicate達成率やproduction性能の証拠には使用しない。
+
+`VAL-013`のlocal stressは`semantic_report_id=realcorestress_a6868c199d651249f3cf4ff0d79978b61f3c8bebca0f233666698965d722a4cf`、`task_count=4`で、`all_failure_categories_observed`、`callback_native_path_observed`、`completion_order_independent`、`pool_independent_route_replay_ids`、`pool_independent_semantic_result`、`process_cleanup_observed`、`recovered_once`、`replacement_process_isolated`、`retry_exhaustion_failed`、`retry_seed_and_slot_stable`がすべてtrueだった。これはworker障害acceptanceのlocal evidenceであり、10万node性能校正`VAL-012`の代替ではない。
 
 ## Update rule
 

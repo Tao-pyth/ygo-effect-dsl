@@ -101,6 +101,14 @@ duel sessionはscript要求開始順のsequenceを発行し、`loaded`、`missin
 
 書き込みは同一directoryの一意なtemporary fileをflush/fsyncしてから`os.replace`し、Windowsの一時的なreplace競合だけをbounded retryする。検証またはreplace失敗時は成功reportを書かず、既存destinationを保持してtemporary fileを削除する。`verification_id`は偶発的な破損とjoin不一致を検出するcontent IDであり、攻撃者による再計算を防ぐ電子署名ではない。署名・trusted catalog anchoringはproduction provenanceの別契約とする。
 
+## Worker attempt and artifact commit
+
+General Searchのfresh workerごとに`real-core-frontier-worker-attempt-v1`を生成する。attemptはsemanticなinput digest、local attempt index、process ID、return code、stdout/stderr digest、終了確認、failure category、retryable、quarantinedを持つ。Search reportは全成功attemptを列挙せずinvocation countとして集計し、failure/retryが発生したReplayのattempt lineageだけを保持するため、通常runのledger memoryはO(failure count)である。raw stdout/stderrはSearch reportへ複製しない。crash、timeout、IPC失敗は失敗attemptをquarantineしてfresh processだけでretryし、不正JSON、failure envelope不正、frontier schema不正は`worker_protocol`としてretryしない。全retry消費時は`real-core-frontier-worker-failure-v1`がattempt ID列と`retry_exhausted`を保持する。
+
+worker processはocgcore DLLを同一process内へloadするleaf processであり、子process生成をworker contractで許可しない。timeout時はworkerをkillして`communicate`で回収し、attemptの`terminated`を確認する。将来workerから別processを起動する構成へ変える場合は、process group/job objectによるtree cleanupを先にversion付きcontractへ追加する。
+
+`experiment-search`はRouteとSearch reportをそれぞれ一意temporary fileからatomic replaceする。成功時はRouteを先にpublishし、そのSHA-256とRoute IDを`search-artifact-commit-v1`へ記録したSearch reportを最後にcommit markerとしてpublishする。readerはreportのhashとRouteを照合し、report欠落、`not_published`、hash不一致を成功runとして扱わない。preflight、worker、artifact失敗は`search-run-failure-v2`でbudget terminationと区別し、既存Routeを削除または上書き途中にしない。
+
 ## Fail-close classes
 
 | Class | Examples | Required result |

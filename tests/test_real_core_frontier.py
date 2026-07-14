@@ -24,6 +24,7 @@ from ygo_effect_dsl.prototype import (
     RealCoreFrontierAdapter,
     verify_general_search_route,
 )
+from ygo_effect_dsl.io_atomic import sha256_file
 from ygo_effect_dsl.route_dsl import load_route_document
 from ygo_effect_dsl.runtime_imports import current_checkout_environment
 
@@ -248,6 +249,13 @@ def test_general_search_cli_writes_a_joinable_fresh_replay_report(
     assert verification["experiment"]["digest"] == search_report["experiment_digest"]
     assert verification["route"]["route_id"] == search_report["best_route"]["route_id"]
     assert verification["route"]["route_id"] == route["route_id"]
+    assert search_report["status"] == "complete"
+    assert search_report["artifact_commit"] == {
+        "route_id": route["route_id"],
+        "route_sha256": sha256_file(route_path),
+        "schema_version": "search-artifact-commit-v1",
+        "status": "committed",
+    }
     assert verification["scenario"]["deck_source"] == "inline"
     assert verification["lua_resolution"]["profile_id"] == (
         "card-scripts-official-v1"
