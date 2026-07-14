@@ -12,6 +12,7 @@ Status: General Search MVP candidate for Python engineers using a local asset ca
 - Deterministic `RandomSearchStrategyV1`, real-core frontier Replay, enforced search budgets, stable best-Route ordering, and the `experiment-search` CLI.
 - Specified-interruption generation from core-provided activation, cost, target, and option candidates with a machine-readable support taxonomy.
 - Three-profile 100,000 logical-node benchmark evidence, cache/worker policy v2, and memory preflight v2.
+- Versioned frontier worker attempts, retry/quarantine evidence, structured Search failure reports, and Route-hash artifact commit markers.
 - Package `--version` output and a single package-version source used by setuptools.
 
 ### Compatibility

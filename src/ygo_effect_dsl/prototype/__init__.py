@@ -26,14 +26,20 @@ from ygo_effect_dsl.prototype.real_core_stress import (
     run_real_core_parallel_stress,
 )
 from ygo_effect_dsl.prototype.frontier import (
+    REAL_CORE_FRONTIER_ATTEMPT_SCHEMA_VERSION,
+    REAL_CORE_FRONTIER_FAILURE_SCHEMA_VERSION,
     RealCoreFrontierAdapter,
+    RealCoreFrontierWorkerError,
     verify_general_search_route,
 )
 
 __all__ = [
     "PrototypeVerificationResult",
+    "REAL_CORE_FRONTIER_ATTEMPT_SCHEMA_VERSION",
+    "REAL_CORE_FRONTIER_FAILURE_SCHEMA_VERSION",
     "REAL_CORE_STRESS_SCHEMA_VERSION",
     "RealCoreFrontierAdapter",
+    "RealCoreFrontierWorkerError",
     "RealCoreVerificationResult",
     "RealCoreWorkerProcessResult",
     "build_prototype_route",

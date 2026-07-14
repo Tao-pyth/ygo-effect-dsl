@@ -27,7 +27,16 @@ from ygo_effect_dsl.prototype import (
     verify_real_core_route,
 )
 from ygo_effect_dsl.engine.canonical import canonical_json
-from ygo_effect_dsl.engine.search import SearchBudget, SearchExecutor, strategy_from_experiment
+from ygo_effect_dsl.engine.failures import FailureRecord, classify_failure
+from ygo_effect_dsl.engine.search import (
+    SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION,
+    SEARCH_RUN_FAILURE_SCHEMA_VERSION,
+    SEARCH_RUN_REPORT_SCHEMA_VERSION,
+    SearchBudget,
+    SearchExecutor,
+    strategy_from_experiment,
+)
+from ygo_effect_dsl.io_atomic import atomic_write_text, sha256_file
 from ygo_effect_dsl.prototype.frontier import verify_general_search_route
 from ygo_effect_dsl.route_dsl import (
     assert_valid_route_document,
@@ -40,6 +49,59 @@ from ygo_effect_dsl.storage import (
     RunStatus,
     write_raw_log,
 )
+
+
+def _search_artifact_commit(
+    status: str,
+    *,
+    route_id: str | None = None,
+    route_sha256: str | None = None,
+) -> dict[str, object]:
+    return {
+        "route_id": route_id,
+        "route_sha256": route_sha256,
+        "schema_version": SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION,
+        "status": status,
+    }
+
+
+def _write_search_report(path: str | Path, report: Mapping[str, object]) -> None:
+    atomic_write_text(path, canonical_json(report) + "\n")
+
+
+def _worker_evidence(adapter: object) -> dict[str, object]:
+    return {
+        "quarantined_attempt_ids": list(
+            getattr(adapter, "quarantined_attempt_ids", ())
+        ),
+        "worker_attempts": list(getattr(adapter, "worker_attempts", ())),
+        "worker_invocations": int(getattr(adapter, "worker_invocations", 0)),
+        "worker_retries": int(getattr(adapter, "worker_retries", 0)),
+    }
+
+
+def _execution_failure_report(
+    *,
+    adapter: object,
+    error: BaseException,
+    preflight: Mapping[str, object],
+    status: str | None = None,
+) -> dict[str, object]:
+    carried = getattr(error, "failure", None)
+    failure = carried if isinstance(carried, FailureRecord) else classify_failure(error)
+    failure_status = status or (
+        "worker_failure"
+        if failure.category.startswith("worker_") or failure.category == "callback_error"
+        else "execution_failure"
+    )
+    return {
+        "artifact_commit": _search_artifact_commit("not_published"),
+        "failure": failure.to_dict(),
+        "preflight": preflight,
+        "schema_version": SEARCH_RUN_FAILURE_SCHEMA_VERSION,
+        "status": failure_status,
+        **_worker_evidence(adapter),
+    }
 
 
 def cmd_validate_experiment(args: argparse.Namespace) -> int:
@@ -199,24 +261,24 @@ def cmd_experiment_run(args: argparse.Namespace) -> int:
 
 def cmd_experiment_search(args: argparse.Namespace) -> int:
     experiment = _resolved_experiment(args)
+    route_path = Path(args.out)
+    report_path = Path(args.search_report)
+    if route_path.resolve() == report_path.resolve():
+        raise ValueError("--out and --search-report must use different paths")
     preflight = preflight_scenario(
         experiment,
         experiment_path=args.experiment_file,
         external_root=args.external_root,
     )
     if not preflight.ok:
-        report_path = Path(args.search_report)
-        report_path.parent.mkdir(parents=True, exist_ok=True)
-        report_path.write_text(
-            canonical_json(
-                {
-                    "preflight": preflight.to_dict(),
-                    "schema_version": "search-run-failure-v1",
-                    "status": "configuration_failure",
-                }
-            )
-            + "\n",
-            encoding="utf-8",
+        _write_search_report(
+            report_path,
+            {
+                "artifact_commit": _search_artifact_commit("not_published"),
+                "preflight": preflight.to_dict(),
+                "schema_version": SEARCH_RUN_FAILURE_SCHEMA_VERSION,
+                "status": "configuration_failure",
+            },
         )
         raise ValueError("scenario preflight failed: " + canonical_json(preflight.to_dict()))
     adapter = RealCoreFrontierAdapter(
@@ -225,26 +287,56 @@ def cmd_experiment_search(args: argparse.Namespace) -> int:
         timeout_seconds=args.worker_timeout,
         max_retries=args.max_retries,
     )
-    result = SearchExecutor(
-        adapter,
-        strategy_from_experiment(experiment),
-        SearchBudget.from_experiment(experiment),
-    ).run(experiment)
+    try:
+        result = SearchExecutor(
+            adapter,
+            strategy_from_experiment(experiment),
+            SearchBudget.from_experiment(experiment),
+        ).run(experiment)
+    except Exception as exc:
+        _write_search_report(
+            report_path,
+            _execution_failure_report(
+                adapter=adapter,
+                error=exc,
+                preflight=preflight.to_dict(),
+            ),
+        )
+        raise
     report = {
         **result.to_dict(),
+        "artifact_commit": _search_artifact_commit("not_published"),
         "preflight": preflight.to_dict(),
-        "worker_invocations": adapter.worker_invocations,
-        "worker_retries": adapter.worker_retries,
+        "report_schema_version": SEARCH_RUN_REPORT_SCHEMA_VERSION,
+        "status": "no_route" if result.best_route is None else "publishing",
+        **_worker_evidence(adapter),
     }
-    report_path = Path(args.search_report)
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text(canonical_json(report) + "\n", encoding="utf-8")
     if result.best_route is None:
+        _write_search_report(report_path, report)
         raise ValueError(
             f"search produced no legal Route before {result.termination_reason}; "
             f"report={args.search_report}"
         )
-    dump_route_document(result.best_route.route_document, args.out)
+    try:
+        dump_route_document(result.best_route.route_document, route_path)
+    except Exception as exc:
+        _write_search_report(
+            report_path,
+            _execution_failure_report(
+                adapter=adapter,
+                error=exc,
+                preflight=preflight.to_dict(),
+                status="artifact_failure",
+            ),
+        )
+        raise
+    report["artifact_commit"] = _search_artifact_commit(
+        "committed",
+        route_id=result.best_route.route_id,
+        route_sha256=sha256_file(route_path),
+    )
+    report["status"] = "complete"
+    _write_search_report(report_path, report)
     print(
         f"experiment-search: ok experiment_id={experiment['experiment_id']} "
         f"run_id={result.run_id} route_id={result.best_route.route_id} "

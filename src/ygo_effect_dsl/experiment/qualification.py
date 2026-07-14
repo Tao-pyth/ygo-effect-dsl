@@ -16,7 +16,10 @@ from ygo_effect_dsl.engine.canonical import (
     stable_digest,
     to_canonical_data,
 )
-from ygo_effect_dsl.engine.search import SEARCH_RUN_RESULT_SCHEMA_VERSION
+from ygo_effect_dsl.engine.search import (
+    SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION,
+    SEARCH_RUN_RESULT_SCHEMA_VERSION,
+)
 from ygo_effect_dsl.experiment.schema import load_experiment_document
 from ygo_effect_dsl.experiment.scenario import (
     ScenarioPreflightResult,
@@ -364,10 +367,11 @@ def _search_summary(
     *,
     experiment: Mapping[str, Any],
     route: Mapping[str, Any],
+    route_sha256: str,
     preflight: ScenarioPreflightResult,
 ) -> dict[str, Any]:
     if search_report.get("schema_version") != SEARCH_RUN_RESULT_SCHEMA_VERSION:
-        raise RealDeckQualificationError("qualification requires SearchRun v3")
+        raise RealDeckQualificationError("qualification requires SearchRun v4")
     expected_digest = stable_digest(experiment, prefix="experiment_")
     if search_report.get("experiment_digest") != expected_digest:
         raise RealDeckQualificationError("SearchRun Experiment digest mismatch")
@@ -378,6 +382,21 @@ def _search_summary(
     best = _mapping(search_report.get("best_route"), "search_report.best_route")
     if best.get("route_id") != route.get("route_id"):
         raise RealDeckQualificationError("SearchRun best Route ID mismatch")
+    artifact_commit = _mapping(
+        search_report.get("artifact_commit"), "search_report.artifact_commit"
+    )
+    _exact_keys(
+        artifact_commit,
+        {"route_id", "route_sha256", "schema_version", "status"},
+        "search_report.artifact_commit",
+    )
+    if artifact_commit != {
+        "route_id": route.get("route_id"),
+        "route_sha256": route_sha256,
+        "schema_version": SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION,
+        "status": "committed",
+    }:
+        raise RealDeckQualificationError("SearchRun artifact commit does not match Route")
     return {
         "best_route_id": _content_id(
             best.get("route_id"), "search_report.best_route.route_id", prefix="route_"
@@ -420,6 +439,7 @@ def _run_record(
         _mapping(search_report, "search_report"),
         experiment=experiment,
         route=route,
+        route_sha256=_sha256_file(route_path),
         preflight=preflight,
     )
     verification = read_fresh_replay_verification_report(verification_path)
@@ -842,7 +862,7 @@ def validate_real_deck_qualification_index(value: Any) -> dict[str, Any]:
             _integer(search.get("nodes"), f"{run_path}.search.nodes", minimum=1)
             _integer(search.get("replays"), f"{run_path}.search.replays", minimum=1)
             if search.get("schema_version") != SEARCH_RUN_RESULT_SCHEMA_VERSION:
-                raise RealDeckQualificationError(f"{run_path} requires SearchRun v3")
+                raise RealDeckQualificationError(f"{run_path} requires SearchRun v4")
             if search.get("strategy_id") != "random_search_v1":
                 raise RealDeckQualificationError(f"{run_path} requires Random Search")
             _string(

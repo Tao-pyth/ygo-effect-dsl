@@ -6,6 +6,12 @@ from dataclasses import replace
 import pytest
 
 from ygo_effect_dsl.engine.action import Action, ActionKind, Selection
+from ygo_effect_dsl.engine.failures import (
+    FailureDisposition,
+    FailureRecord,
+    FailureRecordError,
+    RecoveryAction,
+)
 from ygo_effect_dsl.engine.search import (
     RandomSearchStrategyV1,
     SearchBudget,
@@ -105,10 +111,10 @@ def test_random_search_is_semantically_deterministic() -> None:
 
     assert first.semantic_dict() == second.semantic_dict()
     assert first.run_id == second.run_id
-    assert first.executor_schema_version == "search-executor-v3"
+    assert first.executor_schema_version == "search-executor-v4"
     assert first.experiment_digest.startswith("experiment_")
     assert first.frontier_schema_version == "search-frontier-v2"
-    assert first.schema_version == "search-run-result-v3"
+    assert first.schema_version == "search-run-result-v4"
     assert first.best_route is not None
     assert first.best_route.route_id == "route_right"
     assert [route.route_id for route in first.routes] == ["route_right", "route_left"]
@@ -321,3 +327,39 @@ def test_worker_error_stops_only_the_affected_path() -> None:
     assert result.best_route is not None
     assert len(result.path_failures) == 1
     assert result.path_failures[0]["status"] == "path_failure"
+
+
+def test_worker_failure_record_is_preserved_in_search_run() -> None:
+    failing = _action("failing")
+    healthy = _action("healthy")
+    failure = FailureRecord(
+        category="worker_timeout",
+        disposition=FailureDisposition.PATH_FAILURE,
+        recovery=RecoveryAction.REPLACE_WORKER,
+        retryable=True,
+        message="worker deadline exceeded",
+        exception_type="OcgcoreWorkerTimeoutError",
+        context={"attempt_ids": ["frontierattempt_fixture"]},
+    )
+
+    class StructuredFailureAdapter(FakeFrontierAdapter):
+        def replay(self, experiment: Mapping, action_prefix: Sequence[Action]) -> SearchFrontier:
+            key = tuple(action.selections[0].candidate_id for action in action_prefix)
+            if key == ("failing",):
+                raise FailureRecordError(failure)
+            return super().replay(experiment, action_prefix)
+
+    result = SearchExecutor(
+        StructuredFailureAdapter(
+            {
+                (): _frontier("root", actions=(failing, healthy)),
+                ("healthy",): _frontier("healthy", score=4, legal=True),
+            }
+        ),
+        RandomSearchStrategyV1(9),
+        SearchBudget(max_nodes=10),
+        clock=lambda: 0.0,
+    ).run(_experiment())
+
+    assert result.best_route is not None
+    assert result.path_failures[0]["failure"] == failure.to_dict()
