@@ -1,142 +1,88 @@
 # Roadmap
 
-Status: Package 0.2.0 / General Search MVP candidate
+Status: Package `0.2.0` released / `0.3.0` real-core qualification in progress
 
 Last updated: 2026-07-14
 
-## 1. Version Baseline
+## 1. Version model
 
-package/CLI releaseは`0.2.0`、対応Git tagは`v0.2.0`とする。package versionは配布物全体のSemVer、機能契約versionは保存形式とAPIの互換境界であり、両者を同じ番号へ揃えない。
+package/CLIの現行releaseは`0.2.0`、対応tagは`v0.2.0`である。`0.3.0`から`1.0.0`は将来のpackage milestoneであり、実装済みversionではない。package versionは配布物全体のSemVer、schema/contract versionは保存形式とAPIの互換境界として独立管理する。Experiment `0.4`をpackage `0.4.0`へ機械的に揃えない。
 
-| 機能領域 | 現行version | 次にversion更新が必要になる条件 |
+| 領域 | 現行version | 現在の位置付け |
 |---|---|---|
-| Package / CLI | `0.2.0` | 利用者に見える機能追加はminor、互換修正はpatch、production安定契約はmajor |
-| Project identity | `project-identity-v1` | repository、import、CLIなど安定名を変更する場合 |
-| Experiment | `0.4` | scenario/searchの必須入力または意味を非互換変更する場合。`0.3b`は実行互換、`0.3a`は読み取り・migration入力 |
-| Scenario | `scenario-v1` / `scenario-manifest-v1` / `scenario-preflight-v1` | deck、初手、preflight診断の保存契約を変更する場合 |
-| Decision / Action / Replay | `0.3a` / manifest `ygo-replay-manifest-v1` | request、Action、Replayの意味または必須fieldを変更する場合 |
-| Route DSL | `0.1` / normalization `route-normalization-v2` | Route交換形式またはcanonical normalizationを変更する場合 |
-| Information | `information-policy-v1` / `information-audit-v1` | 情報参照境界またはaudit意味論を変更する場合 |
-| State / Evaluation | `ygo-state-id-v1` / `evaluation-result-v1` / `score-breakdown-v1` / `route-resource-consumption-v1` | exact identity、score、資源評価の意味論を変更する場合 |
-| Search | `search-executor-v1` / `search-run-result-v1` / `random-search-strategy-v1` | 探索順、結果順位、永続化fieldを変更する場合。新strategyは専用versionを追加する |
-| Search support | `search-termination-v1` / `prefix-cache-policy-v1` / `parallel-search-result-v2` / `pruning-guardrail-policy-v2` | budget、cache、parallel、pruningの互換境界を変更する場合 |
-| Real-core / interruption | `real-core-frontier-v1` / `core-interruption-candidate-policy-v1` / `interruption-support-taxonomy-v1` | worker frontierまたは妨害candidate/taxonomyの意味を変更する場合 |
-| Storage | `raw-event-log-v1` / `run-catalog-v2` / `aggregation-v1` | JSONL、catalog、Parquetの読み取り互換を破る場合 |
-| Benchmark / policy | `general-search-benchmark-v1` / `cache-worker-policy-v2` / `memory-preflight-v2` | workload、cache/worker既定値、memory判定根拠を変更する場合 |
-| Runtime lock | ocgcore API `11.0` / assets `202504` | core、CardScripts、BabelCDBを更新し、lockと回帰evidenceを再生成する場合 |
+| Package / CLI | `0.2.0` | Pythonエンジニア向けsource milestone |
+| Project identity | `project-identity-v1` | repository、Python import、CLI、製品説明の安定名 |
+| Experiment | `0.4` | 現行scenario/search入力。`0.3b`は実行互換、`0.3a`は読み取り・migration入力 |
+| Scenario | `scenario-v1` / `scenario-manifest-v1` / `scenario-preflight-v1` | fixed/inline/YDK、初手、asset/card/script事前検査 |
+| Decision / Action / Replay | `0.3a` / `ygo-replay-manifest-v1` | core request、選択、fresh Replayの基礎契約 |
+| Route DSL | `0.1` / `route-normalization-v2` | 探索Routeの交換・再生形式 |
+| Information boundary | `information-policy-v1` / `information-audit-v1` | 探索・評価の参照可能情報とaccess証跡 |
+| State identity | `ygo-state-id-v1` / `ygo-rule-state-v1` / `ygo-visibility-state-v1` | exact dedup、ルール状態、可視性状態 |
+| Evaluation | `evaluation-result-v1` / `score-breakdown-v1` / `route-resource-consumption-v1` | 成功、盤面score、資源消費 |
+| Search | `search-executor-v1` / `search-run-result-v1` / `random-search-strategy-v1` | Random Searchのみ実動。Beam/MCTSは未実装 |
+| Real core | `real-core-frontier-v1` / `real-core-worker-failure-v1` | ocgcore API 11.0のfresh worker Replay |
+| Specified interruption | `core-interruption-candidate-policy-v1` / `interruption-support-taxonomy-v1` | core提示candidateだけを使う妨害分岐 |
+| Storage / aggregation | `raw-event-log-v1` / `run-catalog-v2` / `aggregation-v1` | JSONL、run catalog、optional Parquet集計 |
+| Runtime lock | `ocgcore-v11.0-win-x64-msvc-v1` | commit/tree/API/build入力を固定 |
+| Asset lock | `ocgcore-assets-202504-v1` | CardScripts/BabelCDBのcommit/tree/file hashを固定 |
+| Benchmark policy | `general-search-benchmark-v1` / `cache-worker-policy-v2` / `memory-preflight-v2` | logical workload基準。実worker校正は未完了 |
 
-`0.2.0`はPythonエンジニア向けsource milestoneであり、第三者assetを含む一般公開distributionではない。一般公開、対応環境、長期互換性は`#91/#127`完了後に別途宣言する。
+versionの詳細正本は[release stage index](spec/00_release_stage_index.md)、未確定事項は[validation register](spec/00_validation_register.md)とする。
 
-## 2. Completed Foundations
+## 2. Implemented baseline
 
-- Project Charterと責務境界
-- Pythonがカードルールを所有しないADR
-- DecisionRequest、Action、Replay v0.3aの最小契約
-- request signatureとaction IDの決定性
-- STOP_LINEとEND_TURNの分離仕様
-- Peak Board、Evaluation、Experimentの仕様
-- 旧カードテキスト変換を本流から除外する判断
-- Route DSL 0.1の責務、最小schema、validator、fixture
+`0.2.0`には次が存在する。
 
-## 3. Completed Runtime Baseline
+- project-owned ocgcore/CardScripts/BabelCDB bootstrap、hash検証、runtime network禁止
+- ocgcore API 11.0のlifecycle、callback、Message decode、Action response、State query
+- Experiment `0.4`のinline/YDK、fixed/random/conditional hand、manifest、preflight
+- `RealCoreFrontierAdapter`、決定論的Random Search、budget、STOP_LINE、best Route tie-break
+- 指定妨害候補とsupport taxonomyの基礎契約
+- Route DSL出力とfresh Replay、JSONL/catalog/optional Parquet evidence
 
-Route DSL Baselineと固定fixture中心の実core validation sliceは完了している。これらはGeneral Search MVPの入力・出力契約として維持する。
+2026-07-14に既存lock済みassetで10 nodeの`experiment-search`とbest Routeの`experiment-replay`を実行し、実ocgcore/EDOPro Luaのend-to-end動作を確認した。ただしこれは単一inline fixtureのlocal smokeであり、clean bootstrap、任意deck一般性、未知Lua/Message形状、10万node実worker性能を保証しない。
 
-- pin済みocgcore / EDOPro Lua assetのbootstrap、検証、隔離worker
-- API v11 Message、DecisionRequest、Action、完全Replay trace
-- fresh worker Replay、canonical State ID、Peak / Terminal Board評価
-- Experiment run / inspect / replay / reportとRoute DSL 0.1
-- STOP_LINEとEND_TURN、探索予算、prefix cache、並列schedulerの独立contract
-- 固定matrix/sequence fixtureによる妨害、lineage、失敗分類
-- 初手sampling、資源消費評価、Route比較、optional Parquet集計
+## 3. Release stages
 
-この到達点は任意カード、任意デッキ、一般探索、production規模を保証しない。
+依存順は`0.3.0 → 0.4.0 → 0.5.0 → 1.0.0`とする。後続stageは前段のrelease gateを弱めてはならない。
 
-## 4. Released Scope: Package 0.2.0
+| Package目標 | 主目的 | 親Issue | 詳細spec | 完了判定の要点 |
+|---|---|---|---|---|
+| `0.3.0` | 実ocgcore/EDOPro Lua統合と任意deck・性能のqualification | [#131](https://github.com/Tao-pyth/ygo-effect-dsl/issues/131) | [v0.3.0](spec/v0.3.0/00_scope.md) | clean bootstrap、3 real deck、fail-close、実worker 10万node、決定性 |
+| `0.4.0` | Beam/MCTS、PlayerView、複数妨害、後攻・複数turn | [#132](https://github.com/Tao-pyth/ygo-effect-dsl/issues/132) | [v0.4.0](spec/v0.4.0/00_scope.md) | strategy適合、private情報非漏洩、lineage相互検証 |
+| `0.5.0` | 大規模corpus、比較API、統計UI、長時間job | [#133](https://github.com/Tao-pyth/ygo-effect-dsl/issues/133) | [v0.5.0](spec/v0.5.0/00_scope.md) | job復旧、schema evolution、10万run/100万row、CLI/API/UI一致 |
+| `1.0.0` | stable compatibility、license、配布、security、運用 | [#134](https://github.com/Tao-pyth/ygo-effect-dsl/issues/134) | [v1.0.0](spec/v1.0.0/00_scope.md) | 法務承認、再現build、upgrade/rollback、soak、release provenance |
 
-対象利用者は、ローカルasset cacheを準備できるPythonエンジニアである。目標は、任意YDK/inlineデッキを事前検査し、実ocgcore上で決定論的Random Searchと指定妨害探索を実行し、再生可能な最良Route DSLをCLI/APIから出力できる状態である。
+## 4. Immediate priority: real ocgcore / EDOPro Lua
 
-依存順は次のとおりとし、scenario入力契約を一般探索executorより先に固定した。
+次の作業順を`0.3.0`のcritical pathとする。
 
-1. `[完了] #119` 開発環境: editable install、pytest、CLI subprocess、real-core workerのimport元を現在checkoutへ統一した。
-2. `[完了] #124` 文書: 実装済み、MVP対象、production前を本ロードマップ基準へ同期した。
-3. `[完了] #121` scenario: Experiment `0.4`、任意YDK/inline、fixed/random/conditional初手、manifest、preflightを追加した。
-4. `[完了] #120` search: real-core frontier、Random Search、予算、決定論的tie-break、`experiment-search`を追加した。
-5. `[完了] #122` interruption: 指定カードの全発動機会とsupport taxonomyをcore candidateだけから生成した。未検証categoryのfixture拡張は`#123`で継続する。
-6. `[完了] #105 logical calibration` hardening: 3 fixture、10万logical node、pool 1/2/4/8/16の性能・メモリ・再現性evidenceを固定した。pool別の実core Replay throughput/RSSは`#128`で継続する。
+1. [#135](https://github.com/Tao-pyth/ygo-effect-dsl/issues/135)でsupported platform/toolchainを確定する。
+2. [#136](https://github.com/Tao-pyth/ygo-effect-dsl/issues/136)で空cacheからocgcoreを取得・build・verifyする。
+3. [#137](https://github.com/Tao-pyth/ygo-effect-dsl/issues/137)でBabelCDBのtag/固定commit差異を解決し、asset clean bootstrapを証明する。
+4. [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140)と[#141](https://github.com/Tao-pyth/ygo-effect-dsl/issues/141)でLua/Message/Decision境界をfail-close検証する。
+5. [#139](https://github.com/Tao-pyth/ygo-effect-dsl/issues/139)で短展開・長展開・墓地/除外またはchain多発の3 deckをpreflightからReplayまで通す。
+6. [#142](https://github.com/Tao-pyth/ygo-effect-dsl/issues/142)、[#105](https://github.com/Tao-pyth/ygo-effect-dsl/issues/105)、[#128](https://github.com/Tao-pyth/ygo-effect-dsl/issues/128)でworker障害と10万node実測を完了する。
+7. [#138](https://github.com/Tao-pyth/ygo-effect-dsl/issues/138)と[#143](https://github.com/Tao-pyth/ygo-effect-dsl/issues/143)でself-hosted smokeと利用手順を固定する。
+8. [#144](https://github.com/Tao-pyth/ygo-effect-dsl/issues/144)で測定結果からcontract versionとdefault policyを決める。
 
-## 5. MVP Contracts
+asset lock、第三者asset、default performance policyは、対応する検証Issueとreviewを経ずに変更しない。upstream version変更時だけ再実行する[#117](https://github.com/Tao-pyth/ygo-effect-dsl/issues/117)は関連監査であり、通常の`0.3.0`完了条件には含めない。
 
-### Scenario and preflight
+## 5. Release rules
 
-- Experiment `0.4`を追加し、`0.3a/0.3b`の読み取り・Replay互換を維持する。
-- `deck.source`は`fixed`、`inline`、`ydk`とし、YDK内容SHA-256をmanifestへ保存する。
-- preflightはDB行、Lua script、asset lock、重複枚数、構造上のdeck制約を検査する。
-- 欠落、不一致、conditional hand不成立をstructured diagnosticとして保存し、実行前にfail-closeする。
+- 新しいstrategyは専用contract versionを追加する。既存schemaの必須fieldや意味を変える場合だけschemaをversion upする。
+- Pythonはカード効果、合法性、timing、chain処理を推測しない。真実源は固定したocgcore/EDOPro Luaとする。
+- unknown Message、candidate、Lua、asset不一致、Replay divergenceはfail-closeする。
+- native duel handle/Lua stateをcacheやprocess間で共有しない。cache hitでもfresh Replayする。
+- third-party core/assetsをwheel、sdist、executable、CI artifactへ同梱しない。
+- `#91`完了前に一般公開distributionを行わない。
+- 各releaseは全test、必要なmanual/self-hosted evidence、commit、push、PR、CI、merge、`main`同期、tag/changelog整合を完了してから宣言する。
 
-### Search executor
-
-- MVPで実動させるstrategyは`RandomSearchStrategyV1`だけとする。
-- RNGはseedとsemantic node IDから導出し、pool size、完了順、retryへ依存させない。
-- STOP_LINEを合法候補として扱い、END_TURNと区別する。
-- `max_nodes`、`max_seconds`、`max_depth`、`max_replays`を強制する。
-- best Route順序はsuccess、peak score、terminal score、Action数、Route IDで固定する。
-- prefix cacheは検証済みReplay hintだけに使い、native stateを再利用しない。枝削除はexact State identityだけに限定する。
-- Beam Search / MCTSは同じinterfaceへ接続可能にするが、MVPでは指定時に未実装エラーを返す。
-
-### Specified interruption
-
-- ユーザー指定カードについて、coreが提示した全発動機会をPASS/発動へ分岐する。
-- activation、cost、target、optionはDecisionRequest制約から生成し、Pythonで効果、合法性、タイミングを推測しない。
-- targetless、cost、single/multi-target、hand/field sourceを機械可読taxonomyとして保存する。
-- 未知candidate形状、候補消失、曖昧な対応はconfiguration failureまたはpath failureにする。
-- damage step、mandatory trigger、SEGOC等の未検証categoryは成功扱いにしない。
-
-### Production-scale evidence
-
-- 短展開、長展開、墓地・除外またはchain多発の3 fixtureをpin済みassetから固定する。
-- 各fixtureで同一の10万logical node workloadをpool 1/2/4/8/16で実行する。
-- throughput、worker/main RSS、prefix/cache、fresh Replay、artifact量、write amplification、crash recoveryをJSON/Parquetへ保存する。
-- semantic結果とbest Routeがpool sizeに依存しないことを必須とする。
-- 10万node計測は手動またはself-hosted workflowで行い、通常CIは縮小smoke corpusを使う。
-- 現行evidenceはlogical workload校正であり、pool別の実core Replay throughput/RSSをproduction性能の根拠にはしない。実worker校正は`#128`で行う。
-
-## 6. MVP Completion Gate
-
-- clean checkout、editable install、親/子Pythonプロセスのimport元一致
-- YDK/inline正規化、deck hash、asset欠落、未知card/script、conditional hand失敗の検査
-- 同一seed/budgetでSearchRunとbest Routeが再現し、pool sizeでsemantic結果が変化しない
-- STOP_LINE、END_TURN、全budget、frontier exhausted、worker crash/timeout/retryの検査
-- 指定妨害の全発動機会、cost/target、候補消失、unsupported taxonomyの検査
-- Route ID、Replay、Experiment `0.3a/0.3b`の回帰
-- wheel/sdist、Windows executable、clean venv CLI smoke。第三者assetは同梱しない
-- 全テスト、GitHub Actions、10万node evidence、commit、push、PR、merge、`main`同期
-- package metadata、CLI `--version`、README、Roadmap、changelogが`0.2.0`で一致し、review済み`main`へ`v0.2.0`を付与する
-
-## 7. Release-based Implementation Plan
-
-schema番号を先に予約してpackage番号へ合わせることはしない。各段階で既存契約を維持できる実装は既存schemaのまま追加し、保存形式や意味論を変える場合だけ対象契約をversion upする。
-
-| Package目標 | 実装内容 | 機能契約への影響 | 完了gate |
-|---|---|---|---|
-| `0.2.x` | `0.2.0`の不具合修正、文書・CLI・packaging整合 | 原則として現行schemaを変更しない。互換修正だけをpatch releaseに含める | 全回帰、wheel/sdist/Windows smoke、既存Route Replay互換 |
-| `0.3.0` | `#123`妨害fixture拡張、`#105/#128`実core 10万node・pool RSS校正、`#110`枝刈り校正、`#108`評価weight校正 | evidence追加だけなら現行version維持。既定policyやscore意味論を変える場合は該当policy/evaluation契約を更新 | 複数deckでsemantic一致、実worker throughput/RSS上限、未検証妨害categoryのfail-close解除根拠 |
-| `0.4.0` | `#125` PlayerView Replay、Beam Search/MCTS、複数妨害、妨害位置探索、後攻盤面突破、複数turn | 新strategy contractとPlayerView Replay契約を追加。Experiment変更が必要な場合だけ`0.4`後継schemaを定義 | Random/Beam/MCTS共通executor回帰、private information非漏洩、baseline/interrupted/recovery lineage |
-| `0.5.0` | `#126`大規模deck統計、Route比較API/UI、長時間job管理 | aggregation/catalogの読み取り互換を維持し、必要なら後継schemaを追加 | 大規模partition、再集計、比較再現性、UI/APIの同一結果 |
-| `1.0.0` | `#91/#127`ライセンス、互換性matrix、release provenance、監視、upgrade/rollback、配布品質 | 公開stable contractを選定し、support期間とmigration policyを固定 | 第三者成果物審査、clean install、署名/checksum、incident手順、production benchmark |
-
-`snapshot / clone`最適化やdistributed workerは、`0.3.0`のfresh Replay実測で必要性を示してから採用判断する。性能改善を理由にReplayの決定性やexact State identityを弱めない。
-
-## 8. Explicit Non-Goals for MVP
+## 6. Explicit non-goals
 
 - Python製カード効果エンジン
-- カードごとのRoute DSL手書き
-- 全ルート完全列挙
-- 完全な相手AI
+- 全ルート完全列挙または完全な相手AI
 - 勝率予測
 - オンライン対戦クライアント
-- 一般公開配布
-
-## 9. Legacy Removal
-
-`ingest / transform / validate / analyze` とカードテキスト辞書は、Route DSL runtimeが依存していないことをテストで固定した後に削除する。旧出力をRoute DSLへ変換するmigrationは作らない。両者は意味的に別形式である。
+- third-party assetの無審査配布
+- 実測根拠のないnative snapshot/cloneまたはdistributed worker導入

@@ -173,6 +173,8 @@ python -m pytest
 - [Project Charter](docs/00_project_charter.md)
 - [Architecture](docs/10_architecture.md)
 - [Roadmap](docs/20_roadmap.md)
+- [Release Stage Specifications: 0.3.0 to 1.0.0](docs/spec/00_release_stage_index.md)
+- [Release Validation Register](docs/spec/00_validation_register.md)
 - [Changelog](CHANGELOG.md)
 - [Versioning and Release Policy](docs/release/00_versioning.md)
 - [Glossary](docs/30_glossary.md)
