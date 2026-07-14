@@ -27,6 +27,11 @@ from ygo_effect_dsl.engine.bridge.ocgcore import (
 )
 from ygo_effect_dsl.engine.bridge.errors import UnsupportedBridgeMessageError
 from ygo_effect_dsl.engine.bridge.ocgcore.types import LogType
+from ygo_effect_dsl.external.ocgcore import (
+    OcgcoreBootstrapError,
+    verify_ocgcore,
+    verify_ocgcore_assets,
+)
 from ygo_effect_dsl.prototype.real_core import run_real_core_worker
 
 
@@ -386,6 +391,12 @@ def test_v2_script_audit_and_reload_field_frame_fail_closed() -> None:
 
 
 def test_real_core_v2_is_deterministic_and_keeps_private_trace_private() -> None:
+    try:
+        verify_ocgcore()
+        verify_ocgcore_assets()
+    except (OcgcoreBootstrapError, OSError) as exc:
+        pytest.skip(f"pinned local ocgcore runtime/assets are unavailable: {exc}")
+
     experiment = yaml.safe_load(
         (
             Path(__file__).parents[1]
