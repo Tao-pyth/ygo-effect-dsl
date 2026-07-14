@@ -16,7 +16,7 @@ Parent stage: [#131 Complete real ocgcore / EDOPro Lua integration and calibrati
 | 2 | [#136](https://github.com/Tao-pyth/ygo-effect-dsl/issues/136) | clean ocgcore bootstrap | #135 | source/build/API/hash manifest、idempotency、interrupt recovery |
 | 3 | [#137](https://github.com/Tao-pyth/ygo-effect-dsl/issues/137) | BabelCDB ref/commit判断とclean asset bootstrap | #135 | upstream ref record、empty-cache transcript、ADRまたはlock維持根拠 |
 | 4 | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) | EDOPro helper/card script load境界 | #137 | path/error/unsafe-library corpus |
-| 5 | [#139](https://github.com/Tao-pyth/ygo-effect-dsl/issues/139) | 3 real deckのYDK/inline preflight-to-Replay | #137, #140 | scenario/SearchRun/Route/Replay manifest |
+| 5 | [#139](https://github.com/Tao-pyth/ygo-effect-dsl/issues/139) / [#194](https://github.com/Tao-pyth/ygo-effect-dsl/issues/194) | 3 real deckのYDK/inline preflight-to-Replayとsanitized qualification index | #137, #140, #192, #193 | scenario/SearchRun/Route/Replay manifest、反復witness、artifact SHA-256 |
 | 6 | [#141](https://github.com/Tao-pyth/ygo-effect-dsl/issues/141) | unknown Message/Decision shape corpus | #139 | supported/unsupported registry、raw payload hash |
 | 7 | [#123](https://github.com/Tao-pyth/ygo-effect-dsl/issues/123) | negation/timing fixture拡張 | #139 | damage step/mandatory trigger/SEGOC等の分類 |
 | 8 | [#142](https://github.com/Tao-pyth/ygo-effect-dsl/issues/142) | worker crash/timeout/retry/quarantine acceptance | #136, #139 | fault injection report、process cleanup、atomicity |

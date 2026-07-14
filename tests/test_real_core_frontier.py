@@ -14,6 +14,7 @@ from ygo_effect_dsl.experiment import (
     preflight_scenario,
     read_fresh_replay_verification_report,
 )
+from ygo_effect_dsl.experiment import qualification as qualification_module
 from ygo_effect_dsl.external.ocgcore import (
     OcgcoreBootstrapError,
     verify_ocgcore,
@@ -251,3 +252,17 @@ def test_general_search_cli_writes_a_joinable_fresh_replay_report(
     assert verification["lua_resolution"]["profile_id"] == (
         "card-scripts-official-v1"
     )
+    experiment = load_experiment_document(EXPERIMENT)
+    preflight = preflight_scenario(experiment, experiment_path=EXPERIMENT)
+    qualification_run, _, _, _ = qualification_module._run_record(
+        ordinal=1,
+        paths={
+            "route": route_path,
+            "search": search_report_path,
+            "verification": verification_path,
+        },
+        experiment=experiment,
+        preflight=preflight,
+    )
+    assert qualification_run["search"]["best_route_id"] == route["route_id"]
+    assert qualification_run["replay"]["route_id"] == route["route_id"]

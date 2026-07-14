@@ -30,6 +30,7 @@ package versionと機能契約のschema versionは独立して管理します。
 | Search executor | `search-executor-v3` / `search-frontier-v2` / `search-run-result-v3` / `random-search-strategy-v1` | state completenessとExperiment digestを明示する決定論的Random Search。Beam/MCTSは未実装 |
 | Search support | `search-termination-v1` / `prefix-cache-policy-v1` / `parallel-search-result-v2` / `pruning-guardrail-policy-v2` | 予算、cache、並列結果、枝刈りguardrail |
 | Real-core frontier | `real-core-frontier-v2` / `real-core-worker-failure-v1` | fresh worker Replay、state completeness、failure envelope |
+| Real-deck qualification | `real-deck-qualification-index-v1` | 外部3 deckの反復Search/Replayとsanitized証跡index |
 | Specified interruption | `core-interruption-candidate-policy-v1` / `interruption-support-taxonomy-v1` | core提示candidateだけを使う妨害分岐と対応分類 |
 | Storage / aggregation | `raw-event-log-v1` / `run-catalog-v2` / `aggregation-v1` | JSONL、run catalog、optional Parquet集計 |
 | Benchmark / policy | `general-search-benchmark-v1` / `cache-worker-policy-v2` / `memory-preflight-v2` | 10万logical node校正とmemory gate |
@@ -146,9 +147,12 @@ python -m ygo_effect_dsl experiment-run examples/experiments/real_core_effect_ve
 python -m ygo_effect_dsl experiment-replay examples/experiments/real_core_effect_veiler_interrupted.yaml data/prototype/interrupted.route.yaml
 python -m ygo_effect_dsl experiment-search examples/experiments/general_search_inline.yaml --out data/prototype/general-search.route.yaml --search-report data/prototype/general-search.report.json
 python -m ygo_effect_dsl experiment-replay examples/experiments/general_search_inline.yaml data/prototype/general-search.route.yaml --verification-report data/prototype/general-search.replay-verification.json
+python -m ygo_effect_dsl real-deck-qualify --experiment short=D:/qualification/short.yaml --experiment long=D:/qualification/long.yaml --experiment grave_banish=D:/qualification/grave-banish.yaml --artifact-root D:/qualification/raw --index-out docs/qualification/real-deck-index.json
 ```
 
 `prototype-verify`は別プロセスで同じシナリオを再実行し、DecisionRequest署名、Action ID、state hash、評価、Route IDを含むRoute DSL全体の一致を検査します。仮設契約の要検証事項はGitHub Issueで管理します。
+
+`real-deck-qualify`の3 ExperimentとYDK、raw SearchRun、Route、Replay reportはrepository外へ置きます。各profileを同一seed/budget/lockで2回実行し、SearchRun ID、best Route ID、terminal State、core観測witnessが一致した場合だけ`real-deck-qualification-index-v1`を保存します。indexにはdeck/source hash、lock、artifact SHA-256を含めますが、カードコード列、YDK本文、Route本文、絶対pathは含めません。`#123`完了前はchain-heavyまたは指定妨害をqualificationへ混在させず、`grave_banish` profileを使用します。
 
 Route DSLサンプルを検証します。
 

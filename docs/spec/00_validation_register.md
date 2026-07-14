@@ -39,6 +39,7 @@ Last updated: 2026-07-14
 | `VAL-022` | card detail/effect text | 現行real-core providerは`datas`表だけを読み、表示用`texts` provider、locale、license/fallback契約は未実装 | `OPEN` | [#183](https://github.com/Tao-pyth/ygo-effect-dsl/issues/183), [#91](https://github.com/Tao-pyth/ygo-effect-dsl/issues/91) |
 | `VAL-023` | real-core State dedup | `SearchFrontier v2`でstate completenessを明示し、`query_api_projection`による枝削除を禁止。synthetic exact/projection回帰と実core frontier宣言を検証 | `VERIFIED_LOCAL` | [#192](https://github.com/Tao-pyth/ygo-effect-dsl/issues/192) |
 | `VAL-024` | fresh Replay success artifact | SearchRunと共通のExperiment digest、Route/State/manifest/scenario/runtime/Lua identityを結ぶ`fresh-replay-verification-v1`を一意tempからatomic保存。general-search実core CLIとWindows並行writerで確認 | `VERIFIED_LOCAL` | [#193](https://github.com/Tao-pyth/ygo-effect-dsl/issues/193) |
+| `VAL-025` | 外部3 deck qualification harness | `real-deck-qualification-index-v1`、外部path制約、2回反復、profile witness、distinct deck hash、custom fixture/妨害拒否、atomic sanitized indexをasset不要testで確認。実3 deck証跡は未取得 | `VERIFIED_LOCAL` | [#194](https://github.com/Tao-pyth/ygo-effect-dsl/issues/194) |
 
 ## Verification commands used
 
@@ -48,6 +49,7 @@ python -m ygo_effect_dsl ocgcore-verify
 python -m ygo_effect_dsl ocgcore-assets-verify
 python -m ygo_effect_dsl experiment-search examples/experiments/general_search_inline.yaml --out <temp>/best.route.yaml --search-report <temp>/report.json
 python -m ygo_effect_dsl experiment-replay examples/experiments/general_search_inline.yaml <temp>/best.route.yaml
+python -m ygo_effect_dsl real-deck-qualify --experiment short=<external>/short.yaml --experiment long=<external>/long.yaml --experiment grave_banish=<external>/grave-banish.yaml --artifact-root <external>/raw --index-out <sanitized-index>.json
 ```
 
 `VAL-006`のlocal smoke結果は`nodes=10`、`replays=10`、`worker_invocations=10`、`worker_retries=0`、terminationは`max_nodes`だった。これは接続確認であり、成功predicate達成率やproduction性能の証拠には使用しない。
