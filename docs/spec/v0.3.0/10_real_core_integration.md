@@ -110,3 +110,5 @@ duel sessionはscript要求開始順のsequenceを発行し、`loaded`、`missin
 ## Qualification boundary
 
 local smoke成功だけではqualificationにならない。空cache、3種類のdeck、Lua/error corpus、worker fault injection、pool別10万nodeを同じlockとversionで通し、raw evidenceを保存した時点で`0.3.0`のreal-core gateを満たす。
+
+実coreの`SearchFrontier v2`は`state_completeness`を必須とする。現行ocgcore query APIから構築する`state_id`は`query_api_projection`であり、観測、semantic node ID、集計には利用できるがexact dedup authorityではない。使用済み効果や完全な履歴を含むexact identityを取得できるまで、同じprojectionだけを根拠にbranchを削除しない。

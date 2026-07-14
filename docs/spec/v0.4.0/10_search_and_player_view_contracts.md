@@ -19,6 +19,8 @@ Last updated: 2026-07-14
 
 strategyはSTOP_LINEを合法候補として扱い、END_TURNと混同しない。exact State identityだけが共通dedup authorityであり、projectionやscore一致でbranchを削除しない。
 
+`SearchFrontier v2`は`state_completeness: exact | query_api_projection`を必須とする。executorは`exact`だけを`seen_states`へ登録する。`query_api_projection`はnode IDと観測値には残すが、同じprojectionの別prefixを展開対象から除外しない。`SearchRun.exact_state_duplicates`はexact identityによる削除件数だけを数える。
+
 ## Deterministic RNG and update order
 
 - RNG streamはroot seed、strategy ID/version、semantic node ID、decision purposeから導出する。

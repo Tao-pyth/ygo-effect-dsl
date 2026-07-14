@@ -63,6 +63,7 @@ def test_fresh_real_core_frontier_replays_prefix_to_a_valid_route() -> None:
         terminal = adapter.replay(experiment, prefix)
 
     assert root.request["request_type"] == "select_chain"
+    assert root.state_completeness == "query_api_projection"
     assert main_phase.request["request_type"] == "select_idle_command"
     assert terminal.legal_stop
     assert terminal.success

@@ -11,9 +11,9 @@ from ygo_effect_dsl.engine.search.parallel import build_search_node_id
 from ygo_effect_dsl.engine.search.termination import SearchBudget, TerminationReason
 
 
-SEARCH_EXECUTOR_SCHEMA_VERSION = "search-executor-v1"
-SEARCH_FRONTIER_SCHEMA_VERSION = "search-frontier-v1"
-SEARCH_RUN_RESULT_SCHEMA_VERSION = "search-run-result-v1"
+SEARCH_EXECUTOR_SCHEMA_VERSION = "search-executor-v2"
+SEARCH_FRONTIER_SCHEMA_VERSION = "search-frontier-v2"
+SEARCH_RUN_RESULT_SCHEMA_VERSION = "search-run-result-v2"
 RANDOM_SEARCH_STRATEGY_SCHEMA_VERSION = "random-search-strategy-v1"
 
 
@@ -24,6 +24,7 @@ class UnsupportedSearchStrategyError(NotImplementedError):
 @dataclass(frozen=True)
 class SearchFrontier:
     state_id: str
+    state_completeness: str
     request: Mapping[str, Any]
     actions: tuple[Action, ...]
     score: int | float
@@ -36,6 +37,14 @@ class SearchFrontier:
     schema_version: str = SEARCH_FRONTIER_SCHEMA_VERSION
 
     def __post_init__(self) -> None:
+        if self.schema_version != SEARCH_FRONTIER_SCHEMA_VERSION:
+            raise ValueError(
+                f"unsupported SearchFrontier schema {self.schema_version!r}"
+            )
+        if self.state_completeness not in {"exact", "query_api_projection"}:
+            raise ValueError(
+                "state_completeness must be 'exact' or 'query_api_projection'"
+            )
         if not isinstance(self.actions, tuple):
             object.__setattr__(self, "actions", tuple(self.actions))
         if self.route_document is not None and not self.legal_stop:
@@ -160,13 +169,34 @@ class SearchRunResult:
     routes: tuple[SearchRouteSummary, ...]
     best_route: SearchRouteSummary | None
     elapsed_seconds: float
+    executor_schema_version: str = SEARCH_EXECUTOR_SCHEMA_VERSION
+    frontier_schema_version: str = SEARCH_FRONTIER_SCHEMA_VERSION
     schema_version: str = SEARCH_RUN_RESULT_SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        observed = (
+            self.executor_schema_version,
+            self.frontier_schema_version,
+            self.schema_version,
+        )
+        expected = (
+            SEARCH_EXECUTOR_SCHEMA_VERSION,
+            SEARCH_FRONTIER_SCHEMA_VERSION,
+            SEARCH_RUN_RESULT_SCHEMA_VERSION,
+        )
+        if observed != expected:
+            raise ValueError(
+                "unsupported SearchRunResult version provenance: "
+                f"observed={observed!r}, expected={expected!r}"
+            )
 
     def semantic_dict(self) -> dict[str, Any]:
         return {
             "best_route": self.best_route.to_dict() if self.best_route else None,
             "exact_state_duplicates": self.exact_state_duplicates,
+            "executor_schema_version": self.executor_schema_version,
             "experiment_id": self.experiment_id,
+            "frontier_schema_version": self.frontier_schema_version,
             "max_depth_reached": self.max_depth_reached,
             "nodes": self.nodes,
             "path_failures": [to_canonical_data(item) for item in self.path_failures],
@@ -295,10 +325,11 @@ class SearchExecutor:
                 ):
                     termination = TerminationReason.GOAL_REACHED
                     break
-            if frontier.state_id in seen_states:
-                duplicates += 1
-                continue
-            seen_states.add(frontier.state_id)
+            if frontier.state_completeness == "exact":
+                if frontier.state_id in seen_states:
+                    duplicates += 1
+                    continue
+                seen_states.add(frontier.state_id)
             if self.budget.max_depth is not None and depth >= self.budget.max_depth:
                 termination = TerminationReason.MAX_DEPTH
                 continue
