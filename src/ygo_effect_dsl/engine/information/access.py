@@ -311,7 +311,7 @@ class InformationAccessPolicy:
         }
 
     def to_experiment_dict(self) -> dict[str, Any]:
-        """Serialize fields persisted by Experiment 0.3b.
+        """Serialize fields persisted by Experiment 0.3b and later.
 
         Visibility comes from ``information_mode`` and ``player.perspective``;
         duplicating those values inside the policy would permit contradictory
@@ -325,11 +325,12 @@ class InformationAccessPolicy:
 
     @classmethod
     def from_experiment(cls, experiment: Mapping[str, Any]) -> "InformationAccessPolicy":
-        if experiment.get("schema_version") != (
-            INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION
-        ):
+        if experiment.get("schema_version") not in {
+            INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION,
+            "0.4",
+        }:
             raise ValueError(
-                "information policy requires an explicitly migrated Experiment 0.3b"
+                "information policy requires Experiment 0.3b or later"
             )
         raw_policy = experiment.get("information_policy")
         player = experiment.get("player")

@@ -112,17 +112,18 @@ class SearchBudget:
         raw_termination = parameters.get("termination", {})
         if not isinstance(raw_termination, Mapping):
             raise ValueError("search.parameters.termination must be a mapping")
-        duplicates = sorted(set(raw_termination) & {"max_nodes", "max_seconds"})
+        budget_fields = {"max_depth", "max_nodes", "max_replays", "max_seconds"}
+        duplicates = sorted(set(raw_termination) & set(raw_budget) & budget_fields)
         if duplicates:
             raise ValueError(
-                "max_nodes/max_seconds must be defined only in search.budget: "
+                "core budget fields must not be duplicated across budget and termination: "
                 f"{duplicates}"
             )
         merged = {
             **dict(raw_termination),
             **{
                 name: raw_budget[name]
-                for name in ("max_nodes", "max_seconds")
+                for name in sorted(budget_fields)
                 if name in raw_budget
             },
         }

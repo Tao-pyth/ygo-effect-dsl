@@ -1,8 +1,11 @@
 from ygo_effect_dsl.experiment.schema import (
     EXPERIMENT_SCHEMA_VERSION,
+    INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION,
     INTERRUPTION_SAMPLER_IDS,
     INTERRUPTION_SAMPLING_SCHEMA_VERSION,
     LEGACY_EXPERIMENT_SCHEMA_VERSION,
+    OPENING_HAND_MODES,
+    SCENARIO_SCHEMA_VERSION,
     SUPPORTED_EXPERIMENT_SCHEMA_VERSIONS,
     ExperimentValidationIssue,
     assert_current_experiment,
@@ -10,6 +13,16 @@ from ygo_effect_dsl.experiment.schema import (
     dump_experiment_document,
     load_experiment_document,
     validate_experiment,
+)
+from ygo_effect_dsl.experiment.scenario import (
+    SCENARIO_MANIFEST_SCHEMA_VERSION,
+    SCENARIO_PREFLIGHT_SCHEMA_VERSION,
+    ScenarioDiagnostic,
+    ScenarioManifest,
+    ScenarioPreflightResult,
+    normalize_deck,
+    parse_ydk,
+    preflight_scenario,
 )
 from ygo_effect_dsl.experiment.resolution import (
     assert_experiment_matches_route,
@@ -20,11 +33,19 @@ from ygo_effect_dsl.experiment.resolution import (
 
 __all__ = [
     "EXPERIMENT_SCHEMA_VERSION",
+    "INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION",
     "INTERRUPTION_SAMPLER_IDS",
     "INTERRUPTION_SAMPLING_SCHEMA_VERSION",
     "LEGACY_EXPERIMENT_SCHEMA_VERSION",
+    "OPENING_HAND_MODES",
+    "SCENARIO_MANIFEST_SCHEMA_VERSION",
+    "SCENARIO_PREFLIGHT_SCHEMA_VERSION",
+    "SCENARIO_SCHEMA_VERSION",
     "SUPPORTED_EXPERIMENT_SCHEMA_VERSIONS",
     "ExperimentValidationIssue",
+    "ScenarioDiagnostic",
+    "ScenarioManifest",
+    "ScenarioPreflightResult",
     "assert_current_experiment",
     "assert_valid_experiment",
     "assert_experiment_matches_route",
@@ -32,6 +53,9 @@ __all__ = [
     "experiment_source_identity",
     "load_experiment_document",
     "migrate_experiment_v03a_to_v03b",
+    "normalize_deck",
+    "parse_ydk",
+    "preflight_scenario",
     "validate_experiment",
     "resolve_experiment_overrides",
 ]

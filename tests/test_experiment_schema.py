@@ -30,6 +30,18 @@ SAMPLE = ROOT / "examples" / "experiments" / "real_core_effect_veiler.yaml"
 
 def test_sample_experiment_and_distributed_json_schema_are_aligned() -> None:
     experiment = load_experiment_document(SAMPLE)
+    experiment["schema_version"] = "0.4"
+    experiment["deck"] = {
+        "id": "schema_fixture",
+        "source": "inline",
+        "main": list(range(1, 41)),
+        "extra": [],
+        "side": [],
+    }
+    experiment["scenario"] = {
+        "schema_version": "scenario-v1",
+        "opening_hand": {"mode": "fixed", "cards": list(range(1, 6))},
+    }
     schema = json.loads(
         (
             ROOT
@@ -41,7 +53,7 @@ def test_sample_experiment_and_distributed_json_schema_are_aligned() -> None:
     )
 
     assert validate_experiment(experiment) == ()
-    assert schema["properties"]["schema_version"]["const"] == "0.3b"
+    assert schema["properties"]["schema_version"]["const"] == "0.4"
     assert set(schema["required"]).issubset(experiment)
 
 

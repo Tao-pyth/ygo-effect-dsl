@@ -19,7 +19,14 @@ from ygo_effect_dsl.engine.action.aggregation import (
     derive_ocgcore_action_aggregation,
     diff_action_aggregations,
 )
-from ygo_effect_dsl.engine.action.models import Action, ActionKind, CardRef, EffectRef, Selection
+from ygo_effect_dsl.engine.action.models import (
+    Action,
+    ActionKind,
+    CardRef,
+    EffectRef,
+    Selection,
+    action_from_dict,
+)
 from ygo_effect_dsl.engine.action.rollback import (
     ACTIVATION_ROLLBACK_PROBE_SCHEMA_VERSION,
     ACTIVATION_ROLLBACK_SUPPORT_CANDIDATE,
@@ -51,6 +58,7 @@ __all__ = [
     "EffectRef",
     "Selection",
     "aggregate_replay_events",
+    "action_from_dict",
     "action_aggregation_compatibility_report",
     "assert_valid_activation_rollback_probe",
     "build_activation_rollback_probe",

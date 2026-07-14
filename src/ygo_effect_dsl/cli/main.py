@@ -13,6 +13,7 @@ from ygo_effect_dsl.cli.cmd_experiment import (
     cmd_experiment_report,
     cmd_experiment_replay,
     cmd_experiment_run,
+    cmd_experiment_search,
     cmd_migrate_experiment,
     cmd_validate_experiment,
 )
@@ -165,7 +166,8 @@ def main() -> int:
         parser.add_argument("--evaluator-id")
         parser.add_argument("--evaluator-version")
         parser.add_argument(
-            "--interruption-mode", choices=["none", "scripted", "sampled"]
+            "--interruption-mode",
+            choices=["none", "scripted", "sampled", "specified"],
         )
 
     experiment_run = sub.add_parser(
@@ -180,6 +182,21 @@ def main() -> int:
     experiment_run.add_argument("--catalog", help="optional SQLite run catalog path")
     experiment_run.add_argument("--raw-log", help="optional JSONL raw log path")
     experiment_run.set_defaults(func=cmd_experiment_run)
+
+    experiment_search = sub.add_parser(
+        "experiment-search",
+        help="run deterministic Random Search on a preflighted Experiment 0.4",
+    )
+    add_experiment_source(experiment_search)
+    add_experiment_overrides(experiment_search)
+    experiment_search.add_argument("--out", required=True, help="best Route DSL path")
+    experiment_search.add_argument(
+        "--search-report", required=True, help="SearchRun JSON report path"
+    )
+    experiment_search.add_argument("--external-root")
+    experiment_search.add_argument("--worker-timeout", type=float, default=30.0)
+    experiment_search.add_argument("--max-retries", type=int, default=1)
+    experiment_search.set_defaults(func=cmd_experiment_search)
 
     experiment_replay = sub.add_parser(
         "experiment-replay",

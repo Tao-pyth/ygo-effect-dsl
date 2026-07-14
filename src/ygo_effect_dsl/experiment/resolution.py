@@ -8,6 +8,7 @@ from ygo_effect_dsl.engine.information import InformationAccessPolicy
 from ygo_effect_dsl.engine.state import InformationMode
 from ygo_effect_dsl.experiment.schema import (
     EXPERIMENT_SCHEMA_VERSION,
+    INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION,
     LEGACY_EXPERIMENT_SCHEMA_VERSION,
     assert_current_experiment,
     assert_valid_experiment,
@@ -64,7 +65,7 @@ def migrate_experiment_v03a_to_v03b(
         sampling_reference=sampling_reference,
     )
     migrated = deepcopy(dict(experiment))
-    migrated["schema_version"] = EXPERIMENT_SCHEMA_VERSION
+    migrated["schema_version"] = INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION
     migrated["information_policy"] = policy.to_experiment_dict()
     assert_current_experiment(migrated)
     return migrated

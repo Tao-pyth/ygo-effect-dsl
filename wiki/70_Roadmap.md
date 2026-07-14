@@ -4,22 +4,22 @@
 
 ## Current
 
-Route DSL 0.1の責務、schema、validator、fixtureを固めます。特にReplay event、checkpoint、Peak Board、Terminal Board、妨害lineageの参照規則を安定させます。
+General Search MVP candidateまで実装済みです。Experiment `0.4`、YDK/inline preflight、実core frontier、決定論的Random Search、指定妨害taxonomy、10万logical node evidenceをCLI/APIから利用できます。
 
 ## Next
 
-固定初手・先攻1ターン・妨害なしに限定して、実ocgcoreからRoute DSLを一つ生成し、別プロセスでReplayできる垂直スライスを作ります。
+次はproduction claimに必要な実worker校正と互換性検証を行います。
 
 ```text
-ocgcore Bridge
-  -> DecisionRequest / Action
-  -> Replay executor
-  -> legal stop / evaluation
-  -> Route DSL
-  -> replay verification
+General Search MVP
+  -> Experiment 0.4 scenario preflight
+  -> real-core DecisionRequest / Action frontier
+  -> deterministic Random Search
+  -> best Route DSL / SearchRun report
+  -> fresh worker replay verification
 ```
 
-その後、Random Search、指定妨害、Recovery、複数初手集計、デッキ比較の順に拡張します。
+pool別の実core Replay throughput/RSS、damage step・mandatory trigger・SEGOC fixture、PlayerView Replay、大規模統計UI、Beam Search / MCTSは後続Issueで扱います。一般公開配布はライセンス・第三者成果物審査完了まで行いません。
 
 ## Legacy
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any
+from typing import Any, Mapping
 
 from ygo_effect_dsl.engine.canonical import stable_digest
 
@@ -145,3 +145,66 @@ class Action:
 
 def build_action_id(action: Action) -> str:
     return stable_digest(action.to_identity_dict(), prefix="act_")
+
+
+def action_from_dict(value: Mapping[str, Any]) -> Action:
+    if not isinstance(value, Mapping):
+        raise ValueError("Action document must be a mapping")
+
+    def card_ref(raw: Any) -> CardRef | None:
+        if raw is None:
+            return None
+        if not isinstance(raw, Mapping):
+            raise ValueError("Action CardRef must be a mapping or null")
+        return CardRef(
+            controller=raw["controller"],
+            owner=raw["owner"],
+            location=raw["location"],
+            sequence=raw["sequence"],
+            public_card_id=raw.get("public_card_id"),
+            instance_id=raw.get("instance_id"),
+        )
+
+    def effect_ref(raw: Any) -> EffectRef | None:
+        if raw is None:
+            return None
+        if not isinstance(raw, Mapping):
+            raise ValueError("Action EffectRef must be a mapping or null")
+        referenced_card = card_ref(raw.get("card_ref"))
+        if referenced_card is None:
+            raise ValueError("Action EffectRef requires card_ref")
+        return EffectRef(
+            card_ref=referenced_card,
+            effect_index=raw["effect_index"],
+            effect_label=raw.get("effect_label", ""),
+            once_per_turn_key=raw.get("once_per_turn_key"),
+        )
+
+    raw_selections = value.get("selections")
+    if not isinstance(raw_selections, list):
+        raise ValueError("Action selections must be a list")
+    selections = []
+    for raw in raw_selections:
+        if not isinstance(raw, Mapping):
+            raise ValueError("Action selection must be a mapping")
+        selections.append(
+            Selection(
+                candidate_id=raw["candidate_id"],
+                order=raw.get("order"),
+                card_ref=card_ref(raw.get("card_ref")),
+                effect_ref=effect_ref(raw.get("effect_ref")),
+                value=raw.get("value"),
+                payload_ref=raw.get("payload_ref"),
+            )
+        )
+    action = Action(
+        kind=ActionKind(value["kind"]),
+        player=value["player"],
+        selections=tuple(selections),
+        request_signature=value["request_signature"],
+        source=card_ref(value.get("source")),
+        effect_ref=effect_ref(value.get("effect_ref")),
+    )
+    if value.get("action_id") not in {None, action.action_id}:
+        raise ValueError("Action ID does not match canonical Action content")
+    return action

@@ -5,6 +5,7 @@ from collections.abc import Mapping
 from copy import deepcopy
 from datetime import datetime, timezone
 import json
+from pathlib import Path
 import uuid
 
 from ygo_effect_dsl.experiment import (
@@ -13,14 +14,19 @@ from ygo_effect_dsl.experiment import (
     load_experiment_document,
     migrate_experiment_v03a_to_v03b,
     resolve_experiment_overrides,
+    preflight_scenario,
     validate_experiment,
 )
 from ygo_effect_dsl.reporting import write_markdown_report
 from ygo_effect_dsl.prototype import (
+    RealCoreFrontierAdapter,
     build_real_core_route,
     dump_route_document,
     verify_real_core_route,
 )
+from ygo_effect_dsl.engine.canonical import canonical_json
+from ygo_effect_dsl.engine.search import SearchBudget, SearchExecutor, strategy_from_experiment
+from ygo_effect_dsl.prototype.frontier import verify_general_search_route
 from ygo_effect_dsl.route_dsl import (
     assert_valid_route_document,
     load_route_document,
@@ -189,12 +195,76 @@ def cmd_experiment_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_experiment_search(args: argparse.Namespace) -> int:
+    experiment = _resolved_experiment(args)
+    preflight = preflight_scenario(
+        experiment,
+        experiment_path=args.experiment_file,
+        external_root=args.external_root,
+    )
+    if not preflight.ok:
+        report_path = Path(args.search_report)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(
+            canonical_json(
+                {
+                    "preflight": preflight.to_dict(),
+                    "schema_version": "search-run-failure-v1",
+                    "status": "configuration_failure",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        raise ValueError("scenario preflight failed: " + canonical_json(preflight.to_dict()))
+    adapter = RealCoreFrontierAdapter(
+        external_root=args.external_root,
+        experiment_path=args.experiment_file,
+        timeout_seconds=args.worker_timeout,
+        max_retries=args.max_retries,
+    )
+    result = SearchExecutor(
+        adapter,
+        strategy_from_experiment(experiment),
+        SearchBudget.from_experiment(experiment),
+    ).run(experiment)
+    report = {
+        **result.to_dict(),
+        "preflight": preflight.to_dict(),
+        "worker_invocations": adapter.worker_invocations,
+        "worker_retries": adapter.worker_retries,
+    }
+    report_path = Path(args.search_report)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(canonical_json(report) + "\n", encoding="utf-8")
+    if result.best_route is None:
+        raise ValueError(
+            f"search produced no legal Route before {result.termination_reason}; "
+            f"report={args.search_report}"
+        )
+    dump_route_document(result.best_route.route_document, args.out)
+    print(
+        f"experiment-search: ok experiment_id={experiment['experiment_id']} "
+        f"run_id={result.run_id} route_id={result.best_route.route_id} "
+        f"nodes={result.nodes} replays={result.replays} out={args.out} "
+        f"report={args.search_report}"
+    )
+    return 0
+
+
 def cmd_experiment_replay(args: argparse.Namespace) -> int:
     experiment = _resolved_experiment(args)
     run_id = _run_id(args.run_id)
     route = load_route_document(args.route_file)
     assert_experiment_matches_route(experiment, route)
-    result = verify_real_core_route(route, external_root=args.external_root)
+    if experiment.get("search", {}).get("strategy") == "random_search_v1":
+        result = verify_general_search_route(
+            route,
+            external_root=args.external_root,
+            experiment_path=args.experiment_file,
+        )
+    else:
+        result = verify_real_core_route(route, external_root=args.external_root)
     print(
         f"experiment-replay: ok run_id={run_id} experiment_id={experiment['experiment_id']} "
         f"route_id={result.route_id} events={result.event_count} "

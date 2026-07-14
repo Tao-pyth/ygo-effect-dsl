@@ -1,19 +1,18 @@
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
 
+from ygo_effect_dsl.runtime_imports import current_checkout_environment
+
 
 def _run_cli(args: list[str], repo_root: Path) -> subprocess.CompletedProcess[str]:
-    env = os.environ.copy()
-    env["PYTHONPATH"] = str(repo_root / "src")
     return subprocess.run(
         [sys.executable, "-m", "ygo_effect_dsl", *args],
         cwd=repo_root,
-        env=env,
+        env=current_checkout_environment(),
         check=False,
         text=True,
         capture_output=True,
