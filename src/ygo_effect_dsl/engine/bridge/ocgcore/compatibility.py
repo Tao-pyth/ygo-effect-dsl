@@ -3,10 +3,17 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from ygo_effect_dsl.engine.bridge.ocgcore.protocol import MessageType
+from ygo_effect_dsl.engine.bridge.ocgcore.protocol import (
+    KNOWN_MESSAGE_TYPES,
+    MESSAGE_REGISTRY_VERSION,
+    NON_DECISION_MESSAGE_TYPES,
+    SELECTION_MESSAGE_TYPES,
+    UNSUPPORTED_MESSAGE_TYPES,
+    MessageType,
+)
 
 
-COMPATIBILITY_SCHEMA_VERSION = "ocgcore-v11-compatibility-v1"
+COMPATIBILITY_SCHEMA_VERSION = "ocgcore-v11-compatibility-v2"
 COMPATIBILITY_STATUSES = frozenset(
     {"real_core", "codec_only", "state_observed", "unsupported"}
 )
@@ -261,6 +268,14 @@ OPERATION_COMPATIBILITY = (
 
 def compatibility_report() -> dict[str, Any]:
     return {
+        "message_registry": {
+            "decision_message_types": sorted(SELECTION_MESSAGE_TYPES),
+            "known_message_types": sorted(KNOWN_MESSAGE_TYPES),
+            "non_decision_message_types": sorted(NON_DECISION_MESSAGE_TYPES),
+            "schema_version": MESSAGE_REGISTRY_VERSION,
+            "unknown_message_policy": "fail_close",
+            "unsupported_message_types": sorted(UNSUPPORTED_MESSAGE_TYPES),
+        },
         "schema_version": COMPATIBILITY_SCHEMA_VERSION,
         "message_types": {
             str(int(message_type)): case.to_dict()

@@ -31,6 +31,7 @@ package versionと機能契約のschema versionは独立して管理します。
 | Search support | `search-termination-v1` / `prefix-cache-policy-v1` / `parallel-search-result-v2` / `pruning-guardrail-policy-v2` | 予算、cache、並列結果、枝刈りguardrail |
 | Real-core frontier | `real-core-frontier-v2` / `real-core-worker-failure-v1` / `real-core-frontier-worker-attempt-v1` / `real-core-frontier-worker-failure-v1` | fresh worker Replay、state completeness、retry/quarantine evidence |
 | Real-deck qualification | `real-deck-qualification-index-v1` | 外部3 deckの反復Search/Replayとsanitized証跡index |
+| Decision shape corpus | `ocgcore-api-11.0-message-registry-v1` / `ocgcore-decision-shape-corpus-v1` | unknown messageをfail-closeし、Routeのdecode/encode往復からraw payloadなしのshape corpusを生成 |
 | Specified interruption | `core-interruption-candidate-policy-v1` / `interruption-support-taxonomy-v1` | core提示candidateだけを使う妨害分岐と対応分類 |
 | Storage / aggregation | `raw-event-log-v1` / `run-catalog-v2` / `aggregation-v1` | JSONL、run catalog、optional Parquet集計 |
 | Benchmark / policy | `general-search-benchmark-v1` / `cache-worker-policy-v2` / `memory-preflight-v2` | 10万logical node校正とmemory gate |
@@ -148,6 +149,7 @@ python -m ygo_effect_dsl experiment-replay examples/experiments/real_core_effect
 python -m ygo_effect_dsl experiment-search examples/experiments/general_search_inline.yaml --out data/prototype/general-search.route.yaml --search-report data/prototype/general-search.report.json
 python -m ygo_effect_dsl experiment-replay examples/experiments/general_search_inline.yaml data/prototype/general-search.route.yaml --verification-report data/prototype/general-search.replay-verification.json
 python -m ygo_effect_dsl real-deck-qualify --experiment short=D:/qualification/short.yaml --experiment long=D:/qualification/long.yaml --experiment grave_banish=D:/qualification/grave-banish.yaml --artifact-root D:/qualification/raw --index-out docs/qualification/real-deck-index.json
+python -m ygo_effect_dsl ocgcore-decision-corpus --route data/prototype/real-core-route.yaml --out data/prototype/decision-corpus.json
 ```
 
 `prototype-verify`は別プロセスで同じシナリオを再実行し、DecisionRequest署名、Action ID、state hash、評価、Route IDを含むRoute DSL全体の一致を検査します。仮設契約の要検証事項はGitHub Issueで管理します。

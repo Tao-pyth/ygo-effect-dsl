@@ -64,6 +64,9 @@ from ygo_effect_dsl.engine.bridge.ocgcore.providers import (
     resolve_script,
 )
 from ygo_effect_dsl.engine.bridge.ocgcore.protocol import (
+    KNOWN_MESSAGE_TYPES,
+    MESSAGE_REGISTRY_VERSION,
+    NON_DECISION_MESSAGE_TYPES,
     PROTOCOL_VERSION,
     RESPONSE_CODEC_VERSION,
     ActionResponseEncoder,
@@ -72,6 +75,8 @@ from ygo_effect_dsl.engine.bridge.ocgcore.protocol import (
     MessageFrame,
     MessageType,
     OcgcoreMessageDecoder,
+    SELECTION_MESSAGE_TYPES,
+    UNSUPPORTED_MESSAGE_TYPES,
     split_message_stream,
 )
 from ygo_effect_dsl.engine.bridge.ocgcore.random_trace import (
@@ -151,9 +156,13 @@ __all__ = [
     "COMPATIBILITY_SCHEMA_VERSION",
     "CORE_OUTPUT_TRACE_SCHEMA_VERSION",
     "CROSS_CHANNEL_ORDERING_SCHEMA_VERSION",
+    "KNOWN_MESSAGE_TYPES",
+    "MESSAGE_REGISTRY_VERSION",
+    "NON_DECISION_MESSAGE_TYPES",
     "PROTOCOL_VERSION",
     "PROGRESS_EVENT_TRACE_SCHEMA_VERSION",
     "RESPONSE_CODEC_VERSION",
+    "SELECTION_MESSAGE_TYPES",
     "ActionResponseEncoder",
     "CardRecord",
     "CardInstanceObservation",
@@ -215,6 +224,7 @@ __all__ = [
     "OcgcoreWorkerError",
     "OcgcoreWorkerProtocolError",
     "OcgcoreWorkerTimeoutError",
+    "UNSUPPORTED_MESSAGE_TYPES",
     "OPERATION_COMPATIBILITY",
     "PlayerConfig",
     "PHASE_NAMES",

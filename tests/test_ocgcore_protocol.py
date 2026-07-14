@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from hashlib import sha256
 import json
 from pathlib import Path
 import struct
@@ -10,13 +11,19 @@ import pytest
 from ygo_effect_dsl.engine.action import Action, ActionKind, Selection
 from ygo_effect_dsl.engine.bridge import (
     Candidate,
+    DecisionContext,
     DecisionRequest,
     InvalidBridgeMessageError,
     InvalidBridgeResponseError,
     UnsupportedBridgeMessageError,
 )
 from ygo_effect_dsl.engine.bridge.ocgcore import (
+    KNOWN_MESSAGE_TYPES,
+    MESSAGE_REGISTRY_VERSION,
+    NON_DECISION_MESSAGE_TYPES,
     RESPONSE_CODEC_VERSION,
+    SELECTION_MESSAGE_TYPES,
+    UNSUPPORTED_MESSAGE_TYPES,
     ActionResponseEncoder,
     MessageType,
     OcgcoreMessageDecoder,
@@ -36,6 +43,125 @@ def _cases() -> list[dict[str, object]]:
 def _message(message_type: MessageType, payload: bytes) -> bytes:
     body = bytes((int(message_type),)) + payload
     return struct.pack("<I", len(body)) + body
+
+
+def _raw_message(message_type: int, payload: bytes = b"") -> bytes:
+    body = bytes((message_type,)) + payload
+    return struct.pack("<I", len(body)) + body
+
+
+def test_api_11_message_registry_is_exact_and_unknown_ids_fail_closed() -> None:
+    expected_non_decision = {
+        1, 2, 3, 4, 5, 6, 7, 8,
+        30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
+        50, 53, 54, 55, 56,
+        60, 61, 62, 63, 64, 65,
+        70, 71, 72, 73, 74, 75, 76,
+        80, 81, 83,
+        90, 91, 92, 93, 94, 95, 96, 97,
+        100, 101, 102,
+        110, 111, 112, 113, 114,
+        120, 121, 122, 123,
+        130, 131, 133,
+        160, 161, 163, 164, 165, 170, 180, 190,
+    }
+    assert NON_DECISION_MESSAGE_TYPES == expected_non_decision
+    assert UNSUPPORTED_MESSAGE_TYPES == {162}
+    assert KNOWN_MESSAGE_TYPES == (
+        expected_non_decision | SELECTION_MESSAGE_TYPES | {162}
+    )
+
+    batch = OcgcoreMessageDecoder().decode_batch(
+        b"".join(_raw_message(message_type) for message_type in sorted(expected_non_decision)),
+        request_id="known-non-decision",
+    )
+    assert batch.request is None
+    assert len(batch.frames) == len(expected_non_decision)
+
+    payload = b"future-decision-shape"
+    context = DecisionContext(
+        phase="main1",
+        chain=({"link": 1},),
+        request_source="worker",
+        visible_board={"private": "must-not-leak"},
+        extra={"scenario_id": "shape-probe"},
+    )
+    with pytest.raises(UnsupportedBridgeMessageError, match="unknown ocgcore message") as captured:
+        OcgcoreMessageDecoder().decode_batch(
+            _raw_message(17, payload),
+            request_id="unknown-message",
+            context=context,
+        )
+    error_context = captured.value.context
+    assert error_context == {
+        "decision_context": {
+            "chain_length": 1,
+            "extra": {"scenario_id": "shape-probe"},
+            "phase": "main1",
+            "priority_player": None,
+            "request_source": "worker",
+            "turn_player": None,
+            "version_metadata": {},
+        },
+        "message_registry_version": MESSAGE_REGISTRY_VERSION,
+        "message_type": 17,
+        "payload_length": len(payload),
+        "payload_sha256": sha256(payload).hexdigest(),
+        "protocol_version": "ocgcore-api-11.0",
+    }
+    assert "payload_hex" not in error_context
+    failure = classify_failure(captured.value)
+    assert failure.disposition.value == "path_failure"
+    assert failure.recovery.value == "stop_path"
+
+    unsafe_context = DecisionContext(extra={"opaque": object()})
+    with pytest.raises(UnsupportedBridgeMessageError) as unsafe:
+        OcgcoreMessageDecoder().decode_batch(
+            _raw_message(17),
+            request_id="unsafe-context",
+            context=unsafe_context,
+        )
+    assert unsafe.value.context["decision_context"]["extra"] == {
+        "opaque": {"unsupported_type": "object"}
+    }
+
+
+def test_missing_decision_decoder_and_ambiguous_candidate_ids_fail_closed() -> None:
+    decoder = OcgcoreMessageDecoder()
+    decoder._registry.pop(MessageType.SELECT_YES_NO)
+    with pytest.raises(UnsupportedBridgeMessageError, match="not registered") as captured:
+        decoder.decode_batch(
+            _message(MessageType.SELECT_YES_NO, struct.pack("<BQ", 0, 1)),
+            request_id="registry-gap",
+        )
+    assert captured.value.context["message_type"] == int(MessageType.SELECT_YES_NO)
+    assert len(captured.value.context["payload_sha256"]) == 64
+
+    request = OcgcoreMessageDecoder().decode_batch(
+        bytes.fromhex(str(_cases()[1]["message_hex"])),
+        request_id="ambiguous-candidate",
+    ).request
+    assert request is not None
+    duplicate = replace(
+        request,
+        candidates=(
+            request.candidates[0],
+            replace(
+                request.candidates[1],
+                candidate_id=request.candidates[0].candidate_id,
+            ),
+        ),
+    )
+    action = _action(
+        duplicate,
+        ActionKind.SELECT_OPTION,
+        (Selection(duplicate.candidates[0].candidate_id),),
+    )
+    with pytest.raises(InvalidBridgeResponseError, match="ambiguous") as ambiguous:
+        ActionResponseEncoder().encode(duplicate, action)
+    assert ambiguous.value.context["duplicate_candidate_ids"] == [
+        duplicate.candidates[0].candidate_id
+    ]
 
 
 def _action(

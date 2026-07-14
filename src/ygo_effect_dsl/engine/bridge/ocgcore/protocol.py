@@ -13,6 +13,7 @@ from ygo_effect_dsl.engine.bridge.decision import (
     DecisionContext,
     DecisionRequest,
     DecisionResponse,
+    validate_decision_request,
     validate_decision_response,
 )
 from ygo_effect_dsl.engine.bridge.errors import (
@@ -30,6 +31,7 @@ from ygo_effect_dsl.engine.canonical import canonical_json
 
 
 PROTOCOL_VERSION = "ocgcore-api-11.0"
+MESSAGE_REGISTRY_VERSION = "ocgcore-api-11.0-message-registry-v1"
 RESPONSE_CODEC_VERSION = "ocgcore-api-11.0-response-v1"
 MAX_MESSAGE_BYTES = 1024 * 1024
 _FRAME_LENGTH = struct.Struct("<I")
@@ -62,6 +64,103 @@ class MessageType(IntEnum):
 
 
 SELECTION_MESSAGE_TYPES = frozenset(int(message_type) for message_type in MessageType)
+
+# Frozen from ygopro-core common.h at the pinned API 11.0 commit. Only these
+# non-decision messages may be observed without a Python decoder.
+NON_DECISION_MESSAGE_TYPES = frozenset(
+    {
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        50,
+        53,
+        54,
+        55,
+        56,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        80,
+        81,
+        83,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        100,
+        101,
+        102,
+        110,
+        111,
+        112,
+        113,
+        114,
+        120,
+        121,
+        122,
+        123,
+        130,
+        131,
+        133,
+        160,
+        161,
+        163,
+        164,
+        165,
+        170,
+        180,
+        190,
+    }
+)
+UNSUPPORTED_MESSAGE_TYPES = frozenset({162})
+KNOWN_MESSAGE_TYPES = (
+    SELECTION_MESSAGE_TYPES | NON_DECISION_MESSAGE_TYPES | UNSUPPORTED_MESSAGE_TYPES
+)
+
+
+def _diagnostic_value(value: Any) -> Any:
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+    if isinstance(value, Mapping):
+        return {
+            str(key): _diagnostic_value(item)
+            for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
+        }
+    if isinstance(value, (list, tuple)):
+        return [_diagnostic_value(item) for item in value]
+    return {"unsupported_type": type(value).__name__}
 
 
 @dataclass(frozen=True)
@@ -221,18 +320,28 @@ class OcgcoreMessageDecoder:
         base_context = context or DecisionContext()
         request: DecisionRequest | None = None
         for frame in frames:
-            if frame.message_type == 162:
-                raise UnsupportedBridgeMessageError(
-                    "MSG_RELOAD_FIELD invalidates persistent card-instance authority"
+            if frame.message_type in UNSUPPORTED_MESSAGE_TYPES:
+                raise self._unsupported_message(
+                    frame,
+                    base_context,
+                    "MSG_RELOAD_FIELD invalidates persistent card-instance authority",
                 )
             decoder = self._registry.get(frame.message_type)
             if decoder is None:
                 if frame.message_type in SELECTION_MESSAGE_TYPES:
-                    raise UnsupportedBridgeMessageError(
+                    raise self._unsupported_message(
+                        frame,
+                        base_context,
                         f"ocgcore selection message {frame.message_type} is not registered "
-                        f"for {PROTOCOL_VERSION}"
+                        f"for {PROTOCOL_VERSION}",
                     )
-                continue
+                if frame.message_type in NON_DECISION_MESSAGE_TYPES:
+                    continue
+                raise self._unsupported_message(
+                    frame,
+                    base_context,
+                    f"unknown ocgcore message {frame.message_type} for {PROTOCOL_VERSION}",
+                )
             if request is not None:
                 raise InvalidBridgeMessageError(
                     "one process batch must not contain multiple selection requests"
@@ -242,6 +351,34 @@ class OcgcoreMessageDecoder:
             frames=frames,
             request=request,
             logs=tuple(logs),
+        )
+
+    @staticmethod
+    def _unsupported_message(
+        frame: MessageFrame,
+        context: DecisionContext,
+        message: str,
+    ) -> UnsupportedBridgeMessageError:
+        return UnsupportedBridgeMessageError(
+            message,
+            context={
+                "decision_context": {
+                    "chain_length": len(context.chain),
+                    "extra": _diagnostic_value(context.extra),
+                    "phase": context.phase,
+                    "priority_player": context.priority_player,
+                    "request_source": context.request_source,
+                    "turn_player": context.turn_player,
+                    "version_metadata": _diagnostic_value(
+                        context.version_metadata
+                    ),
+                },
+                "message_registry_version": MESSAGE_REGISTRY_VERSION,
+                "message_type": frame.message_type,
+                "payload_length": len(frame.payload),
+                "payload_sha256": sha256(frame.payload).hexdigest(),
+                "protocol_version": PROTOCOL_VERSION,
+            },
         )
 
     @staticmethod
@@ -1586,12 +1723,7 @@ class ActionResponseEncoder:
 
     @staticmethod
     def _validate_request_identity(request: DecisionRequest) -> None:
-        try:
-            canonical_json(request.to_signature_dict())
-        except (TypeError, ValueError) as exc:
-            raise InvalidBridgeResponseError(
-                "DecisionRequest identity contains non-primitive data"
-            ) from exc
+        validate_decision_request(request)
 
     @staticmethod
     def _validate_owned_payloads(candidates: tuple[Candidate, ...]) -> None:

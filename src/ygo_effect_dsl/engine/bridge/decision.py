@@ -124,6 +124,7 @@ class DecisionResponse:
 
 
 def validate_decision_response(request: DecisionRequest, response: DecisionResponse) -> None:
+    validate_decision_request(request)
     context = {"request": request.to_dict(), "response": response.to_dict()}
 
     def invalid(message: str) -> InvalidBridgeResponseError:
@@ -160,3 +161,41 @@ def validate_decision_response(request: DecisionRequest, response: DecisionRespo
         to_canonical_data(response.payload)
     except (TypeError, ValueError) as exc:
         raise invalid(str(exc)) from exc
+
+
+def validate_decision_request(request: DecisionRequest) -> None:
+    """Reject ambiguous or non-canonical bridge requests before selection lookup."""
+
+    candidate_ids = [candidate.candidate_id for candidate in request.candidates]
+    invalid_ids = [
+        candidate_id
+        for candidate_id in candidate_ids
+        if not isinstance(candidate_id, str) or not candidate_id
+    ]
+    context = {
+        "request_id": request.request_id,
+        "request_type": request.request_type,
+    }
+    if invalid_ids:
+        raise InvalidBridgeResponseError(
+            "DecisionRequest candidate IDs must be non-empty strings",
+            context=context,
+        )
+    duplicate_ids = sorted(
+        candidate_id
+        for candidate_id in set(candidate_ids)
+        if candidate_ids.count(candidate_id) > 1
+    )
+    if duplicate_ids:
+        raise InvalidBridgeResponseError(
+            f"DecisionRequest candidate IDs are ambiguous: {duplicate_ids}",
+            context={**context, "duplicate_candidate_ids": duplicate_ids},
+        )
+    try:
+        to_canonical_data(request.to_signature_dict())
+        request.request_signature
+    except (TypeError, ValueError) as exc:
+        raise InvalidBridgeResponseError(
+            "DecisionRequest identity contains non-primitive data",
+            context=context,
+        ) from exc

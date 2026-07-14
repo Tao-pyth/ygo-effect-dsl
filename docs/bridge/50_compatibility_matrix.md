@@ -2,7 +2,7 @@
 
 Status: ocgcore API 11.0 prototype coverage
 
-Last updated: 2026-07-13
+Last updated: 2026-07-14
 
 ## Status meanings
 
@@ -11,7 +11,7 @@ Last updated: 2026-07-13
 - `state_observed`: the resulting zone/count can be queried, but the operation that changes it is not covered.
 - `unsupported`: no compatible end-to-end or codec contract exists. Selection messages in this state raise `UnsupportedBridgeMessageError`.
 
-Bridge全体のmachine-readable sourceは`ocgcore.compatibility.compatibility_report()`、Action aggregation lifecycleは`action_aggregation_compatibility_report()`である。Tests require every known API 11.0 selection message and every operation category from issue #54 to have exactly one status.
+Bridge全体のmachine-readable sourceは`ocgcore.compatibility.compatibility_report()`、Action aggregation lifecycleは`action_aggregation_compatibility_report()`である。`ocgcore-v11-compatibility-v2`は固定API 11.0のdecision、non-decision、明示unsupported message集合と`unknown_message_policy: fail_close`を公開する。Tests require every known API 11.0 selection message and every operation category from issue #54 to have exactly one status.
 
 ## Current result
 
@@ -30,6 +30,18 @@ Bridge全体のmachine-readable sourceは`ocgcore.compatibility.compatibility_re
 | Persistent card instance trace | real_core | v1 authority is frozen by #112; opt-in v2 performs nonce-checked scan before every card-bearing Request, enriches Action/snapshot/Route/attribution, and verifies draw/search/salvage, hand/deck/set shuffle, grave/banished movement, control change, hidden projection, and fresh-process identity in #116 |
 
 Message types 11、12、14、15、16、18はreal-core evidenceを持つ。その他の既知API 11.0 response要求message type（10〜26のselection/sort、132、140〜143）はdeterministic codec evidenceを持つ。既知decision messageに`unsupported`は残らないが、代表的continuationがないoperation rowは引き続きunsupportedである。
+
+## Decision shape corpus
+
+`ocgcore-api-11.0-message-registry-v1`は固定upstream `common.h`のmessage IDをdecision、non-decision、明示unsupported `MSG_RELOAD_FIELD=162`へ分離する。registry外IDをnon-decisionと推測して無視せず、`UnsupportedBridgeMessageError`として停止する。診断はmessage ID、payload length/SHA-256、protocol/registry version、可視盤面とchain本文を除いたdecision contextを保存し、raw payload本文は保存しない。DecisionRequest candidate IDの重複はresponse lookup前に拒否する。
+
+`ocgcore-decision-shape-corpus`は一つ以上の実core Routeを入力し、各Replay eventについて直前のcore outputをbinary decodeし、記録Actionをresponse encodeして、request signature、frame hash、response hashを相互検証する。出力`ocgcore-decision-shape-corpus-v1`はcandidate field shape、cost/target/option role、targetless/single/multi-target、hand/field source、negative case registryだけを保持し、`payload_hex`と`response_hex`を除外する。
+
+```powershell
+python -m ygo_effect_dsl ocgcore-decision-corpus --route <route-a.yaml> --route <route-b.yaml> --out <decision-corpus.json>
+```
+
+固定action-aggregation Routeと妨害matrixを合わせたfixture corpusではtargetless、cost、single/multi-target、option、hand/field sourceをlocal確認済みである。`docs/ocgcore/evidence/decision_shape_corpus.json`は5 Route・63 decision caseを持ち、corpus IDは`decisioncorpus_4320f03495f29e9eb79c7489321ddd5c4529c1a812b2ae425f10de010fea9103`である。これはcorpus生成器と現行fixtureの証拠であり、外部3 deckで未知shapeが出ない保証ではない。Issue #141と`VAL-010`は外部qualification Routeを同じCLIへ入力するまでOPENを維持する。
 
 Action role分類はAPI v11 raw frame layoutへ固定する。正常activation setup、target-loss fizzle、`MSG_CHAIN_NEGATED`、`MSG_CHAIN_DISABLED`、multi-chain、multi-selection、resolution-selectionは`real_core`である。同一source・cost・request・actionの固定fixtureでは、発動無効がtype 75、効果無効がtype 76として区別される。任意の`EVENT_TO_GRAVE` triggerがchain解決中に候補化されない固定fixtureではtype 120 (`MSG_MISSED_EFFECT`) とpass-onlyの次要求を検証する。ただし、これらは任意カードの裁定一般を保証しない。cancelのraw Replay contractは維持するが、API 11.0ではnative cancel応答`ffffffff`後も`MSG_CHAINED`が発生するため`raw_replay_contract_core_unreachable`とする。Issue #115の2026-07-14監査では、最新release `v11.0`と未release `master` API 11.0の該当source contractにrollback分岐がないことを確認した。`master` binaryは実行未検証であり、source audit以上のclaimは行わない。新tag/APIまたは該当制御フロー変更をIssue #117の再監査triggerとする。`MSG_MOVE.reason`、`MSG_HINT`、chain lifecycle payloadの形式が変わるcore/API版では互換性を引き継がずfail-closeする。hint欠落、未知reason、選択cardとの不一致は`selection`へfallbackし、表示上の誤集約を避ける。
 

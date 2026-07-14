@@ -47,7 +47,16 @@ def test_issue_54_operation_categories_are_classified_without_overclaiming() -> 
 
 def test_compatibility_report_is_stable_and_machine_readable() -> None:
     report = compatibility_report()
-    assert report["schema_version"] == "ocgcore-v11-compatibility-v1"
+    assert report["schema_version"] == "ocgcore-v11-compatibility-v2"
+    registry = report["message_registry"]
+    assert registry["schema_version"] == "ocgcore-api-11.0-message-registry-v1"
+    assert registry["unknown_message_policy"] == "fail_close"
+    assert registry["unsupported_message_types"] == [162]
+    assert set(registry["known_message_types"]) == (
+        set(registry["decision_message_types"])
+        | set(registry["non_decision_message_types"])
+        | {162}
+    )
     assert report["message_types"]["11"]["status"] == "real_core"
     assert report["message_types"]["12"]["status"] == "real_core"
     assert report["message_types"]["14"]["status"] == "real_core"
