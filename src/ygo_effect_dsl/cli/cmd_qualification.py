@@ -2,6 +2,10 @@ from __future__ import annotations
 
 import argparse
 
+from ygo_effect_dsl.engine.bridge.ocgcore.lua_qualification import (
+    run_lua_load_qualification,
+    write_lua_load_qualification,
+)
 from ygo_effect_dsl.experiment.qualification import (
     QUALIFICATION_PROFILE_IDS,
     run_external_real_deck_qualification,
@@ -40,3 +44,26 @@ def cmd_real_deck_qualify(args: argparse.Namespace) -> int:
         f"profiles={len(index['profiles'])} index={args.index_out}"
     )
     return 0
+
+
+def cmd_lua_load_qualify(args: argparse.Namespace) -> int:
+    report = run_lua_load_qualification(
+        external_root=args.external_root,
+        batch_size=args.batch_size,
+        worker_timeout_seconds=args.worker_timeout,
+        smoke_limit=args.smoke_limit,
+    )
+    write_lua_load_qualification(args.out, report)
+    coverage = report["coverage"]
+    database = report["database_coverage"]
+    print(
+        "ocgcore-lua-qualify: "
+        f"{report['status']} qualification_id={report['qualification_id']} "
+        f"scripts={coverage['selected_script_count']}/"
+        f"{coverage['official_inventory_count']} "
+        f"database={database['runtime_card_coverage_status']}"
+    )
+    return 0
+
+
+__all__ = ["cmd_lua_load_qualify", "cmd_real_deck_qualify"]
