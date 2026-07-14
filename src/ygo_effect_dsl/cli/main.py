@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from ygo_effect_dsl import __version__
 from ygo_effect_dsl.cli.cmd_analyze import cmd_analyze
 from ygo_effect_dsl.cli.cmd_experiment import (
     cmd_experiment_inspect,
@@ -121,6 +122,11 @@ def main() -> int:
             f"{PROJECT_IDENTITY.product_description}. Validate Route DSL artifacts, "
             "run experiments, and access legacy migration utilities."
         ),
+    )
+    ap.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
     )
     sub = ap.add_subparsers(dest="cmd", required=True)
 

@@ -8,6 +8,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from ygo_effect_dsl import __version__
 from ygo_effect_dsl.engine.replay import (
     ActionRecord,
     ReplayFormatError,
@@ -32,7 +33,7 @@ def _sample_history() -> ReplayHistory:
                 created_at=None,
             )
         ],
-        version_metadata={"project_version": "0.1.0"},
+        version_metadata={"project_version": __version__},
         notes="synthetic smoke fixture",
     )
 

@@ -10,6 +10,33 @@ repository/distribution名 `ygo-effect-dsl`、Python import `ygo_effect_dsl`、C
 
 無修飾のDSLはRoute DSLを指します。旧 `dsl` packageと `ingest / transform / validate / analyze` は **legacy card-text artifact pipeline** であり、Search engineやRoute DSLの入力にはしません。
 
+## Versionと互換性
+
+現在のpackage/CLI releaseは **`0.2.0`**、Git tagは **`v0.2.0`** です。これはPythonエンジニア向けGeneral Search MVPのsource milestoneであり、production対応や第三者assetの再配布を保証する一般公開distributionではありません。
+
+package versionと機能契約のschema versionは独立して管理します。package versionは配布物全体の変更をSemVerで表し、schema versionは保存データまたはAPIの互換境界を表します。したがって、Experiment `0.4`をpackage `0.4.0`へ揃える運用は行いません。
+
+| 機能領域 | 現行version | 互換性と用途 |
+|---|---|---|
+| Package / CLI | `0.2.0` | General Search MVP candidate全体のrelease version |
+| Project identity | `project-identity-v1` | repository、import、CLI、製品説明の安定名 |
+| Experiment | `0.4` | 現行scenario/search入力。`0.3b`は実行互換、`0.3a`は読み取り・migration入力 |
+| Scenario / preflight | `scenario-v1` / `scenario-manifest-v1` / `scenario-preflight-v1` | YDK/inline、初手、asset/card/script事前検査 |
+| Decision / Action / Replay | `0.3a` | request、選択、再生の基礎契約。Replay manifestは`ygo-replay-manifest-v1` |
+| Route DSL | `0.1` | 最良Routeの交換形式。正規化出力は`route-normalization-v2` |
+| Information boundary | `information-policy-v1` / `information-audit-v1` | 探索・評価が参照できる情報とaccess証跡 |
+| State identity | `ygo-state-id-v1` / `ygo-rule-state-v1` / `ygo-visibility-state-v1` | exact dedup、ルール状態、可視性状態 |
+| Evaluation | `evaluation-result-v1` / `score-breakdown-v1` / `route-resource-consumption-v1` | 成功、盤面score、資源消費 |
+| Search executor | `search-executor-v1` / `search-run-result-v1` / `random-search-strategy-v1` | 決定論的Random Search。Beam/MCTSは未実装 |
+| Search support | `search-termination-v1` / `prefix-cache-policy-v1` / `parallel-search-result-v2` / `pruning-guardrail-policy-v2` | 予算、cache、並列結果、枝刈りguardrail |
+| Real-core frontier | `real-core-frontier-v1` / `real-core-worker-failure-v1` | fresh worker Replayとfailure envelope |
+| Specified interruption | `core-interruption-candidate-policy-v1` / `interruption-support-taxonomy-v1` | core提示candidateだけを使う妨害分岐と対応分類 |
+| Storage / aggregation | `raw-event-log-v1` / `run-catalog-v2` / `aggregation-v1` | JSONL、run catalog、optional Parquet集計 |
+| Benchmark / policy | `general-search-benchmark-v1` / `cache-worker-policy-v2` / `memory-preflight-v2` | 10万logical node校正とmemory gate |
+| ocgcore / assets | API `11.0`, `ocgcore-v11.0-win-x64-msvc-v1`, `ocgcore-assets-202504-v1` | commitとhashをlockし、runtime network accessと再配布を禁止 |
+
+package versionの正本は `ygo_effect_dsl.version.__version__` です。`python -m ygo_effect_dsl --version`で現在値を確認できます。機能契約の正本は各moduleの`*_SCHEMA_VERSION`とvalidatorであり、この表はrelease時の互換性索引です。
+
 ## 原則
 
 - EDOPro Luaをカード効果の真実源とする。
@@ -86,6 +113,8 @@ production前または後続Issue:
 - production運用、互換性、一般公開配布（#127）
 - #91のライセンス・第三者成果物審査。完了までは第三者assetを同梱・公開配布しない
 
+今後のpackage releaseは機能契約の成熟度を基準に進めます。`0.3.0`では`#123/#105/#128/#110/#108`を中心に実core校正と探索品質を固め、`0.4.0`ではPlayerView Replay、Beam/MCTS、複数妨害・複数turnへ拡張します。`0.5.0`では大規模統計と比較UIを接続し、`1.0.0`は`#91/#127`のライセンス、互換性、配布、運用gateを満たした場合だけ候補にします。既存schemaの意味や保存形式を変更する場合はpackage番号に追従させず、その機能契約自体を別versionへ上げます。
+
 実装は `#119 → #124 → #121 → #120 → #122/#123 → #105` の依存順で行った。MVPで実動する探索strategyはRandom Searchだけであり、10万node evidenceは手動またはself-hosted workflow、CIは縮小smoke corpusを使用する。
 
 `examples/route_dsl/minimal_route.yaml` は契約確認用です。General Search MVPは任意YDK/inlineを事前検査し、pin済みocgcoreが提示するcandidateだけでRandom Searchを行います。ただし、任意のカード効果・発動無効・効果無効・タイミング処理をPython側で推測せず、未検証taxonomyはfail-closeします。real-core PlayerView Replayとproduction規模の実worker校正は未対応であり、GitHub Issueで追跡します。
@@ -95,6 +124,7 @@ production前または後続Issue:
 ```bash
 pip install -e .
 python -c "import ygo_effect_dsl; print(ygo_effect_dsl.__file__)"
+python -m ygo_effect_dsl --version
 # Parquet analyticsも使う場合
 pip install -e ".[analytics]"
 ```
@@ -143,6 +173,8 @@ python -m pytest
 - [Project Charter](docs/00_project_charter.md)
 - [Architecture](docs/10_architecture.md)
 - [Roadmap](docs/20_roadmap.md)
+- [Changelog](CHANGELOG.md)
+- [Versioning and Release Policy](docs/release/00_versioning.md)
 - [Glossary](docs/30_glossary.md)
 - [Route DSL Overview](docs/route_dsl/00_overview.md)
 - [Route DSL Schema 0.1](docs/route_dsl/10_schema.md)

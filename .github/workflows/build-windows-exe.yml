@@ -26,6 +26,12 @@ jobs:
       - name: Run pytest
         run: python -m pytest
 
+      - name: Verify installed package version
+        run: >
+          python -c "from importlib.metadata import version;
+          import ygo_effect_dsl;
+          assert version('ygo-effect-dsl') == ygo_effect_dsl.__version__"
+
       - name: Build executable
         run: >
           python -m PyInstaller
@@ -46,6 +52,7 @@ jobs:
 
       - name: Smoke test packaged executable
         run: |
+          .\dist\ygo-effect-dsl.exe --version
           .\dist\ygo-effect-dsl.exe ingest --dataset examples/sample_dataset
           .\dist\ygo-effect-dsl.exe validate-dict
           .\dist\ygo-effect-dsl.exe transform --dataset examples/sample_dataset --out data/exe_smoke

@@ -30,7 +30,7 @@ Last updated: 2026-07-13
   "schema_version": "0.2",
   "seed": 12345,
   "version_metadata": {
-    "project_version": "0.1.0"
+    "project_version": "0.2.0"
   }
 }
 ```
