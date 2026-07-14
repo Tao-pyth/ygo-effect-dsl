@@ -10,6 +10,7 @@ Last updated: 2026-07-14
 - `ocgcore-doctor`がtoolchain、path、permission、build driveを判定する。
 - 空owned cacheからcore source、Premake、CardScripts、BabelCDBを固定identityで取得できる。
 - 二回目bootstrapがidempotentであり、中断から復旧できる。
+- source/toolchain/APIと各buildのDLL hashをmanifestで検証する。cross-session/cross-host bit一致は`1.0.0`の#171で扱い、`0.3.0`のclean acquisitionと混同しない。
 - runtime/asset resolverがnetwork接続やfallback取得を行わない。
 - BabelCDB ref/commit差異について、再現可能取得またはreview済みlock移行ADRがある。
 
@@ -82,6 +83,7 @@ python -m ygo_effect_dsl ocgcore-bootstrap
 python -m ygo_effect_dsl ocgcore-verify
 python -m ygo_effect_dsl ocgcore-assets-bootstrap
 python -m ygo_effect_dsl ocgcore-assets-verify
+python -m ygo_effect_dsl ocgcore-clean-bootstrap-qualify --work-root <external> --out <clean-bootstrap-evidence.json>
 python -m ygo_effect_dsl experiment-search <experiment.yaml> --out <best.route.yaml> --search-report <report.json>
 python -m ygo_effect_dsl experiment-replay <experiment.yaml> <best.route.yaml>
 python -m ygo_effect_dsl real-deck-qualify --experiment short=<external>/short.yaml --experiment long=<external>/long.yaml --experiment grave_banish=<external>/grave-banish.yaml --artifact-root <external>/raw --index-out <sanitized-index>.json
@@ -97,7 +99,7 @@ python -m ygo_effect_dsl real-deck-qualify --experiment short=<external>/short.y
 
 一つでも次に該当する場合は`0.3.0`をreleaseしない。
 
-- clean bootstrapが固定identityを取得できない。
+- clean bootstrapが固定source/toolchain/APIを取得できない、または各buildのDLL hashをmanifest検証できない。
 - unknown/ambiguous shapeを推測処理して成功扱いにする。
 - pool/retry/cacheでbest Routeまたはsemantic digestが変わる。
 - worker leak、unbounded RSS、破損artifact、Replay divergenceが残る。

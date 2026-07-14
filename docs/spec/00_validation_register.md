@@ -21,7 +21,7 @@ Last updated: 2026-07-14
 | `VAL-004` | CardScripts lock | tag `20250420`のpeeled commitが固定commit `c8e9c0...`と一致 | `VERIFIED_UPSTREAM` | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) |
 | `VAL-005` | BabelCDB lock | tag `20250419`は`4c8e9ca...`を指すがlockは同日後刻の`f89c9a...`を固定。空cacheから固定commitを直接fetchし、tree/file hashまで検証済み。ref不在contract testも追加 | `VERIFIED_LOCAL` | [#137](https://github.com/Tao-pyth/ygo-effect-dsl/issues/137) |
 | `VAL-006` | 実core/Lua end-to-end | inline fixtureで10 node/10 fresh ReplayのRandom Search、Route出力、best Route Replay、final state hash確認に成功 | `VERIFIED_LOCAL` | [#138](https://github.com/Tao-pyth/ygo-effect-dsl/issues/138) |
-| `VAL-007` | clean core bootstrap | 空rootからcommit/tree/API 11.0を検証。3 buildは同一DLL hash、初回1 buildだけ別hashのためbit reproducibility調査を継続 | `OPEN` | [#136](https://github.com/Tao-pyth/ygo-effect-dsl/issues/136) |
+| `VAL-007` | clean core bootstrap | `ocgcore-clean-bootstrap-qualification-v1`で空root、同一root再実行、build/runtime partial復旧、独立root、download partial復旧の5 buildを検証。全回source/toolchain/API/size一致、manifest verify成功 | `VERIFIED_LOCAL` | [#136](https://github.com/Tao-pyth/ygo-effect-dsl/issues/136) |
 | `VAL-008` | 任意deck一般性 | 単一inline smokeは成功。短/長/墓地・除外またはchain多発の3 deck qualificationは未実施 | `OPEN` | [#139](https://github.com/Tao-pyth/ygo-effect-dsl/issues/139) |
 | `VAL-009` | Lua load境界 | `ocgcore-lua-load-qualification-v1`でofficial 12,702件を7 fresh workerから全件native load。helper 26件の順序、cold/warm/fresh resolver同値性、negative probe、unsafe library無効を確認。BabelCDB欠落120件は通常preflightでfail-close | `VERIFIED_LOCAL` | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) |
 | `VAL-010` | Message/Decision一般性 | 固定API 11.0全message registry、unknown ID fail-close、重複candidate拒否、Route decode/encode往復の`ocgcore-decision-shape-corpus-v1`を実装。固定matrixでtargetless/cost/single/multi-target/option/hand/fieldを確認したが、外部3 deck corpusは未取得 | `OPEN` | [#141](https://github.com/Tao-pyth/ygo-effect-dsl/issues/141) |
@@ -48,6 +48,7 @@ Last updated: 2026-07-14
 python -m ygo_effect_dsl ocgcore-doctor
 python -m ygo_effect_dsl ocgcore-verify
 python -m ygo_effect_dsl ocgcore-assets-verify
+python -m ygo_effect_dsl ocgcore-clean-bootstrap-qualify --work-root <external> --out docs/ocgcore/evidence/clean_bootstrap_qualification.json
 python -m ygo_effect_dsl ocgcore-lua-qualify --out docs/ocgcore/evidence/lua_load_qualification.json
 python -m ygo_effect_dsl experiment-search examples/experiments/general_search_inline.yaml --out <temp>/best.route.yaml --search-report <temp>/report.json
 python -m ygo_effect_dsl experiment-replay examples/experiments/general_search_inline.yaml <temp>/best.route.yaml
@@ -63,6 +64,8 @@ python -m ygo_effect_dsl prototype-real-stress --out <external>/worker-failure-a
 `VAL-010`のlocal fixture evidenceは`corpus_id=decisioncorpus_4320f03495f29e9eb79c7489321ddd5c4529c1a812b2ae425f10de010fea9103`、5 Route、63 decision caseで、required 7 categoryがcompleteである。これは固定fixtureのcodec/taxonomy coverageであり、外部3 deck一般性の証明ではない。
 
 `VAL-009`のlocal evidenceは`qualification_id=luaqualification_2d42852ce777de439c149bffc28e347210cebeef31db0b1cce7b219a28acc17a`、official 12,702 script、7 fresh worker、native failure 0、helper 26件、最大worker peak RSS 84,602,880 bytesである。BabelCDB coverageは12,582件で、DB行のない120件はscript-only load確認に限定し、通常deckの利用可能cardとは扱わない。persistent resolver indexは性能不足による未実装ではなく、live path identity検査を維持するため明示的に不採用とした。
+
+`VAL-007`のlocal evidenceは`qualification_id=corebootstrap_12a20bd0e3606d14d3fc597eb6a60aeca2e9ec1478430de73427a4d3298531d1`である。MSVC `14.44.35207`による5 buildは34.376〜45.601秒、binary size 1,306,624 bytes、session内SHA-256 `03e360cf694f5ac6ba686de1d3bec7ccde3f3233d01bfe3265884a18ce1b9028`で一致した。これは一つのWindows host上の単一session evidenceである。事前診断runでは同一入力から別hashも観測したため、cross-session/cross-host bit reproducibilityを一般化せず[#171](https://github.com/Tao-pyth/ygo-effect-dsl/issues/171)のrelease gateとして維持する。clean bootstrap完了は、固定source/toolchain/APIと各build固有hashをmanifestで検証でき、再実行・中断復旧できることを意味する。
 
 `VAL-026`のlocal walkthrough runは10 node/10 Replay、Route `route_1413fc434d81c8259cc2e512e0e2b869289fa802e09306c163027385a8b01246`、terminal State `state_5619746ab2aca3662c747ca7fddb9e269261ae3c58b2bc59f9bee5070f89764a`でfresh Replay一致を確認した。success predicateはfalseであり、接続・artifact整合のsmokeをdeck品質証跡へ拡大解釈しない。
 

@@ -34,6 +34,7 @@ from ygo_effect_dsl.cli.cmd_prototype import (
     cmd_prototype_verify,
 )
 from ygo_effect_dsl.cli.cmd_qualification import (
+    cmd_clean_bootstrap_qualify,
     cmd_lua_load_qualify,
     cmd_real_deck_qualify,
 )
@@ -298,6 +299,22 @@ def main() -> int:
         help="explicitly produce partial smoke evidence for the first N scripts",
     )
     lua_load_qualify.set_defaults(func=cmd_lua_load_qualify)
+
+    clean_bootstrap_qualify = sub.add_parser(
+        "ocgcore-clean-bootstrap-qualify",
+        help="qualify clean, repeat, and interrupted ocgcore bootstraps",
+    )
+    clean_bootstrap_qualify.add_argument(
+        "--work-root",
+        required=True,
+        help="repository-external directory that retains raw build artifacts",
+    )
+    clean_bootstrap_qualify.add_argument(
+        "--out",
+        required=True,
+        help="sanitized clean-bootstrap qualification JSON path",
+    )
+    clean_bootstrap_qualify.set_defaults(func=cmd_clean_bootstrap_qualify)
 
     decision_corpus = sub.add_parser(
         "ocgcore-decision-corpus",

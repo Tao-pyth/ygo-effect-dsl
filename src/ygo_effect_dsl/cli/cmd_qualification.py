@@ -2,6 +2,10 @@ from __future__ import annotations
 
 import argparse
 
+from ygo_effect_dsl.external.clean_bootstrap_qualification import (
+    run_clean_bootstrap_qualification,
+    write_clean_bootstrap_qualification,
+)
 from ygo_effect_dsl.engine.bridge.ocgcore.lua_qualification import (
     run_lua_load_qualification,
     write_lua_load_qualification,
@@ -66,4 +70,22 @@ def cmd_lua_load_qualify(args: argparse.Namespace) -> int:
     return 0
 
 
-__all__ = ["cmd_lua_load_qualify", "cmd_real_deck_qualify"]
+def cmd_clean_bootstrap_qualify(args: argparse.Namespace) -> int:
+    report = run_clean_bootstrap_qualification(work_root=args.work_root)
+    write_clean_bootstrap_qualification(args.out, report)
+    reproducibility = report["binary_reproducibility"]
+    print(
+        "ocgcore-clean-bootstrap-qualify: qualified_local "
+        f"qualification_id={report['qualification_id']} "
+        f"builds={len(report['builds'])} "
+        f"binary_hashes={reproducibility['distinct_sha256_count']} "
+        f"reproducibility={reproducibility['status']}"
+    )
+    return 0
+
+
+__all__ = [
+    "cmd_clean_bootstrap_qualify",
+    "cmd_lua_load_qualify",
+    "cmd_real_deck_qualify",
+]

@@ -13,7 +13,7 @@ Parent stage: [#131 Complete real ocgcore / EDOPro Lua integration and calibrati
 | Order | Issue | Deliverable | Depends on | Evidence |
 |---|---|---|---|---|
 | 1 | [#135](https://github.com/Tao-pyth/ygo-effect-dsl/issues/135) | supported platform/toolchain matrix | current lock | doctor matrix、unsupported diagnostics |
-| 2 | [#136](https://github.com/Tao-pyth/ygo-effect-dsl/issues/136) | clean ocgcore bootstrap | #135 | source/build/API/hash manifest、idempotency、interrupt recovery |
+| 2 | [#136](https://github.com/Tao-pyth/ygo-effect-dsl/issues/136) | clean ocgcore bootstrap | #135 | `ocgcore-clean-bootstrap-qualification-v1`、5 build、idempotency、interrupt recovery、per-build hash |
 | 3 | [#137](https://github.com/Tao-pyth/ygo-effect-dsl/issues/137) | BabelCDB ref/commit判断とclean asset bootstrap | #135 | upstream ref record、empty-cache transcript、ADRまたはlock維持根拠 |
 | 4 | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) | EDOPro helper/card script load境界 | #137 | path/error/unsafe-library corpus |
 | 5 | [#139](https://github.com/Tao-pyth/ygo-effect-dsl/issues/139) / [#194](https://github.com/Tao-pyth/ygo-effect-dsl/issues/194) | 3 real deckのYDK/inline preflight-to-Replayとsanitized qualification index | #137, #140, #192, #193 | scenario/SearchRun/Route/Replay manifest、反復witness、artifact SHA-256 |
