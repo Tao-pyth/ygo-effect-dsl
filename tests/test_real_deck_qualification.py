@@ -33,6 +33,9 @@ from ygo_effect_dsl.experiment.qualification import (
 
 ROOT = Path(__file__).parents[1]
 BASE_EXPERIMENT = ROOT / "examples/experiments/general_search_inline.yaml"
+PUBLISHED_QUALIFICATION_INDEX = (
+    ROOT / "docs/ocgcore/evidence/real_deck_qualification.json"
+)
 PROFILE_HEX = {"short": "1", "long": "2", "grave_banish": "3"}
 
 
@@ -170,6 +173,38 @@ def test_qualification_index_round_trips_without_raw_deck_or_path_fields(
     assert '"path"' not in serialized
     assert '"main"' not in serialized
     assert '"opening_hand"' not in serialized
+
+
+def test_published_real_deck_qualification_index_is_sanitized_and_reproducible() -> None:
+    index = read_real_deck_qualification_index(PUBLISHED_QUALIFICATION_INDEX)
+
+    assert index["status"] == "qualified"
+    assert [profile["profile_id"] for profile in index["profiles"]] == [
+        "short",
+        "long",
+        "grave_banish",
+    ]
+    assert len(
+        {profile["deck"]["deck_sha256"] for profile in index["profiles"]}
+    ) == 3
+    for profile in index["profiles"]:
+        assert profile["reproducibility"] == {
+            "repetitions": 2,
+            "route_id_stable": True,
+            "search_run_id_stable": True,
+            "terminal_state_hash_stable": True,
+            "witness_stable": True,
+        }
+        assert profile["witness"]["success"] is True
+        assert (
+            profile["witness"]["terminal_stop_reason"]
+            == "core_end_turn_available"
+        )
+
+    serialized = PUBLISHED_QUALIFICATION_INDEX.read_text(encoding="utf-8")
+    assert '"opening_hand"' not in serialized
+    assert '"main"' not in serialized
+    assert "ygo-effect-dsl-qualification" not in serialized
 
 
 def test_qualification_index_requires_distinct_decks_and_fixed_profile_order() -> None:

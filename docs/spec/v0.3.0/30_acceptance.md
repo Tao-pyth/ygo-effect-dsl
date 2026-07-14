@@ -93,6 +93,8 @@ python -m ygo_effect_dsl real-deck-qualify --experiment short=<external>/short.y
 
 `real-deck-qualify`は3 profileを各2回実行し、SearchRun ID、best Route ID、terminal State hash、profile witnessの一致後だけindexをatomic保存する。全profileでlegal stop/successを要求し、`long`はAction数とturn/phase列、`grave_banish`はgraveyard/banished count遷移をcore観測から追加で証跡化する。harness testだけではGate Cを通過せず、外部3 deckの実行済みindexが必要である。
 
+2026-07-14にshort YDK/random hand、long inline/fixed hand、grave-banish YDK/conditional handを各2反復し、実行済みindex `docs/ocgcore/evidence/real_deck_qualification.json`を取得した。qualification IDは`deckqual_21dcdaddae643c08f562fd216dc2b0cc1f379b513d7c404727b5c1c6836d1599`であり、Gate Cの代表3 deck要件を満たす。これは任意の競技デッキが成功することや、chain-heavy/damage step/SEGOC coverageを意味しない。
+
 実際のCLI名・引数が変わる場合はoperator guide、CLI help、subprocess testを同じPRで更新する。
 
 ## Release rejection conditions
