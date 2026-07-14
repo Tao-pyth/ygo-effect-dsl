@@ -23,7 +23,7 @@ Last updated: 2026-07-14
 | `VAL-006` | 実core/Lua end-to-end | inline fixtureで10 node/10 fresh ReplayのRandom Search、Route出力、best Route Replay、final state hash確認に成功 | `VERIFIED_LOCAL` | [#138](https://github.com/Tao-pyth/ygo-effect-dsl/issues/138) |
 | `VAL-007` | clean core bootstrap | 空rootからcommit/tree/API 11.0を検証。3 buildは同一DLL hash、初回1 buildだけ別hashのためbit reproducibility調査を継続 | `OPEN` | [#136](https://github.com/Tao-pyth/ygo-effect-dsl/issues/136) |
 | `VAL-008` | 任意deck一般性 | 単一inline smokeは成功。短/長/墓地・除外またはchain多発の3 deck qualificationは未実施 | `OPEN` | [#139](https://github.com/Tao-pyth/ygo-effect-dsl/issues/139) |
-| `VAL-009` | Lua load境界 | strict relative/bounded resolver、case/duplicate/reparse拒否、0.3 legacy/0.4 official profile、順序付きhash/load outcome auditを実装。実asset syntax/load corpusと永続index性能校正は未完了 | `OPEN` | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) |
+| `VAL-009` | Lua load境界 | `ocgcore-lua-load-qualification-v1`でofficial 12,702件を7 fresh workerから全件native load。helper 26件の順序、cold/warm/fresh resolver同値性、negative probe、unsafe library無効を確認。BabelCDB欠落120件は通常preflightでfail-close | `VERIFIED_LOCAL` | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) |
 | `VAL-010` | Message/Decision一般性 | 固定API 11.0全message registry、unknown ID fail-close、重複candidate拒否、Route decode/encode往復の`ocgcore-decision-shape-corpus-v1`を実装。固定matrixでtargetless/cost/single/multi-target/option/hand/fieldを確認したが、外部3 deck corpusは未取得 | `OPEN` | [#141](https://github.com/Tao-pyth/ygo-effect-dsl/issues/141) |
 | `VAL-011` | 妨害timing | targetless/cost/target等の基礎taxonomyはある。damage step、mandatory trigger、SEGOC等は未完了 | `OPEN` | [#123](https://github.com/Tao-pyth/ygo-effect-dsl/issues/123) |
 | `VAL-012` | 10万node実worker性能 | logical workload evidenceはあるが、pool 1/2/4/8/16の実Replay throughput/RSSは未測定 | `OPEN` | [#105](https://github.com/Tao-pyth/ygo-effect-dsl/issues/105), [#128](https://github.com/Tao-pyth/ygo-effect-dsl/issues/128) |
@@ -47,6 +47,7 @@ Last updated: 2026-07-14
 python -m ygo_effect_dsl ocgcore-doctor
 python -m ygo_effect_dsl ocgcore-verify
 python -m ygo_effect_dsl ocgcore-assets-verify
+python -m ygo_effect_dsl ocgcore-lua-qualify --out docs/ocgcore/evidence/lua_load_qualification.json
 python -m ygo_effect_dsl experiment-search examples/experiments/general_search_inline.yaml --out <temp>/best.route.yaml --search-report <temp>/report.json
 python -m ygo_effect_dsl experiment-replay examples/experiments/general_search_inline.yaml <temp>/best.route.yaml
 python -m ygo_effect_dsl real-deck-qualify --experiment short=<external>/short.yaml --experiment long=<external>/long.yaml --experiment grave_banish=<external>/grave-banish.yaml --artifact-root <external>/raw --index-out <sanitized-index>.json
@@ -59,6 +60,8 @@ python -m ygo_effect_dsl prototype-real-stress --out <external>/worker-failure-a
 `VAL-013`のlocal stressは`semantic_report_id=realcorestress_a6868c199d651249f3cf4ff0d79978b61f3c8bebca0f233666698965d722a4cf`、`task_count=4`で、`all_failure_categories_observed`、`callback_native_path_observed`、`completion_order_independent`、`pool_independent_route_replay_ids`、`pool_independent_semantic_result`、`process_cleanup_observed`、`recovered_once`、`replacement_process_isolated`、`retry_exhaustion_failed`、`retry_seed_and_slot_stable`がすべてtrueだった。これはworker障害acceptanceのlocal evidenceであり、10万node性能校正`VAL-012`の代替ではない。
 
 `VAL-010`のlocal fixture evidenceは`corpus_id=decisioncorpus_4320f03495f29e9eb79c7489321ddd5c4529c1a812b2ae425f10de010fea9103`、5 Route、63 decision caseで、required 7 categoryがcompleteである。これは固定fixtureのcodec/taxonomy coverageであり、外部3 deck一般性の証明ではない。
+
+`VAL-009`のlocal evidenceは`qualification_id=luaqualification_2d42852ce777de439c149bffc28e347210cebeef31db0b1cce7b219a28acc17a`、official 12,702 script、7 fresh worker、native failure 0、helper 26件、最大worker peak RSS 84,602,880 bytesである。BabelCDB coverageは12,582件で、DB行のない120件はscript-only load確認に限定し、通常deckの利用可能cardとは扱わない。persistent resolver indexは性能不足による未実装ではなく、live path identity検査を維持するため明示的に不採用とした。
 
 ## Update rule
 

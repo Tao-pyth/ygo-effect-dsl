@@ -94,6 +94,14 @@ from ygo_effect_dsl.engine.bridge.ocgcore.random_trace import (
     extract_direct_random_draws,
     extract_direct_random_log_draws,
 )
+from ygo_effect_dsl.engine.bridge.ocgcore.lua_qualification import (
+    LUA_LOAD_QUALIFICATION_SCHEMA_VERSION,
+    LuaLoadQualificationError,
+    read_lua_load_qualification,
+    run_lua_load_qualification,
+    validate_lua_load_qualification,
+    write_lua_load_qualification,
+)
 from ygo_effect_dsl.engine.bridge.ocgcore.session import OcgcoreDuel
 from ygo_effect_dsl.engine.bridge.ocgcore.state import (
     CARD_INSTANCE_SNAPSHOT_SCHEMA_VERSION,
@@ -199,6 +207,8 @@ __all__ = [
     "ResolvedScript",
     "SCRIPT_RESOLUTION_SCHEMA_VERSION",
     "LegalStopDecision",
+    "LUA_LOAD_QUALIFICATION_SCHEMA_VERSION",
+    "LuaLoadQualificationError",
     "MissingCardDataError",
     "MissingScriptError",
     "MessageFrame",
@@ -255,9 +265,13 @@ __all__ = [
     "extract_direct_random_log_draws",
     "filter_card_instance_trace_logs",
     "project_visible",
+    "read_lua_load_qualification",
     "parse_card_instance_log",
     "project_card_instance_observations",
     "native_layout",
+    "run_lua_load_qualification",
+    "validate_lua_load_qualification",
+    "write_lua_load_qualification",
     "validate_native_layout",
     "split_message_stream",
 ]

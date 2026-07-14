@@ -33,7 +33,10 @@ from ygo_effect_dsl.cli.cmd_prototype import (
     cmd_prototype_run,
     cmd_prototype_verify,
 )
-from ygo_effect_dsl.cli.cmd_qualification import cmd_real_deck_qualify
+from ygo_effect_dsl.cli.cmd_qualification import (
+    cmd_lua_load_qualify,
+    cmd_real_deck_qualify,
+)
 from ygo_effect_dsl.cli.cmd_transform import cmd_transform
 from ygo_effect_dsl.cli.cmd_validate import cmd_validate
 from ygo_effect_dsl.dict_loader import load_dictionary, validate_dictionary
@@ -276,6 +279,25 @@ def main() -> int:
     real_deck_qualify.add_argument("--worker-timeout", type=float, default=30.0)
     real_deck_qualify.add_argument("--max-retries", type=int, default=1)
     real_deck_qualify.set_defaults(func=cmd_real_deck_qualify)
+
+    lua_load_qualify = sub.add_parser(
+        "ocgcore-lua-qualify",
+        help="qualify the pinned official CardScripts corpus through real ocgcore",
+    )
+    lua_load_qualify.add_argument(
+        "--out",
+        required=True,
+        help="sanitized Lua load qualification JSON path",
+    )
+    lua_load_qualify.add_argument("--external-root")
+    lua_load_qualify.add_argument("--batch-size", type=int, default=2048)
+    lua_load_qualify.add_argument("--worker-timeout", type=float, default=300.0)
+    lua_load_qualify.add_argument(
+        "--smoke-limit",
+        type=int,
+        help="explicitly produce partial smoke evidence for the first N scripts",
+    )
+    lua_load_qualify.set_defaults(func=cmd_lua_load_qualify)
 
     decision_corpus = sub.add_parser(
         "ocgcore-decision-corpus",
