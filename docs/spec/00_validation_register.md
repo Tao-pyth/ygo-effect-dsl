@@ -19,7 +19,7 @@ Last updated: 2026-07-14
 | `VAL-002` | ocgcore lock | upstream latest release tagは`v11.0`、固定commit `158aebe...`、tree `23915a...`、API `11.0` | `VERIFIED_UPSTREAM` | [#136](https://github.com/Tao-pyth/ygo-effect-dsl/issues/136) |
 | `VAL-003` | 現在hostのcore runtime | `ocgcore-doctor`、`ocgcore-verify`成功。Windows x64、VS 2022/MSVC、owned cacheを使用 | `VERIFIED_LOCAL` | [#135](https://github.com/Tao-pyth/ygo-effect-dsl/issues/135) |
 | `VAL-004` | CardScripts lock | tag `20250420`のpeeled commitが固定commit `c8e9c0...`と一致 | `VERIFIED_UPSTREAM` | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) |
-| `VAL-005` | BabelCDB lock | tag `20250419`は`4c8e9ca...`を指すがlockは同日後刻の`f89c9a...`を固定。既存cache verifyは成功、clean取得は未証明 | `OPEN` | [#137](https://github.com/Tao-pyth/ygo-effect-dsl/issues/137) |
+| `VAL-005` | BabelCDB lock | tag `20250419`は`4c8e9ca...`を指すがlockは同日後刻の`f89c9a...`を固定。空cacheから固定commitを直接fetchし、tree/file hashまで検証済み。ref不在contract testも追加 | `VERIFIED_LOCAL` | [#137](https://github.com/Tao-pyth/ygo-effect-dsl/issues/137) |
 | `VAL-006` | 実core/Lua end-to-end | inline fixtureで10 node/10 fresh ReplayのRandom Search、Route出力、best Route Replay、final state hash確認に成功 | `VERIFIED_LOCAL` | [#138](https://github.com/Tao-pyth/ygo-effect-dsl/issues/138) |
 | `VAL-007` | clean core bootstrap | core未取得hostからsource/build/hash/APIを再現する証跡が未作成 | `OPEN` | [#136](https://github.com/Tao-pyth/ygo-effect-dsl/issues/136) |
 | `VAL-008` | 任意deck一般性 | 単一inline smokeは成功。短/長/墓地・除外またはchain多発の3 deck qualificationは未実施 | `OPEN` | [#139](https://github.com/Tao-pyth/ygo-effect-dsl/issues/139) |
