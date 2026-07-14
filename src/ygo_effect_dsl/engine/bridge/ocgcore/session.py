@@ -20,8 +20,11 @@ from ygo_effect_dsl.engine.bridge.ocgcore.errors import (
 )
 from ygo_effect_dsl.engine.bridge.ocgcore.providers import (
     MAX_SCRIPT_BYTES,
+    SCRIPT_RESOLUTION_SCHEMA_VERSION,
     CardDataProvider,
+    ResolvedScript,
     ScriptProvider,
+    resolve_script,
 )
 from ygo_effect_dsl.engine.bridge.ocgcore.types import (
     MAX_NATIVE_BUFFER_BYTES,
@@ -69,6 +72,11 @@ class OcgcoreDuel:
         self._diagnostics: list[Diagnostic] = []
         self._pending_logs: list[CoreLog] = []
         self._next_log_sequence = 0
+        self._script_load_audit: list[dict[str, Any]] = []
+        self._next_script_load_sequence = 0
+        self._script_resolution_profile_id = str(
+            getattr(scripts, "script_resolution_profile_id", "custom-script-provider-v1")
+        )
         self._setcode_allocations: dict[int, Any] = {}
         self._destroyed_native = False
         self._registered_with_library = False
@@ -155,7 +163,53 @@ class OcgcoreDuel:
             "enable_unsafe_libraries": False,
             "seed": list(self.config.seed),
             "flags": self.config.flags,
+            "lua_script_resolution": self.script_resolution_manifest,
         }
+
+    @property
+    def script_load_audit(self) -> tuple[dict[str, Any], ...]:
+        return tuple(
+            dict(item)
+            for item in sorted(
+                self._script_load_audit,
+                key=lambda item: int(item["sequence"]),
+            )
+        )
+
+    @property
+    def script_resolution_manifest(self) -> dict[str, Any]:
+        return {
+            "schema_version": SCRIPT_RESOLUTION_SCHEMA_VERSION,
+            "profile_id": self._script_resolution_profile_id,
+            "loads": list(self.script_load_audit),
+        }
+
+    def _begin_script_load(self) -> int:
+        sequence = self._next_script_load_sequence
+        self._next_script_load_sequence += 1
+        return sequence
+
+    def _record_script_load(
+        self,
+        *,
+        sequence: int,
+        requested_name: str,
+        outcome: str,
+        resolution: ResolvedScript | None = None,
+        error: str | None = None,
+    ) -> None:
+        entry: dict[str, Any] = {
+            "sequence": sequence,
+            "requested_name": requested_name,
+            "outcome": outcome,
+        }
+        if resolution is not None:
+            metadata = resolution.audit_dict()
+            metadata.pop("requested_name", None)
+            entry.update(metadata)
+        if error is not None:
+            entry["error"] = error
+        self._script_load_audit.append(entry)
 
     def _capture_callback_error(
         self, callback: str, exc: BaseException, *, category: str = "core_error"
@@ -250,24 +304,72 @@ class OcgcoreDuel:
     ) -> int:
         if not self._callback_enter("ScriptReader"):
             return 0
+        sequence = self._begin_script_load()
+        name = "<null>"
+        resolution: ResolvedScript | None = None
         try:
             if not raw_name:
                 raise MissingScriptError("<null>")
             name = raw_name.decode("utf-8", errors="strict")
-            script = self.scripts.get_script(name)
+            resolution = resolve_script(self.scripts, name)
             result = self.library.native.OCG_LoadScript(
-                duel, script, len(script), name.encode("utf-8")
+                duel,
+                resolution.content,
+                resolution.size,
+                name.encode("utf-8"),
             )
             if result <= 0:
                 raise OcgcoreLuaError(f"OCG_LoadScript rejected {name!r}")
+            self._record_script_load(
+                sequence=sequence,
+                requested_name=name,
+                outcome="loaded",
+                resolution=resolution,
+            )
             return 1
         except MissingScriptError as exc:
+            self._record_script_load(
+                sequence=sequence,
+                requested_name=name,
+                outcome="missing",
+                resolution=resolution,
+                error=str(exc),
+            )
             self._capture_callback_error("ScriptReader", exc, category="asset_error")
         except OcgcoreLuaError as exc:
+            self._record_script_load(
+                sequence=sequence,
+                requested_name=name,
+                outcome="rejected",
+                resolution=resolution,
+                error=str(exc),
+            )
             self._capture_callback_error("ScriptReader", exc, category="lua_error")
         except OcgcoreAssetError as exc:
+            self._record_script_load(
+                sequence=sequence,
+                requested_name=name,
+                outcome="asset_error",
+                resolution=resolution,
+                error=str(exc),
+            )
+            self._capture_callback_error("ScriptReader", exc, category="asset_error")
+        except UnicodeError as exc:
+            self._record_script_load(
+                sequence=sequence,
+                requested_name="<invalid-utf8>",
+                outcome="invalid_encoding",
+                error=str(exc),
+            )
             self._capture_callback_error("ScriptReader", exc, category="asset_error")
         except BaseException as exc:
+            self._record_script_load(
+                sequence=sequence,
+                requested_name=name,
+                outcome="provider_error",
+                resolution=resolution,
+                error=str(exc),
+            )
             self._capture_callback_error("ScriptReader", exc)
         finally:
             self._callback_exit()
@@ -331,17 +433,50 @@ class OcgcoreDuel:
             self._transition(DuelState.CARDS_LOADED)
 
     def load_script(self, name: str, script: bytes) -> None:
-        self._require(DuelState.DUEL_CREATED, DuelState.CARDS_LOADED)
         if len(script) > MAX_SCRIPT_BYTES:
             raise OcgcoreBufferError(
                 f"Lua script {name!r} exceeds {MAX_SCRIPT_BYTES} bytes"
             )
+        resolution = ResolvedScript.from_bytes(
+            requested_name=name,
+            resolved_path=name,
+            source_kind="provided",
+            content=script,
+        )
+        self.load_script_resolution(resolution)
+
+    def load_script_resolution(self, resolution: ResolvedScript) -> None:
+        self._require(DuelState.DUEL_CREATED, DuelState.CARDS_LOADED)
+        if resolution.size > MAX_SCRIPT_BYTES:
+            raise OcgcoreBufferError(
+                f"Lua script {resolution.requested_name!r} exceeds {MAX_SCRIPT_BYTES} bytes"
+            )
+        sequence = self._begin_script_load()
         result = self.library.native.OCG_LoadScript(
-            self._duel, script, len(script), name.encode("utf-8")
+            self._duel,
+            resolution.content,
+            resolution.size,
+            resolution.requested_name.encode("utf-8"),
         )
         if result <= 0:
+            error = f"OCG_LoadScript rejected {resolution.requested_name!r}"
+            self._record_script_load(
+                sequence=sequence,
+                requested_name=resolution.requested_name,
+                outcome="rejected",
+                resolution=resolution,
+                error=error,
+            )
+            if self._callback_errors:
+                self._raise_callback_error()
             self._transition(DuelState.FAILED)
-            raise OcgcoreLuaError(f"OCG_LoadScript rejected {name!r}")
+            raise OcgcoreLuaError(error)
+        self._record_script_load(
+            sequence=sequence,
+            requested_name=resolution.requested_name,
+            outcome="loaded",
+            resolution=resolution,
+        )
         self._raise_callback_error()
 
     def capture_card_instance_scan(self, *, scan_nonce: str) -> tuple[CoreLog, ...]:

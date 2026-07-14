@@ -38,14 +38,17 @@ from ygo_effect_dsl.engine.bridge.ocgcore import (
     OcgcoreLibrary,
     OcgcoreMessageDecoder,
     PlayerConfig,
+    ResolvedScript,
     SQLiteCardDataProvider,
     assert_public_card_instance_document,
     build_board_summary,
     build_card_instance_scope_id_v2,
     build_core_output_trace,
+    card_scripts_profile_for_experiment_schema,
     direct_random_trace_metadata,
     evaluate_legal_stop,
     filter_card_instance_trace_logs,
+    resolve_script,
 )
 from ygo_effect_dsl.engine.bridge.ocgcore.errors import (
     OcgcoreWorkerCrashError,
@@ -719,11 +722,29 @@ class _FixtureScriptProvider:
         self.card_scripts = dict(card_scripts)
 
     def get_script(self, name: str) -> bytes:
+        return self.resolve_script(name).content
+
+    @property
+    def script_resolution_profile_id(self) -> str:
+        return str(
+            getattr(
+                self.delegate,
+                "script_resolution_profile_id",
+                "custom-script-provider-v1",
+            )
+        )
+
+    def resolve_script(self, name: str) -> ResolvedScript:
         basename = name.replace("\\", "/").rsplit("/", 1)[-1]
         for code, script in self.card_scripts.items():
             if basename == f"c{code}.lua":
-                return script
-        return self.delegate.get_script(name)
+                return ResolvedScript.from_bytes(
+                    requested_name=name,
+                    resolved_path=f"fixture/{basename}",
+                    source_kind="fixture",
+                    content=script,
+                )
+        return resolve_script(self.delegate, name)
 
 
 def _interruption_error(path: str, message: str) -> ValueError:
@@ -2939,7 +2960,12 @@ def run_real_core_worker(
                 fixture_script_metadata,
                 card_data,
             )
-            scripts = CardScriptsProvider(assets.scripts_root)
+            scripts = CardScriptsProvider(
+                assets.scripts_root,
+                profile_id=card_scripts_profile_for_experiment_schema(
+                    str(experiment["schema_version"])
+                ),
+            )
             base_scripts = (
                 _FixtureScriptProvider(scripts, fixture_scripts)
                 if fixture_scripts
@@ -2967,11 +2993,11 @@ def run_real_core_worker(
             with library.create_duel(
                 config, effective_card_data, effective_scripts
             ) as duel:
-                duel.load_script(
-                    "constant.lua", effective_scripts.get_script("constant.lua")
+                duel.load_script_resolution(
+                    resolve_script(effective_scripts, "constant.lua")
                 )
-                duel.load_script(
-                    "utility.lua", effective_scripts.get_script("utility.lua")
+                duel.load_script_resolution(
+                    resolve_script(effective_scripts, "utility.lua")
                 )
                 duel.load_script(
                     DIRECT_RANDOM_TRACE_SCRIPT_NAME,
@@ -3708,10 +3734,17 @@ def run_real_core_worker(
             "parent_route_id": final_plan.base_route_id,
             "fork_step": final_plan.target.step,
         }
+    lua_script_resolution = duel.script_resolution_manifest
+    persist_script_resolution = experiment.get("schema_version") == "0.4"
     route_identity = {
         "experiment": experiment,
         "replay": replay,
         "information_audit": information_audit_document,
+        **(
+            {"lua_script_resolution": lua_script_resolution}
+            if persist_script_resolution
+            else {}
+        ),
         "peak_state_hash": checkpoints[peak_step]["state_hash"],
         "terminal_state_hash": checkpoints[terminal_step]["state_hash"],
         "final_request_signature": final_request_signature,
@@ -3730,6 +3763,11 @@ def run_real_core_worker(
             "success": bool(checkpoints[peak_step]["success"]),
             "final_request_signature": final_request_signature,
             "request_signatures": [*request_signatures, final_request_signature],
+            **(
+                {"lua_script_resolution": lua_script_resolution}
+                if persist_script_resolution
+                else {}
+            ),
             "evaluation_explanation": {
                 "temporary_effects": temporary_effect_report
             },
