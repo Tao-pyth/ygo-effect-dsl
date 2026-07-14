@@ -51,11 +51,12 @@ python -m ygo_effect_dsl validate-experiment examples/experiments/real_core_effe
 ```powershell
 python -m ygo_effect_dsl experiment-run examples/experiments/real_core_effect_veiler.yaml --out data/route.yaml
 python -m ygo_effect_dsl experiment-inspect examples/experiments/real_core_effect_veiler.yaml data/route.yaml
-python -m ygo_effect_dsl experiment-replay examples/experiments/real_core_effect_veiler.yaml data/route.yaml
+python -m ygo_effect_dsl experiment-replay examples/experiments/real_core_effect_veiler.yaml data/route.yaml --verification-report data/replay-verification.json
 python -m ygo_effect_dsl experiment-search examples/experiments/general_search_inline.yaml --out data/best.route.yaml --search-report data/search-report.json
 ```
 
 `run` は検証済みExperimentをworkerへ渡してRoute DSLを生成する。`inspect` はcoreを再実行せず、Experiment一致とRoute整合性を検証してscore概要を表示する。`replay` はfresh workerで同じExperimentを再実行し、request列とRoute全体の一致を検証する。
+`--verification-report`を指定した`replay`は、fresh Replayが完全一致した後だけ`fresh-replay-verification-v1` JSONをatomic replaceで保存する。`verification_scope`は`general_search`と`scripted_real_core`を区別し、前者ではExperiment `0.4`、scenario、公式Lua auditを必須とする。reportはSearchRunと共通のExperiment digest、Route、terminal State、Replay manifest、scenario、core/asset lock、Lua auditのcontent identityを持つが、deck section、opening hand、絶対path、Lua本文は複製しない。
 
 設定の優先順位は「明示CLI引数 > Experimentファイル」である。CLI引数が省略された項目はファイル値を保持し、コード側defaultで上書きしない。現行CLIはbudget、Evaluator id/version、interruption modeを上書きできる。解決後ExperimentはRouteへ保存されるため、実行時の最終値を追跡できる。
 

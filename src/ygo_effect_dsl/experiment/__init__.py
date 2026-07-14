@@ -30,9 +30,17 @@ from ygo_effect_dsl.experiment.resolution import (
     migrate_experiment_v03a_to_v03b,
     resolve_experiment_overrides,
 )
+from ygo_effect_dsl.experiment.verification import (
+    FRESH_REPLAY_VERIFICATION_SCHEMA_VERSION,
+    build_fresh_replay_verification_report,
+    read_fresh_replay_verification_report,
+    validate_fresh_replay_verification_report,
+    write_fresh_replay_verification_report,
+)
 
 __all__ = [
     "EXPERIMENT_SCHEMA_VERSION",
+    "FRESH_REPLAY_VERIFICATION_SCHEMA_VERSION",
     "INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION",
     "INTERRUPTION_SAMPLER_IDS",
     "INTERRUPTION_SAMPLING_SCHEMA_VERSION",
@@ -48,6 +56,7 @@ __all__ = [
     "ScenarioPreflightResult",
     "assert_current_experiment",
     "assert_valid_experiment",
+    "build_fresh_replay_verification_report",
     "assert_experiment_matches_route",
     "dump_experiment_document",
     "experiment_source_identity",
@@ -56,6 +65,9 @@ __all__ = [
     "normalize_deck",
     "parse_ydk",
     "preflight_scenario",
+    "read_fresh_replay_verification_report",
     "validate_experiment",
+    "validate_fresh_replay_verification_report",
+    "write_fresh_replay_verification_report",
     "resolve_experiment_overrides",
 ]

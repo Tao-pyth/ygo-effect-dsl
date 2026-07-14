@@ -11,9 +11,9 @@ from ygo_effect_dsl.engine.search.parallel import build_search_node_id
 from ygo_effect_dsl.engine.search.termination import SearchBudget, TerminationReason
 
 
-SEARCH_EXECUTOR_SCHEMA_VERSION = "search-executor-v2"
+SEARCH_EXECUTOR_SCHEMA_VERSION = "search-executor-v3"
 SEARCH_FRONTIER_SCHEMA_VERSION = "search-frontier-v2"
-SEARCH_RUN_RESULT_SCHEMA_VERSION = "search-run-result-v2"
+SEARCH_RUN_RESULT_SCHEMA_VERSION = "search-run-result-v3"
 RANDOM_SEARCH_STRATEGY_SCHEMA_VERSION = "random-search-strategy-v1"
 
 
@@ -157,6 +157,7 @@ class SearchRouteSummary:
 @dataclass(frozen=True)
 class SearchRunResult:
     experiment_id: str
+    experiment_digest: str
     strategy_id: str
     termination_reason: str
     nodes: int
@@ -189,12 +190,22 @@ class SearchRunResult:
                 "unsupported SearchRunResult version provenance: "
                 f"observed={observed!r}, expected={expected!r}"
             )
+        if not isinstance(self.experiment_digest, str):
+            raise ValueError("experiment_digest must be an experiment_ content ID")
+        digest = self.experiment_digest.removeprefix("experiment_")
+        if (
+            not self.experiment_digest.startswith("experiment_")
+            or len(digest) != 64
+            or any(character not in "0123456789abcdef" for character in digest)
+        ):
+            raise ValueError("experiment_digest must be an experiment_ content ID")
 
     def semantic_dict(self) -> dict[str, Any]:
         return {
             "best_route": self.best_route.to_dict() if self.best_route else None,
             "exact_state_duplicates": self.exact_state_duplicates,
             "executor_schema_version": self.executor_schema_version,
+            "experiment_digest": self.experiment_digest,
             "experiment_id": self.experiment_id,
             "frontier_schema_version": self.frontier_schema_version,
             "max_depth_reached": self.max_depth_reached,
@@ -352,6 +363,7 @@ class SearchExecutor:
         best = ordered_routes[0] if ordered_routes else None
         elapsed_seconds = max(0.0, self.clock() - started)
         return SearchRunResult(
+            experiment_digest=stable_digest(experiment, prefix="experiment_"),
             experiment_id=experiment_id,
             strategy_id=self.strategy.strategy_id,
             termination_reason=termination.value,

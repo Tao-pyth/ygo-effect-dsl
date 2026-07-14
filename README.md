@@ -22,12 +22,12 @@ package versionと機能契約のschema versionは独立して管理します。
 | Project identity | `project-identity-v1` | repository、import、CLI、製品説明の安定名 |
 | Experiment | `0.4` | 現行scenario/search入力。`0.3b`は実行互換、`0.3a`は読み取り・migration入力 |
 | Scenario / preflight | `scenario-v1` / `scenario-manifest-v1` / `scenario-preflight-v1` | YDK/inline、初手、asset/card/script事前検査 |
-| Decision / Action / Replay | `0.3a` | request、選択、再生の基礎契約。Replay manifestは`ygo-replay-manifest-v1` |
+| Decision / Action / Replay | `0.3a` | request、選択、再生の基礎契約。`ygo-replay-manifest-v1` / `fresh-replay-verification-v1` |
 | Route DSL | `0.1` | 最良Routeの交換形式。正規化出力は`route-normalization-v2` |
 | Information boundary | `information-policy-v1` / `information-audit-v1` | 探索・評価が参照できる情報とaccess証跡 |
 | State identity | `ygo-state-id-v1` / `ygo-rule-state-v1` / `ygo-visibility-state-v1` | exact dedup、ルール状態、可視性状態 |
 | Evaluation | `evaluation-result-v1` / `score-breakdown-v1` / `route-resource-consumption-v1` | 成功、盤面score、資源消費 |
-| Search executor | `search-executor-v2` / `search-frontier-v2` / `search-run-result-v2` / `random-search-strategy-v1` | state completenessを明示する決定論的Random Search。Beam/MCTSは未実装 |
+| Search executor | `search-executor-v3` / `search-frontier-v2` / `search-run-result-v3` / `random-search-strategy-v1` | state completenessとExperiment digestを明示する決定論的Random Search。Beam/MCTSは未実装 |
 | Search support | `search-termination-v1` / `prefix-cache-policy-v1` / `parallel-search-result-v2` / `pruning-guardrail-policy-v2` | 予算、cache、並列結果、枝刈りguardrail |
 | Real-core frontier | `real-core-frontier-v2` / `real-core-worker-failure-v1` | fresh worker Replay、state completeness、failure envelope |
 | Specified interruption | `core-interruption-candidate-policy-v1` / `interruption-support-taxonomy-v1` | core提示candidateだけを使う妨害分岐と対応分類 |
@@ -145,7 +145,7 @@ python -m ygo_effect_dsl.spikes.resource_consumption_evidence --out docs/evaluat
 python -m ygo_effect_dsl experiment-run examples/experiments/real_core_effect_veiler_interrupted.yaml --out data/prototype/interrupted.route.yaml
 python -m ygo_effect_dsl experiment-replay examples/experiments/real_core_effect_veiler_interrupted.yaml data/prototype/interrupted.route.yaml
 python -m ygo_effect_dsl experiment-search examples/experiments/general_search_inline.yaml --out data/prototype/general-search.route.yaml --search-report data/prototype/general-search.report.json
-python -m ygo_effect_dsl experiment-replay examples/experiments/general_search_inline.yaml data/prototype/general-search.route.yaml
+python -m ygo_effect_dsl experiment-replay examples/experiments/general_search_inline.yaml data/prototype/general-search.route.yaml --verification-report data/prototype/general-search.replay-verification.json
 ```
 
 `prototype-verify`は別プロセスで同じシナリオを再実行し、DecisionRequest署名、Action ID、state hash、評価、Route IDを含むRoute DSL全体の一致を検査します。仮設契約の要検証事項はGitHub Issueで管理します。

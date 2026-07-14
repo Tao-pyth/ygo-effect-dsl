@@ -12,6 +12,7 @@ import yaml
 from ygo_effect_dsl.experiment import (
     load_experiment_document,
     migrate_experiment_v03a_to_v03b,
+    read_fresh_replay_verification_report,
     resolve_experiment_overrides,
     validate_experiment,
 )
@@ -273,6 +274,7 @@ def test_experiment_cli_runs_inspects_and_replays_sample(tmp_path: Path) -> None
     interrupted_path = tmp_path / "interrupted.yaml"
     catalog_path = tmp_path / "runs.sqlite3"
     raw_log_path = tmp_path / "run.jsonl"
+    verification_path = tmp_path / "replay-verification.json"
     common = [sys.executable, "-m", "ygo_effect_dsl"]
     generated = subprocess.run(
         [
@@ -308,6 +310,8 @@ def test_experiment_cli_runs_inspects_and_replays_sample(tmp_path: Path) -> None
             str(route_path),
             "--run-id",
             "run_replay_fixture",
+            "--verification-report",
+            str(verification_path),
         ],
         cwd=ROOT,
         capture_output=True,
@@ -354,6 +358,7 @@ def test_experiment_cli_runs_inspects_and_replays_sample(tmp_path: Path) -> None
     assert "experiment-inspect: ok" in inspected.stdout
     assert "experiment-replay: ok" in replayed.stdout
     assert "run_id=run_replay_fixture" in replayed.stdout
+    assert f"verification_report={verification_path}" in replayed.stdout
     assert "experiment-report: ok" in reported.stdout
     assert "experiment-interrupt: ok" in interrupted.stdout
     route = load_route_document(route_path)
@@ -366,6 +371,13 @@ def test_experiment_cli_runs_inspects_and_replays_sample(tmp_path: Path) -> None
         "run_started",
         "run_completed",
     ]
+    verification = read_fresh_replay_verification_report(verification_path)
+    assert verification["run_id"] == "run_replay_fixture"
+    assert verification["route"]["route_id"] == route["route_id"]
+    assert verification["status"] == "verified"
+    assert verification["verification_scope"] == "scripted_real_core"
+    assert verification["scenario"] is None
+    assert verification["lua_resolution"] is None
     report = report_path.read_text(encoding="utf-8")
     assert "schema_version: report-v1" in report
     assert "## Peak Score Breakdown" in report
