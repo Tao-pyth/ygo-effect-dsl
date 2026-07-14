@@ -15,27 +15,63 @@
   "validation_categories": {
     "standard": {
       "status": "verified_fixture_category",
-      "default": true
+      "default": true,
+      "production_claim": "fixed_fixture_scope_only",
+      "evidence": [
+        "interruption_candidate_matrix_v1",
+        "negtimeev_d27be785a4917eeae926d25ba1254580abb58e186cb9af21739364b9fb1b24c3"
+      ]
     },
     "damage_step": {
       "status": "fail_close_pending_fixture",
-      "default": false
+      "default": false,
+      "production_claim": "prohibited",
+      "priority": 1,
+      "follow_up_issue": 207
+    },
+    "simultaneous_trigger": {
+      "status": "fail_close_pending_fixture",
+      "default": false,
+      "production_claim": "prohibited",
+      "priority": 2,
+      "follow_up_issue": 208
     },
     "mandatory_trigger": {
       "status": "fail_close_pending_fixture",
-      "default": false
+      "default": false,
+      "production_claim": "prohibited",
+      "priority": 3,
+      "follow_up_issue": 209
     },
     "segoc": {
       "status": "fail_close_pending_fixture",
-      "default": false
+      "default": false,
+      "production_claim": "prohibited",
+      "priority": 4,
+      "follow_up_issue": 210
     }
   },
+  "fixture_promotion_requirements": [
+    "pinned_core_api_source_and_asset_hashes",
+    "fresh_real_core_replay_two_repetitions",
+    "route_and_state_lineage",
+    "decision_candidate_and_action_response_evidence",
+    "tamper_detecting_validator",
+    "no_python_effect_legality_or_timing_inference"
+  ],
+  "out_of_scope": [
+    "all_event_star_coverage",
+    "arbitrary_card_specific_rulings",
+    "python_effect_text_inference",
+    "python_timing_rule_inference"
+  ],
   "rules": {
     "candidate_authority": "ocgcore_decision_request_only",
     "effect_inference": false,
     "legality_inference": false,
     "timing_inference": false,
     "ambiguous_response": "configuration_failure",
-    "candidate_disappearance": "path_failure"
+    "candidate_disappearance": "path_failure",
+    "unverified_fixture_category": "unsupported_category"
   }
 }
