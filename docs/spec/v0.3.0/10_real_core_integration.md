@@ -95,6 +95,12 @@ duel sessionはscript要求開始順のsequenceを発行し、`loaded`、`missin
 
 このidentityの不一致はwarningで継続せず、strict Replayでは停止する。
 
+## Fresh Replay verification artifact
+
+`experiment-replay --verification-report FILE`はfresh workerのRoute全文一致後にだけ`fresh-replay-verification-v1`を保存する。reportはrun ID、SearchRunと共通のExperiment digest、Route ID/document digest、event count、terminal State hash、Replay manifest hash、core/asset lock、scenario manifest digest、deck/source hash、Lua resolution audit digestをcontent-addressed `verification_id`へ結合する。`verification_scope: general_search`はExperiment `0.4`、scenario manifest、公式Lua auditを必須とし、`scripted_real_core`のlegacy Replayと区別する。YDKだけがsource SHA-256を持ち、scenario/runtimeのasset lock不一致は拒否する。deck section、opening hand、絶対path、card database、Lua本文はreportへ複製しない。
+
+書き込みは同一directoryの一意なtemporary fileをflush/fsyncしてから`os.replace`し、Windowsの一時的なreplace競合だけをbounded retryする。検証またはreplace失敗時は成功reportを書かず、既存destinationを保持してtemporary fileを削除する。`verification_id`は偶発的な破損とjoin不一致を検出するcontent IDであり、攻撃者による再計算を防ぐ電子署名ではない。署名・trusted catalog anchoringはproduction provenanceの別契約とする。
+
 ## Fail-close classes
 
 | Class | Examples | Required result |

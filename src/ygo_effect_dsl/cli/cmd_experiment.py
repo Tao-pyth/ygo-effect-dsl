@@ -10,12 +10,14 @@ import uuid
 
 from ygo_effect_dsl.experiment import (
     assert_experiment_matches_route,
+    build_fresh_replay_verification_report,
     dump_experiment_document,
     load_experiment_document,
     migrate_experiment_v03a_to_v03b,
     resolve_experiment_overrides,
     preflight_scenario,
     validate_experiment,
+    write_fresh_replay_verification_report,
 )
 from ygo_effect_dsl.reporting import write_markdown_report
 from ygo_effect_dsl.prototype import (
@@ -265,10 +267,25 @@ def cmd_experiment_replay(args: argparse.Namespace) -> int:
         )
     else:
         result = verify_real_core_route(route, external_root=args.external_root)
+    verification_report_path = getattr(args, "verification_report", None)
+    if verification_report_path is not None:
+        report = build_fresh_replay_verification_report(
+            route,
+            run_id=run_id,
+            route_id=result.route_id,
+            event_count=result.event_count,
+            final_state_hash=result.final_state_hash,
+        )
+        write_fresh_replay_verification_report(verification_report_path, report)
+    report_suffix = (
+        f" verification_report={verification_report_path}"
+        if verification_report_path is not None
+        else ""
+    )
     print(
         f"experiment-replay: ok run_id={run_id} experiment_id={experiment['experiment_id']} "
         f"route_id={result.route_id} events={result.event_count} "
-        f"final_state_hash={result.final_state_hash}"
+        f"final_state_hash={result.final_state_hash}{report_suffix}"
     )
     return 0
 

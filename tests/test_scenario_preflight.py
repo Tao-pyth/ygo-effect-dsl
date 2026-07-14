@@ -110,23 +110,37 @@ def test_ydk_normalization_and_content_hash(tmp_path: Path) -> None:
     experiment = _experiment()
     ydk = tmp_path / "deck.ydk"
     main = experiment["deck"]["main"]
-    ydk.write_text(
+    source = (
         "#created by test\n#main\n"
         + "\n".join(str(code) for code in main)
-        + "\n#extra\n!side\n",
-        encoding="utf-8",
+        + "\n#extra\n!side\n"
     )
+    ydk.write_text(source, encoding="utf-8")
     experiment["deck"] = {"id": "ydk_test", "source": "ydk", "path": "deck.ydk"}
 
     parsed, source_hash = parse_ydk(ydk)
     result = preflight_scenario(
         experiment, experiment_path=tmp_path / "experiment.yaml", assets=_assets(tmp_path)
     )
+    ydk.write_text(
+        source.replace("#created by test", "#created by modified"),
+        encoding="utf-8",
+    )
+    modified = preflight_scenario(
+        experiment,
+        experiment_path=tmp_path / "experiment.yaml",
+        assets=_assets(tmp_path),
+    )
 
     assert parsed["main"] == tuple(main)
     assert result.ok
     assert result.manifest is not None
     assert result.manifest.source_sha256 == source_hash
+    assert modified.ok
+    assert modified.manifest is not None
+    assert modified.manifest.sections == result.manifest.sections
+    assert modified.manifest.deck_sha256 == result.manifest.deck_sha256
+    assert modified.manifest.source_sha256 != result.manifest.source_sha256
 
 
 def test_conditional_hand_is_seeded_and_fails_closed(tmp_path: Path) -> None:

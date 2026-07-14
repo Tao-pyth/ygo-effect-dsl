@@ -105,9 +105,10 @@ def test_random_search_is_semantically_deterministic() -> None:
 
     assert first.semantic_dict() == second.semantic_dict()
     assert first.run_id == second.run_id
-    assert first.executor_schema_version == "search-executor-v2"
+    assert first.executor_schema_version == "search-executor-v3"
+    assert first.experiment_digest.startswith("experiment_")
     assert first.frontier_schema_version == "search-frontier-v2"
-    assert first.schema_version == "search-run-result-v2"
+    assert first.schema_version == "search-run-result-v3"
     assert first.best_route is not None
     assert first.best_route.route_id == "route_right"
     assert [route.route_id for route in first.routes] == ["route_right", "route_left"]
@@ -254,9 +255,9 @@ def test_search_frontier_rejects_an_old_schema_version() -> None:
 @pytest.mark.parametrize(
     ("field_name", "old_version"),
     [
-        ("executor_schema_version", "search-executor-v1"),
+        ("executor_schema_version", "search-executor-v2"),
         ("frontier_schema_version", "search-frontier-v1"),
-        ("schema_version", "search-run-result-v1"),
+        ("schema_version", "search-run-result-v2"),
     ],
 )
 def test_search_run_rejects_old_or_mixed_version_provenance(
@@ -271,6 +272,18 @@ def test_search_run_rejects_old_or_mixed_version_provenance(
 
     with pytest.raises(ValueError, match="version provenance"):
         replace(result, **{field_name: old_version})
+
+
+def test_search_run_rejects_an_invalid_experiment_digest() -> None:
+    result = SearchExecutor(
+        FakeFrontierAdapter({(): _frontier("root")}),
+        RandomSearchStrategyV1(1),
+        SearchBudget(max_nodes=1),
+        clock=lambda: 0.0,
+    ).run(_experiment())
+
+    with pytest.raises(ValueError, match="experiment_digest"):
+        replace(result, experiment_digest="experiment_tampered")
 
 
 def test_beam_and_mcts_are_explicitly_unimplemented() -> None:
