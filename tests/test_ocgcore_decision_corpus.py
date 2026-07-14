@@ -130,19 +130,27 @@ def test_decision_corpus_cli_writes_verified_json(tmp_path: Path) -> None:
     ] == DECISION_SHAPE_CORPUS_SCHEMA_VERSION
 
 
-def test_committed_fixture_corpus_is_complete_sanitized_and_canonical(
+def test_committed_fixture_and_external_corpus_is_complete_sanitized_and_canonical(
     tmp_path: Path,
 ) -> None:
     corpus = json.loads(EVIDENCE.read_text(encoding="utf-8"))
 
     assert corpus["corpus_id"] == (
-        "decisioncorpus_4320f03495f29e9eb79c7489321ddd5c4529c1a812b2ae425f10de010fea9103"
+        "decisioncorpus_b134c9a8d6855ab39b11f36f7c3d00135a8c47a52ed125b865b69cdeb39e7fe4"
     )
-    assert len(corpus["routes"]) == 5
-    assert len(corpus["supported_cases"]) == 63
+    assert len(corpus["routes"]) == 8
+    assert len(corpus["supported_cases"]) == 106
+    assert {
+        route["experiment_id"] for route in corpus["routes"]
+    } >= {
+        "qualification_short_labrynth",
+        "qualification_long_candidate",
+        "qualification_grave_assault",
+    }
     assert corpus["coverage"]["shape_coverage_status"] == "complete"
     assert corpus["coverage"]["missing_required_categories"] == []
     serialized = canonical_json(corpus)
     assert "payload_hex" not in serialized
     assert "response_hex" not in serialized
+    assert "ygo-effect-dsl-qualification" not in serialized
     write_decision_shape_corpus(tmp_path / "verified.json", corpus)
