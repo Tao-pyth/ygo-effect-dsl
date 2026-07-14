@@ -118,3 +118,11 @@ duel sessionはscript要求開始順のsequenceを発行し、`loaded`、`missin
 local smoke成功だけではqualificationにならない。空cache、3種類のdeck、Lua/error corpus、worker fault injection、pool別10万nodeを同じlockとversionで通し、raw evidenceを保存した時点で`0.3.0`のreal-core gateを満たす。
 
 実coreの`SearchFrontier v2`は`state_completeness`を必須とする。現行ocgcore query APIから構築する`state_id`は`query_api_projection`であり、観測、semantic node ID、集計には利用できるがexact dedup authorityではない。使用済み効果や完全な履歴を含むexact identityを取得できるまで、同じprojectionだけを根拠にbranchを削除しない。
+
+### External three-deck qualification harness
+
+`real-deck-qualify`はrepository外のExperiment `0.4`を`short`、`long`、`grave_banish`の順で正確に3件受け取る。deck sourceは`inline`または`ydk`だけを許可し、YDK自体もrepository外を必須とする。3件のnormalized deck SHA-256は相互に異ならなければならない。`runner.fixture_script_id`、Random Search以外、`#123`未完了時点の指定妨害・chain-heavy taxonomyはconfiguration failureとする。
+
+各profileはpreflight後に既存`experiment-search`と`experiment-replay --verification-report`を2回ずつ別processで実行する。SearchRun ID、best Route ID、terminal State hash、core観測witnessが反復間で一致しない場合、qualification indexをpublishしない。`short` witnessはcore由来legal stopとsuccess、`long` witnessは12 Action以上とcheckpointのturn/phase列、`grave_banish` witnessはinitial snapshotとcheckpoint間のgraveyard/banished count変化から生成する。カード名・効果・合法性をPythonで推測しない。
+
+raw SearchRun、Route、Replay report、Experiment、YDKはexternal evidence storageへ残す。repositoryへ保存可能な`real-deck-qualification-index-v1`はExperiment/deck/lock identity、各artifact SHA-256、反復不変条件、sanitized witnessだけを含み、card code列、deck section、opening hand、Route本文、絶対pathを含めない。indexは全profile成功後だけatomic replaceで保存する。harness/schemaのlocal test成功は実3 deck qualification完了を意味せず、`#194`の外部証跡取得まで`VAL-008`をOPENとする。

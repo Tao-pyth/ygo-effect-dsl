@@ -29,6 +29,7 @@ Last updated: 2026-07-14
 - preflight、Random Search、best Route DSL、fresh Replayを同一manifestで追跡する。
 - 同一seed/budget/lockでSearchRun、best Route、final state hashが再現する。
 - 異なるseedで探索順が変わることを確認しつつ、各run内のReplay整合を保つ。
+- raw Experiment/YDK/Routeはrepository外に保持し、`real-deck-qualification-index-v1`だけを公開可能なsanitized evidenceとする。
 
 ## Gate D: search and failure semantics
 
@@ -81,9 +82,12 @@ python -m ygo_effect_dsl ocgcore-assets-bootstrap
 python -m ygo_effect_dsl ocgcore-assets-verify
 python -m ygo_effect_dsl experiment-search <experiment.yaml> --out <best.route.yaml> --search-report <report.json>
 python -m ygo_effect_dsl experiment-replay <experiment.yaml> <best.route.yaml>
+python -m ygo_effect_dsl real-deck-qualify --experiment short=<external>/short.yaml --experiment long=<external>/long.yaml --experiment grave_banish=<external>/grave-banish.yaml --artifact-root <external>/raw --index-out <sanitized-index>.json
 ```
 
 `experiment-search`は実worker起動前にscenario preflightを実行し、結果をSearchRun reportへ保存する。独立したpreflight CLIは現行`0.2.0`に存在しない。
+
+`real-deck-qualify`は3 profileを各2回実行し、SearchRun ID、best Route ID、terminal State hash、profile witnessの一致後だけindexをatomic保存する。`short`はlegal stop/success、`long`はAction数とturn/phase列、`grave_banish`はgraveyard/banished count遷移をcore観測から証跡化する。harness testだけではGate Cを通過せず、外部3 deckの実行済みindexが必要である。
 
 実際のCLI名・引数が変わる場合はoperator guide、CLI help、subprocess testを同じPRで更新する。
 

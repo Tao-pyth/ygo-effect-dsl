@@ -32,6 +32,7 @@ from ygo_effect_dsl.cli.cmd_prototype import (
     cmd_prototype_run,
     cmd_prototype_verify,
 )
+from ygo_effect_dsl.cli.cmd_qualification import cmd_real_deck_qualify
 from ygo_effect_dsl.cli.cmd_transform import cmd_transform
 from ygo_effect_dsl.cli.cmd_validate import cmd_validate
 from ygo_effect_dsl.dict_loader import load_dictionary, validate_dictionary
@@ -248,6 +249,32 @@ def main() -> int:
     experiment_report.add_argument("route_file", help="Route DSL path")
     experiment_report.add_argument("--out", required=True, help="Markdown report path")
     experiment_report.set_defaults(func=cmd_experiment_report)
+
+    real_deck_qualify = sub.add_parser(
+        "real-deck-qualify",
+        help="qualify three repository-external real decks with Search and fresh Replay",
+    )
+    real_deck_qualify.add_argument(
+        "--experiment",
+        action="append",
+        default=[],
+        metavar="PROFILE=PATH",
+        help="repeat exactly for short, long, and grave_banish",
+    )
+    real_deck_qualify.add_argument(
+        "--artifact-root",
+        required=True,
+        help="repository-external directory for raw qualification artifacts",
+    )
+    real_deck_qualify.add_argument(
+        "--index-out",
+        required=True,
+        help="sanitized qualification index JSON path",
+    )
+    real_deck_qualify.add_argument("--external-root")
+    real_deck_qualify.add_argument("--worker-timeout", type=float, default=30.0)
+    real_deck_qualify.add_argument("--max-retries", type=int, default=1)
+    real_deck_qualify.set_defaults(func=cmd_real_deck_qualify)
 
     prototype_run = sub.add_parser(
         "prototype-run",
