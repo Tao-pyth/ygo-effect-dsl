@@ -12,15 +12,16 @@ from ygo_effect_dsl.runtime_imports import (
 )
 
 
-def test_checkout_environment_prepends_active_source_root() -> None:
-    existing = os.pathsep.join(["C:/other/source", str(package_source_root())])
+def test_checkout_environment_prepends_active_source_root(tmp_path: Path) -> None:
+    other_source = str(tmp_path / "other" / "source")
+    existing = os.pathsep.join([other_source, str(package_source_root())])
 
     environment = current_checkout_environment({"PYTHONPATH": existing})
 
     entries = environment["PYTHONPATH"].split(os.pathsep)
     assert Path(entries[0]).resolve() == package_source_root()
     assert entries.count(str(package_source_root())) == 1
-    assert "C:/other/source" in entries
+    assert other_source in entries
 
 
 def test_child_python_imports_the_same_checkout() -> None:
