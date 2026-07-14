@@ -55,6 +55,7 @@ Last updated: 2026-07-14
 - [0.4.0 work breakdown and acceptance](v0.4.0/20_work_breakdown_and_acceptance.md)
 - [0.5.0 scope](v0.5.0/00_scope.md)
 - [0.5.0 analytics contracts](v0.5.0/10_analytics_contracts.md)
+- [0.5.0 desktop UI requirements](v0.5.0/15_desktop_ui_requirements.md)
 - [0.5.0 work breakdown and acceptance](v0.5.0/20_work_breakdown_and_acceptance.md)
 - [1.0.0 scope](v1.0.0/00_scope.md)
 - [1.0.0 production contracts](v1.0.0/10_production_distribution_contracts.md)

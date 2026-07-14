@@ -16,9 +16,13 @@ Last updated: 2026-07-14
 | 6 | [#162](https://github.com/Tao-pyth/ygo-effect-dsl/issues/162) | Route comparison/uncertainty | missing/partial/version mismatch vectors |
 | 7 | [#163](https://github.com/Tao-pyth/ygo-effect-dsl/issues/163) | Parquet partition/compaction/migration | atomic snapshot、semantic parity、write amplification |
 | 8 | [#126](https://github.com/Tao-pyth/ygo-effect-dsl/issues/126), [#164](https://github.com/Tao-pyth/ygo-effect-dsl/issues/164) | analytics UI and Route drill-down | screen/state contract、PlayerView compliance |
-| 9 | [#165](https://github.com/Tao-pyth/ygo-effect-dsl/issues/165) | virtualized accessible tables | Playwright、a11y、10万row responsiveness |
-| 10 | [#166](https://github.com/Tao-pyth/ygo-effect-dsl/issues/166) | versioned export parity | CLI/API/UI byte/semantic comparison |
-| 11 | [#167](https://github.com/Tao-pyth/ygo-effect-dsl/issues/167) | 10万run/100万row calibration | p50/p95/p99、RSS、disk、UI evidence |
+| 9 | [#181](https://github.com/Tao-pyth/ygo-effect-dsl/issues/181) | Windows desktop shell/Python service ADR | startup/RSS/package/security/rollback比較 |
+| 10 | [#182](https://github.com/Tao-pyth/ygo-effect-dsl/issues/182) | deck catalog to search-launch workflow | import/preflight/form/job/result prototype |
+| 11 | [#183](https://github.com/Tao-pyth/ygo-effect-dsl/issues/183) | card detail/effect-text presentation | local provider、locale、license、dependency boundary |
+| 12 | [#184](https://github.com/Tao-pyth/ygo-effect-dsl/issues/184) | research dashboard visual/interaction system | tokens、states、desktop prototype、a11y |
+| 13 | [#165](https://github.com/Tao-pyth/ygo-effect-dsl/issues/165) | virtualized accessible tables | Playwright、a11y、10万row responsiveness |
+| 14 | [#166](https://github.com/Tao-pyth/ygo-effect-dsl/issues/166) | versioned export parity | CLI/API/UI byte/semantic comparison |
+| 15 | [#167](https://github.com/Tao-pyth/ygo-effect-dsl/issues/167) | 10万run/100万row calibration | p50/p95/p99、RSS、disk、UI evidence |
 
 ## Gate A: data integrity
 
@@ -48,10 +52,13 @@ Last updated: 2026-07-14
 
 ## Gate D: UI and export
 
-- corpus/run overviewからfailureの最初のdivergenceまで辿れる。
-- loading/empty/error/partial/redacted/cancelled状態を実装する。
+- first screenをdeck catalogとし、deck選択からsearch form/preflight/job/resultへ進める。
+- deck統計からfailureの最初のdivergenceまで辿れる。
+- card detail/effect textをlocal verified sourceから表示し、Search/Replayへ入力しない。
+- Windows desktop shellとPython/search workerのprocess境界をADRどおり実装する。
+- loading/empty/error/partial/redacted/cancelled/quarantined/stale状態を実装する。
 - tableは10万row相当でserver-side queryとvirtualizationを使う。
-- desktop/mobileでtext、toolbar、table、dialogが重ならない。
+- 主要desktop解像度と最小windowでtext、toolbar、table、dialogが重ならない。
 - keyboard/a11y testとPlayerView leak auditを通す。
 - JSON/CSV/Parquet exportにschema/checksum/provenanceを付ける。
 
