@@ -30,6 +30,7 @@ package versionと機能契約のschema versionは独立して管理します。
 | Search executor | `search-executor-v4` / `search-frontier-v2` / `search-run-result-v4` / `search-run-report-v1` / `search-run-failure-v2` / `search-artifact-commit-v1` / `random-search-strategy-v1` | state completeness、構造化worker失敗、atomic artifact commitを明示する決定論的Random Search。Beam/MCTSは未実装 |
 | Search support | `search-termination-v1` / `prefix-cache-policy-v1` / `parallel-search-result-v2` / `pruning-guardrail-policy-v2` | 予算、cache、並列結果、枝刈りguardrail |
 | Real-core frontier | `real-core-frontier-v2` / `real-core-worker-failure-v1` / `real-core-frontier-worker-attempt-v1` / `real-core-frontier-worker-failure-v1` | fresh worker Replay、state completeness、retry/quarantine evidence |
+| Core bootstrap qualification | `ocgcore-clean-bootstrap-qualification-v1` | 空root、再実行、build/download中断復旧とper-build runtime hashのlocal証跡 |
 | Real-deck qualification | `real-deck-qualification-index-v1` | 外部3 deckの反復Search/Replayとsanitized証跡index |
 | Lua load qualification | `ocgcore-lua-load-qualification-v1` | official CardScripts全件のstrict resolver同値性、fresh worker native load、CDB coverageを記録 |
 | Decision shape corpus | `ocgcore-api-11.0-message-registry-v1` / `ocgcore-decision-shape-corpus-v1` | unknown messageをfail-closeし、Routeのdecode/encode往復からraw payloadなしのshape corpusを生成 |

@@ -28,6 +28,17 @@ VS_ROOT_ENV = "YGO_EFFECT_DSL_VS_ROOT"
 class OcgcoreBootstrapError(ValueError):
     """Raised when a pinned ocgcore dependency cannot be provisioned safely."""
 
+    def __init__(self, message: str, *, code: str = "bootstrap_error") -> None:
+        super().__init__(message)
+        self.code = code
+
+    def diagnostic(self) -> dict[str, str]:
+        return {
+            "category": "ocgcore_bootstrap",
+            "code": self.code,
+            "message": str(self),
+        }
+
 
 @dataclass(frozen=True)
 class OcgcoreLock:
@@ -968,18 +979,30 @@ def verify_ocgcore(
         raise OcgcoreBootstrapError(f"install manifest is missing: {layout.manifest}")
     manifest = json.loads(layout.manifest.read_text(encoding="utf-8"))
     if manifest.get("lock_id") != lock.lock_id or manifest.get("lock_sha256") != lock.sha256:
-        raise OcgcoreBootstrapError("install manifest does not match the bundled lock")
+        raise OcgcoreBootstrapError(
+            "install manifest does not match the bundled lock",
+            code="lock_mismatch",
+        )
     build = manifest.get("build")
     if build is not None:
         binary = layout.runtime / str(lock.build["binary"])
         if not binary.is_file():
-            raise OcgcoreBootstrapError(f"ocgcore runtime binary is missing: {binary}")
+            raise OcgcoreBootstrapError(
+                f"ocgcore runtime binary is missing: {binary}",
+                code="runtime_missing",
+            )
         expected_binary = build.get("binary", {})
         if binary.stat().st_size != expected_binary.get("size") or _sha256(binary) != expected_binary.get("sha256"):
-            raise OcgcoreBootstrapError("ocgcore runtime binary does not match the install manifest")
+            raise OcgcoreBootstrapError(
+                "ocgcore runtime binary does not match the install manifest",
+                code="runtime_integrity_mismatch",
+            )
         api = _read_api_version(binary)
         if api != (int(lock.api["major"]), int(lock.api["minor"])):
-            raise OcgcoreBootstrapError(f"ocgcore runtime API mismatch: {api[0]}.{api[1]}")
+            raise OcgcoreBootstrapError(
+                f"ocgcore runtime API mismatch: {api[0]}.{api[1]}",
+                code="api_mismatch",
+            )
     return {"ok": True, "lock_id": lock.lock_id, "source": source, "build": build}
 
 

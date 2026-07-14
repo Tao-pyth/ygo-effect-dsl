@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from ygo_effect_dsl.external import ocgcore
 from ygo_effect_dsl.external.ocgcore import (
     EXTERNAL_ROOT_ENV,
     OcgcoreAssetLock,
@@ -22,6 +23,7 @@ from ygo_effect_dsl.external.ocgcore import (
     load_ocgcore_lock,
     _parse_submodule_status,
     verify_source,
+    verify_ocgcore,
 )
 
 
@@ -221,3 +223,86 @@ def test_source_verification_detects_local_changes(tmp_path: Path) -> None:
 
     with pytest.raises(OcgcoreBootstrapError, match="local changes"):
         verify_source(fixture_lock, source)
+
+
+def _write_runtime_fixture(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    binary: bytes = b"verified runtime",
+) -> tuple[OcgcoreLayout, dict[str, object]]:
+    lock = load_ocgcore_lock()
+    layout = OcgcoreLayout.create(lock, tmp_path / "external")
+    layout.runtime.mkdir(parents=True)
+    runtime = layout.runtime / str(lock.build["binary"])
+    runtime.write_bytes(binary)
+    manifest: dict[str, object] = {
+        "lock_id": lock.lock_id,
+        "lock_sha256": lock.sha256,
+        "build": {
+            "binary": {
+                "size": len(binary),
+                "sha256": hashlib.sha256(binary).hexdigest(),
+            }
+        },
+    }
+    layout.manifest.parent.mkdir(parents=True, exist_ok=True)
+    layout.manifest.write_text(json.dumps(manifest), encoding="utf-8")
+    monkeypatch.setattr(
+        ocgcore,
+        "verify_source",
+        lambda _lock, _source: {
+            "commit": _lock.source["commit"],
+            "tree": _lock.source["tree"],
+            "submodules": [],
+        },
+    )
+    monkeypatch.setattr(
+        ocgcore,
+        "_read_api_version",
+        lambda _binary: (int(lock.api["major"]), int(lock.api["minor"])),
+    )
+    return layout, manifest
+
+
+def test_runtime_integrity_mismatch_has_structured_diagnostic(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    layout, _manifest = _write_runtime_fixture(tmp_path, monkeypatch)
+    runtime = layout.runtime / str(load_ocgcore_lock().build["binary"])
+    runtime.write_bytes(b"corrupted runtime")
+
+    with pytest.raises(OcgcoreBootstrapError, match="does not match") as raised:
+        verify_ocgcore(external_root=layout.external_root)
+
+    assert raised.value.code == "runtime_integrity_mismatch"
+    assert raised.value.diagnostic() == {
+        "category": "ocgcore_bootstrap",
+        "code": "runtime_integrity_mismatch",
+        "message": "ocgcore runtime binary does not match the install manifest",
+    }
+
+
+def test_runtime_api_mismatch_has_structured_diagnostic(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    layout, _manifest = _write_runtime_fixture(tmp_path, monkeypatch)
+    monkeypatch.setattr(ocgcore, "_read_api_version", lambda _binary: (10, 0))
+
+    with pytest.raises(OcgcoreBootstrapError, match="API mismatch") as raised:
+        verify_ocgcore(external_root=layout.external_root)
+
+    assert raised.value.code == "api_mismatch"
+
+
+def test_manifest_lock_mismatch_has_structured_diagnostic(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    layout, manifest = _write_runtime_fixture(tmp_path, monkeypatch)
+    manifest["lock_id"] = "unexpected-lock"
+    layout.manifest.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(OcgcoreBootstrapError, match="bundled lock") as raised:
+        verify_ocgcore(external_root=layout.external_root)
+
+    assert raised.value.code == "lock_mismatch"

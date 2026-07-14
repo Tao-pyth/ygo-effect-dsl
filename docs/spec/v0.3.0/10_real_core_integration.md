@@ -31,6 +31,12 @@ lockはcommit/treeだけでなくrequired fileのsize/SHA-256を検証する。r
 
 bootstrap以外のCLI、worker、Replay、Searchはnetworkへ接続しない。`--offline`はcache不足時に即時失敗し、別refへfallbackしない。
 
+### Clean-bootstrap qualification
+
+`ocgcore-clean-bootstrap-qualification-v1`はrepository外の一意sessionで空root、同一root再実行、build/runtime partial復旧、独立空root、download partial復旧の5 buildを行う。各buildはfreshに`ocgcore-verify`を通し、絶対pathを除いたsource/tree/submodule、API、compiler、Premake、DLL size/SHA-256、所要時間をcanonical evidenceへ保存する。lock不一致は`lock_mismatch`、破損DLLは`runtime_integrity_mismatch`、API不一致は`api_mismatch`として停止する。
+
+2026-07-14のlocal qualification `corebootstrap_12a20bd0e3606d14d3fc597eb6a60aeca2e9ec1478430de73427a4d3298531d1`はMSVC `14.44.35207`で全5 buildに成功した。session内DLLは1,306,624 bytes、SHA-256 `03e360cf694f5ac6ba686de1d3bec7ccde3f3233d01bfe3265884a18ce1b9028`で一致したが、事前診断runでは別hashも観測した。したがって`0.3.0`では固定入力、per-build integrity、再実行、中断復旧をqualifiedとし、cross-session/cross-host bit reproducibilityは[#171](https://github.com/Tao-pyth/ygo-effect-dsl/issues/171)まで一般化しない。
+
 ## Runtime architecture
 
 ```text
