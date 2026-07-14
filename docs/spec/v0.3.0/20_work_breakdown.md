@@ -2,7 +2,7 @@
 
 Status: Issue-backed plan
 
-Last updated: 2026-07-14
+Last updated: 2026-07-15
 
 ## Parent
 
@@ -18,7 +18,7 @@ Parent stage: [#131 Complete real ocgcore / EDOPro Lua integration and calibrati
 | 4 | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) | EDOPro helper/card script load境界 | #137 | path/error/unsafe-library corpus |
 | 5 | [#139](https://github.com/Tao-pyth/ygo-effect-dsl/issues/139) / [#194](https://github.com/Tao-pyth/ygo-effect-dsl/issues/194) | 3 real deckのYDK/inline preflight-to-Replayとsanitized qualification index | #137, #140, #192, #193 | scenario/SearchRun/Route/Replay manifest、反復witness、artifact SHA-256 |
 | 6 | [#141](https://github.com/Tao-pyth/ygo-effect-dsl/issues/141) | unknown Message/Decision shape corpus | #139 | supported/unsupported registry、raw payload hash |
-| 7 | [#123](https://github.com/Tao-pyth/ygo-effect-dsl/issues/123) | negation/timing fixture拡張 | #139 | damage step/mandatory trigger/SEGOC等の分類 |
+| 7 | [#123](https://github.com/Tao-pyth/ygo-effect-dsl/issues/123) | negation/timing production policy | #139 | standardのfixed-fixture範囲、damage step/simultaneous trigger/mandatory trigger/SEGOCのfail-close、#207-#210への昇格条件 |
 | 8 | [#142](https://github.com/Tao-pyth/ygo-effect-dsl/issues/142) | worker crash/timeout/retry/quarantine acceptance | #136, #139 | fault injection report、process cleanup、atomicity |
 | 9 | [#105](https://github.com/Tao-pyth/ygo-effect-dsl/issues/105) | multi-deck cache/memory再校正 | #139 | prefix/entry/hit/eviction/main RSS evidence |
 | 10 | [#128](https://github.com/Tao-pyth/ygo-effect-dsl/issues/128) | pool別実Replay throughput/worker RSS | #105, #142 | 100k node、pool 1/2/4/8/16、crash recovery |
@@ -32,7 +32,7 @@ Parent stage: [#131 Complete real ocgcore / EDOPro Lua integration and calibrati
 
 - #135とBabelCDB upstream調査は並行できる。
 - #140のfake/negative corpusは#137完了前に作れるが、実asset evidenceは#137後に確定する。
-- #141と#123は3 deckから観測したshapeを共有するが、Message codecとtiming taxonomyを別成果物にする。
+- #141と#123は3 deckから観測したshapeを共有するが、Message codecとtiming taxonomyを別成果物にする。実timing fixture追加は#207-#210で独立して行い、未検証categoryを`0.3.0`へ見せかけて含めない。
 - #105/#110/#108は同じqualified Route corpusを再利用できる。raw evidenceは共有しても、cache、pruning、evaluationの判断を一つのIssueへ混在させない。
 - #128は実worker測定のためself-hosted Windows hostを占有する。logical benchmark結果で代替しない。
 

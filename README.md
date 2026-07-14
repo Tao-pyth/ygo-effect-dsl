@@ -34,7 +34,7 @@ package versionと機能契約のschema versionは独立して管理します。
 | Real-deck qualification | `real-deck-qualification-index-v2` | 全profileでsuccess/legal stopを要求する外部3 deckの反復Search/Replayとsanitized証跡index |
 | Lua load qualification | `ocgcore-lua-load-qualification-v1` | official CardScripts全件のstrict resolver同値性、fresh worker native load、CDB coverageを記録 |
 | Decision shape corpus | `ocgcore-api-11.0-message-registry-v1` / `ocgcore-decision-shape-corpus-v1` | unknown messageをfail-closeし、Routeのdecode/encode往復からraw payloadなしのshape corpusを生成 |
-| Specified interruption | `core-interruption-candidate-policy-v1` / `interruption-support-taxonomy-v1` | core提示candidateだけを使う妨害分岐と対応分類 |
+| Specified interruption | `core-interruption-candidate-policy-v1` / `interruption-support-taxonomy-v1` | core提示candidateだけを使う妨害分岐、fixed-fixture production範囲、未検証timing categoryのfail-close |
 | Storage / aggregation | `raw-event-log-v1` / `run-catalog-v2` / `aggregation-v1` | JSONL、run catalog、optional Parquet集計 |
 | Benchmark / policy | `general-search-benchmark-v1` / `cache-worker-policy-v2` / `memory-preflight-v2` | 10万logical node校正とmemory gate |
 | ocgcore / assets | API `11.0`, `ocgcore-v11.0-win-x64-msvc-v1`, `ocgcore-assets-202504-v1` | commitとhashをlockし、runtime network accessと再配布を禁止 |
@@ -158,7 +158,7 @@ python -m ygo_effect_dsl ocgcore-decision-corpus --route data/prototype/real-cor
 
 `prototype-verify`は別プロセスで同じシナリオを再実行し、DecisionRequest署名、Action ID、state hash、評価、Route IDを含むRoute DSL全体の一致を検査します。仮設契約の要検証事項はGitHub Issueで管理します。
 
-`real-deck-qualify`の3 ExperimentとYDK、raw SearchRun、Route、Replay reportはrepository外へ置きます。各profileを同一seed/budget/lockで2回実行し、SearchRun ID、best Route ID、terminal State、core観測witnessが一致した場合だけ`real-deck-qualification-index-v2`を保存します。全profileでcore由来のsuccessとlegal stopを必須とし、indexにはdeck/source hash、lock、artifact SHA-256を含めますが、カードコード列、YDK本文、Route本文、絶対pathは含めません。2026-07-14の外部short/long/grave-banish実行は`docs/ocgcore/evidence/real_deck_qualification.json`にsanitized evidenceとして保存済みです。`#123`完了前はchain-heavyまたは指定妨害をqualificationへ混在させず、`grave_banish` profileを使用します。
+`real-deck-qualify`の3 ExperimentとYDK、raw SearchRun、Route、Replay reportはrepository外へ置きます。各profileを同一seed/budget/lockで2回実行し、SearchRun ID、best Route ID、terminal State、core観測witnessが一致した場合だけ`real-deck-qualification-index-v2`を保存します。全profileでcore由来のsuccessとlegal stopを必須とし、indexにはdeck/source hash、lock、artifact SHA-256を含めますが、カードコード列、YDK本文、Route本文、絶対pathは含めません。2026-07-14の外部short/long/grave-banish実行は`docs/ocgcore/evidence/real_deck_qualification.json`にsanitized evidenceとして保存済みです。damage step、simultaneous trigger、mandatory trigger、SEGOCは`interruption-support-taxonomy-v1`でfail-closeし、[#207](https://github.com/Tao-pyth/ygo-effect-dsl/issues/207)-[#210](https://github.com/Tao-pyth/ygo-effect-dsl/issues/210)の実fixture qualification完了前はchain-heavyまたは指定妨害の一般性を主張しません。
 
 `ocgcore-lua-qualify`はExperiment `0.4`のofficial profileを対象に、cold/warm/fresh resolverの同値性を確認し、2,048件ごとのfresh processで`OCG_DuelNewCard`からcore自身のcard-script loaderと`initial_effect`を実行します。現行lockでは12,702 scriptがnative loadに成功しましたが、そのうち120件はpin済みBabelCDBにDB行がありません。この120件はscript syntax/loadだけをqualification専用の最小recordで確認し、通常のdeck preflightでは実カードとして利用可能と扱わず拒否します。
 

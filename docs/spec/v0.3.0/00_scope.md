@@ -2,7 +2,7 @@
 
 Status: Planned; parent [#131](https://github.com/Tao-pyth/ygo-effect-dsl/issues/131)
 
-Last updated: 2026-07-14
+Last updated: 2026-07-15
 
 ## Objective
 
@@ -32,7 +32,7 @@ package `0.3.0`は、`0.2.0`で接続済みのocgcore/EDOPro Lua、Experiment `0
 5. 短展開、長展開、墓地/除外またはchain多発の3 deck qualification。
 6. unknown Message/Decision/candidate/Luaのcorpusとfail-close診断。
 7. worker crash/timeout/retry/quarantineとatomic artifact commit。
-8. 妨害timing taxonomyの拡張。
+8. 妨害timing taxonomyのproduction許可範囲、未検証category、昇格条件の固定。
 9. 10万logical nodeと実worker pool 1/2/4/8/16のthroughput/RSS校正。
 10. self-hosted real-core smoke、operator walkthrough、release contract判断。
 
@@ -55,7 +55,7 @@ package `0.3.0`は、`0.2.0`で接続済みのocgcore/EDOPro Lua、Experiment `0
       -> #140 Lua loading boundary
       -> #139 three-deck qualification
           -> #141 unknown shape corpus
-          -> #123 interruption timing corpus
+          -> #123 interruption timing policy
           -> #142 worker failure acceptance
               -> #105/#128 performance and memory calibration
               -> #110 pruning calibration
@@ -73,6 +73,7 @@ package `0.3.0`は、`0.2.0`で接続済みのocgcore/EDOPro Lua、Experiment `0
 - clean bootstrap manifestとcore/assets verification evidence
 - 3 deckのscenario manifest、SearchRun、best Route、fresh Replay evidence
 - unknown/unsupported形状corpusとdiagnostic code一覧
+- 妨害timing categoryのproduction許可/fail-close policyと後続fixture Issue
 - 10万node JSON/Parquet benchmark evidence
 - cache/worker policyとmemory preflightの判断ADR
 - self-hosted workflow結果とoperator walkthrough

@@ -2,7 +2,7 @@
 
 Status: Mandatory gate
 
-Last updated: 2026-07-14
+Last updated: 2026-07-15
 
 ## Gate A: environment and clean acquisition
 
@@ -46,7 +46,7 @@ Last updated: 2026-07-14
 
 - targetless、cost、single/multi-target、hand/field sourceのsupported taxonomyをReplayする。
 - candidate消失、曖昧response、unsupported timingをfailureとして保存する。
-- #123のcategoryごとにsupported/unsupportedと根拠を明示する。
+- #123のcategoryごとにproduction claimの許可/禁止と根拠を機械可読に明示する。damage step、simultaneous trigger、mandatory trigger、SEGOCは#207-#210のfixture qualification完了までfail-closeする。
 - #110完了前にstatistical pruningをproduction defaultへしない。
 - #108完了前にevaluator weightを一般deck品質の根拠としない。
 

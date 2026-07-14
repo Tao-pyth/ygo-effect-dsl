@@ -199,6 +199,10 @@ def test_unknown_and_ambiguous_candidate_shapes_fail_configuration() -> None:
     ("decision_request", "category"),
     [
         (_activation_request(phase="damage_step"), "damage_step"),
+        (
+            _activation_request(extra={"simultaneous_trigger": True}),
+            "simultaneous_trigger",
+        ),
         (_activation_request(extra={"mandatory_trigger": True}), "mandatory_trigger"),
         (_activation_request(extra={"segoc": True}), "segoc"),
     ],
@@ -234,9 +238,21 @@ def test_taxonomy_dataclasses_and_policy_are_immutable() -> None:
         "damage_step",
         "mandatory_trigger",
         "segoc",
+        "simultaneous_trigger",
     ]
     with pytest.raises(FrozenInstanceError):
         extended.schema_version = "changed"  # type: ignore[misc]
+
+
+def test_simultaneous_trigger_marker_must_be_boolean() -> None:
+    outcome = classify_interruption_candidates(
+        _activation_request(extra={"simultaneous_trigger": "yes"}),
+        source_card_code=SOURCE_CARD_CODE,
+    )
+
+    assert outcome.status == "configuration_failure"
+    assert outcome.diagnostics[0].code == "unknown_validation_category"
+    assert outcome.diagnostics[0].path.endswith(".simultaneous_trigger")
 
 
 def test_cost_target_role_is_never_inferred_from_select_card() -> None:

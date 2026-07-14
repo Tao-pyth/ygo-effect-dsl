@@ -249,7 +249,7 @@ OPERATION_COMPATIBILITY = (
         "simultaneous_trigger",
         "unsupported",
         (),
-        "No decoder/replay fixture exists.",
+        "No decoder/replay fixture exists; interruption taxonomy fails closed pending #208.",
     ),
     CompatibilityCase(
         "continuous_replacement_effect",

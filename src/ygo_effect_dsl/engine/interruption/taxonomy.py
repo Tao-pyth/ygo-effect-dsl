@@ -25,10 +25,16 @@ InterruptionTargetShape = Literal[
 ]
 
 _KNOWN_VALIDATION_CATEGORIES = frozenset(
-    {"standard", "damage_step", "mandatory_trigger", "segoc"}
+    {
+        "standard",
+        "damage_step",
+        "simultaneous_trigger",
+        "mandatory_trigger",
+        "segoc",
+    }
 )
 _FAIL_CLOSE_VALIDATION_CATEGORIES = frozenset(
-    {"damage_step", "mandatory_trigger", "segoc"}
+    {"damage_step", "simultaneous_trigger", "mandatory_trigger", "segoc"}
 )
 _KNOWN_RESPONSE_ROLES = frozenset({"cost", "target", "option"})
 _KNOWN_ROLES = _KNOWN_RESPONSE_ROLES | {"activation"}
@@ -524,7 +530,7 @@ def _validation_categories(
     phase = view.phase.strip().lower().replace("-", "_").replace(" ", "_")
     if phase in {"damage", "damage_step"}:
         categories.add("damage_step")
-    for category in ("mandatory_trigger", "segoc"):
+    for category in ("simultaneous_trigger", "mandatory_trigger", "segoc"):
         marker = view.extra.get(category, False)
         if not isinstance(marker, bool):
             raise _configuration_failure(

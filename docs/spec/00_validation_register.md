@@ -2,7 +2,7 @@
 
 Status: Active verification log
 
-Last updated: 2026-07-14
+Last updated: 2026-07-15
 
 ## Status definitions
 
@@ -25,7 +25,7 @@ Last updated: 2026-07-14
 | `VAL-008` | 任意deck一般性 | `deckqual_21dcdadd...`で外部short/long/grave-banishの3 deckを各2反復。YDK/inline、random/fixed/conditional hand、distinct deck hash、preflight、Random Search、fresh Replay、success/legal stop、長展開24 Action、墓地遷移を確認 | `VERIFIED_LOCAL` | [#139](https://github.com/Tao-pyth/ygo-effect-dsl/issues/139) |
 | `VAL-009` | Lua load境界 | `ocgcore-lua-load-qualification-v1`でofficial 12,702件を7 fresh workerから全件native load。helper 26件の順序、cold/warm/fresh resolver同値性、negative probe、unsafe library無効を確認。BabelCDB欠落120件は通常preflightでfail-close | `VERIFIED_LOCAL` | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) |
 | `VAL-010` | Message/Decision一般性 | 固定API 11.0全message registry、unknown ID fail-close、重複candidate拒否、Route decode/encode往復を実装。固定5 Routeと外部short/long/grave-banish 3 Routeの計106 caseで未知shapeなし、required 7 category complete | `VERIFIED_LOCAL` | [#141](https://github.com/Tao-pyth/ygo-effect-dsl/issues/141) |
-| `VAL-011` | 妨害timing | targetless/cost/target等の基礎taxonomyはある。damage step、mandatory trigger、SEGOC等は未完了 | `OPEN` | [#123](https://github.com/Tao-pyth/ygo-effect-dsl/issues/123) |
+| `VAL-011` | 妨害timing policy | `interruption-support-taxonomy-v1`でstandardだけをfixed-fixture scopeとして許可。damage step、simultaneous trigger、mandatory trigger、SEGOCは優先順位と昇格条件を固定し、未検証時はfail-close | `VERIFIED_LOCAL` | [#123](https://github.com/Tao-pyth/ygo-effect-dsl/issues/123), [#207](https://github.com/Tao-pyth/ygo-effect-dsl/issues/207)-[#210](https://github.com/Tao-pyth/ygo-effect-dsl/issues/210) |
 | `VAL-012` | 10万node実worker性能 | logical workload evidenceはあるが、pool 1/2/4/8/16の実Replay throughput/RSSは未測定 | `OPEN` | [#105](https://github.com/Tao-pyth/ygo-effect-dsl/issues/105), [#128](https://github.com/Tao-pyth/ygo-effect-dsl/issues/128) |
 | `VAL-013` | worker障害 | version付きfrontier attempt/quarantine、retry exhaustion、structured Search failure、Route先行/report commit markerを実装。実core stress `realcorestress_a6868c...`でcrash/timeout/callback例外、pool 1/2/4、完了順独立、fresh replacement、全process終了を確認 | `VERIFIED_LOCAL` | [#142](https://github.com/Tao-pyth/ygo-effect-dsl/issues/142) |
 | `VAL-014` | supported platform | lockはWindows x64/MSVC。Linux/macOSと複数Python versionのsupport宣言は未確定 | `OPEN` | [#135](https://github.com/Tao-pyth/ygo-effect-dsl/issues/135) |
