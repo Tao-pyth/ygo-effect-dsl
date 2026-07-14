@@ -27,9 +27,9 @@ package versionと機能契約のschema versionは独立して管理します。
 | Information boundary | `information-policy-v1` / `information-audit-v1` | 探索・評価が参照できる情報とaccess証跡 |
 | State identity | `ygo-state-id-v1` / `ygo-rule-state-v1` / `ygo-visibility-state-v1` | exact dedup、ルール状態、可視性状態 |
 | Evaluation | `evaluation-result-v1` / `score-breakdown-v1` / `route-resource-consumption-v1` | 成功、盤面score、資源消費 |
-| Search executor | `search-executor-v1` / `search-run-result-v1` / `random-search-strategy-v1` | 決定論的Random Search。Beam/MCTSは未実装 |
+| Search executor | `search-executor-v2` / `search-frontier-v2` / `search-run-result-v2` / `random-search-strategy-v1` | state completenessを明示する決定論的Random Search。Beam/MCTSは未実装 |
 | Search support | `search-termination-v1` / `prefix-cache-policy-v1` / `parallel-search-result-v2` / `pruning-guardrail-policy-v2` | 予算、cache、並列結果、枝刈りguardrail |
-| Real-core frontier | `real-core-frontier-v1` / `real-core-worker-failure-v1` | fresh worker Replayとfailure envelope |
+| Real-core frontier | `real-core-frontier-v2` / `real-core-worker-failure-v1` | fresh worker Replay、state completeness、failure envelope |
 | Specified interruption | `core-interruption-candidate-policy-v1` / `interruption-support-taxonomy-v1` | core提示candidateだけを使う妨害分岐と対応分類 |
 | Storage / aggregation | `raw-event-log-v1` / `run-catalog-v2` / `aggregation-v1` | JSONL、run catalog、optional Parquet集計 |
 | Benchmark / policy | `general-search-benchmark-v1` / `cache-worker-policy-v2` / `memory-preflight-v2` | 10万logical node校正とmemory gate |

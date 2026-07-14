@@ -49,6 +49,9 @@ class RealCoreFrontierAdapter:
         route = document.get("route_document")
         if route is not None and not isinstance(route, Mapping):
             raise ValueError("real-core route_document must be a mapping or null")
+        state_completeness = document.get("state_completeness")
+        if not isinstance(state_completeness, str):
+            raise ValueError("real-core frontier is missing state_completeness")
         can_stop = bool(legal_stop.get("can_stop")) and route is not None
         request = dict(document["request"])
         request["interruption_taxonomy"] = document.get(
@@ -56,6 +59,7 @@ class RealCoreFrontierAdapter:
         )
         return SearchFrontier(
             state_id=str(document["state_id"]),
+            state_completeness=state_completeness,
             request=request,
             actions=actions,
             score=document["score"],

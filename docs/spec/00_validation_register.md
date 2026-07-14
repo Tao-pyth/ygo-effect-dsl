@@ -37,6 +37,7 @@ Last updated: 2026-07-14
 | `VAL-020` | GitHub Actions runtime | current workflowのaction pin/runtime deprecationをrelease前に再監査する必要がある | `OPEN` | [#138](https://github.com/Tao-pyth/ygo-effect-dsl/issues/138), [#173](https://github.com/Tao-pyth/ygo-effect-dsl/issues/173) |
 | `VAL-021` | Windows desktop architecture | Windows desktop要件は確定したが、shell、Python service/IPC、installer/update境界は未選定 | `OPEN` | [#181](https://github.com/Tao-pyth/ygo-effect-dsl/issues/181) |
 | `VAL-022` | card detail/effect text | 現行real-core providerは`datas`表だけを読み、表示用`texts` provider、locale、license/fallback契約は未実装 | `OPEN` | [#183](https://github.com/Tao-pyth/ygo-effect-dsl/issues/183), [#91](https://github.com/Tao-pyth/ygo-effect-dsl/issues/91) |
+| `VAL-023` | real-core State dedup | `SearchFrontier v2`でstate completenessを明示し、`query_api_projection`による枝削除を禁止。synthetic exact/projection回帰と実core frontier宣言を検証 | `VERIFIED_LOCAL` | [#192](https://github.com/Tao-pyth/ygo-effect-dsl/issues/192) |
 
 ## Verification commands used
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from dataclasses import replace
 
 import pytest
 
@@ -40,6 +41,7 @@ class FakeFrontierAdapter:
 def _frontier(
     state: str,
     *,
+    state_completeness: str = "exact",
     actions: tuple[Action, ...] = (),
     score: int = 0,
     peak: int | None = None,
@@ -56,6 +58,7 @@ def _frontier(
     )
     return SearchFrontier(
         state_id=state,
+        state_completeness=state_completeness,
         request={"request_signature": "req_fixture"},
         actions=actions,
         score=score,
@@ -102,6 +105,9 @@ def test_random_search_is_semantically_deterministic() -> None:
 
     assert first.semantic_dict() == second.semantic_dict()
     assert first.run_id == second.run_id
+    assert first.executor_schema_version == "search-executor-v2"
+    assert first.frontier_schema_version == "search-frontier-v2"
+    assert first.schema_version == "search-run-result-v2"
     assert first.best_route is not None
     assert first.best_route.route_id == "route_right"
     assert [route.route_id for route in first.routes] == ["route_right", "route_left"]
@@ -179,6 +185,92 @@ def test_exact_state_identity_deduplicates_only_after_recording_routes() -> None
     assert result.exact_state_duplicates == 1
     assert len([prefix for prefix in adapter.prefixes if len(prefix) == 2]) == 1
     assert len([route for route in result.routes if route.action_count == 1]) == 2
+
+
+def test_query_api_projection_never_deduplicates_search_branches() -> None:
+    left = _action("left")
+    right = _action("right")
+    child = _action("child")
+    adapter = FakeFrontierAdapter(
+        {
+            (): _frontier(
+                "projected-root",
+                state_completeness="query_api_projection",
+                actions=(left, right),
+            ),
+            ("left",): _frontier(
+                "same-projection",
+                state_completeness="query_api_projection",
+                actions=(child,),
+                legal=True,
+            ),
+            ("right",): _frontier(
+                "same-projection",
+                state_completeness="query_api_projection",
+                actions=(child,),
+                legal=True,
+            ),
+            ("left", "child"): _frontier(
+                "left-child",
+                state_completeness="query_api_projection",
+                legal=True,
+            ),
+            ("right", "child"): _frontier(
+                "right-child",
+                state_completeness="query_api_projection",
+                legal=True,
+            ),
+        }
+    )
+
+    result = SearchExecutor(
+        adapter,
+        RandomSearchStrategyV1(3),
+        SearchBudget(max_nodes=10),
+        clock=lambda: 0.0,
+    ).run(_experiment())
+
+    assert result.exact_state_duplicates == 0
+    assert len([prefix for prefix in adapter.prefixes if len(prefix) == 2]) == 2
+    assert len([route for route in result.routes if route.action_count == 2]) == 2
+
+
+def test_search_frontier_rejects_an_old_schema_version() -> None:
+    with pytest.raises(ValueError, match="unsupported SearchFrontier schema"):
+        SearchFrontier(
+            state_id="state",
+            state_completeness="exact",
+            request={"request_signature": "req_fixture"},
+            actions=(),
+            score=0,
+            peak_score=0,
+            success=False,
+            legal_stop=False,
+            legal_stop_reason="pending_request",
+            schema_version="search-frontier-v1",
+        )
+
+
+@pytest.mark.parametrize(
+    ("field_name", "old_version"),
+    [
+        ("executor_schema_version", "search-executor-v1"),
+        ("frontier_schema_version", "search-frontier-v1"),
+        ("schema_version", "search-run-result-v1"),
+    ],
+)
+def test_search_run_rejects_old_or_mixed_version_provenance(
+    field_name: str, old_version: str
+) -> None:
+    result = SearchExecutor(
+        FakeFrontierAdapter({(): _frontier("root")}),
+        RandomSearchStrategyV1(1),
+        SearchBudget(max_nodes=1),
+        clock=lambda: 0.0,
+    ).run(_experiment())
+
+    with pytest.raises(ValueError, match="version provenance"):
+        replace(result, **{field_name: old_version})
 
 
 def test_beam_and_mcts_are_explicitly_unimplemented() -> None:

@@ -191,7 +191,7 @@ ACTION_AGGREGATION_FIXTURE_IDS = frozenset(
 REAL_CORE_DOCUMENT_KINDS = frozenset(
     {"route", "activation_rollback_probe", "search_frontier"}
 )
-REAL_CORE_FRONTIER_SCHEMA_VERSION = "real-core-frontier-v1"
+REAL_CORE_FRONTIER_SCHEMA_VERSION = "real-core-frontier-v2"
 STATUS_DISABLED = 0x0001
 TEMPORARY_ATK_FIXTURE_SCRIPT = """local s,id=GetID()
 function s.initial_effect(c)
@@ -2288,6 +2288,7 @@ def _frontier_document(
         "route_document": to_canonical_data(route_document),
         "schema_version": REAL_CORE_FRONTIER_SCHEMA_VERSION,
         "score": evaluation.total_score,
+        "state_completeness": snapshot.identity_completeness,
         "state_id": snapshot.state_hash,
         "success": success,
     }

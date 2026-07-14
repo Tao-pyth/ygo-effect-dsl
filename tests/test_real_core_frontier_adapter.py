@@ -33,6 +33,23 @@ class _Process:
         self.killed = True
 
 
+def _frontier_document(**overrides):
+    document = {
+        "actions": [],
+        "legal_stop": {"can_stop": False, "reason": "pending_request"},
+        "peak_score": 0,
+        "request": {"request_signature": "req_fixture"},
+        "route_document": None,
+        "schema_version": "real-core-frontier-v2",
+        "score": 0,
+        "state_completeness": "query_api_projection",
+        "state_id": "state_fixture",
+        "success": False,
+    }
+    document.update(overrides)
+    return document
+
+
 def test_frontier_adapter_retries_retryable_worker_failure(monkeypatch) -> None:
     failure = json.dumps(
         {
@@ -42,7 +59,7 @@ def test_frontier_adapter_retries_retryable_worker_failure(monkeypatch) -> None:
             }
         }
     )
-    success = json.dumps({"schema_version": "real-core-frontier-v1"})
+    success = json.dumps({"schema_version": "real-core-frontier-v2"})
     processes = iter(
         [
             _Process(returncode=1, stdout=failure),
@@ -54,7 +71,7 @@ def test_frontier_adapter_retries_retryable_worker_failure(monkeypatch) -> None:
 
     document = adapter._invoke({}, ())
 
-    assert document["schema_version"] == "real-core-frontier-v1"
+    assert document["schema_version"] == "real-core-frontier-v2"
     assert adapter.worker_invocations == 2
     assert adapter.worker_retries == 1
 
@@ -74,3 +91,34 @@ def test_frontier_adapter_retries_timeout_then_reports_failure(monkeypatch) -> N
 
     assert adapter.worker_invocations == 2
     assert adapter.worker_retries == 1
+
+
+def test_frontier_adapter_exposes_projection_completeness(monkeypatch) -> None:
+    adapter = RealCoreFrontierAdapter()
+    monkeypatch.setattr(adapter, "_invoke", lambda *_args: _frontier_document())
+
+    frontier = adapter.replay({}, ())
+
+    assert frontier.state_completeness == "query_api_projection"
+
+
+@pytest.mark.parametrize(
+    ("overrides", "message"),
+    [
+        ({"schema_version": "real-core-frontier-v1"}, "unsupported frontier schema"),
+        ({"state_completeness": None}, "missing state_completeness"),
+        ({"state_completeness": "partial"}, "state_completeness must be"),
+    ],
+)
+def test_frontier_adapter_rejects_unsafe_state_identity_contracts(
+    monkeypatch, overrides, message
+) -> None:
+    adapter = RealCoreFrontierAdapter()
+    monkeypatch.setattr(
+        adapter,
+        "_invoke",
+        lambda *_args: _frontier_document(**overrides),
+    )
+
+    with pytest.raises(ValueError, match=message):
+        adapter.replay({}, ())
