@@ -21,9 +21,9 @@ Last updated: 2026-07-14
 | `VAL-004` | CardScripts lock | tag `20250420`のpeeled commitが固定commit `c8e9c0...`と一致 | `VERIFIED_UPSTREAM` | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) |
 | `VAL-005` | BabelCDB lock | tag `20250419`は`4c8e9ca...`を指すがlockは同日後刻の`f89c9a...`を固定。空cacheから固定commitを直接fetchし、tree/file hashまで検証済み。ref不在contract testも追加 | `VERIFIED_LOCAL` | [#137](https://github.com/Tao-pyth/ygo-effect-dsl/issues/137) |
 | `VAL-006` | 実core/Lua end-to-end | inline fixtureで10 node/10 fresh ReplayのRandom Search、Route出力、best Route Replay、final state hash確認に成功 | `VERIFIED_LOCAL` | [#138](https://github.com/Tao-pyth/ygo-effect-dsl/issues/138) |
-| `VAL-007` | clean core bootstrap | core未取得hostからsource/build/hash/APIを再現する証跡が未作成 | `OPEN` | [#136](https://github.com/Tao-pyth/ygo-effect-dsl/issues/136) |
+| `VAL-007` | clean core bootstrap | 空rootからcommit/tree/API 11.0を検証。3 buildは同一DLL hash、初回1 buildだけ別hashのためbit reproducibility調査を継続 | `OPEN` | [#136](https://github.com/Tao-pyth/ygo-effect-dsl/issues/136) |
 | `VAL-008` | 任意deck一般性 | 単一inline smokeは成功。短/長/墓地・除外またはchain多発の3 deck qualificationは未実施 | `OPEN` | [#139](https://github.com/Tao-pyth/ygo-effect-dsl/issues/139) |
-| `VAL-009` | Lua load境界 |固定helper/card scriptは動作。path traversal、case、欠落、syntax error、未知helperのsystematic corpusは未完了 | `OPEN` | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) |
+| `VAL-009` | Lua load境界 | strict relative/bounded resolver、case/duplicate/reparse拒否、0.3 legacy/0.4 official profile、順序付きhash/load outcome auditを実装。実asset syntax/load corpusと永続index性能校正は未完了 | `OPEN` | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) |
 | `VAL-010` | Message/Decision一般性 | API 11.0 registryと既存fixtureはあるが、任意deckで未知形状が出ない保証はない | `OPEN` | [#141](https://github.com/Tao-pyth/ygo-effect-dsl/issues/141) |
 | `VAL-011` | 妨害timing | targetless/cost/target等の基礎taxonomyはある。damage step、mandatory trigger、SEGOC等は未完了 | `OPEN` | [#123](https://github.com/Tao-pyth/ygo-effect-dsl/issues/123) |
 | `VAL-012` | 10万node実worker性能 | logical workload evidenceはあるが、pool 1/2/4/8/16の実Replay throughput/RSSは未測定 | `OPEN` | [#105](https://github.com/Tao-pyth/ygo-effect-dsl/issues/105), [#128](https://github.com/Tao-pyth/ygo-effect-dsl/issues/128) |

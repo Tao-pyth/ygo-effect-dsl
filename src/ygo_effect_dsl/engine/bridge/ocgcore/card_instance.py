@@ -9,6 +9,7 @@ from ygo_effect_dsl.engine.bridge.decision import (
     Candidate,
     DecisionRequest,
 )
+from ygo_effect_dsl.engine.bridge.ocgcore.providers import ResolvedScript, resolve_script
 from ygo_effect_dsl.engine.bridge.ocgcore.types import CoreLog, LogType
 from ygo_effect_dsl.engine.canonical import stable_digest, to_canonical_data
 from ygo_effect_dsl.engine.state import InformationMode
@@ -1025,11 +1026,25 @@ class CardInstanceAuditedScriptProvider:
     def __init__(self, base: Any) -> None:
         self.base = base
 
+    @property
+    def script_resolution_profile_id(self) -> str:
+        return str(
+            getattr(
+                self.base,
+                "script_resolution_profile_id",
+                "custom-script-provider-v1",
+            )
+        )
+
     def get_script(self, name: str) -> bytes:
-        script = self.base.get_script(name)
+        return self.resolve_script(name).content
+
+    def resolve_script(self, name: str) -> ResolvedScript:
+        resolved = resolve_script(self.base, name)
+        script = resolved.content
         is_card_script = re.fullmatch(r"c\d+\.lua", name) is not None
         if is_card_script and b"Debug.ReloadFieldBegin" in script:
             raise ValueError(
                 f"card instance v2 rejects unsupported Debug.ReloadFieldBegin in {name!r}"
             )
-        return script
+        return resolved

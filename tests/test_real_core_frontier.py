@@ -67,6 +67,12 @@ def test_fresh_real_core_frontier_replays_prefix_to_a_valid_route() -> None:
     assert terminal.legal_stop
     assert terminal.success
     assert terminal.route_document is not None
+    script_resolution = terminal.route_document["result"]["lua_script_resolution"]
+    assert script_resolution["schema_version"] == 1
+    assert script_resolution["profile_id"] == "card-scripts-official-v1"
+    assert script_resolution["loads"]
+    assert all(item["outcome"] == "loaded" for item in script_resolution["loads"])
+    assert all("sha256" in item for item in script_resolution["loads"])
     verification = verify_general_search_route(
         terminal.route_document,
         experiment_path=EXPERIMENT,

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ctypes
+import hashlib
 import sqlite3
 import threading
 from pathlib import Path
@@ -10,6 +11,7 @@ import pytest
 
 from ygo_effect_dsl.engine.action import Action, ActionKind, Selection
 from ygo_effect_dsl.engine.bridge.ocgcore import (
+    CARD_SCRIPTS_PROFILE_OFFICIAL,
     CardRecord,
     CardScriptsProvider,
     DuelConfig,
@@ -30,8 +32,11 @@ from ygo_effect_dsl.engine.bridge.ocgcore import (
     OcgcoreTimeoutError,
     OcgcoreVersionMismatchError,
     Query,
+    ResolvedScript,
+    SCRIPT_RESOLUTION_SCHEMA_VERSION,
     SQLiteCardDataProvider,
     native_layout,
+    resolve_script,
 )
 from ygo_effect_dsl.engine.bridge.ocgcore.types import OCGDuelOptions
 from ygo_effect_dsl.external.ocgcore import OcgcoreBootstrapError, resolve_ocgcore_runtime
@@ -163,6 +168,8 @@ def test_rejected_lua_is_classified_separately_from_missing_asset() -> None:
                 duel.load_script("bad.lua", b"bad")
             assert captured.value.category == "lua_error"
             assert duel.state == DuelState.FAILED
+            assert duel.script_load_audit[0]["outcome"] == "rejected"
+            assert duel.script_load_audit[0]["source_kind"] == "provided"
     with pytest.raises(OcgcoreVersionMismatchError, match="expected ocgcore API"):
         _fake_library(_FakeNative(version=(10, 0)))
 
@@ -176,6 +183,7 @@ def test_process_state_machine_copies_invalidated_buffers_and_destroys_once() ->
     duel = library.create_duel(_duel_config(), _empty_cards(), _empty_scripts())
     assert duel.state == DuelState.DUEL_CREATED
     assert fake.options is not None
+    assert fake.options.enableUnsafeLibraries == 0
     fake.options.logHandler(None, b"native diagnostic", 0)
     assert duel.diagnostics[-1].message == "native diagnostic"
     assert duel.diagnostics[-1].context == {"log_type": "error"}
@@ -320,6 +328,206 @@ def test_sqlite_and_filesystem_providers_are_read_only_asset_boundaries(tmp_path
     card_scripts = CardScriptsProvider(scripts)
     assert card_scripts.get_script("c0.lua") == b""
     assert card_scripts.get_script("c456.lua") == b"return 2\n"
+
+
+def test_filesystem_script_resolution_is_canonical_and_fail_closed(tmp_path: Path) -> None:
+    scripts = tmp_path / "scripts"
+    scripts.mkdir()
+    exact = scripts / "Exact.lua"
+    exact.write_bytes(b"return 1\n")
+    outside = tmp_path / "outside.lua"
+    outside.write_bytes(b"return 2\n")
+    linked = scripts / "linked.lua"
+    try:
+        linked.symlink_to(outside)
+    except OSError:
+        symlink_created = False
+    else:
+        symlink_created = True
+    provider = FilesystemScriptProvider(scripts)
+
+    resolved = provider.resolve_script("Exact.lua")
+    assert resolved == ResolvedScript(
+        requested_name="Exact.lua",
+        resolved_path="Exact.lua",
+        source_kind="filesystem",
+        content=b"return 1\n",
+        size=9,
+        sha256=hashlib.sha256(b"return 1\n").hexdigest(),
+    )
+    assert provider.resolve_script("Exact.lua") == resolved
+    with pytest.raises(OcgcoreAssetError, match="does not match asset path case"):
+        provider.get_script("exact.lua")
+    with pytest.raises(OcgcoreAssetError):
+        provider.get_script("sub/../Exact.lua")
+    with pytest.raises(OcgcoreAssetError):
+        provider.get_script("C:/Exact.lua")
+
+    if symlink_created:
+        with pytest.raises(OcgcoreAssetError, match="symbolic link"):
+            provider.get_script("linked.lua")
+
+    oversized = scripts / "oversized.lua"
+    oversized.write_bytes(b"x" * (1024 * 1024 + 1))
+    with pytest.raises(OcgcoreAssetError, match="exceeds"):
+        provider.get_script("oversized.lua")
+
+    collision_root = tmp_path / "case-collision"
+    collision_root.mkdir()
+    (collision_root / "Case.lua").write_bytes(b"one")
+    collision_provider = FilesystemScriptProvider(collision_root)
+    assert collision_provider.get_script("Case.lua") == b"one"
+    (collision_root / "case.lua").write_bytes(b"two")
+    if len(tuple(collision_root.iterdir())) == 2:
+        with pytest.raises(OcgcoreAssetError, match="case-colliding"):
+            collision_provider.get_script("Case.lua")
+
+    with pytest.raises(OcgcoreAssetError, match="SHA-256"):
+        ResolvedScript(
+            requested_name="forged.lua",
+            resolved_path="forged.lua",
+            source_kind="memory",
+            content=b"content",
+            size=7,
+            sha256="0" * 64,
+        )
+
+    class ProbeProvider:
+        def __init__(self) -> None:
+            self.calls: list[str] = []
+
+        def get_script(self, name: str) -> bytes:
+            self.calls.append(name)
+            return b"content"
+
+    probe = ProbeProvider()
+    with pytest.raises(OcgcoreAssetError):
+        resolve_script(probe, "../secret.lua")
+    assert probe.calls == []
+
+    class RenamingProvider:
+        def resolve_script(self, _name: str) -> ResolvedScript:
+            return ResolvedScript.from_bytes(
+                requested_name="other.lua",
+                resolved_path="other.lua",
+                source_kind="memory",
+                content=b"content",
+            )
+
+        def get_script(self, name: str) -> bytes:
+            raise AssertionError(name)
+
+    with pytest.raises(OcgcoreAssetError, match="changed the requested name"):
+        resolve_script(RenamingProvider(), "requested.lua")
+
+
+def test_card_script_resolution_rejects_ambiguous_directory_matches(tmp_path: Path) -> None:
+    scripts = tmp_path / "scripts"
+    for directory in ("official", "goat", "rush"):
+        target = scripts / directory
+        target.mkdir(parents=True)
+        (target / "c456.lua").write_text(f"return {directory!r}\n", encoding="utf-8")
+    (scripts / "rush" / "c789.lua").write_text("return 'rush'\n", encoding="utf-8")
+
+    legacy = CardScriptsProvider(scripts)
+    assert legacy.resolve_script("c456.lua").resolved_path == "official/c456.lua"
+    assert legacy.resolve_script("c789.lua").resolved_path == "rush/c789.lua"
+    with pytest.raises(OcgcoreAssetError, match="ambiguous across allowed roots"):
+        CardScriptsProvider(
+            scripts, card_directories=("official", "goat")
+        ).get_script("c456.lua")
+
+    official = CardScriptsProvider(scripts, card_directories=("official",))
+    resolved = official.resolve_script("c456.lua")
+    assert resolved.requested_name == "c456.lua"
+    assert resolved.resolved_path == "official/c456.lua"
+    assert resolved.source_kind == "filesystem"
+
+    strict = CardScriptsProvider(
+        scripts,
+        profile_id=CARD_SCRIPTS_PROFILE_OFFICIAL,
+    )
+    with pytest.raises(OcgcoreAssetError, match="outside CardScripts profile"):
+        strict.get_script("rush/c789.lua")
+    with pytest.raises(OcgcoreAssetError):
+        strict.get_script("c789.lua")
+
+
+def test_duel_records_ordered_script_resolution_audit() -> None:
+    fake = _FakeNative()
+    scripts = InMemoryScriptProvider(
+        {"constant.lua": b"constant", "c123.lua": b"card"}
+    )
+
+    with _fake_library(fake) as library:
+        with library.create_duel(_duel_config(), _empty_cards(), scripts) as duel:
+            duel.load_script_resolution(scripts.resolve_script("constant.lua"))
+            assert fake.options is not None
+            assert fake.options.scriptReader(None, 0x1234, b"c123.lua") == 1
+
+            audit = duel.script_load_audit
+            assert [item["sequence"] for item in audit] == [0, 1]
+            assert [item["requested_name"] for item in audit] == [
+                "constant.lua",
+                "c123.lua",
+            ]
+            assert all(item["outcome"] == "loaded" for item in audit)
+            assert audit[1]["sha256"] == hashlib.sha256(b"card").hexdigest()
+            assert audit[1]["resolved_path"] == "c123.lua"
+            assert duel.experiment_manifest["lua_script_resolution"] == {
+                "schema_version": SCRIPT_RESOLUTION_SCHEMA_VERSION,
+                "profile_id": "in-memory-script-provider-v1",
+                "loads": list(audit),
+            }
+
+
+def test_script_reader_records_missing_and_rejected_outcomes() -> None:
+    missing_native = _FakeNative()
+    with _fake_library(missing_native) as library:
+        with library.create_duel(
+            _duel_config(), _empty_cards(), InMemoryScriptProvider({})
+        ) as duel:
+            assert missing_native.options is not None
+            assert missing_native.options.scriptReader(None, 0x1234, b"missing.lua") == 0
+            assert duel.script_load_audit[0]["outcome"] == "missing"
+            with pytest.raises(OcgcoreCallbackError) as captured:
+                duel.add_card(NewCard(0, 0, 1, 0, 0x1, 0, 0x8))
+            assert captured.value.category == "asset_error"
+
+    rejected_native = _FakeNative()
+    rejected_native.OCG_LoadScript = _FakeFunction(lambda *_args: 0)
+    with _fake_library(rejected_native) as library:
+        with library.create_duel(
+            _duel_config(),
+            _empty_cards(),
+            InMemoryScriptProvider({"rejected.lua": b"bad"}),
+        ) as duel:
+            assert rejected_native.options is not None
+            assert rejected_native.options.scriptReader(None, 0x1234, b"rejected.lua") == 0
+            assert duel.script_load_audit[0]["outcome"] == "rejected"
+            with pytest.raises(OcgcoreCallbackError) as captured:
+                duel.add_card(NewCard(0, 0, 1, 0, 0x1, 0, 0x8))
+            assert captured.value.category == "lua_error"
+
+
+def test_nested_script_reader_error_has_priority_over_outer_load_rejection() -> None:
+    native = _FakeNative()
+    scripts = InMemoryScriptProvider({"outer.lua": b"outer"})
+    with _fake_library(native) as library:
+        with library.create_duel(_duel_config(), _empty_cards(), scripts) as duel:
+            def reject_after_missing(*_args: Any) -> int:
+                assert native.options is not None
+                assert native.options.scriptReader(None, 0x1234, b"missing.lua") == 0
+                return 0
+
+            native.OCG_LoadScript = _FakeFunction(reject_after_missing)
+            with pytest.raises(OcgcoreCallbackError) as captured:
+                duel.load_script_resolution(scripts.resolve_script("outer.lua"))
+            assert captured.value.category == "asset_error"
+            assert [item["outcome"] for item in duel.script_load_audit] == [
+                "rejected",
+                "missing",
+            ]
 
 
 def test_real_core_callbacks_release_setcodes_and_report_missing_assets() -> None:

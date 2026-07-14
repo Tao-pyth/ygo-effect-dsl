@@ -14,6 +14,7 @@ from ygo_effect_dsl.engine.bridge.ocgcore import (
     MissingScriptError,
     OcgcoreAssetError,
     SQLiteCardDataProvider,
+    card_scripts_profile_for_experiment_schema,
 )
 from ygo_effect_dsl.engine.canonical import canonical_json
 from ygo_effect_dsl.experiment.schema import (
@@ -355,7 +356,12 @@ def preflight_scenario(
             ScenarioDiagnostic("asset_lock_unavailable", "$.deck", str(exc))
         )
         return ScenarioPreflightResult(tuple(diagnostics), None)
-    scripts = CardScriptsProvider(resolved_assets.scripts_root)
+    scripts = CardScriptsProvider(
+        resolved_assets.scripts_root,
+        profile_id=card_scripts_profile_for_experiment_schema(
+            str(experiment["schema_version"])
+        ),
+    )
     try:
         with SQLiteCardDataProvider(resolved_assets.database_path) as database:
             interruption_codes = {
