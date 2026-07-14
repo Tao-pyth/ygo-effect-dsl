@@ -71,15 +71,42 @@ manifestはfile checksum、schema、row count、min/max、partition、source set
 
 ## UI contract
 
-first screenはmarketing pageではなくcorpus/run overviewとする。主要viewは次のとおり。
+first screenはmarketing pageやrun overviewではなくdeck catalogとする。主要viewは次のとおり。
 
+- deck catalog、deck detail、card list、card detail/effect text
+- deck statistics、過去run、strategy/interruption comparison
+- search launch form、scenario preflight、job progress/result
 - job queue/progress/failure
-- corpus/run/deck/strategy/interruption comparison
+- corpus/run/strategy/interruption comparison
 - score/resource/success distribution
 - Route、Event、Decision、lineage drill-down
 - filter、column、density、shareable state、export
 
-large tableはserver-side sort/filterとvirtualizationを使う。stable row dimensions、keyboard navigation、focus、screen-reader label、loading/empty/error/partial/redacted stateを実装する。PlayerView policyをUI payload、tooltip、downloadにも適用する。
+primary flowは`deck catalog -> deck detail/statistics -> search form -> preflight -> job -> result`とする。large tableはserver-side sort/filterとvirtualizationを使う。stable row dimensions、keyboard navigation、focus、screen-reader label、loading/empty/error/partial/redacted/quarantined/stale stateを実装する。PlayerView policyをUI payload、tooltip、downloadにも適用する。
+
+## Card presentation contract
+
+card detailはcode、name、type、attribute/race、level/rank/link、ATK/DEF、setcode等のmetadataとeffect textを表示する。ただし現行`SQLiteCardDataProvider`はocgcore callback用に`datas`表だけを読むため、presentation用metadata/text providerを別interfaceとして追加する。
+
+- verified local CDB等をread-only sourceにする。
+- locale、source lock、CDB commit/hash、field completenessをpayloadへ含める。
+- missing/unknown/redacted/stale/version mismatchを空文字と区別する。
+- effect textは表示・検索補助だけに使用し、Search/Replay/Evaluationへ入力しない。
+- legacy card-text artifact pipelineへ依存しない。
+- card text/CDB/imageをrepository、wheel、desktop executableへ無審査同梱しない。
+- imageは別のoptional contractとし、text-onlyでも全操作を完了できるようにする。
+
+詳細と未確定事項は[#183](https://github.com/Tao-pyth/ygo-effect-dsl/issues/183)で管理する。
+
+## Windows desktop boundary
+
+UIはWindows desktop applicationとして提供する。shell、Python process、local API/IPC、installer、update方式は[#181](https://github.com/Tao-pyth/ygo-effect-dsl/issues/181)のADR前に固定しない。
+
+- desktop shellはsearch worker/native coreを直接所有せず、Python service境界を明示する。
+- app終了、worker crash、upgrade、rollback時のprocess ownershipを定義する。
+- file picker/YDK import、single instance、deep link、local path権限を検証する。
+- localhostを使う場合はbind範囲、authentication、CSP、port collisionを扱う。
+- third-party card assetsをinstallerへ含めず、owned local asset resolverを利用する。
 
 ## Export contract
 

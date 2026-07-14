@@ -15,7 +15,7 @@ Last updated: 2026-07-14
 
 | ID | 論点 | 2026-07-14の確認結果 | Status | Owner |
 |---|---|---|---|---|
-| `VAL-001` | package/tag基準 | sourceは`0.2.0`、review済み`main`は`22ffce0`、tagは`v0.2.0` | `VERIFIED_LOCAL` | release process |
+| `VAL-001` | package/tag基準 | sourceは`0.2.0`、tag `v0.2.0`はcommit `22ffce0`を指す | `VERIFIED_LOCAL` | release process |
 | `VAL-002` | ocgcore lock | upstream latest release tagは`v11.0`、固定commit `158aebe...`、tree `23915a...`、API `11.0` | `VERIFIED_UPSTREAM` | [#136](https://github.com/Tao-pyth/ygo-effect-dsl/issues/136) |
 | `VAL-003` | 現在hostのcore runtime | `ocgcore-doctor`、`ocgcore-verify`成功。Windows x64、VS 2022/MSVC、owned cacheを使用 | `VERIFIED_LOCAL` | [#135](https://github.com/Tao-pyth/ygo-effect-dsl/issues/135) |
 | `VAL-004` | CardScripts lock | tag `20250420`のpeeled commitが固定commit `c8e9c0...`と一致 | `VERIFIED_UPSTREAM` | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) |
@@ -35,6 +35,8 @@ Last updated: 2026-07-14
 | `VAL-018` | license/asset distribution | root project licenseとBabelCDB等の再配布可否が未確定 | `BLOCKED` | [#91](https://github.com/Tao-pyth/ygo-effect-dsl/issues/91), [#169](https://github.com/Tao-pyth/ygo-effect-dsl/issues/169) |
 | `VAL-019` | production operations | compatibility、upgrade/rollback、observability、incident、soakを未検証 | `OPEN` | [#127](https://github.com/Tao-pyth/ygo-effect-dsl/issues/127), [#134](https://github.com/Tao-pyth/ygo-effect-dsl/issues/134) |
 | `VAL-020` | GitHub Actions runtime | current workflowのaction pin/runtime deprecationをrelease前に再監査する必要がある | `OPEN` | [#138](https://github.com/Tao-pyth/ygo-effect-dsl/issues/138), [#173](https://github.com/Tao-pyth/ygo-effect-dsl/issues/173) |
+| `VAL-021` | Windows desktop architecture | Windows desktop要件は確定したが、shell、Python service/IPC、installer/update境界は未選定 | `OPEN` | [#181](https://github.com/Tao-pyth/ygo-effect-dsl/issues/181) |
+| `VAL-022` | card detail/effect text | 現行real-core providerは`datas`表だけを読み、表示用`texts` provider、locale、license/fallback契約は未実装 | `OPEN` | [#183](https://github.com/Tao-pyth/ygo-effect-dsl/issues/183), [#91](https://github.com/Tao-pyth/ygo-effect-dsl/issues/91) |
 
 ## Verification commands used
 
