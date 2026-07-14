@@ -172,14 +172,14 @@ python -m ygo_effect_dsl ocgcore-assets-verify --external-root $RecoveryRoot
 
 ## 8. External three-deck release gate
 
-これは日常のoperator smokeではなく、package 0.3.0 release用の未完了gateである。`short`、`long`、`grave_banish`のExperiment/YDKとraw artifact rootはrepository外に置き、3 deckを別入力として用意してから実行する。
+これは日常のoperator smokeではなく、package 0.3.0 release用gateである。`short`、`long`、`grave_banish`のExperiment/YDKとraw artifact rootはrepository外に置き、3 deckを別入力として用意してから実行する。
 
 ```powershell
 python -m ygo_effect_dsl real-deck-qualify --experiment short=D:\qualification\short.yaml --experiment long=D:\qualification\long.yaml --experiment grave_banish=D:\qualification\grave-banish.yaml --artifact-root D:\qualification\raw --index-out D:\qualification\real-deck-index.json --external-root $ExternalRoot
 ```
 
-各profileはSearchとfresh Replayを2回ずつ実行し、SearchRun ID、best Route ID、terminal State、profile witnessが反復一致した場合だけsanitized indexをatomic保存する。現時点では外部3 deck evidenceを取得していないため、harnessや4章のinline smoke成功だけでこのgateを完了扱いにしない。
+各profileはSearchとfresh Replayを2回ずつ実行し、SearchRun ID、best Route ID、terminal State、profile witnessが反復一致した場合だけsanitized indexをatomic保存する。2026-07-14の実行済みindexは`docs/ocgcore/evidence/real_deck_qualification.json`で、qualification IDは`deckqual_21dcdaddae643c08f562fd216dc2b0cc1f379b513d7c404727b5c1c6836d1599`である。inputs/raw artifactsは再配布せず、lock更新時は外部corpusから再実行する。
 
 ## Completion check
 
-operator smoke完了は、core/assets verify、inline preflight、Search report commit、best Route、fresh Replay reportが同じlock/Experiment identityで揃った状態を指す。YDK検証完了には利用者YDKを同じ経路で通した成果物が別途必要である。3 deck qualification、10万node実worker性能、production配布はそれぞれ専用Issueの証跡が必要で、このwalkthrough成功だけでは完了しない。
+operator smoke完了は、core/assets verify、inline preflight、Search report commit、best Route、fresh Replay reportが同じlock/Experiment identityで揃った状態を指す。外部YDKを含む3 deck qualificationは別途完了済みである。10万node実worker性能とproduction配布は専用Issueの証跡が必要で、このwalkthrough成功や3 deck indexだけでは完了しない。
