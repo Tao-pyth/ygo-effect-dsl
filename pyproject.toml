@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ygo-effect-dsl"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Reproducible Yu-Gi-Oh! route search and Route Information DSL"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -23,6 +23,9 @@ ygo-effect-dsl = "ygo_effect_dsl.cli.main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+
+[tool.setuptools.dynamic]
+version = {attr = "ygo_effect_dsl.version.__version__"}
 
 [tool.setuptools.package-data]
 "ygo_effect_dsl.resources" = ["*.json"]

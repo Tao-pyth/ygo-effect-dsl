@@ -18,14 +18,22 @@ Until the project declares a stable public contract, releases stay in the
 - reserve `v1.0.0` for the first release where the project is ready to treat
   its documented DSL and tool behavior as stable
 
+The current package and CLI version is `0.2.0`, published from the reviewed
+`v0.2.0` tag. The single source of truth is
+`ygo_effect_dsl.version.__version__`; setuptools reads that value as dynamic
+project metadata and the CLI exposes it through `--version`.
+
 ## Tags And Distribution
 
-A pushed Git tag is the official distribution signal.
+A pushed Git tag is the official source milestone signal for the package
+version. It does not by itself claim production support or authorize
+redistribution of third-party binaries, card databases, or scripts.
 
 Normal branch pushes and pull requests are review and verification events.
-They may build and test the project, but they do not publish an official
-release. A tag push for `vMAJOR.MINOR.PATCH` means the repository is asking
-GitHub Actions to create the release-facing outputs for that exact version.
+They may build and test the project, but they do not publish a source
+milestone. A tag push for `vMAJOR.MINOR.PATCH` asks GitHub Actions to test and
+build the exact tagged source. General distribution remains fail-closed until
+the license and production gates in issues `#91` and `#127` are complete.
 
 Tags should point at reviewed commits on the intended release branch. Moving
 or reusing a published version tag is not allowed except for an explicitly
@@ -40,15 +48,16 @@ For normal pushes and pull requests, GitHub Actions should:
 - verify representative golden/analyze behavior without rewriting fixtures
 - report failures before code or documentation is merged
 
-For `vMAJOR.MINOR.PATCH` tag pushes, GitHub Actions should additionally:
+For `vMAJOR.MINOR.PATCH` tag pushes, the current GitHub Actions workflows:
 
 - run the same verification required for normal pushes
-- build release artifacts from the tagged commit
-- name artifacts with the project name and tag, for example
-  `ygo-effect-dsl-v0.1.0`
-- attach or publish only artifacts produced from the tagged commit
-- make the tag-driven release the canonical downloadable distribution for
-  that version
+- build the Windows executable smoke artifact from the tagged commit
+- do not bundle ocgcore, CardScripts, BabelCDB, or other third-party assets
+
+Wheel, sdist, checksums, provenance, long-term artifact retention, and a
+GitHub Release publication workflow are production work tracked by `#127`.
+Until that gate is complete, a tag is reproducible source identification, not
+a supported general-public binary distribution.
 
 ## Artifact Naming
 
@@ -63,9 +72,9 @@ ygo-effect-dsl-vMAJOR.MINOR.PATCH[-kind][.ext]
 
 Examples:
 
-- `ygo-effect-dsl-v0.1.0.zip`
-- `ygo-effect-dsl-v0.1.0-docs.zip`
-- `ygo-effect-dsl-v0.1.0-sdist.tar.gz`
+- `ygo-effect-dsl-v0.2.0.zip`
+- `ygo-effect-dsl-v0.2.0-docs.zip`
+- `ygo-effect-dsl-v0.2.0-sdist.tar.gz`
 
 ## Changelog Policy
 
@@ -84,17 +93,24 @@ Changelog entries should group user-visible changes by intent, such as:
 The changelog should describe what changed and whether contributors need to
 adjust datasets, expectations, or downstream tooling.
 
-## Future Version Separation
+## Release And Contract Version Separation
 
-The repository version currently represents the whole project. Future releases
-may separate these version lines when the boundaries are stable enough:
+Package and functional contract version lines are intentionally independent:
 
-- App version: packaged application, CLI, UI, and release workflow behavior
-- DSL Schema version: serialized DSL shape and validation contract
-- Ruleset version: dictionary, parser rule, and interpretation rule behavior
+- Package version uses SemVer for the Python package, CLI, documentation, and
+  repository-wide release scope.
+- Contract versions identify the compatibility of serialized artifacts and
+  APIs such as Experiment, Route DSL, Replay, SearchRun, and aggregation.
+- Runtime lock IDs identify exact ocgcore, CardScripts, and card database
+  inputs; they are not package versions.
 
-Until that split is adopted, a repository release tag covers the app code, DSL
-schema, rulesets, examples, and documentation present at the tagged commit.
+A package release can include multiple contract versions for compatibility.
+For example, package `0.2.0` writes Experiment `0.4`, executes `0.3b`, reads
+legacy `0.3a`, and writes Route DSL `0.1`. A package version bump does not
+automatically bump these contracts. A contract version changes only when its
+shape or semantics cross the documented compatibility boundary.
+
+The current matrix is maintained in `README.md` and `docs/20_roadmap.md`.
 
 ## README And Documentation Updates
 
@@ -103,6 +119,9 @@ set contributor expectations. Review these targets when preparing a release:
 
 - `README.md` for current version status, quickstart behavior, and release
   links
+- `docs/20_roadmap.md` for the current contract matrix and release-based
+  implementation plan
+- `CHANGELOG.md` for user-visible changes in the package release
 - `docs/40_documentation_policy.md` when release documentation ownership changes
 - `docs/spec/` files when DSL behavior or compatibility changes
 - `docs/spec/*/50_changelog.md` or a future top-level changelog for release
