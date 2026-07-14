@@ -1,11 +1,11 @@
 # ygoEffectDSL Spec v0.1 - Minimal Semantics
 
-> Status: Historical baseline / legacy DSL CORE / no full engine implementation
+> Status: Historical baseline / legacy card-text design / no full engine implementation
 > Last updated: 2026-07-13
 
 V0.1 defines a read-only state model and a narrow action vocabulary. A V0.1 reader may produce candidate state deltas, but this spec does not require the repo to execute real duel state transitions.
 
-This document is a historical record of an earlier engine-boundary idea. Under the current Charter and ADR-0003, the existing DSL Conversion CORE must not feed future Replay, Search, or Evaluation work.
+This document is a historical record of an earlier engine-boundary idea. Under the current Charter and ADR-0003, the card-text conversion must not feed Replay, Search, Evaluation, or Route DSL work. Unqualified DSL now means Route DSL under ADR-0004.
 
 ## Read-Only State Model
 

@@ -7,7 +7,7 @@
 
 本仕様は、v0.0 DSL が表す意味の読み方を定義する。ここでいう semantics は、Python が遊戯王 OCG の実ルールを実行するという意味ではない。
 
-v0.0 の役割は、カード効果テキストから候補構造を作る過去の実験を記録することである。現在の探索エンジン設計では、この候補構造を Bridge / Replay / Search / Evaluation の入力にしない。実ルールの合法性、状態遷移、Lua 実行は ocgcore / EDOPro Lua の責務であり、Python はそれを再実装しない。
+v0.0の役割は、カード効果テキストから候補構造を作る過去の実験を記録することである。本書内のDSLは歴史的なv0.0名称であり、現在のRoute DSLではない。現在の探索エンジン設計では、この候補構造をBridge / Replay / Search / Evaluation / Route DSLの入力にしない。実ルールの合法性、状態遷移、Lua実行はocgcore / EDOPro Luaの責務であり、Pythonはそれを再実装しない。
 
 ## 2. 基本方針
 
@@ -32,13 +32,13 @@ v0.0 semantics は次を優先する。
 - `actions[]`: 効果が行う処理候補
 - `targets[]`: action / cost / condition が参照する対象候補
 
-これらは実ルールの完全な裁定ではなく、legacy DSL CORE が検証・分析できる構造である。
+これらは実ルールの完全な裁定ではなく、旧カードテキスト変換が検証・分析できる構造である。
 
 ## 4. Action Semantics
 
 `actions[]` は v0.0 の canonical action 表現である。単数の `action` は legacy fallback として残る場合があるが、新しい consumer は `actions[]` を優先する。
 
-Action は、legacy DSL CORE 内の候補情報である。Bridge / Replay / Search / Evaluation へ渡す情報ではない。v0.0 では Action を実行して盤面を変更しない。
+Actionは旧カードテキスト変換内の候補情報である。Bridge / Replay / Search / Evaluation / Route DSLへ渡す情報ではない。v0.0ではActionを実行して盤面を変更しない。
 
 代表的な action type:
 
@@ -66,13 +66,13 @@ Target は以下をできるだけ保持する。
 - raw text
 - 未解決 constraints
 
-対象情報が不足する場合は、空に見せかけず diagnostics として残す。これは、legacy DSL CORE の変換品質を可視化するためである。
+対象情報が不足する場合は、空に見せかけずdiagnosticsとして残す。これは旧カードテキスト変換の品質を可視化するためである。
 
 ## 6. Cost / Action Separation
 
 コストと効果処理は混同しない。セミコロン等で分離される cost fragment は `cost` として保持し、`actions[]` を過剰に膨らませない。
 
-この分離は、legacy DSL CORE の構造化結果を確認するために残す。Replay や妨害注入の実行系入力にはしない。
+この分離は旧カードテキスト変換の構造化結果を確認するために残す。Replay、Route DSL、妨害注入の実行系入力にはしない。
 
 ## 7. Diagnostics
 

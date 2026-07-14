@@ -1,6 +1,6 @@
 # Bridge / DecisionRequest Specification
 
-Status: V0.3a specification baseline
+Status: Frozen pre-search contract (ADR-0007)
 
 Last updated: 2026-07-13
 

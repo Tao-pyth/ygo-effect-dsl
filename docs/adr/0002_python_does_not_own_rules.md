@@ -37,4 +37,4 @@ V0.1 の state/action semantics は過去の候補表現であり、現在の en
 
 ## Notes
 
-Python で許容される「rule」は、既存 legacy DSL CORE 内の変換辞書や pattern matching rule に限る。これらはゲームルールとは明確に区別し、新規探索エンジン設計の根拠にしない。
+Pythonで許容される「rule」は、旧カードテキスト変換内の辞書・pattern matchingと、探索・評価・Route DSLの構造検証規則に限る。これらはゲームルールとは明確に区別し、合法手や状態遷移の根拠にしない。

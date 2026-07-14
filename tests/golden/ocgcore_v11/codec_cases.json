@@ -1,0 +1,42 @@
+[
+  {
+    "action_kind": "SELECT_OPTION",
+    "candidate_ids": ["choice:0", "choice:1"],
+    "message_hex": "0a0000000d000807060504030201",
+    "name": "select_yes_no_yes",
+    "request_signature": "req_6e5d89ee055373432d0a9c20bfe0b24df7fe6f30b8839978c8e266a0e7d06a89",
+    "request_type": "select_yes_no",
+    "response_hex": "01000000",
+    "selected_candidate_ids": ["choice:1"]
+  },
+  {
+    "action_kind": "SELECT_OPTION",
+    "candidate_ids": ["option:0", "option:1"],
+    "message_hex": "130000000e01020a000000000000001400000000000000",
+    "name": "select_option_second",
+    "request_signature": "req_81d11abcb25e94e659072275823382295d18ebeab456282c44b91935f6b77dc8",
+    "request_type": "select_option",
+    "response_hex": "01000000",
+    "selected_candidate_ids": ["option:1"]
+  },
+  {
+    "action_kind": "SELECT_OPTION",
+    "candidate_ids": ["position:1", "position:4"],
+    "message_hex": "0700000013007b00000005",
+    "name": "select_position_defense",
+    "request_signature": "req_4035dac5fcea05facc28acdebe6806d50d438eb174e68ae1f27e339f4970cfd8",
+    "request_type": "select_position",
+    "response_hex": "04000000",
+    "selected_candidate_ids": ["position:4"]
+  },
+  {
+    "action_kind": "SELECT_CARD",
+    "candidate_ids": ["card:0", "card:1"],
+    "message_hex": "2b0000000f0000020000000200000002000000e903000000020000000000000000ea03000000020100000000000000",
+    "name": "select_two_cards",
+    "request_signature": "req_5b07a447379776d809258048e165099e8b84ff62662e3e2694a0925c026682be",
+    "request_type": "select_card",
+    "response_hex": "02000000020000000001",
+    "selected_candidate_ids": ["card:1", "card:0"]
+  }
+]

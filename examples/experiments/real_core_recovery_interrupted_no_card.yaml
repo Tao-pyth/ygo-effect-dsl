@@ -1,0 +1,68 @@
+schema_version: "0.3b"
+experiment_id: prototype_real_core_recovery_interrupted_no_card
+objective: additional_card_attribution_counterfactual
+deck:
+  id: recovery_attribution_fixture
+  source: fixed
+player:
+  starting_player: 0
+  perspective: 0
+turn_limit: 2
+information_mode: complete_information
+information_policy:
+  schema_version: information-policy-v1
+  policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+  deck_order: known
+  opening_hand: fixed
+  sampling_reference: null
+evaluate_at: legal_stop
+durability_evaluate_at: opponent_main1_after_end_phase_and_turn_start_processing
+success_predicate:
+  id: real_core_min_monster_count
+  version: "1"
+  config:
+    player: 0
+    zone: monster_zone
+    min_count: 2
+evaluator:
+  id: real_core_board_count
+  version: "1"
+  config:
+    hand_weight: 1
+    missing_value_policy: error
+    monster_weight: 10
+    temporary_value_policy: exclude_expired_or_unverified_v1
+search:
+  strategy: scripted_real_core
+  budget:
+    max_nodes: 64
+  parameters: {}
+interruption:
+  mode: scripted
+  definitions:
+    - id: effect_veiler_after_recovery_primary_activation
+      interruption_type: effect_veiler
+      source_player: 1
+      source_card_code: 97268402
+      base_route_id: route_1cb1832621446b60cbbd8f8022062017283c3de4967a59a46344936272400d50
+      target:
+        action_id: act_9367e2ac69edf3d82c0f01a7734fda7a46ac0fabff02d574dc9d479abf58ab74
+        action_occurrence_id: aocc_370b8a8781dcb14469f61bc3d4845df2a15dcbcf140ed7d5249e8074344c182f
+        chain_index: 1
+        effect_ref: null
+        player: 1
+        request_signature: req_3e5c5db72af53c595eb7f8082ce69004d75c97ecc210eacd16a686d9064e62ab
+        schema_version: interruption-target-v1
+        source: null
+        state_hash_before: state_5adb57bcf40633b4d7ea01f2c544988331417ba32d5ef903c866e4df96686acf
+        step: 5
+        turn: 1
+        turn_action_index: 5
+        target_id: inttarget_920dfab74c9b9d9aed27fbdf36c2cb2f8095685c08854ae681fd2f6b02221b26
+replay:
+  strict_versions: true
+runner:
+  adapter: real_core_prototype
+  fixture_script_id: recovery_attribution_v1
+  recovery_card_present: false
+  scenario_id: real_core_recovery_attribution_v1

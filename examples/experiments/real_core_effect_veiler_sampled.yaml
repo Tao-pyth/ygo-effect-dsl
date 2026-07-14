@@ -1,0 +1,70 @@
+schema_version: "0.3b"
+experiment_id: prototype_real_core_effect_veiler_sampled
+objective: fixed_hand_sampled_interruption_slice
+deck:
+  id: effect_veiler_two_player_fixture
+  source: fixed
+player:
+  starting_player: 0
+  perspective: 0
+turn_limit: 2
+information_mode: complete_information
+information_policy:
+  schema_version: information-policy-v1
+  policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+  deck_order: known
+  opening_hand: fixed
+  sampling_reference: null
+evaluate_at: legal_stop
+durability_evaluate_at: opponent_main1_after_end_phase_and_turn_start_processing
+success_predicate:
+  id: real_core_min_monster_count
+  version: "1"
+  config:
+    player: 0
+    zone: monster_zone
+    min_count: 1
+evaluator:
+  id: real_core_board_count
+  version: "1"
+  config:
+    hand_weight: 1
+    missing_value_policy: error
+    monster_weight: 10
+    temporary_value_policy: exclude_expired_or_unverified_v1
+search:
+  strategy: scripted_real_core
+  budget:
+    max_nodes: 32
+  parameters: {}
+interruption:
+  mode: sampled
+  sampling:
+    schema_version: interruption-sampling-v1
+    sampler_id: stable-digest-mod-v1
+    seed: 20260713
+  definitions:
+    - id: effect_veiler_after_first_normal_summon
+      interruption_type: effect_veiler
+      source_player: 1
+      source_card_code: 97268402
+      base_route_id: route_5cac80cf38a05052cfeccc0710bd54498ed96897003db7b2248ef9a63b8220f7
+      target:
+        action_id: act_e14026593eac962a7f79029846905b2efb0804a97a52a5e5fca673a0c66220e5
+        action_occurrence_id: aocc_c3e062cd02684b5c392b48bdad255e0522ed417bc4179d40a66842ad911570fa
+        chain_index: 0
+        effect_ref: null
+        player: 1
+        request_signature: req_d0a093eb814b342beea1db77bc13582b08c6c08775fd8efeb9d223eb1e4ebe5a
+        schema_version: interruption-target-v1
+        source: null
+        state_hash_before: state_4d43d74f449e3188df46d552454342df96f9febac1d85c422eac08774108e4e2
+        step: 5
+        turn: 1
+        turn_action_index: 5
+        target_id: inttarget_1f0ca7a91c65330e5481c0e337ca8f89b4b5c4aab0c808c652e04cb86fd434e3
+replay:
+  strict_versions: true
+runner:
+  adapter: real_core_prototype
+  scenario_id: real_core_effect_veiler_normal_summon_v1

@@ -1,0 +1,138 @@
+{
+  "checks": {
+    "client_receives_no_trace_message": true,
+    "legacy_hint_transport_deprecated": true,
+    "pinned_core_log_transport_compatible": true,
+    "supported_edopro_source_audited": true,
+    "upstream_dedicated_random_hook_absent": true,
+    "upstream_log_transport_still_compatible": true
+  },
+  "evidence_id": "rngtransportev_8f2b59ce4933c3d56cae59c2e176c258517af684582cb17cae833d0b346ab7b4",
+  "instrumentation": {
+    "enabled": true,
+    "instrumentation_id": "rnginst_5d3d5277a106e8e76d91255abb3f814a9a76d72e80ebacf3212d41c19b27fd4a",
+    "record_format": "prefix|draw_index|minimum|maximum|result",
+    "schema_version": "ocgcore-direct-random-trace-v2",
+    "script_name": "ygo_effect_dsl_direct_random_trace.lua",
+    "script_sha256": "88bcc50cdf2802e3e5c30b6e149516a5461b4161f894099ddb6f629d91a1b2df",
+    "transport": "ocgcore_log_handler_from_script_v1"
+  },
+  "legacy_hint_type": 199,
+  "pinned_core": {
+    "checks": {
+      "debug_message_uses_from_script_log_type": true,
+      "duel_options_expose_log_handler": true,
+      "get_random_number_uses_internal_rng": true
+    },
+    "commit": "158aebe758be3c46249c75d602e3f16d63d2ef31",
+    "dedicated_random_hook_found": false,
+    "files": [
+      {
+        "path": "libdebug.cpp",
+        "sha256": "56e5150000146dfdaaae0b1848c10379c78321d038a5acd9b205b38a0b80b6a6",
+        "size": 7427
+      },
+      {
+        "path": "libduel.cpp",
+        "sha256": "e4379077d86f8c7fc73eca4359b343c20714423eb0ff354f58d780a9bb24a4fa",
+        "size": 150810
+      },
+      {
+        "path": "ocgapi_types.h",
+        "sha256": "07d2dd10ae6a54e8ce13122bbf927f3cff606cb93bea43a18f43f97b0cbd4d51",
+        "size": 2410
+      }
+    ],
+    "status": "compatible"
+  },
+  "schema_version": "ocgcore-direct-random-transport-audit-v1",
+  "supported_edopro": {
+    "checks": {
+      "legacy_hint_199_has_no_named_constant": true,
+      "legacy_hint_199_not_analyzed_by_single_mode": true,
+      "legacy_hint_199_not_handled_by_duel_client_switch": true,
+      "legacy_hint_199_not_routed_by_online_server": true,
+      "unknown_hint_can_confirm_queued_panel_if_directly_injected": true
+    },
+    "commit": "650ec7b2273f60733b178d238cf6fec46722d8b4",
+    "files": [
+      {
+        "path": "gframe/core_utils.h",
+        "sha256": "73224472ef7e205bdbf90c8fd4fff9a1edf13b6fbfee1cf46f0ce586a06fc318",
+        "size": 3588
+      },
+      {
+        "path": "gframe/duelclient.cpp",
+        "sha256": "fcebc7a5654efd508513173441f646b3a6e9b9437bb5bdc6d1885c8a16ee8a5f",
+        "size": 186686
+      },
+      {
+        "path": "gframe/generic_duel.cpp",
+        "sha256": "42ef6373779ee2b657d09cc359c1036fe717bcdc162818c48eaa6011a548bdf7",
+        "size": 49469
+      },
+      {
+        "path": "gframe/ocgapi_constants.h",
+        "sha256": "191315f0c37bdc2fc086dee457bfc8ebb10b27cb1f063d26d5776465f9dbc4aa",
+        "size": 16776
+      },
+      {
+        "path": "gframe/single_mode.cpp",
+        "sha256": "3db8af6c2cb031faa61690d3cc9c36c2b5a0d6af1503a5b07b234eb459fb8984",
+        "size": 19381
+      }
+    ],
+    "hint_constants": {
+      "HINT_ATTRIB": 7,
+      "HINT_CARD": 10,
+      "HINT_CODE": 8,
+      "HINT_EFFECT": 5,
+      "HINT_EVENT": 1,
+      "HINT_MESSAGE": 2,
+      "HINT_NUMBER": 9,
+      "HINT_OPSELECTED": 4,
+      "HINT_RACE": 6,
+      "HINT_SELECTMSG": 3,
+      "HINT_SKILL": 200,
+      "HINT_SKILL_COVER": 201,
+      "HINT_SKILL_FLIP": 202,
+      "HINT_SKILL_REMOVE": 203,
+      "HINT_ZONE": 11
+    },
+    "legacy_transport_assessment": {
+      "direct_injection": "no display case but queued panel confirmation can run",
+      "online_server": "unknown hint is not sent",
+      "single_mode": "unknown hint is not analyzed"
+    },
+    "status": "legacy_not_collision_free_for_arbitrary_delivery"
+  },
+  "transport": "ocgcore_log_handler_from_script_v1",
+  "transport_decision": "use script log callback; emit no duel/client message",
+  "upstream_core_observation": {
+    "checks": {
+      "debug_message_uses_from_script_log_type": true,
+      "duel_options_expose_log_handler": true,
+      "get_random_number_uses_internal_rng": true
+    },
+    "commit": "0764db0c75b3d1d574880d365aa3695ab1f13b43",
+    "dedicated_random_hook_found": false,
+    "files": [
+      {
+        "path": "libdebug.cpp",
+        "sha256": "e57585cc8e78025db4badbcf31d7676924957caaa00735703cdf306be6a7f43c",
+        "size": 7559
+      },
+      {
+        "path": "libduel.cpp",
+        "sha256": "42b2a22cfe33814ce88cebaadae387dbf198d8a2a2f11b42a71626dedb6f9de2",
+        "size": 151960
+      },
+      {
+        "path": "ocgapi_types.h",
+        "sha256": "ac27653d97047022e0688dd572b811fe493b3c43d2069287a1fe9e5d50569571",
+        "size": 2487
+      }
+    ],
+    "status": "compatible"
+  }
+}

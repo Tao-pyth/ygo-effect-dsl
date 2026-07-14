@@ -1,0 +1,94 @@
+dsl: ygo-route
+schema_version: "0.1"
+route_id: route_example_normal_summon
+status: complete
+experiment:
+  schema_version: "0.3a"
+  experiment_id: fixed_hand_no_interruption
+  objective: minimal_route_validation
+  deck:
+    id: minimal_single_card_fixture
+    source: fixed
+  player:
+    starting_player: 0
+    perspective: 0
+  turn_limit: 1
+  information_mode: complete_information
+  evaluate_at: legal_stop
+  success_predicate:
+    id: minimal_success
+    version: "1"
+    config: {}
+  evaluator:
+    id: minimal_score
+    version: "1"
+    config: {}
+  search:
+    strategy: scripted
+    budget:
+      max_nodes: 1
+  interruption:
+    mode: none
+    definitions: []
+  replay:
+    strict_versions: true
+replay:
+  schema_version: "0.3a"
+  initial_snapshot:
+    starting_player: 0
+    main_deck_order: ["89631139"]
+    extra_deck_order: []
+  version_metadata:
+    ocgcore: mock
+    edo_lua_scripts: mock
+  seeds:
+    duel_seed: 1
+    shuffle_seed: 2
+  strict_versions: true
+  events:
+    - step: 0
+      request_signature: req_example_normal_summon
+      action:
+        schema_version: "0.3a"
+        action_id: act_example_normal_summon
+        request_signature: req_example_normal_summon
+        kind: NORMAL_SUMMON
+        player: 0
+        source: null
+        effect_ref: null
+        selections: []
+      state_hash_before: state_opening_hand
+      state_hash_after: state_after_normal_summon
+checkpoints:
+  - step: 0
+    state_hash: state_after_normal_summon
+    turn: 1
+    phase: main1
+    board_summary:
+      player_0:
+        hand_count: 0
+        field: ["89631139"]
+    evaluation:
+      interruptions: 0
+      resource_balance: 1.0
+result:
+  success: true
+  peak_board:
+    checkpoint_step: 0
+    state_hash: state_after_normal_summon
+    score: 1.0
+    evaluation:
+      interruptions: 0
+      resource_balance: 1.0
+    stop_reason: legal_stop
+  terminal_board:
+    checkpoint_step: 0
+    state_hash: state_after_normal_summon
+    score: 1.0
+    evaluation:
+      interruptions: 0
+      resource_balance: 1.0
+interruptions: []
+lineage:
+  parent_route_id: null
+  fork_step: null

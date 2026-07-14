@@ -1,51 +1,77 @@
 # Glossary
 
-Status: V0.1 baseline
+Status: Route DSL baseline
 
 ## Action
 
-探索の最小単位。NormalSummon、SpecialSummon、ActivateEffect、SelectCard、SelectOption、EndTurn などを想定する。Action は ocgcore / EDOPro Lua 由来の Bridge / DecisionRequest から得る。DSL `actions[]` は legacy であり、engine Action の前段ではない。
-
-## Action Evaluation
-
-特定の行動選択の価値を評価する処理。成功率、平均 Peak Score、将来期待値、訪問回数などを扱う。State Evaluation とは分離する。
+一つのDecisionRequestに対する応答であり、探索の最小単位。ocgcore由来の候補からBridgeが構築する。Action IDはrequest署名と選択内容から決定的に生成する。
 
 ## Bridge
 
-Python と ocgcore の境界。ocgcore Message を Python Action に変換し、Python Action を ocgcore に入力できる形式へ戻す。ルール判断はしない。
+Pythonとocgcoreの境界。core MessageをDecisionRequestへ変換し、Actionをcore inputへ戻す。カードルールや合法性を独自判断しない。
 
-## DSL Conversion CORE
+## Checkpoint
 
-過去の実験由来の legacy / deprecated / removal target。ETL export artifact を ingest し、DSL YAML へ transform し、validate と analyze を行うが、探索エンジンの入力、補助分析基盤、Action 生成元として扱わない。
+Replay event適用後の主要状態を、step、state hash、盤面要約、評価内訳でRoute DSLへ記録したもの。
+
+## DecisionRequest
+
+ocgcoreがプレイヤーへ要求する一回の意思決定を正規化した契約。候補、選択数制約、文脈、安定したrequest署名を持つ。
 
 ## END_TURN
 
-探索対象の Action。「探索を止める」という意思決定を表す。単なる制御命令ではない。
+ocgcoreへ送るターン終了Action。エンドフェイズ処理などの状態遷移を発生させ得る。探索上の停止宣言 `STOP_LINE` とは異なる。
 
 ## Evaluation
 
-探索結果や行動候補を評価する責務。State Evaluation と Action Evaluation を混同しない。
+状態またはAction pathの価値を測る責務。evaluation vector、total score、説明を返すが、状態遷移を実行しない。
+
+## Experiment
+
+デッキ、初手、先攻・後攻、ターン、禁止制限、妨害、探索予算、成功条件、評価器、versionを束ねる再現可能な検証条件。
+
+## Legacy Card-Text Artifact
+
+v0.0でカード効果テキストから生成していたYAML。過去にはDSLと呼んでいたが、現在のRoute DSLとは別形式であり、探索、Replay、合法手判定の入力にしない。
+
+## Lineage
+
+ルート間の親子関係。親route ID、分岐step、妨害IDなどにより、妨害なしルートとリカバリルートを関連付ける。
 
 ## ocgcore
 
-遊戯王 OCG ルール、合法手判定、状態遷移、Lua 実行の真実源。Python は ocgcore の代替ルールエンジンにならない。
+遊戯王OCGの合法手判定、チェーン処理、状態遷移、Lua実行の真実源。
 
 ## Peak Board
 
-探索途中で到達した最も評価値の高い停止可能盤面。Terminal Board より優先して正式結果として扱う。
+探索途中で到達した、最も評価の高い合法停止可能盤面。Terminal Boardと区別してRoute DSLへ保存する。
 
 ## Replay
 
-Seed、Deck、Action 履歴、選択履歴、バージョン情報、評価結果、実験条件を保持し、結果の再現性を担保する仕組み。
+同じ環境、初期条件、Action履歴から同じDecisionRequestへ戻るための実行履歴。Route DSLに内包され、ルートの再現性を担保する。
 
-## Search Engine
+## Route DSL
 
-Action 単位で分岐を作り、Replay と Evaluation を利用して探索する中核。Random Search、Beam Search、MCTS などを段階的に導入する。
+ocgcore / EDOPro Lua由来の展開ルートを保存、再生、比較、再評価、集計する構造化データ契約。カード効果を記述・実行しない。
 
-## State Evaluation
+## Search
 
-盤面やリソースの価値を評価する処理。妨害数、手札、墓地、リソース、継続力、制圧力などを扱う。
+Action候補を分岐させ、探索予算、枝刈り、停止を管理する責務。合法性はocgcore、価値判断はEvaluationへ委譲する。
+
+## State Hash
+
+`ygo-state-id-v1`のcanonical public/private state、constraints、history、pending request、engine state、information mode、completenessから生成する`state_` prefixのSHA-256 ID。`query_api_projection`は欠落項目をIDへ明示するが、exact search-state equivalenceを意味しない。
+
+Replay照合や状態同一性に使う決定的な識別子。完全一致用canonical hashと、枝刈り用の近似search hashを区別する。
+
+## STOP_LINE
+
+現在盤面を候補として採用し、その展開ルートを止める探索上の仮想Action。coreへターン終了入力を送らない。合法停止可能な状態でのみ選べる。
+
+## Success Predicate
+
+実験の成功条件を真偽値で返すversion付き判定器。total scoreとは独立する。
 
 ## Terminal Board
 
-探索が最後まで進んだ結果の盤面。比較や失敗理由の分析には使うが、正式な主成果は Peak Board とする。
+予算終了、行動終了、END_TURN、失敗などで実際に探索を終えた盤面。正式な最良結果であるPeak Boardとは一致しない場合がある。

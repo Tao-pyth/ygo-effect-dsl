@@ -1,6 +1,6 @@
 # Replay Determinism Specification
 
-Status: V0.3a specification baseline
+Status: Frozen pre-search contract (ADR-0007)
 
 Last updated: 2026-07-13
 
@@ -9,6 +9,7 @@ Last updated: 2026-07-13
 Replay は探索結果を再現、比較、監査するための履歴である。
 V0.3a での最上位保証は「同じ環境、同じ初期条件、同じ Action 履歴なら、同じ DecisionRequest に戻る」ことである。
 Replay は探索アルゴリズムを所有しない。
+Route DSLはReplayを内包し、checkpoint、評価、Peak Board、妨害lineageを加える。ReplayのAction履歴が再現性の真実源であり、Route DSLの表示情報や評価値はReplay照合を変更しない。
 
 ## Determinism Guarantee
 
@@ -35,6 +36,7 @@ Replay は次の seed を保存する。
 
 V0.3a では seed から初期デッキ順を復元できる場合でも、初期デッキ順 snapshot を保存する。
 seed と snapshot が矛盾する場合は Replay を invalid とする。
+加えて、全core response、全raw output frame、message化されたshuffle/random select/coin/dice結果を順序付きで保存する。`Duel.GetRandomNumber`の直接Lua乱数は、同じ引数で元関数を1回呼ぶversion固定wrapperでdraw index、inclusive range、resultをtraceへ追加する。計装script hashとtransport設定はReplay manifest identityへ含める。暫定Hint transportの互換性検証は#107で追跡する。
 
 ## Initial Snapshot
 
@@ -65,7 +67,13 @@ Replay は各 step で次を記録する。
 - `request_signature`
 - `action`
 - `action_id`
+- `action_occurrence_id`
+- `turn` optional
+- `turn_action_index` optional
+- `chain_index` optional
 - `core_input_ref`
+- `core_response`
+- `core_output`
 - `state_hash_before`
 - `state_hash_after`
 - `timestamp` optional
@@ -73,6 +81,8 @@ Replay は各 step で次を記録する。
 
 `timestamp` は deterministic 比較の対象にしない。
 Replay の canonical JSON では deterministic field と non-deterministic metadata を分離する。
+Route DSLへ埋め込む場合も同じ分離を維持する。
+`action_id`は選択内容の同一性、`action_occurrence_id`はReplay内の1回の実行を表す。後者は`action_id`, `step`, `state_hash_before`, `turn`, `turn_action_index`, `chain_index`から決定論的に生成し、Route DSL validatorで再計算する。旧Routeとの読み取り互換のため、`action_occurrence_id`がないイベントは受理する。
 
 ## Version Metadata
 
@@ -89,6 +99,7 @@ Replay は次を保存する。
 - banlist hash
 - master rule
 - custom patch hash
+- direct random instrumentation schema and script hash
 - evaluator id and version
 - experiment schema version
 
@@ -127,6 +138,7 @@ Replay は次を破損または不整合として扱う。
 
 - 「同じ履歴なら同じ DecisionRequest に戻る」が最上位保証として明記されている。
 - seed と初期デッキ順 snapshot の両方を保存すると定義されている。
+- 全response、raw core output、観測可能なランダム結果を順序付きで保存すると定義されている。
 - request signature mismatch が replay failure と定義されている。
 - V0.2 format を破壊しない方針が明記されている。
 

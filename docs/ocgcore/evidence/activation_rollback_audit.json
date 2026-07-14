@@ -1,0 +1,430 @@
+{
+  "audit_date": "2026-07-14",
+  "conclusion": "remains_unsupported",
+  "evidence_id": "rollbackaudit_2476441a3c8ed5acb8c7107acf7a2e3961f1be81bc9ad01a9cb634db44131c98",
+  "fresh_worker_reproducibility": {
+    "documents_identical": true,
+    "first_stdout_digest": "workerstdout_21846b63511380e4474d3582807ac3b544680d763e485b0388c54fa90c42b112",
+    "second_stdout_digest": "workerstdout_21846b63511380e4474d3582807ac3b544680d763e485b0388c54fa90c42b112"
+  },
+  "probe": {
+    "activation": {
+      "action_id": "act_ec315e8732643a06d9fa894ac8de9161ff64af5c8bf5231327b775516829bcbe",
+      "action_occurrence_id": "aocc_0bcafdf9cdf2199d3492449467499eec69df904db9cebd76e867846c3ec5ab9e",
+      "kind": "ACTIVATE_EFFECT",
+      "request_signature": "req_80971f6a55be385701ad1d18f38bb7665287ea088b73585862bb91160390c796",
+      "source": {
+        "controller": 0,
+        "instance_id": null,
+        "location": "monster_zone",
+        "owner": 0,
+        "public_card_id": 97268402,
+        "sequence": 0
+      },
+      "state_hash_after": "state_54a27918389c7030e45b6f587d278ce91a7615ffbe2784a257677ed16e501b95",
+      "state_hash_before": "state_cc5d4e074df4b85c48ca32c071fabc9ca118a62df325cb34d4b852e30b3b136a",
+      "step": 4
+    },
+    "cancellation": {
+      "action": {
+        "action_id": "act_bcf5cb801b7cbaac3444879c416764cf6e6f170bc6da9ca266bafb71c2a6ad3e",
+        "effect_ref": null,
+        "kind": "DECLINE",
+        "player": 0,
+        "request_signature": "req_da6ae55b7f4aa100d6e83ae3544c6a032ee5e22dd6dba17a602a8a1ba96ef3a3",
+        "schema_version": "0.3a",
+        "selections": [],
+        "source": null
+      },
+      "request": {
+        "candidates": [
+          {
+            "candidate_id": "card:0",
+            "card_ref": {
+              "controller": 0,
+              "location": 2,
+              "position": 10,
+              "public_card_id": 97268402,
+              "sequence": 0
+            },
+            "effect_ref": null,
+            "kind": "card",
+            "label": "97268402",
+            "payload": {
+              "response_codec": "card_indices",
+              "response_index": 0
+            }
+          }
+        ],
+        "constraints": {
+          "allow_duplicates": false,
+          "max_selections": 1,
+          "min_selections": 0,
+          "ordered": false,
+          "required": false
+        },
+        "context": {
+          "chain": [],
+          "extra": {
+            "cancelable": true,
+            "core_max": 1,
+            "core_min": 1,
+            "message_name": "select_card",
+            "message_type": 15
+          },
+          "phase": "",
+          "priority_player": 0,
+          "request_source": "ocgcore",
+          "turn_player": null,
+          "version_metadata": {
+            "ocgcore_api": "11.0",
+            "ocgcore_protocol": "ocgcore-api-11.0"
+          },
+          "visible_board": {}
+        },
+        "player": 0,
+        "request_id": "real_core_activation_rollback_probe_v1:5",
+        "request_schema_version": "0.3a",
+        "request_signature": "req_da6ae55b7f4aa100d6e83ae3544c6a032ee5e22dd6dba17a602a8a1ba96ef3a3",
+        "request_type": "select_card"
+      },
+      "response": {
+        "codec_version": "ocgcore-api-11.0-response-v1",
+        "request_signature": "req_da6ae55b7f4aa100d6e83ae3544c6a032ee5e22dd6dba17a602a8a1ba96ef3a3",
+        "request_type": "select_card",
+        "response_hex": "ffffffff",
+        "response_length": 4,
+        "response_sha256": "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e",
+        "selected_candidate_ids": []
+      },
+      "state_after": {
+        "chain_count": 1,
+        "state_hash": "state_c39de0e816903d451402757c6c4d722cc55f37214acf626da6e162384437da7f"
+      },
+      "state_before": {
+        "chain_count": 1,
+        "state_hash": "state_54a27918389c7030e45b6f587d278ce91a7615ffbe2784a257677ed16e501b95"
+      }
+    },
+    "classification": "raw_replay_contract_core_unreachable",
+    "evidence_id": "rollbackprobe_274065e5270b5a216b2f228d743919fa4826e693bb416e236892d79d2cee5833",
+    "followup": {
+      "frames": [
+        {
+          "frame_index": 0,
+          "message_type": 71,
+          "payload_hex": "01"
+        },
+        {
+          "frame_index": 1,
+          "message_type": 16,
+          "payload_hex": "010000000000000000000000000000"
+        }
+      ],
+      "message_types": [
+        71,
+        16
+      ],
+      "next_request": {
+        "candidates": [
+          {
+            "candidate_id": "control:pass",
+            "kind": "pass"
+          }
+        ],
+        "player": 1,
+        "request_signature": "req_1c0c1b6ac8bbbe6aeff5a46fa5dc7a0a098bbd32c927052fbaf9d8975bc88ca5",
+        "request_type": "select_chain"
+      }
+    },
+    "manifest": {
+      "environment": {
+        "assets": {
+          "card_database_commit": "f89c9a4be9a5f193e29b788e3cf880563f4f79b4",
+          "card_scripts_commit": "c8e9c0bcd026a5ccc303bbc73881b8f86f818657",
+          "constant_sha256": "9fbd72bcd67fc9b2f987598d876e6cbc335bf48c7d968a68d1de7b91221af9e4",
+          "database_sha256": "c49a077285e1d999f32056cb65303b75e311e859b4486c48f41772a193069225",
+          "lock_id": "ocgcore-assets-202504-v1",
+          "utility_sha256": "ffef0a67fc2443067d4a1b8b93d5f700f08b186e978e3a03b145219f7c398c0d"
+        },
+        "core": {
+          "api": "11.0",
+          "binary_sha256": "03e360cf694f5ac6ba686de1d3bec7ccde3f3233d01bfe3265884a18ce1b9028",
+          "custom_patches": [],
+          "lock_id": "ocgcore-v11.0-win-x64-msvc-v1",
+          "source_commit": "158aebe758be3c46249c75d602e3f16d63d2ef31"
+        },
+        "fixture_script": {
+          "card_database_rows": [
+            {
+              "alias": 0,
+              "atk": 0,
+              "attribute": 16,
+              "def": 0,
+              "id": 97268402,
+              "level": 1,
+              "race": 2,
+              "setcode": 0,
+              "type": 4129
+            }
+          ],
+          "id": "action_activation_rollback_probe_v1",
+          "name": "c97268402.lua",
+          "purpose": "native_activation_setup_cancellation_probe",
+          "sha256": "4f9ebe609e760446b6b48318fad9379787acb70ab136f160b63a1c71bdc09986"
+        },
+        "instrumentation": {
+          "direct_random_trace": {
+            "enabled": true,
+            "instrumentation_id": "rnginst_5d3d5277a106e8e76d91255abb3f814a9a76d72e80ebacf3212d41c19b27fd4a",
+            "record_format": "prefix|draw_index|minimum|maximum|result",
+            "schema_version": "ocgcore-direct-random-trace-v2",
+            "script_name": "ygo_effect_dsl_direct_random_trace.lua",
+            "script_sha256": "88bcc50cdf2802e3e5c30b6e149516a5461b4161f894099ddb6f629d91a1b2df",
+            "transport": "ocgcore_log_handler_from_script_v1"
+          }
+        },
+        "project": {
+          "bridge_protocol": "ocgcore-api-11.0",
+          "replay_schema": "0.3a",
+          "snapshot_schema": "ocgcore-query-v1"
+        }
+      },
+      "initial_conditions": {
+        "deck_order_in_snapshot": true,
+        "fixed_hands": {
+          "0": [
+            97268402,
+            97268402
+          ],
+          "1": [
+            97268402
+          ]
+        },
+        "information_policy_id": "infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27",
+        "snapshot_hash": "state_c05527baaa52927fe3ef98a9c7c240c5a34ee7fdc30a0a6be0659fe4a8a4a7eb",
+        "snapshot_kind": "complete_information",
+        "starting_player": 0
+      },
+      "manifest_hash": "manifest_f01450e106a98a2e3e09ecb707707c549ce3d77a03e101bc43363b723b0babb9",
+      "missing_requirements": [],
+      "randomness": {
+        "core_seed": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "interruption_sampling": null,
+        "python_random_used": false,
+        "python_seed": null,
+        "trace_policy": "raw-core-frames-and-script-log-random-events-v3"
+      },
+      "reproducible": true,
+      "rules": {
+        "duel_flags": 0,
+        "forbidden_limited_list": "none-fixed-scenario",
+        "master_rule": "ocgcore-duel-flags:0",
+        "unsafe_lua_libraries": false
+      },
+      "schema_version": "ygo-replay-manifest-v1"
+    },
+    "rollback_supported": false,
+    "schema_version": "ocgcore-activation-rollback-probe-v1",
+    "status": "unsupported"
+  },
+  "raw_replay_contract": {
+    "classification": "parser_and_aggregation_contract",
+    "preserved": true,
+    "real_core_reachability_claim": false
+  },
+  "schema_version": "ocgcore-activation-rollback-audit-v1",
+  "source_audit": {
+    "functions": [
+      {
+        "exact_body_required": true,
+        "head_sha256": "df54229025f0e8beaee11917f75bb91fdcacd90e5ba0749ae44c104e6faa2b8b",
+        "markers_preserved": true,
+        "name": "add_chain",
+        "path": "processor.cpp",
+        "pinned_sha256": "df54229025f0e8beaee11917f75bb91fdcacd90e5ba0749ae44c104e6faa2b8b",
+        "relevant_contract_same": true,
+        "same_body": true,
+        "signature": "bool field::process(Processors::AddChain& arg)"
+      },
+      {
+        "exact_body_required": true,
+        "head_sha256": "a7b1dd7ffeba0b1098e79efe17cd3656fbfd48f2476a515707319a9c31120d92",
+        "markers_preserved": true,
+        "name": "execute_cost",
+        "path": "processor.cpp",
+        "pinned_sha256": "a7b1dd7ffeba0b1098e79efe17cd3656fbfd48f2476a515707319a9c31120d92",
+        "relevant_contract_same": true,
+        "same_body": true,
+        "signature": "bool field::process(Processors::ExecuteCost& arg)"
+      },
+      {
+        "exact_body_required": true,
+        "head_sha256": "34ecb10b24f39bfe4c140998190224c042c520de06129932b2a2f2710d90ce25",
+        "markers_preserved": true,
+        "name": "execute_target",
+        "path": "processor.cpp",
+        "pinned_sha256": "34ecb10b24f39bfe4c140998190224c042c520de06129932b2a2f2710d90ce25",
+        "relevant_contract_same": true,
+        "same_body": true,
+        "signature": "bool field::process(Processors::ExecuteTarget& arg)"
+      },
+      {
+        "exact_body_required": true,
+        "head_sha256": "a4f12c2f05d021052e79d21f13ec803c62c0fd7fa291cea80109ae498d543e1d",
+        "markers_preserved": true,
+        "name": "parse_response_cards",
+        "path": "playerop.cpp",
+        "pinned_sha256": "a4f12c2f05d021052e79d21f13ec803c62c0fd7fa291cea80109ae498d543e1d",
+        "relevant_contract_same": true,
+        "same_body": true,
+        "signature": "bool parse_response_cards("
+      },
+      {
+        "exact_body_required": false,
+        "head_sha256": "dd9fd8baa39feb6154765ba29c4d8fdc9e1df996003c10d6eb32818f0b184df3",
+        "markers_preserved": true,
+        "name": "push_return_cards",
+        "path": "scriptlib.cpp",
+        "pinned_sha256": "bdfcab0540af8b9204d1f47fc43a562d2623585e559ba854cfd44b9ebb42c3c8",
+        "relevant_contract_same": true,
+        "same_body": false,
+        "signature": "int32_t push_return_cards("
+      },
+      {
+        "exact_body_required": false,
+        "head_sha256": "2ee8b54c5c3757a4d2d13cfbceb27d4ba31c6720711654fa9dd44dd267c705cf",
+        "markers_preserved": true,
+        "name": "select_matching_card",
+        "path": "libduel.cpp",
+        "pinned_sha256": "999f8fbb977635b16c4d5c04ad06cb21277f2199065cfd57a7d78c41928accea",
+        "relevant_contract_same": true,
+        "same_body": false,
+        "signature": "LUA_STATIC_FUNCTION(SelectMatchingCard)"
+      }
+    ],
+    "observations": {
+      "add_chain_emits_msg_chained_after_cost_and_target": true,
+      "cancel_response_sets_return_cards_cancelled": true,
+      "execute_cost_and_target_do_not_signal_add_chain_rollback": true,
+      "lua_receives_nil_for_cancelled_card_selection": true
+    },
+    "source_flow_unchanged": true
+  },
+  "upstream": {
+    "commit_distance_from_release": 74,
+    "head": {
+      "api": "11.0",
+      "commit": "0764db0c75b3d1d574880d365aa3695ab1f13b43",
+      "commit_time": "2026-06-21T19:51:57+02:00",
+      "runtime_tested": false,
+      "source_flow_matches_pinned_release": true
+    },
+    "latest_release": {
+      "api": "11.0",
+      "commit": "158aebe758be3c46249c75d602e3f16d63d2ef31",
+      "runtime_tested": true,
+      "tag": "v11.0"
+    },
+    "release_tags": [
+      {
+        "commit": "12c0f8498acc2d76aabe5f08951baa610b8d89d2",
+        "tag": "v1.0"
+      },
+      {
+        "commit": "7d1046a1b06a8c6ce36580417041d0080af32ae2",
+        "tag": "v1.1"
+      },
+      {
+        "commit": "ebd49345730c1906899161c986d052fedceec98f",
+        "tag": "v1.2"
+      },
+      {
+        "commit": "763eee9dc79719aae38cced18f7860cb0c0d510c",
+        "tag": "v2.0"
+      },
+      {
+        "commit": "1abf58fd0a6b85978b714220740391c293e27638",
+        "tag": "v2.1"
+      },
+      {
+        "commit": "bf66a41242ce3c15b3808f8ac3f3082e8bd5efdf",
+        "tag": "v2.2"
+      },
+      {
+        "commit": "875cf813083d7c029eb57f14caf423aeb48d636b",
+        "tag": "v3.0"
+      },
+      {
+        "commit": "8bdaacc02fecb5775c6517aea45b07c9bf65caf5",
+        "tag": "v3.1"
+      },
+      {
+        "commit": "048fe9e96cd320f028f4ada274b48d65e36cc87e",
+        "tag": "v3.2"
+      },
+      {
+        "commit": "89ba9aea14c0e29c4f560539f1e415feb637e83c",
+        "tag": "v4.0"
+      },
+      {
+        "commit": "ff6af83573b456ed5a65ab5a43270ff92f9fe557",
+        "tag": "v4.1"
+      },
+      {
+        "commit": "55e52f88c5f4d662159108f2d56017fc36b47da2",
+        "tag": "v4.2"
+      },
+      {
+        "commit": "c6f41893a626e96b33b78525d0ebf66c11865a96",
+        "tag": "v4.3"
+      },
+      {
+        "commit": "8bdd15c5df430026a27a9061d8fe1feb63bffef0",
+        "tag": "v5.0"
+      },
+      {
+        "commit": "735526d96e4504856cb9af671cffcaf0f8f9b1d5",
+        "tag": "v5.1"
+      },
+      {
+        "commit": "cba9e38d2217c416d6d86b3ce8bba1f1412271b0",
+        "tag": "v6.0"
+      },
+      {
+        "commit": "68560d4ac6d91cd4d0aebd901eaef6e5c2fb4907",
+        "tag": "v6.1"
+      },
+      {
+        "commit": "4c9e8afbbb35cd0f96c695d81a57762b5a6062ce",
+        "tag": "v7.0"
+      },
+      {
+        "commit": "a3d3b08c564477cc34cfbd43def64931ff35ab7b",
+        "tag": "v8.0"
+      },
+      {
+        "commit": "552dd9962ff9f1e8abc0c82558d3da35246be8c1",
+        "tag": "v9.0"
+      },
+      {
+        "commit": "50eebfc0b1a6fbf36305b8773af2454b984301ff",
+        "tag": "v9.1"
+      },
+      {
+        "commit": "c4785633ba3d3aba6690b95cedc14d34d027ed21",
+        "tag": "v10.0"
+      },
+      {
+        "commit": "158aebe758be3c46249c75d602e3f16d63d2ef31",
+        "tag": "v11.0"
+      }
+    ],
+    "repository": "https://github.com/edo9300/ygopro-core.git"
+  }
+}

@@ -1,52 +1,33 @@
 # FAQ
 
-## Q. Wiki、Charter、仕様書のどれが正ですか？
+## DSLはカード効果を表しますか？
 
-A. 最上位方針は `docs/00_project_charter.md` です。詳細仕様の一次情報は `docs/spec/` です。Wikiは、方針と仕様を読みやすく案内するための日本語ガイドです。
+いいえ。現在のDSLは展開ルート情報を表します。カード効果はEDOPro Lua、合法手と状態遷移はocgcoreが担当します。
 
-## Q. v0.0とは何ですか？
+## なぜLuaをRoute DSLへ変換しないのですか？
 
-A. v0.0は研究用の変換ベースラインです。完全な遊戯王ルールエンジンではなく、カード効果テキストを安定したDSL構造へ変換し、検証・分析できる状態にすることを目的にしています。
+Luaはカード固有処理を実行するプログラムであり、Route DSLは実行後の選択履歴と分析結果を保存するデータです。目的と抽象度が異なります。Luaを別言語へ変換して再実行すると、二重実装と裁定差異が生じます。
 
-## Q. v0.0では何を重視していますか？
+## ReplayとRoute DSLの違いは何ですか？
 
-A. 意味解釈の完全性よりも、構造の安定性と診断可能性を重視しています。未解決の意味は無理に消さず、warningとして可視化します。
+Replayは再実行のための初期条件とAction履歴です。Route DSLはReplayにcheckpoint、Peak Board、評価、妨害、lineageを加えた探索成果物です。
 
-## Q. `actions[]` と `action` の違いは何ですか？
+## 同じルートを別の基準で評価できますか？
 
-A. `actions[]` がv0.0の正規表現です。`action` は古い互換用fallbackです。新しいconsumerやテストは `actions[]` を中心に扱うべきです。
+できます。成功条件と評価器のversionを分離し、Replay Action列を変えずに再評価します。評価時に必要な状態がcheckpoint要約だけで不足する場合はReplayで状態を再構築します。
 
-## Q. `validate` の warning は失敗ですか？
+## `validate-route` はルートの合法性を保証しますか？
 
-A. 失敗ではありません。`warning` はDSL構造としては読めるが、意味が未解決・曖昧・互換用であることを示します。CIや後続処理でまず重視するのは `errors=0` です。
+保証しません。schemaと参照整合性を検査します。合法性と状態遷移はReplay executorがocgcoreで検証します。
 
-## Q. 代表的な warning code は何ですか？
+## `transform` が出力するYAMLはRoute DSLですか？
 
-A. よく見るものは次の4つです。
+違います。v0.0の旧カードテキスト変換物です。互換確認用に残っていますが、探索runtimeへ接続しません。
 
-| Code | 意味 |
-| --- | --- |
-| `unknown_action` | action type が v0.0 の既知語彙にない |
-| `unresolved_target` | target selector が `unknown` のまま |
-| `missing_selector` | 対象を必要とするactionに selector 情報がない |
-| `legacy_action_fallback` | `actions[]` ではなく互換用 `action` に依存している |
+## Route DSLは手書きしますか？
 
-## Q. ETLとはどうつながっていますか？
+通常はSearch / Replay / Evaluationから自動生成します。手書きfixtureはcontract testと説明用に限定します。
 
-A. COREはETLが出力する `manifest.json` と `cards.jsonl` を入力として扱います。ETL内部のSQLiteには直接依存しません。
+## 実ocgcoreでルート探索できますか？
 
-## Q. DSL出力が変わったら何を確認すべきですか？
-
-A. まず `validate` で `errors=0` を確認します。次に `analyze` の action coverage、target解決率、warning件数を確認します。代表カードの出力が変わる場合は golden test の差分も確認します。
-
-## Q. golden fileはいつ更新しますか？
-
-A. DSL出力の変更が意図した仕様変更・辞書改善・transform改善である場合だけ更新します。偶然の差分をそのまま取り込まないように、更新後は `tests/golden/representative_cards/` を確認します。
-
-## Q. v0.1では何が増えますか？
-
-A. v0.1 の state/action semantics は過去の検討記録として残します。現在の境界契約ではありません。Bridge / Replay / Search / Evaluation は ocgcore / EDOPro Lua 由来の Message / DecisionRequest を入力にします。
-
-## Q. Python は遊戯王ルールを実装しますか？
-
-A. しません。ルール、合法手判定、状態遷移、Lua 実行の真実源は ocgcore / EDOPro Lua です。Python は Replay、探索制御、評価、統計、実験制御を担当します。既存DSL変換は legacy 互換機能であり、探索エンジンの入力ではありません。
+まだできません。現在はDecisionRequest、Action、Replay、Route DSLの最小契約まで実装済みで、実BridgeとReplay executorが次のマイルストーンです。

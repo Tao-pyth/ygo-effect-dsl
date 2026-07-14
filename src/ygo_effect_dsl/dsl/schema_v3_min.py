@@ -1,8 +1,10 @@
 """
-DSL V3 最小スキーマ（YAML保存形）
+Deprecated card-text artifact V3 minimum schema (YAML form).
 
 - version/cid/name/text/meta/effects を固定
 - effects は trigger→restriction→condition→cost→actions/action の骨を持つ
+
+This is not the Route DSL and must not be used to drive the game engine.
 """
 
 from __future__ import annotations
@@ -46,10 +48,13 @@ class Effect(TypedDict):
     action: NotRequired[dict[str, Any]]
 
 
-class CardDSL(TypedDict):
+class LegacyCardTextArtifact(TypedDict):
     version: int
     cid: int
     name: Name
     text: Text
     meta: dict[str, Any]
     effects: list[Effect]
+
+
+CardDSL = LegacyCardTextArtifact

@@ -1,133 +1,122 @@
 # ygo-effect-dsl
 
-`ygo-effect-dsl` は、遊戯王 OCG の展開探索、妨害耐性解析、リカバリ解析、デッキ評価を再現可能にするためのゲーム木探索エンジン基盤です。
+`ygo-effect-dsl` は、遊戯王OCGの展開ルートを探索し、妨害前後の到達盤面、リカバリ、デッキ性能を再現可能に比較するための基盤です。
 
-カード効果とルールの真実源は ocgcore / EDOPro Lua です。既存の DSL CORE は過去の実験由来の legacy / deprecated / removal target であり、探索エンジンの前段、補助分析基盤、Action 生成元として扱いません。
+本プロジェクトのDSLは **Route Information DSL（Route DSL）** です。Route DSLはカード効果を記述する言語ではなく、ocgcore / EDOPro Luaが実行したルートのAction履歴、途中盤面、Peak Board、評価、妨害分岐を保存・交換するデータ契約です。
 
-## V0.1 の位置付け
+## 名称と責務
 
-V0.1 は完成したゲームエンジンではありません。V0.1 の目的は、以後の破壊的変更を許容できるだけの設計方針を固定し、実行系を ocgcore / EDOPro Lua 中心へ移すことです。
+repository/distribution名 `ygo-effect-dsl`、Python import `ygo_effect_dsl`、CLI `ygo-effect-dsl` は互換性のため維持します。製品の説明は **Reproducible Yu-Gi-Oh! route search and Route Information DSL** です。名称判断とrename再検討条件は [ADR-0008](docs/adr/0008_project_name_and_boundary.md) に固定しています。
 
-V0.1 で確立するもの:
+無修飾のDSLはRoute DSLを指します。旧 `dsl` packageと `ingest / transform / validate / analyze` は **legacy card-text artifact pipeline** であり、Search engineやRoute DSLの入力にはしません。
 
-- `docs/00_project_charter.md` を最上位方針にする。
-- プロジェクトを DDD ではなく「ゲームエンジン + AI 探索」として設計する。
-- Python は遊戯王のルールを持たず、ルールの真実源を ocgcore / EDOPro Lua に置く。
-- Action、Replay、Bridge、Evaluation、Search の責務を分離する。
-- Replay 可能性、Peak Board、END_TURN、State Evaluation / Action Evaluation 分離を将来設計の前提にする。
-- 既存の DSL 変換、検証、分析機能は互換維持のため一時残置し、廃止対象として隔離する。
+## 原則
 
-V0.1 でまだ実装しないもの:
-
-- full chain / stack simulation
-- full opponent AI
-- full ocgcore bridge
-- full replay executor
-- full MCTS / Beam Search
-- all-card rules implemented in Python
-
-特に最後の項目は明確な非目標です。Python にルールを再実装しません。
-
-## 設計文書
-
-このリポジトリでは、実装より上位に文書を置きます。判断順序は次の通りです。
+- EDOPro Luaをカード効果の真実源とする。
+- ocgcoreを合法手判定、チェーン処理、状態遷移の真実源とする。
+- PythonはBridge、Replay、探索、評価、実験、統計を担当する。
+- カードごとの効果定義をPython DSLへ書き直さない。
+- Replayできないルートを正式な探索結果として扱わない。
+- 成功条件と盤面スコアを分離する。
+- 探索終了盤面だけでなく、途中の最良停止可能盤面をPeak Boardとして保存する。
 
 ```text
-Project Charter
-  ▼
-Architecture
-  ▼
-Specifications
-  ▼
-ADR
-  ▼
-Implementation
+EDOPro Lua + card data
+  -> ocgcore
+  -> Bridge / DecisionRequest
+  -> Action / Replay
+  -> Search / Evaluation
+  -> Route DSL
+  -> compare / aggregate / report / re-evaluate
 ```
 
-主要文書:
+## Route DSL
 
-- [Project Charter](docs/00_project_charter.md)
-- [Architecture](docs/10_architecture.md)
-- [Roadmap](docs/20_roadmap.md)
-- [Glossary](docs/30_glossary.md)
-- [Documentation Policy](docs/40_documentation_policy.md)
-- [ADR: Project Charter](docs/adr/0000_project_charter.md)
-- [ADR: Replay Baseline](docs/adr/0001_replay_baseline.md)
-- [ADR: Python Does Not Own Rules](docs/adr/0002_python_does_not_own_rules.md)
-- [ADR: Deprecate DSL CORE](docs/adr/0003_deprecate_dsl_core.md)
-- [V0.1 Overview](docs/spec/v0.1/00_overview.md)
-- [V0.1 Minimal Semantics](docs/spec/v0.1/10_minimal_semantics.md)
-- [V0.1 First 10 One-Step Applications](docs/spec/v0.1/20_first_10_applications.md)
-- [Bridge Overview](docs/bridge/00_overview.md)
-- [Bridge Messages](docs/bridge/10_messages.md)
-- [Replay Overview](docs/replay/00_overview.md)
-- [Replay Format](docs/replay/10_format.md)
-- [Representative Benchmark Policy](docs/spec/v0.0/60_representative_benchmark.md)
-- [Versioning And Release Policy](docs/release/00_versioning.md)
-- [Pending Local Commits Checklist](docs/release/10_pending_local_commits.md)
+Route DSLは次の情報を一つのルート成果物として保持します。
 
-## 現在の実装範囲
+- 実験条件、デッキ、初手、seed、使用アセットのversion
+- DecisionRequestに対して選択したAction列
+- Replay stepに対応する途中盤面と評価内訳
+- 停止可能な最良盤面であるPeak Board
+- 実際に探索を終了したTerminal Board
+- 成功条件の判定結果
+- 指定妨害と、その位置から分岐したリカバリルート
+- 親ルート、分岐stepなどのlineage
 
-現在のコードには、ETL 出力を受け取り、DSL YAML を生成し、検証と分析を行う legacy パイプラインが残っています。
+Route DSLはカード効果、対象処理、コスト、合法性を解釈しません。再実行時は内包するReplayをocgcoreへ適用し、記録済みの `request_signature` と実際のDecisionRequestが一致することを検証します。
 
-```text
-manifest.json / cards.jsonl
-  ▼
-ingest
-  ▼
-transform
-  ▼
-validate
-  ▼
-analyze
-  ▼
-reports / metrics
-```
+最小形は [examples/route_dsl/minimal_route.yaml](examples/route_dsl/minimal_route.yaml)、正式な責務は [Route DSL Overview](docs/route_dsl/00_overview.md)、fieldと不変条件は [Route DSL Schema 0.1](docs/route_dsl/10_schema.md) を参照してください。
 
-このパイプラインは既存テストと互換維持のため一時的に残します。探索エンジンの実行系入力、合法手判定、Action 生成元として使ってはいけません。
+## 現在地
 
-Primary Runtime Path:
+実装済み:
 
-```text
-ocgcore / EDOPro Lua
-  ▼
-Bridge
-  ▼
-Replay / Search / Evaluation
-```
+- pin済みocgcore / EDOPro Lua assetのbootstrap、検証、隔離worker実行
+- API v11 MessageからDecisionRequestとActionへの変換、安定ID、protocol失敗の検出
+- 完全Replay trace、fresh worker再生、canonical State ID、Peak / Terminal Board評価
+- Experiment validation / run / inspect / replay / reportとRoute DSL 0.1の保存・検証
+- 探索の終了、枝刈りguardrail、prefix cache、並列schedulerの独立contract
+- 実core workerのpool 1/2/4/8 stress、single-flight、crash/timeout/callback retry検証
+- ocgcore v11 native snapshot/cloneのsource auditと不採用guard（fresh Replayへ固定）
+- prefix cacheの4,096-entry/16 MiB校正、index write amplification、pool memory metadata
+- Route正規化、分岐説明、妨害target identity、親子Route比較
+- State差分から再計算できるversion付き資源消費vector/scalarとRoute自動ランキング
+- optional PyArrowによるversion付きParquet集計、partition、catalog公開、schema evolution guard
+- `core-interruption-candidate-policy-v1`による、core提示candidateだけを使う実core妨害選択
+- 対象なし手札`14558127`、コストあり手札`27204311`、field複数対象`10045474`のmatrix fixtureと、2妨害を順次追加する段階Route
+- `sampled_private_state`の決定論的な初手samplingと、妨害samplingから独立したReplay/State identity
+- `FailureRecord`によるpath停止、worker交換/retry、experiment中止の区別
 
-## 5 分で動かす
+未実装またはproduction検証前:
 
-ローカルにインストールします。
+- Random Search / Beam Search / MCTSをfrontierへ接続する一般探索executor
+- 任意カード・任意デッキを対象にしたscenario生成とasset網羅性
+- 検証済みmatrix/sequence fixture外の汎用妨害scenario生成とproduction探索
+- 発動無効、効果無効、タイミングを逃す処理の一般化
+- `ParallelTaskResult v2`契約
+- 複数デッキ・10万node級のproduction worker/cache予算校正
+- 大規模デッキ統計、比較レポートUI
+
+`examples/route_dsl/minimal_route.yaml` は契約確認用です。実core prototypeはpin済みocgcore上でmatrix、段階妨害、初手samplingを検証しますが、その成功を任意カード、発動無効・効果無効・タイミング処理、production規模へ一般化しません。real-core PlayerView Replayは未対応であり、生成要求をfail-closeします。未検証事項はGitHub Issueで追跡します。
+
+## セットアップ
 
 ```bash
 pip install -e .
+# Parquet analyticsも使う場合
+pip install -e ".[analytics]"
 ```
 
-サンプルデータセットを処理します。
+## 実行可能プロトタイプ
+
+固定初手・先攻1ターン・妨害なしの最小フローを、決定論的なscripted coreで実行できます。これは実ocgcoreやEDOPro Luaを実行するものではなく、Bridge差し替え前にDecisionRequest、Action、Replay、評価、Route DSLの接続を検証するための仮設実装です。
 
 ```bash
-python -m ygo_effect_dsl ingest --dataset examples/sample_dataset
-python -m ygo_effect_dsl transform --dataset examples/sample_dataset --out data/dsl_out
-python -m ygo_effect_dsl validate data/dsl_out/yaml
-python -m ygo_effect_dsl analyze data/dsl_out/yaml --out data/reports
+python -m ygo_effect_dsl prototype-run examples/prototype/fixed_hand_normal_summon.yaml --out data/prototype/route.yaml
+python -m ygo_effect_dsl prototype-verify examples/prototype/fixed_hand_normal_summon.yaml data/prototype/route.yaml
+python -m ygo_effect_dsl prototype-real-run --out data/prototype/real-core-route.yaml
+python -m ygo_effect_dsl prototype-real-verify data/prototype/real-core-route.yaml
+python -m ygo_effect_dsl prototype-real-stress --out docs/search/evidence/real_core_parallel_stress.json
+python -m ygo_effect_dsl.spikes.direct_random_trace_evidence --out docs/ocgcore/evidence/direct_random_trace.json
+python -m ygo_effect_dsl.spikes.action_aggregation_edge_evidence --out docs/ocgcore/evidence/action_aggregation_edges.json
+python -m ygo_effect_dsl.spikes.resource_consumption_evidence --out docs/evaluation/evidence/resource_consumption.json
+python -m ygo_effect_dsl experiment-run examples/experiments/real_core_effect_veiler_interrupted.yaml --out data/prototype/interrupted.route.yaml
+python -m ygo_effect_dsl experiment-replay examples/experiments/real_core_effect_veiler_interrupted.yaml data/prototype/interrupted.route.yaml
 ```
 
-主な出力:
+`prototype-verify`は別プロセスで同じシナリオを再実行し、DecisionRequest署名、Action ID、state hash、評価、Route IDを含むRoute DSL全体の一致を検査します。仮設契約の要検証事項はGitHub Issueで管理します。
 
-- DSL YAML: `data/dsl_out/yaml/*.yaml`
-- Transform reports: `data/dsl_out/reports/`
-- Analyze report: `data/reports/analysis_report.json`
-
-合成カードによる smoke fixture も利用できます。
+Route DSLサンプルを検証します。
 
 ```bash
-python -m ygo_effect_dsl ingest --dataset examples/synthetic_test_cards
-python -m ygo_effect_dsl transform --dataset examples/synthetic_test_cards --out data/synthetic_dsl
-python -m ygo_effect_dsl validate data/synthetic_dsl/yaml
+python -m ygo_effect_dsl validate-route examples/route_dsl/minimal_route.yaml
 ```
 
-## 開発ループ
+期待する出力:
+
+```text
+validate-route: ok route_id=route_example_normal_summon
+```
 
 テストを実行します。
 
@@ -135,71 +124,49 @@ python -m ygo_effect_dsl validate data/synthetic_dsl/yaml
 python -m pytest
 ```
 
-代表カードの golden snapshot を意図的に更新する場合だけ、次を使います。
+## 文書
 
-```powershell
-$env:YGO_UPDATE_GOLDEN="1"
-python -m pytest tests/test_representative_golden.py
-Remove-Item Env:\YGO_UPDATE_GOLDEN
-```
+- [Project Charter](docs/00_project_charter.md)
+- [Architecture](docs/10_architecture.md)
+- [Roadmap](docs/20_roadmap.md)
+- [Glossary](docs/30_glossary.md)
+- [Route DSL Overview](docs/route_dsl/00_overview.md)
+- [Route DSL Schema 0.1](docs/route_dsl/10_schema.md)
+- [ADR-0004: Route Information DSL](docs/adr/0004_route_information_dsl.md)
+- [ADR-0008: Project name and boundary](docs/adr/0008_project_name_and_boundary.md)
+- [Bridge DecisionRequest](docs/spec/v0.3a/10_bridge_decision_request.md)
+- [Action](docs/spec/v0.3a/20_action.md)
+- [Replay Determinism](docs/spec/v0.3a/30_replay_determinism.md)
+- [Peak Board](docs/spec/v0.3a/50_peak_board.md)
+- [Evaluation and Experiment](docs/spec/v0.3a/60_evaluation_experiment.md)
 
-Golden 更新は機械的に行わず、Action、Target、Cost、Restriction、Diagnostics、Analyze metrics の変化を確認してからコミットします。
+文書の優先順位は `Project Charter -> Architecture -> Specifications -> ADR -> Implementation` です。
 
-## Windows exe Artifact
+## 旧カードテキスト変換
 
-Pull request と push では GitHub Actions が pytest を実行し、その後 PyInstaller で Windows x64 executable をビルドします。成果物名は `ygo-effect-dsl-win64` です。
+v0.0で実装した `ingest / transform / validate / analyze` は、カード効果テキストを構造化する過去の研究機能です。現在は **legacy card-text artifact pipeline** と呼び、移行期間の互換確認用にのみ残しています。
 
-Python をインストールせずに artifact を試す場合の例:
+この出力はRoute DSLではなく、探索用Action、合法手、状態遷移、補助的なルール推論の入力にも使用しません。旧機能を保守する場合の仕様は `docs/spec/v0.0/` に歴史資料として残しています。
 
-```powershell
-.\ygo-effect-dsl.exe ingest --dataset examples/sample_dataset
-.\ygo-effect-dsl.exe transform --dataset examples/sample_dataset --out data/dsl_out
-.\ygo-effect-dsl.exe validate data/dsl_out/yaml
-.\ygo-effect-dsl.exe analyze data/dsl_out/yaml --out data/reports
-```
+## 対象範囲
 
-## Analyze Metrics
+目標:
 
-`analyze` は legacy DSL CORE の互換確認用フィードバックです。
+- 固定初手・ランダム初手からの展開探索
+- 任意停止を含むPeak Boardの抽出
+- ルート保存、再生、比較、再評価
+- 指定妨害の注入とリカバリ探索
+- 初動率、事故率、成功率、妨害耐性の集計
+- 同一条件によるデッキ構築比較
 
-- `stats.action_type_coverage`: 変換が出力している action type
-- `stats.targets_count.resolution_rate`: `target_id` が `targets[]` に解決できている割合
-- `stats.unmatched_fragments_top`: 辞書ルールが拾えていない頻出断片
-- `quality.empty_block_ratio`: 空の semantic block の比率
-- `validation.severity_counts` / `validation.code_counts`: 診断の重大度とコード
+初期段階の対象外:
 
-これらは既存DSL機能の互換確認に限って利用します。Search Engine の品質や入力妥当性の根拠にはしません。
-
-## Scope
-
-Included:
-
-- ETL export artifact の ingest
-- DSL YAML への transform
-- DSL contract validation
-- conversion quality analysis
-- representative benchmark と golden regression
-- legacy DSL CORE の廃止方針の明文化
-- game engine / AI search へ向けた Bridge / Replay 設計基盤
-
-Excluded for now:
-
-- API fetching
-- image downloading
-- ETL SQLite database への直接依存
-- Python による遊戯王ルール再実装
-- full ocgcore bridge
-- full chain / stack simulation
-- full opponent interaction modeling
-
-## Input Contract
-
-CORE は ETL export artifact を入力とします。
-
-- `manifest.json`
-- `cards.jsonl`
-
-これらは `ygo-effect-dsl-etl` から生成されます。CORE は ETL SQLite database を直接読みません。
+- Pythonによる遊戯王ルール再実装
+- カードごとの効果DSL作成
+- 完全な対戦AI
+- 相手の最適妨害タイミングの自動探索
+- 勝率予測
+- 人間向けデュエル画面
 
 ## License
 

@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Tao-pyth/ygo-effect-dsl/experiment.schema.json",
+  "title": "ygo-effect-dsl Experiment v0.3b",
+  "type": "object",
+  "required": [
+    "schema_version", "experiment_id", "objective", "deck", "player",
+    "turn_limit", "information_mode", "information_policy", "evaluate_at", "success_predicate",
+    "evaluator", "search", "interruption", "replay"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.3b"},
+    "experiment_id": {"type": "string", "minLength": 1},
+    "objective": {"type": "string", "minLength": 1},
+    "deck": {
+      "type": "object",
+      "required": ["id", "source"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "source": {"enum": ["fixed", "inline", "ydk"]}
+      }
+    },
+    "player": {
+      "type": "object",
+      "required": ["starting_player", "perspective"],
+      "properties": {
+        "starting_player": {"enum": [0, 1]},
+        "perspective": {"enum": [0, 1]}
+      }
+    },
+    "turn_limit": {"type": "integer", "minimum": 1},
+    "information_mode": {"enum": ["complete_information", "player_view", "sampled_private_state"]},
+    "information_policy": {
+      "type": "object",
+      "required": ["schema_version", "policy_id", "deck_order", "opening_hand", "sampling_reference"],
+      "properties": {
+        "schema_version": {"const": "information-policy-v1"},
+        "policy_id": {"type": "string", "pattern": "^infopol_[0-9a-f]{64}$"},
+        "deck_order": {"enum": ["known", "unknown"]},
+        "opening_hand": {"enum": ["natural", "fixed", "probability_distribution"]},
+        "sampling_reference": {"type": ["object", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "evaluate_at": {"type": "string", "minLength": 1},
+    "success_predicate": {"$ref": "#/$defs/plugin"},
+    "evaluator": {"$ref": "#/$defs/plugin"},
+    "search": {
+      "type": "object",
+      "required": ["strategy", "budget"],
+      "properties": {
+        "strategy": {"type": "string", "minLength": 1},
+        "budget": {
+          "type": "object",
+          "anyOf": [{"required": ["max_nodes"]}, {"required": ["max_seconds"]}],
+          "properties": {
+            "max_nodes": {"type": "integer", "minimum": 1},
+            "max_seconds": {"type": "number", "exclusiveMinimum": 0}
+          }
+        },
+        "parameters": {"type": "object"}
+      }
+    },
+    "interruption": {
+      "type": "object",
+      "required": ["mode", "definitions"],
+      "properties": {
+        "mode": {"enum": ["none", "scripted", "sampled"]},
+        "sampling": {
+          "type": "object",
+          "required": ["schema_version", "sampler_id", "seed"],
+          "properties": {
+            "schema_version": {"const": "interruption-sampling-v1"},
+            "sampler_id": {"const": "stable-digest-mod-v1"},
+            "seed": {"type": "integer", "minimum": 0}
+          }
+        },
+        "definitions": {"type": "array", "items": {"type": "object", "required": ["id"]}}
+      }
+    },
+    "replay": {
+      "type": "object",
+      "required": ["strict_versions"],
+      "properties": {"strict_versions": {"type": "boolean"}}
+    },
+    "runner": {
+      "type": "object",
+      "required": ["adapter", "scenario_id"],
+      "properties": {
+        "adapter": {"type": "string", "minLength": 1},
+        "scenario_id": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "$defs": {
+    "plugin": {
+      "type": "object",
+      "required": ["id", "version", "config"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "config": {"type": "object"}
+      }
+    }
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "attribution_id": "cardattr_53ffa37f44e180ed324f8df6b282854694cebffd8095eceafbd6c6c38779b9af",
+  "baseline": {
+    "candidate_instance_ids": [],
+    "comparison_id": "intcompare_337a809e971b060541c13bb471fd13e6c5c6ccb0f8d0d3d6773ba7bc13195fad",
+    "control_route_id": "route_1cb1832621446b60cbbd8f8022062017283c3de4967a59a46344936272400d50",
+    "control_success": true,
+    "interrupted_route_id": "route_ed71543792c92a894d420b353481d244af630f08147b5d2b0f95ae20d562c435",
+    "interrupted_success": false,
+    "trial_id": "baseline_no_additional_card"
+  },
+  "counterfactual": {
+    "method": "paired-exact-replay-2x2-v1",
+    "trials": [
+      {
+        "candidate_instance_ids": [
+          "cardinst_bc18c7bf2e6894cf806358cfcc35179d6bc8214f460883d1efc652532ab06a9d"
+        ],
+        "card_effect_under_interruption": 1,
+        "comparison_id": "intcompare_9db4d859ebc0ed4cf5afa32cc88fa2da5e592843644f1a37be8bec16496a94ba",
+        "control_effect": 0,
+        "control_route_id": "route_ff64bdd95356b321bd1361e879f14e2db31ef2e2a1cea347bd313fc1bf8becc4",
+        "control_success": true,
+        "difference_in_differences": 1,
+        "interrupted_route_id": "route_e66b81098cad08c428ca8d19b6c3711acd4a530ca9331a30ce940265af17c53d",
+        "interrupted_success": true,
+        "trial_id": "recovery_card_23434538"
+      }
+    ]
+  },
+  "information_scope": {
+    "candidate_owner": 0,
+    "mode": "complete_information",
+    "opponent_hidden_identifiers_embedded": false,
+    "perspective": 0,
+    "publication_boundary": "candidate_provenance_only"
+  },
+  "instance_identity_scope": {
+    "duplicate_same_code_policy": "reject_ambiguous",
+    "hand_sequence_may_compact": true,
+    "matching_method": "unique-card-code-within-candidate-scope-v1"
+  },
+  "minimal_required_sets": [
+    [
+      "cardinst_bc18c7bf2e6894cf806358cfcc35179d6bc8214f460883d1efc652532ab06a9d"
+    ]
+  ],
+  "origin_taxonomy": [
+    "fixed_opening_hand",
+    "draw",
+    "search",
+    "salvage",
+    "generated_token",
+    "opponent"
+  ],
+  "provenance": [
+    {
+      "card_code": 23434538,
+      "initial_observations": [
+        {
+          "control_route_id": "route_ff64bdd95356b321bd1361e879f14e2db31ef2e2a1cea347bd313fc1bf8becc4",
+          "initial_location": "hand",
+          "initial_sequence": 1,
+          "interrupted_route_id": "route_e66b81098cad08c428ca8d19b6c3711acd4a530ca9331a30ce940265af17c53d"
+        }
+      ],
+      "instance_id": "cardinst_bc18c7bf2e6894cf806358cfcc35179d6bc8214f460883d1efc652532ab06a9d",
+      "manifest_evidence": [
+        {
+          "control_route_id": "route_ff64bdd95356b321bd1361e879f14e2db31ef2e2a1cea347bd313fc1bf8becc4",
+          "interrupted_route_id": "route_e66b81098cad08c428ca8d19b6c3711acd4a530ca9331a30ce940265af17c53d",
+          "source": "replay.manifest.initial_conditions.fixed_hands"
+        }
+      ],
+      "matching_method": "unique-card-code-within-candidate-scope-v1",
+      "origin_kind": "fixed_opening_hand",
+      "owner": 0,
+      "schema_version": "card-instance-provenance-v1",
+      "usage_evidence": [
+        {
+          "action_id": "act_f13fb76a8eca1c649e4390131f929de95c7ff2eeae711e96b0baa53ed71d84c5",
+          "action_kind": "ACTIVATE_EFFECT",
+          "card_ref": {
+            "controller": 0,
+            "instance_id": null,
+            "location": "hand",
+            "owner": 0,
+            "public_card_id": 23434538,
+            "sequence": 0
+          },
+          "reference_role": "source",
+          "step": 9
+        },
+        {
+          "action_id": "act_f13fb76a8eca1c649e4390131f929de95c7ff2eeae711e96b0baa53ed71d84c5",
+          "action_kind": "ACTIVATE_EFFECT",
+          "card_ref": {
+            "controller": 0,
+            "instance_id": null,
+            "location": "hand",
+            "owner": 0,
+            "public_card_id": 23434538,
+            "sequence": 0
+          },
+          "reference_role": "selection",
+          "step": 9
+        }
+      ]
+    }
+  ],
+  "schema_version": "additional-card-attribution-v1",
+  "status": "verified_minimal_required_sets",
+  "subset_coverage_missing": [],
+  "target_board": "peak_board"
+}

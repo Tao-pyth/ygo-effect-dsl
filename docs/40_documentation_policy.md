@@ -1,132 +1,52 @@
 # Documentation Policy
 
-This project separates formal contracts from supporting notes so contributors
-can tell which documents define behavior and which documents explain context.
-
 ## Purpose
 
-`ygo-effect-dsl` is being stabilized as a research CORE for converting
-Yu-Gi-Oh! effect text into DSL, validating the result, and analyzing conversion
-quality. From V0.1 onward, documentation also establishes the path from DSL
-conversion toward a future game engine + AI search system. Documentation
-therefore has three jobs:
+文書はRoute DSL、ocgcore境界、Replay、探索、評価、実験の契約を実装と同期させる。現在の無修飾の「DSL」はRoute DSLを意味する。旧カードテキスト変換を扱う場合は、必ず `legacy card-text artifact` または「旧カードテキスト変換物」と明記する。
 
-- preserve formal contracts that tests, golden snapshots, and releases depend on
-- keep design notes and Japanese explanations easy to read while the project is
-  still changing quickly
-- keep long-term engine/search decisions aligned with the Project Charter
+## Authority
 
-## docs/ Is The Formal Area
-
-Use `docs/` for material that defines or constrains project behavior.
-
-Examples:
-
-- DSL grammar and schema expectations
-- transform, validate, and analyze contracts
-- dictionary and ruleset format
-- v0.0 and v0.1 semantics
-- ADRs that record accepted technical decisions
-- release-facing documentation that should be reviewed with code changes
-
-Changes under `docs/` should be treated as reviewable project behavior. If a
-change alters DSL shape, diagnostics, golden fixtures, analyzer output, or
-release policy, update the relevant spec or changelog in the same work item.
-
-Recommended formal structure:
+判断の優先順位は次の通りとする。
 
 ```text
-docs/
-  00_project_charter.md
-  10_architecture.md
-  20_roadmap.md
-  30_glossary.md
-  40_documentation_policy.md
-  adr/
-  contract/
-  spec/
-    v0.0/
-    v0.1/
-  release/
-  validation/
+Project Charter
+  -> Architecture
+  -> Specifications
+  -> ADR
+  -> Implementation
 ```
 
-## File Naming Rule
+READMEとWikiは入口であり、上位文書と矛盾してはならない。
 
-Markdown documents under `docs/` and `wiki/` should use a two-digit ordering
-prefix:
+## Formal Documentation
 
-```text
-00_most_important.md
-10_next_topic.md
-20_follow_up_topic.md
-```
+`docs/` はプロジェクトの動作と設計を制約する正式領域である。
 
-Use `00_` for the entry point or most important file in each folder. Prefer
-increments of 10 for stable documents so new files can be inserted later without
-renaming the whole folder. Use high numbers such as `90_` or `99_` for
-brainstorming notes, templates, and support material.
+- `00_project_charter.md`: 目的、原則、責務、機能範囲
+- `10_architecture.md`: コンポーネント境界と依存方向
+- `20_roadmap.md`: 実装順序と完了条件
+- `30_glossary.md`: 現行用語
+- `route_dsl/`: Route DSLの現行契約
+- `spec/v0.3a/`: Bridge、Action、Replay、State、Peak Board、Evaluation契約
+- `adr/`: 重要な設計判断
+- `spec/v0.0`, `spec/v0.1`: 旧カードテキスト変換の歴史資料
 
-Do not apply this rule to Python modules, pytest files, GitHub workflow files,
-ADR files, or data contract files such as `manifest.json` and `cards.jsonl`,
-because those names are controlled by language, tool, or decision-log
-conventions. ADR files keep the existing four-digit sequence such as
-`0000_project_charter.md`.
+## Supporting Documentation
 
-The existing `docs/spec/` tree is the source of truth for versioned DSL behavior.
-Future GitHub Pages publishing should prefer `docs/` as the input tree because
-it is versioned, reviewable, and tied to releases.
+`wiki/` は日本語オンボーディング、例、FAQなどの補助領域である。正式なfieldや不変条件をWikiだけで定義しない。
 
-## wiki/ Is The Supporting Area
+## Change Rules
 
-Use `wiki/` for context that helps people understand the project without
-turning every note into a formal contract.
+- Route DSL shapeを変更する場合はschema version、migration要否、fixture、validator testを同時に更新する。
+- DecisionRequest、Action、Replay fieldを変更する場合はRoute DSLへの影響を確認する。
+- Evaluation fieldを変更する場合はevaluator versionと再評価互換性を確認する。
+- 旧カードテキスト変換を変更する場合は現行Route DSL変更と混同せず、歴史仕様側へ記録する。
+- 実装済みと計画中を明示し、mock fixtureを実デュエル出力と表現しない。
 
-Examples:
+## Naming
 
-- Japanese onboarding notes
-- roadmap explanations
-- brainstorming summaries
-- contributor guides
-- design background
-- examples written for learning rather than specification
+Markdownは原則として各folder内で `00_`, `10_`, `20_` の順序prefixを使う。ADRは4桁連番を維持する。データ契約やPython moduleは各tool / languageの命名規則を優先する。
 
-The repository `wiki/` directory is not assumed to sync automatically with
-GitHub Wiki. Treat it as versioned supporting material stored in the repo.
+## Practical Test
 
-Recommended supporting structure:
-
-```text
-wiki/
-  00_Home.md
-  10_Getting-Started.md
-  20_Concepts.md
-  30_Spec-Index.md
-  40_Spec-Status.md
-```
-
-## Migration Rule
-
-Do not delete existing Markdown while reorganizing documentation. Move or link
-documents in small batches, and preserve enough redirect/context text that a new
-Japanese contributor can follow why the file moved.
-
-When moving a document, record:
-
-- previous location
-- new location
-- whether the document is formal contract or supporting explanation
-- related issue or pull request
-
-## GitHub Pages Direction
-
-GitHub Pages should eventually publish the formal documentation from `docs/`.
-The first Pages version should be simple: a static site generated from the
-versioned spec and contract files. Publishing `wiki/` can be considered later,
-but it should not be required for formal DSL contract review.
-
-## Practical Rule For Contributors
-
-If a document answers "what does the tool promise?", put it in `docs/`.
-If it answers "why are we thinking this way?" or "how should I learn this?",
-put it in `wiki/`.
+文書が「ツールは何を保証するか」に答えるなら `docs/` に置く。「なぜこの設計か」「どう学ぶか」に答えるなら `wiki/` に置く。

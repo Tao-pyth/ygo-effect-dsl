@@ -19,15 +19,19 @@ class Candidate:
     effect_ref: dict[str, Any] | None = None
     payload: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_identity_dict(self) -> dict[str, Any]:
         return {
             "candidate_id": self.candidate_id,
             "card_ref": self.card_ref,
             "effect_ref": self.effect_ref,
             "kind": self.kind,
-            "label": self.label,
             "payload": self.payload,
         }
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = dict(self.to_identity_dict())
+        payload["label"] = self.label
+        return payload
 
 
 @dataclass(frozen=True)
@@ -83,7 +87,7 @@ class DecisionRequest:
 
     def to_signature_dict(self) -> dict[str, Any]:
         return {
-            "candidates": [candidate.to_dict() for candidate in self.candidates],
+            "candidates": [candidate.to_identity_dict() for candidate in self.candidates],
             "constraints": self.constraints.to_dict(),
             "context": self.context.to_dict(),
             "player": self.player,
@@ -97,6 +101,7 @@ class DecisionRequest:
 
     def to_dict(self) -> dict[str, Any]:
         payload = dict(self.to_signature_dict())
+        payload["candidates"] = [candidate.to_dict() for candidate in self.candidates]
         payload["request_id"] = self.request_id
         payload["request_signature"] = self.request_signature
         return payload
@@ -119,25 +124,39 @@ class DecisionResponse:
 
 
 def validate_decision_response(request: DecisionRequest, response: DecisionResponse) -> None:
+    context = {"request": request.to_dict(), "response": response.to_dict()}
+
+    def invalid(message: str) -> InvalidBridgeResponseError:
+        return InvalidBridgeResponseError(message, context=context)
+
     if response.request_id != request.request_id:
-        raise InvalidBridgeResponseError("response.request_id does not match request.request_id")
+        raise invalid("response.request_id does not match request.request_id")
     if response.request_signature != request.request_signature:
-        raise InvalidBridgeResponseError("response.request_signature does not match request.request_signature")
+        raise invalid(
+            "response.request_signature does not match request.request_signature"
+        )
 
     candidate_ids = {candidate.candidate_id for candidate in request.candidates}
     selected = list(response.selected_candidate_ids)
     unknown = sorted(candidate_id for candidate_id in selected if candidate_id not in candidate_ids)
     if unknown:
-        raise InvalidBridgeResponseError(f"response selected unknown candidates: {unknown}")
+        raise invalid(f"response selected unknown candidates: {unknown}")
 
     constraints = request.constraints
     if len(selected) < constraints.min_selections:
-        raise InvalidBridgeResponseError("response selected fewer candidates than constraints.min_selections")
+        raise invalid(
+            "response selected fewer candidates than constraints.min_selections"
+        )
     if len(selected) > constraints.max_selections:
-        raise InvalidBridgeResponseError("response selected more candidates than constraints.max_selections")
+        raise invalid(
+            "response selected more candidates than constraints.max_selections"
+        )
     if not constraints.allow_duplicates and len(selected) != len(set(selected)):
-        raise InvalidBridgeResponseError("response selected duplicate candidates")
+        raise invalid("response selected duplicate candidates")
 
     # Keep payload opaque, but force it through canonical conversion so invalid
     # non-JSON-like values fail close to the bridge boundary.
-    to_canonical_data(response.payload)
+    try:
+        to_canonical_data(response.payload)
+    except (TypeError, ValueError) as exc:
+        raise invalid(str(exc)) from exc

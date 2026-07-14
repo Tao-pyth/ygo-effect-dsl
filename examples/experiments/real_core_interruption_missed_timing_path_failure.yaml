@@ -1,0 +1,101 @@
+schema_version: "0.3b"
+experiment_id: prototype_interruption_missed_timing_path_failure
+objective: real_core_optional_trigger_absence_boundary
+deck: {id: interruption_missed_timing_fixture, source: fixed}
+player: {starting_player: 0, perspective: 0}
+turn_limit: 2
+information_mode: complete_information
+information_policy:
+  schema_version: information-policy-v1
+  policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+  deck_order: known
+  opening_hand: fixed
+  sampling_reference: null
+evaluate_at: legal_stop
+durability_evaluate_at: opponent_main1_after_end_phase_and_turn_start_processing
+success_predicate:
+  id: real_core_min_monster_count
+  version: "1"
+  config: {player: 0, zone: monster_zone, min_count: 1}
+evaluator:
+  id: real_core_board_count
+  version: "1"
+  config:
+    hand_weight: 1
+    missing_value_policy: error
+    monster_weight: 10
+    temporary_value_policy: exclude_expired_or_unverified_v1
+search:
+  strategy: scripted_real_core
+  budget: {max_nodes: 32}
+  parameters: {}
+interruption:
+  mode: scripted
+  definitions:
+    - id: missed_timing_setup_v1
+      interruption_type: missed_timing_setup
+      source_player: 1
+      source_card_code: 10045474
+      base_route_id: route_e49f6294d301e78c326465e24310d59a77caa82f0d7cc0b6856c6634d40b7a2d
+      target:
+        action_id: act_7b138cbc3dfc32e139089c534cc01fc8cfaf3af4545aa4af67957e2e0467e756
+        action_occurrence_id: aocc_97c04de1345b162a10325aceb1cb5405ca01543258faf2933dd72dc102ec9079
+        chain_index: 1
+        effect_ref: null
+        player: 1
+        request_signature: req_f808482d9654a8584a1faba251a228b6fe40027a592a3d15fadd7b9695cb85bd
+        schema_version: interruption-target-v1
+        source: null
+        state_hash_before: state_e501c45cd55d75105a3c76ec554ffef34431639e945b3c766e5a56e2a5ba7cfb
+        step: 5
+        target_id: inttarget_3f0944962b8bd1c2902c544dedcedcd1cab712dee186302bb92e7075f277e609
+        turn: 1
+        turn_action_index: 5
+      candidate_policy:
+        schema_version: core-interruption-candidate-policy-v1
+        activation:
+          schema_version: core-interruption-step-v1
+          role: activation
+          request_type: select_chain
+          player: 1
+          selection_count: 1
+          selector:
+            kind: effect
+            card_ref: {controller: 1, location: 8, public_card_id: 10045474}
+        responses: []
+    - id: missed_optional_trigger_v1
+      interruption_type: missed_optional_trigger
+      source_player: 0
+      source_card_code: 91800273
+      base_route_id: route_bdfc3b2c63822fd00988dc80a93db97b68753a56a4072c59dab073292c3bba0b
+      target:
+        action_id: act_4dc313540b880cb1567d3feef4d1de689010c704e45dcd3c1ec33debae9279a7
+        action_occurrence_id: aocc_72c4ad87629b94f1bdc87b5e2e3a63588793b1da16e7fe5ada87e3784400ff3c
+        chain_index: 0
+        effect_ref: null
+        player: 0
+        request_signature: req_616924be6e345483c5b7f4e8987c4a3da3cdda7241fc7023afde5788764901e6
+        schema_version: interruption-target-v1
+        source: null
+        state_hash_before: state_2423cdfe96d534a2fe80dffdaac900238bd045e5ffb34e772e88783ab67dc0e0
+        step: 8
+        target_id: inttarget_aa3886cb62d22f73fe0ba33b75054ec3d88cd2699a89cc7f0bf7a45b19ff5d72
+        turn: 1
+        turn_action_index: 8
+      candidate_policy:
+        schema_version: core-interruption-candidate-policy-v1
+        activation:
+          schema_version: core-interruption-step-v1
+          role: activation
+          request_type: select_effect_yes_no
+          player: 0
+          selection_count: 1
+          selector:
+            kind: effect
+            card_ref: {controller: 0, location: 16, public_card_id: 91800273}
+        responses: []
+replay: {strict_versions: true}
+runner:
+  adapter: real_core_prototype
+  fixture_script_id: interruption_missed_timing_v1
+  scenario_id: real_core_interruption_missed_timing_v1

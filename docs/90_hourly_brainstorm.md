@@ -11,7 +11,7 @@
 - v0.0 stabilization: DSL 出力が測定可能で、回帰を検出できる状態に近づいているか。
 - analyze / validate: 次に直すべき dictionary、transform、contract の課題が出力から読めるか。
 - representative benchmark / golden: 代表カードと golden test が意図しない DSL 変更を検出できるか。
-- `actions[]` / `targets[]`: legacy DSL CORE の変換品質として観測できるか。探索エンジン入力とは扱わない。
+- `actions[]` / `targets[]`: legacy card-text artifactの変換品質として観測できるか。Route DSLや探索エンジン入力とは扱わない。
 - v0.1 connection: 過去の state/action semantics 検討と現在の ADR-0003 の廃止方針が混同されていないか。
 - 日本語での追跡性: 新人日本語プログラマーが、課題、根拠、次に見るファイルを追えるか。
 

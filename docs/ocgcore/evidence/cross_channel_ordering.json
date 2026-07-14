@@ -1,0 +1,197 @@
+{
+  "checks": {
+    "canonical_order_is_explicitly_not_emission_order": true,
+    "mixed_channels_share_one_process_call": true,
+    "pinned_core_has_no_public_shared_sequence": true,
+    "upstream_core_has_no_public_shared_sequence": true
+  },
+  "decision": {
+    "actual_cross_channel_chronology": "unavailable_without_core_patch",
+    "canonical_storage_order": [
+      "script_log_callback_by_log_sequence",
+      "core_message_buffer_by_frame_index"
+    ],
+    "custom_core_patch": false,
+    "replay_trace_schema_changed": false
+  },
+  "evidence_id": "crossordev_cc63af77cfd44803a17f735a9e8378b97739daec6dfd92c5347cd89131ef7d4f",
+  "fixture": {
+    "card_code": 97268402,
+    "probe_script_name": "ygo_effect_dsl_mixed_channel_probe.lua",
+    "probe_script_sha256": "750a69f8332c3907d8e25a2c06eb943b2cfc6e9b79d3ecf23a2c27fbf3cf8997",
+    "seed": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "mixed_process_batch": {
+    "core_message_hex": [
+      "0400000082000100"
+    ],
+    "logs": [
+      {
+        "log_index": 0,
+        "log_type": "from_script",
+        "message": "YGO_EFFECT_DSL_RNG_V2|1|0|6|5",
+        "message_sha256": "56d4e6d283f5feec981bc3444fd451235e82c8d460e7a70f2a7dad390d7cb49b",
+        "sequence": 0
+      }
+    ],
+    "native_call_index": 0,
+    "native_calls_until_request": 7,
+    "native_process_call_count": 1,
+    "native_status": "continue",
+    "ordering": {
+      "canonical_storage_order": [
+        "script_log_callback_by_log_sequence",
+        "core_message_buffer_by_frame_index"
+      ],
+      "cross_domain_chronology": "unavailable",
+      "domains": [
+        {
+          "coordinate_field": "log_sequence",
+          "coordinates": [
+            0
+          ],
+          "domain": "script_log_callback",
+          "event_ids": [
+            "rnd_bd196d146fbe48d4e0a4b3a8634fd84db035c784da07bbda2076727ac6d1c97d"
+          ]
+        },
+        {
+          "coordinate_field": "frame_index",
+          "coordinates": [
+            0
+          ],
+          "domain": "core_message_buffer",
+          "event_ids": [
+            "rnd_be7d877e2ea9fc25aa553e1f2bd8e808964ef1a734dbbac8a99f70f6db5fe25e"
+          ]
+        }
+      ],
+      "native_process_call_count": 1,
+      "ordering_id": "crossord_c241a1d1f3dc6e0da0059f3cf90f1f0d79443f22876056119aee182ceb9bc946",
+      "schema_version": "ocgcore-cross-channel-ordering-v1",
+      "scope": "single_ocg_duel_process_call",
+      "semantics": "canonical_storage_order_is_not_observed_emission_order"
+    },
+    "random_events": [
+      {
+        "kind": "direct_lua_random",
+        "log_index": 0,
+        "log_sequence": 0,
+        "message_type": null,
+        "outcome": {
+          "draw_index": 1,
+          "maximum": 6,
+          "minimum": 0,
+          "result": 5
+        },
+        "random_event_id": "rnd_bd196d146fbe48d4e0a4b3a8634fd84db035c784da07bbda2076727ac6d1c97d",
+        "resulting_state_hash": "state_11b378942f1115cea41a062039aae0ff39556d91bcb9c6ba49f859f356f52d18",
+        "schema_version": "ocgcore-random-event-v2",
+        "transport": "ocgcore_log_handler_from_script_v1"
+      },
+      {
+        "frame_index": 0,
+        "kind": "toss_coin",
+        "message_type": 130,
+        "outcome": {
+          "player": 0,
+          "results": [
+            0
+          ]
+        },
+        "random_event_id": "rnd_be7d877e2ea9fc25aa553e1f2bd8e808964ef1a734dbbac8a99f70f6db5fe25e",
+        "resulting_state_hash": "state_11b378942f1115cea41a062039aae0ff39556d91bcb9c6ba49f859f356f52d18",
+        "schema_version": "ocgcore-random-event-v2"
+      }
+    ],
+    "request_signature": "req_8f4a1cb9385eab74830e37089ee0ca6008fea8db892b309922b0a28cb4515fe6",
+    "state_hash": "state_11b378942f1115cea41a062039aae0ff39556d91bcb9c6ba49f859f356f52d18"
+  },
+  "ocgcore_binary_sha256": "03e360cf694f5ac6ba686de1d3bec7ccde3f3233d01bfe3265884a18ce1b9028",
+  "schema_version": "ocgcore-cross-channel-ordering-evidence-v1",
+  "source_audit": {
+    "pinned": {
+      "checks": {
+        "log_callback_has_no_sequence_coordinate": true,
+        "message_buffer_has_independent_queue_order": true,
+        "process_flushes_messages_without_log_coordinates": true,
+        "script_debug_calls_log_handler_synchronously": true
+      },
+      "commit": "158aebe758be3c46249c75d602e3f16d63d2ef31",
+      "conclusion": "public_api_exposes_independent_log_callback_and_message_buffer_coordinates_without_shared_sequence",
+      "files": [
+        {
+          "path": "duel.cpp",
+          "sha256": "cdffcd2401ec31ba50bbdbdace375604d81224ab3406c56dd2f737123457ad67",
+          "size": 5161
+        },
+        {
+          "path": "duel.h",
+          "sha256": "e7f4d48ac8abbb9b62eeabb464b444c31393e6bc0dcc52d6a24a2bfab00c917d",
+          "size": 3331
+        },
+        {
+          "path": "libdebug.cpp",
+          "sha256": "15a462e7e5d3fca506f864c0726d0078685b3563497262956399d8a5314ac61d",
+          "size": 7183
+        },
+        {
+          "path": "ocgapi.cpp",
+          "sha256": "85239b7c48c4292362cc743df71c076306b14f153b1ea083eeae6775a9e4d7e2",
+          "size": 10010
+        },
+        {
+          "path": "ocgapi_types.h",
+          "sha256": "8ef3b38527743ba42a088d0fb48c7806d835d7d12e06d7b32fccbeb42e493af9",
+          "size": 2314
+        }
+      ],
+      "log_callback_signature": "typedef void (*OCG_LogHandler)(void* payload, const char* string, int type);",
+      "status": "no_public_cross_channel_chronology"
+    },
+    "upstream": {
+      "checks": {
+        "log_callback_has_no_sequence_coordinate": true,
+        "message_buffer_has_independent_queue_order": true,
+        "process_flushes_messages_without_log_coordinates": true,
+        "script_debug_calls_log_handler_synchronously": true
+      },
+      "commit": "0764db0c75b3d1d574880d365aa3695ab1f13b43",
+      "conclusion": "public_api_exposes_independent_log_callback_and_message_buffer_coordinates_without_shared_sequence",
+      "files": [
+        {
+          "path": "duel.cpp",
+          "sha256": "a0c336f5d009c3a76f3e1db3f8b41fd81f2d0f4af8f0b15a5bfa0817cce546ef",
+          "size": 5508
+        },
+        {
+          "path": "duel.h",
+          "sha256": "b1c514e311717b8439d0b14e84d904d972d8e7ad580a7ef4ae8d5ead0620ccf8",
+          "size": 3201
+        },
+        {
+          "path": "libdebug.cpp",
+          "sha256": "121d4989b765c38b856c5353168ee8ba69b2ea7b32bccc7b6affb7d8bdcceb26",
+          "size": 7311
+        },
+        {
+          "path": "ocgapi.cpp",
+          "sha256": "df86a7de6a8b18ca1746ded40f86e560a2635816c3c35f2d3c2cd614a30f9f12",
+          "size": 10199
+        },
+        {
+          "path": "ocgapi_types.h",
+          "sha256": "31b83b359f9b9fe9d7c09288b6b9370ca1ba78cf9fa8573971c4385be3fb7775",
+          "size": 2389
+        }
+      ],
+      "log_callback_signature": "typedef void (*OCG_LogHandler)(void* payload, const char* string, int type);",
+      "status": "no_public_cross_channel_chronology"
+    }
+  }
+}

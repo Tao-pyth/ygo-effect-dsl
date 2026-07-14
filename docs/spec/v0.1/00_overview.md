@@ -1,6 +1,6 @@
 # ygoEffectDSL Spec v0.1 - Overview
 
-Status: Historical baseline / legacy DSL CORE / no full engine implementation
+Status: Historical baseline / legacy card-text design / no full engine implementation
 
 Last updated: 2026-07-13
 
@@ -8,7 +8,7 @@ Last updated: 2026-07-13
 
 V0.1 recorded an earlier attempt to connect the existing v0.0 DSL conversion baseline to the long-term project direction defined in [Project Charter](../../00_project_charter.md).
 
-V0.1 is not a complete game engine. Under the current Charter and ADR-0003, DSL conversion is not the input foundation for future Bridge, Replay, Search, or Evaluation work. The V0.1 spec remains as historical context for the legacy DSL CORE.
+V0.1 is not a complete game engine. Under the current Charter and ADR-0003, card-text conversion is not the input foundation for Bridge, Replay, Search, Evaluation, or Route DSL work. This spec remains historical context only; unqualified DSL now means Route DSL under ADR-0004.
 
 ## What V0.1 Establishes
 

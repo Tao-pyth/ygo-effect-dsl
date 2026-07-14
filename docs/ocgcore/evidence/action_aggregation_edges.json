@@ -1,0 +1,347 @@
+{
+  "compatibility": {
+    "apis": {
+      "11.0": {
+        "fixture_status": {
+          "activation_setup": "real_core",
+          "cancel": "raw_replay_contract_core_unreachable",
+          "chain_disabled": "real_core",
+          "chain_negated": "real_core",
+          "multi_chain": "real_core",
+          "multi_selection": "real_core",
+          "resolution_selection": "real_core",
+          "target_loss_fizzle": "real_core"
+        },
+        "payload_sizes": {
+          "MSG_CHAINED": 1,
+          "MSG_CHAINING": 32,
+          "MSG_CHAIN_DISABLED": 1,
+          "MSG_CHAIN_END": 0,
+          "MSG_CHAIN_NEGATED": 1,
+          "MSG_CHAIN_SOLVED": 1,
+          "MSG_CHAIN_SOLVING": 1,
+          "MSG_HINT": 10,
+          "MSG_MOVE": 28
+        },
+        "status": "supported"
+      }
+    },
+    "evidence_schema_version": "ocgcore-action-aggregation-evidence-v2",
+    "fail_close": {
+      "malformed_known_frame": true,
+      "unfinished_activation_group": true,
+      "unfinished_resolution_group": true,
+      "unknown_api_version": true
+    },
+    "limitations": {
+      "activation_cancel": {
+        "audit_date": "2026-07-14",
+        "audit_evidence_id": "rollbackaudit_2476441a3c8ed5acb8c7107acf7a2e3961f1be81bc9ad01a9cb634db44131c98",
+        "audit_evidence_path": "docs/ocgcore/evidence/activation_rollback_audit.json",
+        "follow_up_issue": 117,
+        "latest_upstream_release": "v11.0",
+        "native_cancel_response_hex": "ffffffff",
+        "next_review_trigger": "upstream_tag_or_api_change",
+        "observed_followup": "MSG_CHAINED",
+        "reason": "cost_and_target_return_values_do_not_abort_add_chain",
+        "status": "unreachable_in_ocgcore_api_11_0",
+        "tracking_issue": 115,
+        "upstream_head": "0764db0c75b3d1d574880d365aa3695ab1f13b43",
+        "upstream_head_api": "11.0",
+        "upstream_head_runtime_tested": false,
+        "upstream_source_flow_matches_v11_0": true
+      }
+    },
+    "method": "ocgcore-lifecycle-v2",
+    "schema_version": "ocgcore-action-aggregation-compatibility-v2"
+  },
+  "edge_fixtures": {
+    "cancel": {
+      "atomic_replay_digest_after": "edgereplay_5e46be414b2174ee7b9b71ada00e0796b8ae138515e4cc7abbc4cb50775aca1a",
+      "atomic_replay_digest_before": "edgereplay_5e46be414b2174ee7b9b71ada00e0796b8ae138515e4cc7abbc4cb50775aca1a",
+      "evidence_id": "actaggev_e08328602d1042792a97bfce320b10f3446b2be97f3590aa6419cd4f455d3a3a",
+      "fallback_steps": [],
+      "group_boundaries": [
+        {
+          "boundary_kind": "cancelled_selection",
+          "end_after_response_step": 1,
+          "end_frame_index": null,
+          "end_message_type": null,
+          "group_key": "ocgcore-activation:aocc_edge_df92f6e7dad67c44fc3c78c0f06e56895b790fa6110381d165cf62e05b6f52e1",
+          "group_kind": "activation_setup",
+          "start_step": 0
+        }
+      ],
+      "groups": [
+        {
+          "atomic_steps": [
+            0,
+            1
+          ],
+          "roles": [
+            "primary",
+            "control"
+          ]
+        }
+      ],
+      "lifecycle": []
+    },
+    "fizzle_or_disable": {
+      "atomic_replay_digest_after": "edgereplay_9df795dd46e1aca781438c9cdbf3ac22482473f4c4a30f9a46c24bce95932453",
+      "atomic_replay_digest_before": "edgereplay_9df795dd46e1aca781438c9cdbf3ac22482473f4c4a30f9a46c24bce95932453",
+      "evidence_id": "actaggev_36d023ec1e1ebdf40a1e42a9e67c484ee31cb6e3c55cd2e1baf822319e723ecd",
+      "fallback_steps": [],
+      "group_boundaries": [
+        {
+          "boundary_kind": "msg_chained",
+          "end_after_response_step": 0,
+          "end_frame_index": 0,
+          "end_message_type": 71,
+          "group_key": "ocgcore-activation:aocc_edge_076761a068b139340bc211461235e7ad4667a7fcf45dcae2a02bf23778e286f7",
+          "group_kind": "activation_setup",
+          "start_step": 0
+        }
+      ],
+      "groups": [
+        {
+          "atomic_steps": [
+            0
+          ],
+          "roles": [
+            "primary"
+          ]
+        },
+        {
+          "atomic_steps": [
+            1
+          ],
+          "roles": [
+            "control"
+          ]
+        },
+        {
+          "atomic_steps": [
+            2
+          ],
+          "roles": [
+            "control"
+          ]
+        }
+      ],
+      "lifecycle": [
+        "MSG_CHAINED",
+        "MSG_CHAIN_SOLVING",
+        "MSG_CHAIN_DISABLED",
+        "MSG_CHAIN_SOLVED",
+        "MSG_CHAIN_END"
+      ]
+    },
+    "multi_chain_negation": {
+      "atomic_replay_digest_after": "edgereplay_975d7f44cf20f04083737c3dafd1e6af3090bff81602c33fd82f1c7038445c9f",
+      "atomic_replay_digest_before": "edgereplay_975d7f44cf20f04083737c3dafd1e6af3090bff81602c33fd82f1c7038445c9f",
+      "evidence_id": "actaggev_2d3bb329dc5f24976f828d944016ee0956b098333af458b14d462bcf6168707a",
+      "fallback_steps": [],
+      "group_boundaries": [
+        {
+          "boundary_kind": "msg_chained",
+          "end_after_response_step": 0,
+          "end_frame_index": 0,
+          "end_message_type": 71,
+          "group_key": "ocgcore-activation:aocc_edge_19a2182ed26c635ac9181e614c4cc9c3ef40f368a1044b7eee589c3b4bd83273",
+          "group_kind": "activation_setup",
+          "start_step": 0
+        },
+        {
+          "boundary_kind": "msg_chained",
+          "end_after_response_step": 1,
+          "end_frame_index": 0,
+          "end_message_type": 71,
+          "group_key": "ocgcore-activation:aocc_edge_7c7409fc07f262628019ba176c5b0eada02dfcc8d98959a75fde9b28ccad708e",
+          "group_kind": "activation_setup",
+          "start_step": 1
+        }
+      ],
+      "groups": [
+        {
+          "atomic_steps": [
+            0
+          ],
+          "roles": [
+            "primary"
+          ]
+        },
+        {
+          "atomic_steps": [
+            1
+          ],
+          "roles": [
+            "primary"
+          ]
+        },
+        {
+          "atomic_steps": [
+            2
+          ],
+          "roles": [
+            "control"
+          ]
+        },
+        {
+          "atomic_steps": [
+            3
+          ],
+          "roles": [
+            "control"
+          ]
+        }
+      ],
+      "lifecycle": [
+        "MSG_CHAINED",
+        "MSG_CHAINED",
+        "MSG_CHAIN_SOLVING",
+        "MSG_CHAIN_NEGATED",
+        "MSG_CHAIN_SOLVED",
+        "MSG_CHAIN_SOLVING",
+        "MSG_CHAIN_SOLVED",
+        "MSG_CHAIN_END"
+      ]
+    },
+    "multi_selection": {
+      "atomic_replay_digest_after": "edgereplay_384470f8273a2ee481de3680290a00e307fdc29a4d2d2f6975534a47c87232c4",
+      "atomic_replay_digest_before": "edgereplay_384470f8273a2ee481de3680290a00e307fdc29a4d2d2f6975534a47c87232c4",
+      "evidence_id": "actaggev_190269e83eae7de5d85ee02456f013988122c7bf4acab7e43bee49805dd18c24",
+      "fallback_steps": [],
+      "group_boundaries": [
+        {
+          "boundary_kind": "msg_chained",
+          "end_after_response_step": 3,
+          "end_frame_index": 0,
+          "end_message_type": 71,
+          "group_key": "ocgcore-activation:aocc_edge_bbf66dcd645a0afed65fcfa734ce01e4222def890a482752df857482699a4595",
+          "group_kind": "activation_setup",
+          "start_step": 0
+        }
+      ],
+      "groups": [
+        {
+          "atomic_steps": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "roles": [
+            "primary",
+            "cost",
+            "cost",
+            "target"
+          ]
+        }
+      ],
+      "lifecycle": [
+        "MSG_CHAINED"
+      ]
+    },
+    "resolution_selection": {
+      "atomic_replay_digest_after": "edgereplay_6b488ce05181f5275cdce6cfdf1d12d77412c47b72a32faa6f58e360c626bef9",
+      "atomic_replay_digest_before": "edgereplay_6b488ce05181f5275cdce6cfdf1d12d77412c47b72a32faa6f58e360c626bef9",
+      "evidence_id": "actaggev_1f8676f54b068f05fa6d8b58f86433488c7b85067e097c6b19e998a6cdd7029a",
+      "fallback_steps": [],
+      "group_boundaries": [
+        {
+          "boundary_kind": "msg_chained",
+          "end_after_response_step": 0,
+          "end_frame_index": 0,
+          "end_message_type": 71,
+          "group_key": "ocgcore-activation:aocc_edge_7dacc37e77f3b45c61cd1569f6ba7d59836a13e2123e4bcf431f880650b40933",
+          "group_kind": "activation_setup",
+          "start_step": 0
+        },
+        {
+          "boundary_kind": "msg_chain_end",
+          "end_after_response_step": 3,
+          "end_frame_index": 1,
+          "end_message_type": 74,
+          "group_key": "ocgcore-resolution:2:0",
+          "group_kind": "resolution",
+          "start_step": 2
+        }
+      ],
+      "groups": [
+        {
+          "atomic_steps": [
+            0
+          ],
+          "roles": [
+            "primary"
+          ]
+        },
+        {
+          "atomic_steps": [
+            1
+          ],
+          "roles": [
+            "control"
+          ]
+        },
+        {
+          "atomic_steps": [
+            2,
+            3
+          ],
+          "roles": [
+            "resolution",
+            "resolution"
+          ]
+        }
+      ],
+      "lifecycle": [
+        "MSG_CHAINED",
+        "MSG_CHAIN_SOLVING",
+        "MSG_CHAIN_SOLVED",
+        "MSG_CHAIN_END"
+      ]
+    }
+  },
+  "evidence_id": "actaggedgeev_c9598b8286c18a69ae486404a8f76495a36d374acf396d663aa1bf59da523584",
+  "invariants": {
+    "atomic_actions_mutated": false,
+    "interruption_coordinates_mutated": false,
+    "route_identity_input": false
+  },
+  "real_core_routes": [
+    {
+      "action_coordinate_digest": "actioncoords_e6524fa6a88cb775a0fc3b2d6fce1a8a297fbc5d001c4b18b778e87645f51902",
+      "evidence_id": "actaggev_f91b84f4ceef778388cf3a79a22cdeb4f0dd73ec1148fbcfc4e8251b975b3405",
+      "filename": "real_core_action_aggregation.route.yaml",
+      "interruption_digest": "interruptions_4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "replay_digest": "atomicreplay_604b4ef46a8276d48a1568c3abb93f4c1432e8a966576bf7a5b032a1c85ea274",
+      "route_id": "route_32af1e3bdd1f7a3460f2e236439029dedb5002d0b44e7d51db31756b2124c52c"
+    },
+    {
+      "action_coordinate_digest": "actioncoords_c2659f681330519fb3d7cf4f46d6e512f8f7085ff451553cdc9fadb32d0edf9a",
+      "evidence_id": "actaggev_b37031c2c32a33a22b3dd712e0f9e04ae073f933052899a262529b744cf53bd0",
+      "filename": "real_core_effect_veiler.route.yaml",
+      "interruption_digest": "interruptions_4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "replay_digest": "atomicreplay_069973a05ee1fdd5791ccde07c604c6630c0d3ab6a22492176afa430c9e539cb",
+      "route_id": "route_5cac80cf38a05052cfeccc0710bd54498ed96897003db7b2248ef9a63b8220f7"
+    },
+    {
+      "action_coordinate_digest": "actioncoords_903daea1262526d17cf5f7a73fd290b09d03906276677da707bbbdc6960825be",
+      "evidence_id": "actaggev_5cbac4e1fe23dde417b822e163b4ec41772e81fe23fd337d85d4915c9e12f568",
+      "filename": "real_core_effect_veiler_interrupted.route.yaml",
+      "interruption_digest": "interruptions_ef7c57f9058ea1e7eb886a00aca72ae78b618ab9dd3f6de0e2a9a94a3ae1442c",
+      "replay_digest": "atomicreplay_9ea3bd3081429614064f5dfa680adabf1d15d78fc4cdbd9a7754d67114bbeebf",
+      "route_id": "route_ec560e9558b534852d8611ae05f55f497416e712ddb5bc3b483bb7ab1c7258fa"
+    },
+    {
+      "action_coordinate_digest": "actioncoords_82c535762268c6f3d70eb2ba1491b3a9ba98077ff8233bed4998283b04bc4eab",
+      "evidence_id": "actaggev_b37031c2c32a33a22b3dd712e0f9e04ae073f933052899a262529b744cf53bd0",
+      "filename": "real_core_temporary_atk.route.yaml",
+      "interruption_digest": "interruptions_4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "replay_digest": "atomicreplay_96756e0b0e0016ac7104428347896e10c14caf125f7d3a820af252867caa0df3",
+      "route_id": "route_47b95157fc40de5ea0f56ee248b6e52a320d209a3580b69a7105fddf3fdeaebb"
+    }
+  ],
+  "schema_version": "ocgcore-action-aggregation-edge-evidence-v1"
+}
