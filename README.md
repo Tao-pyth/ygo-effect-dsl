@@ -196,6 +196,7 @@ python -m pytest
 - [Bridge DecisionRequest](docs/spec/v0.3a/10_bridge_decision_request.md)
 - [Action](docs/spec/v0.3a/20_action.md)
 - [Replay Determinism](docs/spec/v0.3a/30_replay_determinism.md)
+- [Real ocgcore Operator Walkthrough](docs/ocgcore/50_operator_walkthrough.md)
 - [Peak Board](docs/spec/v0.3a/50_peak_board.md)
 - [Evaluation and Experiment](docs/spec/v0.3a/60_evaluation_experiment.md)
 
