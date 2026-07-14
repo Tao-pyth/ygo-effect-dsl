@@ -43,6 +43,17 @@ _ADAPTER_EXPORTS = {
     "CoreInterruptionStep",
     "InterruptionCandidatePolicyError",
 }
+_TAXONOMY_EXPORTS = {
+    "INTERRUPTION_SUPPORT_TAXONOMY_SCHEMA_VERSION",
+    "InterruptionCandidateSupport",
+    "InterruptionOutcomeStatus",
+    "InterruptionSourceZone",
+    "InterruptionTargetShape",
+    "InterruptionTaxonomyDiagnostic",
+    "InterruptionTaxonomyOutcome",
+    "InterruptionValidationPolicy",
+    "classify_interruption_candidates",
+}
 
 
 def __getattr__(name: str) -> Any:
@@ -50,6 +61,10 @@ def __getattr__(name: str) -> Any:
         from ygo_effect_dsl.engine.interruption import adapter
 
         return getattr(adapter, name)
+    if name in _TAXONOMY_EXPORTS:
+        from ygo_effect_dsl.engine.interruption import taxonomy
+
+        return getattr(taxonomy, name)
     if name in _ATTRIBUTION_EXPORTS:
         from ygo_effect_dsl.engine.interruption import attribution
 
@@ -75,18 +90,27 @@ __all__ = [
     "CoreInterruptionCandidatePolicy",
     "CoreInterruptionStep",
     "INTERRUPTION_COMPARISON_SCHEMA_VERSION",
+    "INTERRUPTION_SUPPORT_TAXONOMY_SCHEMA_VERSION",
     "INTERRUPTION_TARGET_RESOLUTION_SCHEMA_VERSION",
     "INTERRUPTION_TARGET_SCHEMA_VERSION",
     "InterruptionTarget",
     "InterruptionTargetResolution",
     "InterruptionTargetResolutionError",
+    "InterruptionCandidateSupport",
     "InterruptionCandidatePolicyError",
+    "InterruptionOutcomeStatus",
+    "InterruptionSourceZone",
+    "InterruptionTargetShape",
+    "InterruptionTaxonomyDiagnostic",
+    "InterruptionTaxonomyOutcome",
+    "InterruptionValidationPolicy",
     "CardOriginKind",
     "RecoveryStatus",
     "build_interruption_comparison",
     "build_additional_card_attribution",
     "build_additional_card_attribution_v2",
     "classify_card_origin",
+    "classify_interruption_candidates",
     "derive_ocgcore_interruption_validation",
     "resolve_interruption_target",
 ]

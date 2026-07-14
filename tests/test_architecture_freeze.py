@@ -38,7 +38,8 @@ def test_architecture_freeze_manifest_matches_runtime_contract_versions() -> Non
         "state_identity": STATE_ID_SCHEMA_VERSION,
     }
     assert evidence["post_freeze_extensions"] == {
-        "experiment_current": "0.3b",
+        "experiment_current": "0.4",
+        "experiment_information_policy_baseline": "0.3b",
         "experiment_legacy_migration_source": LEGACY_EXPERIMENT_SCHEMA_VERSION,
         "information_policy": "information-policy-v1",
     }

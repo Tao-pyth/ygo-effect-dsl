@@ -34,6 +34,8 @@ jobs:
           --onefile
           --name ygo-effect-dsl
           --add-data "resources;resources"
+          --add-data "src/ygo_effect_dsl/resources;ygo_effect_dsl/resources"
+          --hidden-import ygo_effect_dsl.resources
           src/ygo_effect_dsl/__main__.py
 
       - name: Verify executable exists
@@ -48,6 +50,8 @@ jobs:
           .\dist\ygo-effect-dsl.exe validate-dict
           .\dist\ygo-effect-dsl.exe transform --dataset examples/sample_dataset --out data/exe_smoke
           .\dist\ygo-effect-dsl.exe validate data/exe_smoke/yaml
+          .\dist\ygo-effect-dsl.exe validate-route examples/route_dsl/minimal_route.yaml
+          .\dist\ygo-effect-dsl.exe experiment-search --help
 
       - name: Upload executable artifact
         uses: actions/upload-artifact@v4

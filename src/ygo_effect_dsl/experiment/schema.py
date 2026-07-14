@@ -16,9 +16,11 @@ from ygo_effect_dsl.engine.information import (
 
 
 LEGACY_EXPERIMENT_SCHEMA_VERSION = "0.3a"
-EXPERIMENT_SCHEMA_VERSION = "0.3b"
+INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION = "0.3b"
+EXPERIMENT_SCHEMA_VERSION = "0.4"
 SUPPORTED_EXPERIMENT_SCHEMA_VERSIONS = {
     LEGACY_EXPERIMENT_SCHEMA_VERSION,
+    INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION,
     EXPERIMENT_SCHEMA_VERSION,
 }
 INFORMATION_MODES = {
@@ -26,9 +28,11 @@ INFORMATION_MODES = {
     "player_view",
     "sampled_private_state",
 }
-INTERRUPTION_MODES = {"none", "scripted", "sampled"}
+INTERRUPTION_MODES = {"none", "scripted", "sampled", "specified"}
 INTERRUPTION_SAMPLING_SCHEMA_VERSION = "interruption-sampling-v1"
 INTERRUPTION_SAMPLER_IDS = {"stable-digest-mod-v1"}
+SCENARIO_SCHEMA_VERSION = "scenario-v1"
+OPENING_HAND_MODES = {"fixed", "random", "conditional"}
 
 
 @dataclass(frozen=True)
@@ -204,6 +208,118 @@ def _information_policy(
             )
 
 
+def _card_code_list(
+    value: Any,
+    path: str,
+    issues: list[ExperimentValidationIssue],
+) -> None:
+    if not isinstance(value, list):
+        issues.append(ExperimentValidationIssue(path, "expected_list", "must be a list"))
+        return
+    for index, code in enumerate(value):
+        if not isinstance(code, int) or isinstance(code, bool) or code <= 0:
+            issues.append(
+                ExperimentValidationIssue(
+                    f"{path}[{index}]",
+                    "invalid_card_code",
+                    "must be a positive integer card code",
+                )
+            )
+
+
+def _scenario_contract(
+    root: Mapping[str, Any],
+    issues: list[ExperimentValidationIssue],
+) -> None:
+    scenario = _required_mapping(root, "scenario", issues)
+    if scenario is None:
+        return
+    if scenario.get("schema_version") != SCENARIO_SCHEMA_VERSION:
+        issues.append(
+            ExperimentValidationIssue(
+                "$.scenario.schema_version",
+                "unsupported_scenario_schema",
+                f"must be {SCENARIO_SCHEMA_VERSION!r}",
+            )
+        )
+    opening = scenario.get("opening_hand")
+    if not isinstance(opening, Mapping):
+        issues.append(
+            ExperimentValidationIssue(
+                "$.scenario.opening_hand", "expected_mapping", "must be a mapping"
+            )
+        )
+        return
+    mode = opening.get("mode")
+    if mode not in OPENING_HAND_MODES:
+        issues.append(
+            ExperimentValidationIssue(
+                "$.scenario.opening_hand.mode",
+                "unsupported_opening_hand_mode",
+                f"must be one of {sorted(OPENING_HAND_MODES)}",
+            )
+        )
+        return
+    if mode == "fixed":
+        _card_code_list(opening.get("cards"), "$.scenario.opening_hand.cards", issues)
+    else:
+        seed = opening.get("seed")
+        if not isinstance(seed, int) or isinstance(seed, bool) or seed < 0:
+            issues.append(
+                ExperimentValidationIssue(
+                    "$.scenario.opening_hand.seed",
+                    "invalid_non_negative_integer",
+                    "must be an integer >= 0",
+                )
+            )
+        size = opening.get("size", 5)
+        if not isinstance(size, int) or isinstance(size, bool) or size < 1:
+            issues.append(
+                ExperimentValidationIssue(
+                    "$.scenario.opening_hand.size",
+                    "invalid_positive_integer",
+                    "must be an integer >= 1",
+                )
+            )
+    if mode == "conditional":
+        conditions = opening.get("conditions")
+        if not isinstance(conditions, list) or not conditions:
+            issues.append(
+                ExperimentValidationIssue(
+                    "$.scenario.opening_hand.conditions",
+                    "expected_non_empty_list",
+                    "must be a non-empty list",
+                )
+            )
+        else:
+            for index, condition in enumerate(conditions):
+                path = f"$.scenario.opening_hand.conditions[{index}]"
+                if not isinstance(condition, Mapping):
+                    issues.append(
+                        ExperimentValidationIssue(path, "expected_mapping", "must be a mapping")
+                    )
+                    continue
+                code = condition.get("code")
+                if not isinstance(code, int) or isinstance(code, bool) or code <= 0:
+                    issues.append(
+                        ExperimentValidationIssue(
+                            f"{path}.code", "invalid_card_code", "must be a positive integer"
+                        )
+                    )
+                for name in ("min_count", "max_count"):
+                    if name not in condition:
+                        continue
+                    count = condition[name]
+                    if not isinstance(count, int) or isinstance(count, bool) or count < 0:
+                        issues.append(
+                            ExperimentValidationIssue(
+                                f"{path}.{name}",
+                                "invalid_non_negative_integer",
+                                "must be an integer >= 0",
+                            )
+                        )
+
+
 def validate_experiment(value: Any) -> tuple[ExperimentValidationIssue, ...]:
     issues: list[ExperimentValidationIssue] = []
     if not isinstance(value, Mapping):
@@ -234,6 +350,11 @@ def validate_experiment(value: Any) -> tuple[ExperimentValidationIssue, ...]:
                     "must be 'fixed', 'inline', or 'ydk'",
                 )
             )
+        if schema_version == EXPERIMENT_SCHEMA_VERSION and source == "inline":
+            for section in ("main", "extra", "side"):
+                _card_code_list(deck.get(section), f"$.deck.{section}", issues)
+        if schema_version == EXPERIMENT_SCHEMA_VERSION and source == "ydk":
+            _non_empty_string(deck.get("path"), "$.deck.path", issues)
 
     player = _required_mapping(value, "player", issues)
     if player is not None:
@@ -266,7 +387,10 @@ def validate_experiment(value: Any) -> tuple[ExperimentValidationIssue, ...]:
                 f"must be one of {sorted(INFORMATION_MODES)}",
             )
         )
-    if schema_version == EXPERIMENT_SCHEMA_VERSION:
+    if schema_version in {
+        INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION,
+        EXPERIMENT_SCHEMA_VERSION,
+    }:
         _information_policy(value, issues)
     elif schema_version == LEGACY_EXPERIMENT_SCHEMA_VERSION and (
         "information_policy" in value
@@ -278,6 +402,8 @@ def validate_experiment(value: Any) -> tuple[ExperimentValidationIssue, ...]:
                 "Experiment 0.3a cannot carry a 0.3b information policy",
             )
         )
+    if schema_version == EXPERIMENT_SCHEMA_VERSION:
+        _scenario_contract(value, issues)
 
     success_predicate = _required_mapping(value, "success_predicate", issues)
     evaluator = _required_mapping(value, "evaluator", issues)
@@ -296,7 +422,9 @@ def validate_experiment(value: Any) -> tuple[ExperimentValidationIssue, ...]:
             )
         else:
             present_limits = [
-                name for name in ("max_nodes", "max_seconds") if name in budget
+                name
+                for name in ("max_nodes", "max_seconds", "max_depth", "max_replays")
+                if name in budget
             ]
             if not present_limits:
                 issues.append(
@@ -310,7 +438,7 @@ def validate_experiment(value: Any) -> tuple[ExperimentValidationIssue, ...]:
                 limit = budget[name]
                 invalid = (
                     not isinstance(limit, int) or isinstance(limit, bool) or limit <= 0
-                    if name == "max_nodes"
+                    if name != "max_seconds"
                     else not isinstance(limit, (int, float))
                     or isinstance(limit, bool)
                     or limit <= 0
@@ -321,12 +449,12 @@ def validate_experiment(value: Any) -> tuple[ExperimentValidationIssue, ...]:
                             f"$.search.budget.{name}",
                             (
                                 "invalid_positive_integer"
-                                if name == "max_nodes"
+                                if name != "max_seconds"
                                 else "invalid_positive_number"
                             ),
                             (
                                 "must be an integer >= 1"
-                                if name == "max_nodes"
+                                if name != "max_seconds"
                                 else "must be greater than 0"
                             ),
                         )
@@ -411,7 +539,7 @@ def validate_experiment(value: Any) -> tuple[ExperimentValidationIssue, ...]:
                     "must be empty when interruption.mode is 'none'",
                 )
             )
-        elif mode in {"scripted", "sampled"} and not definitions:
+        elif mode in {"scripted", "sampled", "specified"} and not definitions:
             issues.append(
                 ExperimentValidationIssue(
                     "$.interruption.definitions",
@@ -430,6 +558,62 @@ def validate_experiment(value: Any) -> tuple[ExperimentValidationIssue, ...]:
                     )
                     continue
                 _non_empty_string(definition.get("id"), f"{path}.id", issues)
+                if mode == "specified":
+                    source_code = definition.get("source_card_code")
+                    if (
+                        not isinstance(source_code, int)
+                        or isinstance(source_code, bool)
+                        or source_code <= 0
+                    ):
+                        issues.append(
+                            ExperimentValidationIssue(
+                                f"{path}.source_card_code",
+                                "invalid_card_code",
+                                "must be a positive integer card code",
+                            )
+                        )
+                    if definition.get("source_player") not in (0, 1):
+                        issues.append(
+                            ExperimentValidationIssue(
+                                f"{path}.source_player",
+                                "invalid_player",
+                                "must be 0 or 1",
+                            )
+                        )
+                    if definition.get("source_zone", "hand") not in {
+                        "hand",
+                        "field",
+                    }:
+                        issues.append(
+                            ExperimentValidationIssue(
+                                f"{path}.source_zone",
+                                "unsupported_source_zone",
+                                "must be 'hand' or 'field'",
+                            )
+                        )
+                    if (
+                        definition.get("source_zone", "hand") == "field"
+                        and definition.get("core_location") not in {4, 8}
+                    ):
+                        issues.append(
+                            ExperimentValidationIssue(
+                                f"{path}.core_location",
+                                "unsupported_field_location",
+                                "must be 4 (monster) or 8 (spell/trap) for field source",
+                            )
+                        )
+                    response_roles = definition.get("response_roles", [])
+                    if not isinstance(response_roles, list) or any(
+                        role not in {"cost", "target", "option"}
+                        for role in response_roles
+                    ):
+                        issues.append(
+                            ExperimentValidationIssue(
+                                f"{path}.response_roles",
+                                "unsupported_response_roles",
+                                "must be a list containing cost, target, or option",
+                            )
+                        )
 
     replay = _required_mapping(value, "replay", issues)
     if replay is not None and not isinstance(replay.get("strict_versions"), bool):
@@ -464,8 +648,11 @@ def assert_valid_experiment(value: Any) -> None:
 
 def assert_current_experiment(value: Any) -> None:
     assert_valid_experiment(value)
-    if value.get("schema_version") != EXPERIMENT_SCHEMA_VERSION:
+    if value.get("schema_version") not in {
+        INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION,
+        EXPERIMENT_SCHEMA_VERSION,
+    }:
         raise ValueError(
             f"Experiment {value.get('schema_version')!r} is a valid legacy artifact; "
-            f"explicitly migrate it to {EXPERIMENT_SCHEMA_VERSION!r} before execution"
+            "explicitly migrate it to '0.3b' or '0.4' before execution"
         )

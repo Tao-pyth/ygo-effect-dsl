@@ -1,6 +1,6 @@
 # Spec Status Matrix
 
-基準日: 2026-07-13
+基準日: 2026-07-14
 
 | Area | Status | Evidence |
 | --- | --- | --- |
@@ -11,12 +11,12 @@
 | DecisionRequest signature | minimally implemented | engine/bridge + contract tests |
 | Action ID | minimally implemented | engine/action + contract tests |
 | Replay signature checks | minimally implemented | engine/replay + contract tests |
-| Real ocgcore Bridge | not implemented | next runtime milestone |
-| Replay executor | not implemented | next runtime milestone |
-| State hash | specified only | v0.3a state identity spec |
-| Search / Peak tracking | specified only | runtime implementation pending |
-| Interruption / Recovery | planned | after search vertical slice |
+| Real ocgcore Bridge | MVP implemented | pinned runtime / fresh worker tests |
+| Replay executor | MVP implemented | Replay v0.3a / General Search replay |
+| State hash | implemented | canonical State ID / fresh Replay tests |
+| Search / Peak tracking | Random Search MVP | SearchExecutor / 10万logical node evidence |
+| Interruption / Recovery | taxonomy-limited MVP | fixed fixtures / specified interruption trace |
 | Deck statistics | planned | after recovery slice |
 | Legacy card-text conversion | implemented, removal target | v0.0 historical tests |
 
-「仕様化済み」と「実行可能」を混同しません。現在のRoute DSL fixtureは契約確認用であり、実デュエル出力ではありません。
+「MVP実装済み」と「production検証済み」を混同しません。pool別の実core性能、未検証妨害category、PlayerView Replay、一般公開配布は後続検証が必要です。

@@ -12,7 +12,8 @@
     "route_dsl": "0.1"
   },
   "post_freeze_extensions": {
-    "experiment_current": "0.3b",
+    "experiment_current": "0.4",
+    "experiment_information_policy_baseline": "0.3b",
     "experiment_legacy_migration_source": "0.3a",
     "information_policy": "information-policy-v1"
   },

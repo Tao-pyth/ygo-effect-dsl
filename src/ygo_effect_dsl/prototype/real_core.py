@@ -3,11 +3,12 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
 import hashlib
+import itertools
 import json
 from pathlib import Path
 import subprocess
 import sys
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 from ygo_effect_dsl.engine.action import (
     OCGCORE_ACTION_AGGREGATION_METHOD,
@@ -19,6 +20,7 @@ from ygo_effect_dsl.engine.action import (
     build_activation_rollback_probe,
     derive_ocgcore_action_aggregation,
 )
+from ygo_effect_dsl.runtime_imports import current_checkout_environment
 from ygo_effect_dsl.engine.bridge.ocgcore import (
     CARD_INSTANCE_PROVENANCE_V2_SCHEMA_VERSION,
     CARD_INSTANCE_TRACE_V2_LOG_PREFIX,
@@ -85,10 +87,13 @@ from ygo_effect_dsl.engine.peak import (
     build_durability_report,
 )
 from ygo_effect_dsl.engine.interruption import (
+    INTERRUPTION_SUPPORT_TAXONOMY_SCHEMA_VERSION,
     CoreInterruptionCandidatePolicy,
     InterruptionCandidatePolicyError,
     InterruptionTarget,
     derive_ocgcore_interruption_validation,
+    InterruptionValidationPolicy,
+    classify_interruption_candidates,
 )
 from ygo_effect_dsl.engine.state import (
     ConstraintExpiration,
@@ -116,6 +121,7 @@ from ygo_effect_dsl.external.ocgcore import (
 from ygo_effect_dsl.experiment import (
     INTERRUPTION_SAMPLING_SCHEMA_VERSION,
     assert_current_experiment,
+    preflight_scenario,
 )
 from ygo_effect_dsl.route_dsl import assert_valid_route_document
 
@@ -142,9 +148,12 @@ INTERRUPTION_FIELD_CODE = 10045474
 INTERRUPTION_SUPPORT_CODE = 91800273
 DUEL_SEED = (1, 2, 3, 4)
 LOCATION_HAND = 0x02
+LOCATION_DECK = 0x01
 LOCATION_MZONE = 0x04
 LOCATION_SZONE = 0x08
+LOCATION_EXTRA = 0x40
 POSITION_FACEUP_ATTACK = 0x01
+POSITION_FACEDOWN_DEFENSE = 0x08
 WORKER_TIMEOUT_SECONDS = 30.0
 WORKER_FAILURE_ENVELOPE_SCHEMA_VERSION = "real-core-worker-failure-v1"
 REAL_CORE_EXPERIMENT_ID = "prototype_real_core_fixed_hand_normal_summon"
@@ -176,7 +185,10 @@ ACTION_AGGREGATION_FIXTURE_IDS = frozenset(
         ACTIVATION_ROLLBACK_FIXTURE_ID,
     }
 )
-REAL_CORE_DOCUMENT_KINDS = frozenset({"route", "activation_rollback_probe"})
+REAL_CORE_DOCUMENT_KINDS = frozenset(
+    {"route", "activation_rollback_probe", "search_frontier"}
+)
+REAL_CORE_FRONTIER_SCHEMA_VERSION = "real-core-frontier-v1"
 STATUS_DISABLED = 0x0001
 TEMPORARY_ATK_FIXTURE_SCRIPT = """local s,id=GetID()
 function s.initial_effect(c)
@@ -1925,8 +1937,19 @@ def _action_kind(request: Any, candidate: Any) -> ActionKind:
     if raw_kind is not None:
         return ActionKind(str(raw_kind))
     fallback = {
+        "announce_attribute": ActionKind.ANNOUNCE_ATTRIBUTE,
+        "announce_card": ActionKind.ANNOUNCE_CARD,
+        "announce_number": ActionKind.ANNOUNCE_NUMBER,
+        "announce_race": ActionKind.ANNOUNCE_RACE,
+        "distribute_counters": ActionKind.DISTRIBUTE_COUNTERS,
+        "rock_paper_scissors": ActionKind.ROCK_PAPER_SCISSORS,
         "select_card": ActionKind.SELECT_CARD,
+        "select_disabled_field": ActionKind.SELECT_ZONE,
         "select_option": ActionKind.SELECT_OPTION,
+        "select_place": ActionKind.SELECT_ZONE,
+        "select_position": ActionKind.SELECT_POSITION,
+        "select_sum": ActionKind.SELECT_SUM,
+        "select_tribute": ActionKind.SELECT_TRIBUTE,
     }.get(request.request_type)
     if fallback is None:
         raise ValueError(
@@ -1977,6 +2000,85 @@ def _candidate_card_ref(
         ),
         instance_id=instance_id if isinstance(instance_id, str) else None,
     )
+
+
+def _frontier_actions(request: Any, *, limit: int) -> tuple[Action, ...]:
+    if not isinstance(limit, int) or isinstance(limit, bool) or limit < 1:
+        raise ValueError("search.parameters.max_frontier_actions must be >= 1")
+    grouped: dict[ActionKind, list[Any]] = {}
+    for candidate in request.candidates:
+        kind = _action_kind(request, candidate)
+        grouped.setdefault(kind, []).append(candidate)
+    constraints = request.constraints
+    actions: list[Action] = []
+    for kind, candidates in sorted(grouped.items(), key=lambda item: item[0].value):
+        if kind == ActionKind.FINISH_SELECTION:
+            counts = (1,)
+        else:
+            minimum = max(1, constraints.min_selections)
+            maximum = min(constraints.max_selections, len(candidates))
+            counts = range(minimum, maximum + 1)
+        for count in counts:
+            groups = (
+                itertools.permutations(candidates, count)
+                if constraints.ordered
+                else itertools.combinations(candidates, count)
+            )
+            for selected in groups:
+                card_refs = tuple(_candidate_card_ref(candidate) for candidate in selected)
+                actions.append(
+                    Action(
+                        kind=kind,
+                        player=request.player,
+                        selections=tuple(
+                            Selection(
+                                candidate_id=candidate.candidate_id,
+                                card_ref=card_ref,
+                                order=index if constraints.ordered else None,
+                                payload_ref="candidate.payload",
+                            )
+                            for index, (candidate, card_ref) in enumerate(
+                                zip(selected, card_refs, strict=True)
+                            )
+                        ),
+                        request_signature=request.request_signature,
+                    )
+                )
+                if len(actions) > limit:
+                    raise ValueError(
+                        f"core frontier exceeds max_frontier_actions={limit}"
+                    )
+    if not actions:
+        raise ValueError(
+            f"core request {request.request_type!r} exposed no supported Action"
+        )
+    return tuple(sorted(actions, key=lambda action: action.action_id))
+
+
+def _prefix_candidates(
+    request: Any, expected_action: Mapping[str, Any]
+) -> tuple[tuple[Any, ...], None]:
+    if expected_action.get("request_signature") != request.request_signature:
+        raise ValueError("search prefix request signature changed during fresh Replay")
+    raw_selections = expected_action.get("selections")
+    if not isinstance(raw_selections, list) or not raw_selections:
+        raise ValueError("search prefix Action must contain selections")
+    by_id = {candidate.candidate_id: candidate for candidate in request.candidates}
+    selected: list[Any] = []
+    for index, raw_selection in enumerate(raw_selections):
+        if not isinstance(raw_selection, Mapping):
+            raise ValueError(f"search prefix selection {index} must be a mapping")
+        candidate_id = raw_selection.get("candidate_id")
+        candidate = by_id.get(candidate_id)
+        if candidate is None:
+            raise ValueError(
+                f"search prefix candidate {candidate_id!r} disappeared during fresh Replay"
+            )
+        selected.append(candidate)
+    kinds = {_action_kind(request, candidate) for candidate in selected}
+    if len(kinds) != 1 or next(iter(kinds)).value != expected_action.get("kind"):
+        raise ValueError("search prefix Action kind no longer matches core candidates")
+    return tuple(selected), None
 
 
 def _decode_batch(
@@ -2042,6 +2144,247 @@ def _evaluation(
     if not isinstance(min_count, int) or isinstance(min_count, bool) or min_count < 0:
         raise ValueError("success predicate min_count must be a non-negative integer")
     return result, int(result.vector["field_count"]) >= min_count
+
+
+def _frontier_document(
+    *,
+    request: Any,
+    actions: Sequence[Action],
+    snapshot: Any,
+    checkpoint_snapshots: Sequence[tuple[Any, int, str]],
+    experiment: Mapping[str, Any],
+    turn: int,
+    phase: str,
+    legal_stop: Any,
+    route_document: Mapping[str, Any] | None,
+    action_prefix: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    board = build_board_summary(snapshot, viewer=0).to_dict()
+    evaluation, success = _evaluation(
+        board,
+        experiment=experiment,
+        state_hash=snapshot.state_hash,
+        turn=turn,
+        phase=phase,
+    )
+    peak_score = evaluation.total_score
+    for checkpoint_snapshot, checkpoint_turn, checkpoint_phase in checkpoint_snapshots:
+        checkpoint_board = build_board_summary(checkpoint_snapshot, viewer=0).to_dict()
+        checkpoint_evaluation, _ = _evaluation(
+            checkpoint_board,
+            experiment=experiment,
+            state_hash=checkpoint_snapshot.state_hash,
+            turn=checkpoint_turn,
+            phase=checkpoint_phase,
+        )
+        peak_score = max(peak_score, checkpoint_evaluation.total_score)
+    interruption_taxonomy = []
+    if (
+        experiment.get("interruption", {}).get("mode") == "specified"
+        and request.request_type == "select_chain"
+    ):
+        for definition in experiment["interruption"]["definitions"]:
+            source_code = int(definition["source_card_code"])
+            matching_ids = tuple(
+                candidate.candidate_id
+                for candidate in request.candidates
+                if isinstance(candidate.card_ref, Mapping)
+                and candidate.card_ref.get("public_card_id") == source_code
+                and candidate.card_ref.get("controller")
+                == definition["source_player"]
+            )
+            if not matching_ids:
+                continue
+            verified = definition.get("verified_fixture_categories", [])
+            policy = InterruptionValidationPolicy().register_verified(*verified)
+            outcome = classify_interruption_candidates(
+                request,
+                source_card_code=source_code,
+                source_player=int(definition["source_player"]),
+                source_zone=definition.get("source_zone", "hand"),
+                policy=policy,
+                validation_categories=definition.get("validation_categories"),
+            )
+            interruption_taxonomy.append(
+                {"definition_id": definition["id"], **outcome.to_dict()}
+            )
+    elif experiment.get("interruption", {}).get("mode") == "specified":
+        for definition in experiment["interruption"]["definitions"]:
+            source_code = int(definition["source_card_code"])
+            activation_index = None
+            for index in range(len(action_prefix) - 1, -1, -1):
+                action = action_prefix[index]
+                if action.get("kind") != ActionKind.ACTIVATE_EFFECT.value:
+                    continue
+                selections = action.get("selections", [])
+                if any(
+                    isinstance(selection, Mapping)
+                    and isinstance(selection.get("card_ref"), Mapping)
+                    and selection["card_ref"].get("public_card_id") == source_code
+                    for selection in selections
+                ):
+                    activation_index = index
+                    break
+            if activation_index is None:
+                continue
+            response_index = len(action_prefix) - activation_index - 1
+            roles = definition.get("response_roles", [])
+            if response_index >= len(roles):
+                continue
+            request_document = request.to_dict()
+            extra = request_document["context"].setdefault("extra", {})
+            extra["interruption_role"] = roles[response_index]
+            extra["interruption_source"] = {
+                "card_code": source_code,
+                "player": definition["source_player"],
+                "zone": definition.get("source_zone", "hand"),
+            }
+            verified = definition.get("verified_fixture_categories", [])
+            policy = InterruptionValidationPolicy().register_verified(*verified)
+            outcome = classify_interruption_candidates(
+                request_document,
+                source_card_code=source_code,
+                source_player=int(definition["source_player"]),
+                source_zone=definition.get("source_zone", "hand"),
+                policy=policy,
+                validation_categories=definition.get("validation_categories"),
+            )
+            interruption_taxonomy.append(
+                {"definition_id": definition["id"], **outcome.to_dict()}
+            )
+            if not outcome.supported:
+                raise ValueError(
+                    "specified interruption response failed taxonomy: "
+                    + canonical_json(outcome.to_dict())
+                )
+    return {
+        "actions": [action.to_dict() for action in actions],
+        "legal_stop": legal_stop.to_dict(),
+        "interruption_taxonomy": interruption_taxonomy,
+        "peak_score": peak_score,
+        "replay_count": 1,
+        "request": request.to_dict(),
+        "route_document": to_canonical_data(route_document),
+        "schema_version": REAL_CORE_FRONTIER_SCHEMA_VERSION,
+        "score": evaluation.total_score,
+        "state_id": snapshot.state_hash,
+        "success": success,
+    }
+
+
+def _specified_interruption_trace(
+    experiment: Mapping[str, Any], replay: Mapping[str, Any]
+) -> list[dict[str, Any]]:
+    if experiment.get("interruption", {}).get("mode") != "specified":
+        return []
+    events = replay.get("events")
+    if not isinstance(events, list):
+        raise ValueError("specified interruption trace requires Replay events")
+    normalized_events: list[tuple[int, Mapping[str, Any]]] = []
+    for index, event in enumerate(events):
+        if not isinstance(event, Mapping) or not isinstance(
+            event.get("action"), Mapping
+        ):
+            raise ValueError(f"Replay event {index} has no Action")
+        step = event.get("step")
+        if not isinstance(step, int) or isinstance(step, bool):
+            raise ValueError(f"Replay event {index} has no integer step")
+        normalized_events.append((step, event["action"]))
+
+    trace: list[dict[str, Any]] = []
+    definitions = experiment["interruption"]["definitions"]
+    for definition in definitions:
+        source_code = int(definition["source_card_code"])
+        roles = tuple(definition.get("response_roles", ()))
+        for event_index, (step, action) in enumerate(normalized_events):
+            if action.get("kind") != ActionKind.ACTIVATE_EFFECT.value:
+                continue
+            selections = action.get("selections")
+            if not isinstance(selections, list):
+                raise ValueError("specified activation Action has no selections")
+            selected_source = any(
+                isinstance(selection, Mapping)
+                and isinstance(selection.get("card_ref"), Mapping)
+                and selection["card_ref"].get("public_card_id") == source_code
+                and selection["card_ref"].get("controller")
+                == definition["source_player"]
+                and (
+                    (
+                        definition.get("source_zone", "hand") == "hand"
+                        and selection["card_ref"].get("location") == "hand"
+                    )
+                    or (
+                        definition.get("source_zone", "hand") == "field"
+                        and selection["card_ref"].get("location")
+                        in {
+                            "monster_zone",
+                            "spell_trap_zone",
+                            "core_location_4",
+                            "core_location_8",
+                        }
+                    )
+                )
+                for selection in selections
+            )
+            if not selected_source:
+                continue
+            response_steps = []
+            for response_index, role in enumerate(roles):
+                next_index = event_index + response_index + 1
+                if next_index >= len(normalized_events):
+                    raise ValueError(
+                        f"specified interruption {definition['id']!r} is missing "
+                        f"the explicit {role!r} response"
+                    )
+                response_step, response_action = normalized_events[next_index]
+                response_selections = response_action.get("selections")
+                if not isinstance(response_selections, list):
+                    raise ValueError("specified response Action has no selections")
+                response_steps.append(
+                    {
+                        "action_id": response_action.get("action_id"),
+                        "action_step": response_step,
+                        "candidate_ids": [
+                            selection.get("candidate_id")
+                            for selection in response_selections
+                            if isinstance(selection, Mapping)
+                        ],
+                        "response_index": response_index,
+                        "role": role,
+                    }
+                )
+            activation_candidate_ids = [
+                selection.get("candidate_id")
+                for selection in selections
+                if isinstance(selection, Mapping)
+            ]
+            prefix_action_ids = [
+                prefix_action.get("action_id")
+                for _prefix_step, prefix_action in normalized_events[:event_index]
+            ]
+            record = {
+                "activation": {
+                    "action_id": action.get("action_id"),
+                    "action_step": step,
+                    "candidate_ids": activation_candidate_ids,
+                    "request_signature": action.get("request_signature"),
+                },
+                "definition_id": definition["id"],
+                "prefix_action_ids": prefix_action_ids,
+                "response_steps": response_steps,
+                "source_card_code": source_code,
+                "source_player": definition["source_player"],
+                "source_zone": definition.get("source_zone", "hand"),
+                "status": "applied_by_core",
+                "taxonomy_schema_version": (
+                    INTERRUPTION_SUPPORT_TAXONOMY_SCHEMA_VERSION
+                ),
+            }
+            record["trace_id"] = stable_digest(
+                record, prefix="specifiedinterruption_"
+            )
+            trace.append(record)
+    return trace
 
 
 def _apply_progress_events(
@@ -2368,6 +2711,8 @@ def run_real_core_worker(
     *,
     external_root: str | Path | None = None,
     experiment: Mapping[str, Any] | None = None,
+    experiment_path: str | Path | None = None,
+    action_prefix: Sequence[Mapping[str, Any]] = (),
     stress_failure: str | None = None,
     document_kind: str = "route",
 ) -> dict[str, Any]:
@@ -2375,7 +2720,35 @@ def run_real_core_worker(
         raise ValueError(f"unsupported real-core document kind {document_kind!r}")
     if stress_failure not in {None, "callback_error"}:
         raise ValueError(f"unsupported real-core stress failure {stress_failure!r}")
-    experiment = _resolved_real_experiment(experiment)
+    frontier_mode = document_kind == "search_frontier"
+    scenario_manifest = None
+    if frontier_mode:
+        if experiment is None:
+            raise ValueError("search frontier requires an Experiment 0.4 document")
+        experiment = deepcopy(dict(experiment))
+        assert_current_experiment(experiment)
+        preflight = preflight_scenario(
+            experiment,
+            experiment_path=experiment_path,
+            external_root=external_root,
+        )
+        if not preflight.ok or preflight.manifest is None:
+            raise ValueError(
+                "scenario preflight failed: "
+                + canonical_json(preflight.to_dict())
+            )
+        scenario_manifest = preflight.manifest
+        if experiment["information_mode"] != "complete_information":
+            raise ValueError(
+                "General Search MVP supports complete_information only; "
+                "PlayerView Replay is deferred"
+            )
+        if experiment["interruption"].get("mode") not in {"none", "specified"}:
+            raise ValueError(
+                "arbitrary-deck frontier supports interruption.mode=none or specified"
+            )
+    else:
+        experiment = _resolved_real_experiment(experiment)
     fixture_script_id = _fixture_script_id(experiment)
     card_instance_provenance_version = _card_instance_provenance_version(experiment)
     card_instance_v2_enabled = card_instance_provenance_version == "v2"
@@ -2397,13 +2770,52 @@ def run_real_core_worker(
     )
     direct_random_instrumentation = direct_random_trace_metadata(enabled=True)
     recovery_card_present = _recovery_card_present(experiment)
-    default_hands = _fixed_hands(
-        fixture_script_id,
-        recovery_card_present=recovery_card_present,
+    specified_definitions = (
+        list(experiment["interruption"]["definitions"])
+        if frontier_mode and experiment["interruption"].get("mode") == "specified"
+        else []
+    )
+    specified_hand_cards = [
+        int(definition["source_card_code"])
+        for definition in specified_definitions
+        if definition.get("source_player") == 1
+        and definition.get("source_zone", "hand") == "hand"
+    ]
+    default_hands = (
+        {"0": list(scenario_manifest.opening_hand), "1": specified_hand_cards}
+        if scenario_manifest is not None
+        else _fixed_hands(
+            fixture_script_id,
+            recovery_card_present=recovery_card_present,
+        )
     )
     initial_field = _fixture_initial_field(fixture_script_id)
-    scenario_id = _scenario_id(fixture_script_id)
-    interruption_plans = _resolve_interruption_plans(experiment)
+    if frontier_mode:
+        for definition in specified_definitions:
+            if definition.get("source_zone", "hand") != "field":
+                continue
+            location = definition.get("core_location")
+            if location not in {LOCATION_MZONE, LOCATION_SZONE}:
+                raise ValueError(
+                    "specified field interruption requires core_location 4 or 8"
+                )
+            initial_field.append(
+                {
+                    "code": int(definition["source_card_code"]),
+                    "controller": int(definition["source_player"]),
+                    "location": int(location),
+                    "position": int(
+                        definition.get("position", POSITION_FACEUP_ATTACK)
+                    ),
+                    "sequence": int(definition.get("sequence", 0)),
+                }
+            )
+    scenario_id = (
+        f"general_search:{experiment['experiment_id']}"
+        if frontier_mode
+        else _scenario_id(fixture_script_id)
+    )
+    interruption_plans = [] if frontier_mode else _resolve_interruption_plans(experiment)
     interruption_executions = [
         _InterruptionExecution(plan=plan) for plan in interruption_plans
     ]
@@ -2412,10 +2824,7 @@ def run_real_core_worker(
         for execution in interruption_executions
     }
     information_policy = InformationAccessPolicy.from_experiment(experiment)
-    opening_hand_plan = _resolve_opening_hand_plan(
-        information_policy,
-        default_hands,
-    )
+    opening_hand_plan = _resolve_opening_hand_plan(information_policy, default_hands)
     fixed_hands = opening_hand_plan.hands
     player0_hand_count = len(fixed_hands["0"])
     information_policy_id = str(information_policy.to_dict()["policy_id"])
@@ -2471,6 +2880,8 @@ def run_real_core_worker(
         "snapshot_schema": SNAPSHOT_SCHEMA_VERSION,
         "direct_random_trace": direct_random_instrumentation,
     }
+    if scenario_manifest is not None:
+        version_metadata["scenario_manifest"] = scenario_manifest.to_dict()
     card_instance_scope_id: str | None = None
     card_instance_tracker: CardInstanceTrackerV2 | None = None
     if card_instance_v2_enabled:
@@ -2539,8 +2950,13 @@ def run_real_core_worker(
                 if card_instance_v2_enabled
                 else base_scripts
             )
+            representative_code = (
+                scenario_manifest.sections["main"][0]
+                if scenario_manifest is not None
+                else EFFECT_VEILER_CODE
+            )
             card_script_bytes = effective_scripts.get_script(
-                f"c{EFFECT_VEILER_CODE}.lua"
+                f"c{representative_code}.lua"
             )
             config = DuelConfig(seed=DUEL_SEED, team1=player, team2=player)
             effective_card_data = (
@@ -2577,6 +2993,41 @@ def run_real_core_worker(
                                 location=LOCATION_HAND,
                                 sequence=sequence,
                                 position=POSITION_FACEUP_ATTACK,
+                            )
+                        )
+                if scenario_manifest is not None:
+                    remaining_main = list(scenario_manifest.sections["main"])
+                    for code in fixed_hands["0"]:
+                        try:
+                            remaining_main.remove(code)
+                        except ValueError as exc:
+                            raise ValueError(
+                                f"opening hand card {code} is absent from normalized main deck"
+                            ) from exc
+                    for sequence, code in enumerate(remaining_main):
+                        duel.add_card(
+                            NewCard(
+                                team=0,
+                                duelist=0,
+                                code=code,
+                                controller=0,
+                                location=LOCATION_DECK,
+                                sequence=sequence,
+                                position=POSITION_FACEDOWN_DEFENSE,
+                            )
+                        )
+                    for sequence, code in enumerate(
+                        scenario_manifest.sections["extra"]
+                    ):
+                        duel.add_card(
+                            NewCard(
+                                team=0,
+                                duelist=0,
+                                code=code,
+                                controller=0,
+                                location=LOCATION_EXTRA,
+                                sequence=sequence,
+                                position=POSITION_FACEDOWN_DEFENSE,
                             )
                         )
                 for card in initial_field:
@@ -2621,9 +3072,13 @@ def run_real_core_worker(
                 current_turn, current_phase = _apply_progress_events(
                     initial_core_output, 0, "pre_duel"
                 )
-                if current_turn != 1 or current_phase != "main1":
+                if (
+                    not frontier_mode
+                    and (current_turn != 1 or current_phase != "main1")
+                ):
                     raise ValueError(
-                        "fixed real-core scenario did not start at turn 1 main1"
+                        "fixed real-core scenario did not start at turn 1 main1; "
+                        f"observed turn={current_turn} phase={current_phase!r}"
                     )
                 replay_manifest = _real_replay_manifest(
                     core_lock=core_lock,
@@ -2665,6 +3120,19 @@ def run_real_core_worker(
                     fixture_script=fixture_script_metadata,
                     direct_random_trace=direct_random_instrumentation,
                 )
+                if scenario_manifest is not None:
+                    replay_manifest = ReplayManifestV03a(
+                        environment={
+                            **replay_manifest.environment,
+                            "scenario_manifest": scenario_manifest.to_dict(),
+                        },
+                        randomness=replay_manifest.randomness,
+                        rules=replay_manifest.rules,
+                        initial_conditions={
+                            **replay_manifest.initial_conditions,
+                            "normalized_deck_sha256": scenario_manifest.deck_sha256,
+                        },
+                    )
                 summoned = False
                 end_turn_submitted = False
                 aggregation_effect_activated = False
@@ -2678,12 +3146,43 @@ def run_real_core_worker(
                 matrix_secondary_activated = False
                 temporary_checkpoint_step: int | None = None
                 turn_action_index = 0
+                frontier_actions_at_stop: tuple[Action, ...] = ()
+                frontier_legal_stop = None
+                frontier_limit = int(
+                    experiment["search"].get("parameters", {}).get(
+                        "max_frontier_actions", 256
+                    )
+                )
                 while True:
                     if len(events) >= response_budget:
                         raise ValueError(
                             "fixed real-core scenario exceeded its response budget"
                         )
                     legal_stop = evaluate_legal_stop(current_snapshot)
+                    available_frontier_actions = (
+                        _frontier_actions(request, limit=frontier_limit)
+                        if frontier_mode
+                        else ()
+                    )
+                    if frontier_mode and len(events) == len(action_prefix):
+                        if legal_stop.can_stop and events:
+                            final_request_signature = request.request_signature
+                            temporary_checkpoint_step = len(events) - 1
+                            frontier_actions_at_stop = available_frontier_actions
+                            frontier_legal_stop = legal_stop
+                            break
+                        return _frontier_document(
+                            request=request,
+                            actions=available_frontier_actions,
+                            snapshot=current_snapshot,
+                            checkpoint_snapshots=checkpoint_snapshots,
+                            experiment=experiment,
+                            turn=current_turn,
+                            phase=current_phase,
+                            legal_stop=legal_stop,
+                            route_document=None,
+                            action_prefix=action_prefix,
+                        )
                     if summoned and legal_stop.can_stop:
                         if not end_turn_submitted:
                             if not events:
@@ -2694,29 +3193,39 @@ def run_real_core_worker(
                         elif current_turn >= 2 and current_phase == "main1":
                             final_request_signature = request.request_signature
                             break
-                    candidates, selection_role = _selected_candidate(
-                        request,
-                        fixture_script_id=fixture_script_id,
-                        summoned=summoned,
-                        end_turn_submitted=end_turn_submitted,
-                        interruption_executions=interruption_executions,
-                        aggregation_effect_activated=aggregation_effect_activated,
-                        aggregation_cost_count=aggregation_cost_count,
-                        aggregation_target_selected=aggregation_target_selected,
-                        aggregation_resolution_card_selected=(
-                            aggregation_resolution_card_selected
-                        ),
-                        aggregation_option_selected=aggregation_option_selected,
-                        recovery_primary_activated=recovery_primary_activated,
-                        recovery_card_activated=recovery_card_activated,
-                        matrix_primary_activated=matrix_primary_activated,
-                        matrix_secondary_activated=matrix_secondary_activated,
-                        events=events,
-                        state_hash_before=current_snapshot.state_hash,
-                        turn=current_turn,
-                        turn_action_index=turn_action_index,
-                        chain_index=int(current_snapshot.field_state["chain_count"]),
-                    )
+                    if frontier_mode:
+                        if len(events) >= len(action_prefix):
+                            raise ValueError("search prefix replay advanced past its target")
+                        expected_action = action_prefix[len(events)]
+                        if not isinstance(expected_action, Mapping):
+                            raise ValueError("search prefix actions must be mappings")
+                        candidates, selection_role = _prefix_candidates(
+                            request, expected_action
+                        )
+                    else:
+                        candidates, selection_role = _selected_candidate(
+                            request,
+                            fixture_script_id=fixture_script_id,
+                            summoned=summoned,
+                            end_turn_submitted=end_turn_submitted,
+                            interruption_executions=interruption_executions,
+                            aggregation_effect_activated=aggregation_effect_activated,
+                            aggregation_cost_count=aggregation_cost_count,
+                            aggregation_target_selected=aggregation_target_selected,
+                            aggregation_resolution_card_selected=(
+                                aggregation_resolution_card_selected
+                            ),
+                            aggregation_option_selected=aggregation_option_selected,
+                            recovery_primary_activated=recovery_primary_activated,
+                            recovery_card_activated=recovery_card_activated,
+                            matrix_primary_activated=matrix_primary_activated,
+                            matrix_secondary_activated=matrix_secondary_activated,
+                            events=events,
+                            state_hash_before=current_snapshot.state_hash,
+                            turn=current_turn,
+                            turn_action_index=turn_action_index,
+                            chain_index=int(current_snapshot.field_state["chain_count"]),
+                        )
                     is_activation_rollback_cancel = (
                         selection_role == "activation_rollback_cancel"
                     )
@@ -2776,6 +3285,12 @@ def run_real_core_worker(
                             else None
                         ),
                     )
+                    if frontier_mode and action.action_id != expected_action.get(
+                        "action_id"
+                    ):
+                        raise ValueError(
+                            "search prefix Action identity changed during fresh Replay"
+                        )
                     encoded = duel.respond_action(request, action)
                     next_batch = _decode_batch(
                         decoder,
@@ -3059,8 +3574,12 @@ def run_real_core_worker(
         ),
     )
     terminal_step = len(checkpoints) - 1
-    durability = build_durability_report(
-        checkpoints[temporary_checkpoint_step], checkpoints[terminal_step]
+    durability = (
+        None
+        if frontier_mode
+        else build_durability_report(
+            checkpoints[temporary_checkpoint_step], checkpoints[terminal_step]
+        )
     )
     terminal_checkpoint = checkpoints[terminal_step]
     temporary_modifier_observation = _build_real_core_temporary_observation(
@@ -3152,6 +3671,10 @@ def run_real_core_worker(
         presentation["interruption_validation_evidence"] = (
             derive_ocgcore_interruption_validation(replay)
         )
+    if experiment.get("interruption", {}).get("mode") == "specified":
+        presentation["specified_interruption_trace"] = (
+            _specified_interruption_trace(experiment, replay)
+        )
     interruption_records = []
     lineage = {"parent_route_id": None, "fork_step": None}
     for execution in interruption_executions:
@@ -3207,7 +3730,6 @@ def run_real_core_worker(
             "success": bool(checkpoints[peak_step]["success"]),
             "final_request_signature": final_request_signature,
             "request_signatures": [*request_signatures, final_request_signature],
-            "durability": durability,
             "evaluation_explanation": {
                 "temporary_effects": temporary_effect_report
             },
@@ -3220,6 +3742,8 @@ def run_real_core_worker(
         "interruptions": interruption_records,
         "lineage": lineage,
     }
+    if durability is not None:
+        document["result"]["durability"] = durability
     if temporary_modifier_observation is not None:
         document["result"]["temporary_modifier_observation"] = (
             temporary_modifier_observation
@@ -3227,6 +3751,21 @@ def run_real_core_worker(
     if card_instance_v2_enabled:
         assert_public_card_instance_document(document)
     assert_valid_route_document(document)
+    if frontier_mode:
+        if frontier_legal_stop is None:
+            raise ValueError("search frontier stopped without a legal-stop decision")
+        return _frontier_document(
+            request=request,
+            actions=frontier_actions_at_stop,
+            snapshot=current_snapshot,
+            checkpoint_snapshots=checkpoint_snapshots,
+            experiment=experiment,
+            turn=current_turn,
+            phase=current_phase,
+            legal_stop=frontier_legal_stop,
+            route_document=document,
+            action_prefix=action_prefix,
+        )
     return document
 
 
@@ -3281,6 +3820,7 @@ def invoke_real_core_worker_process(
         text=True,
         encoding="utf-8",
         errors="replace",
+        env=current_checkout_environment(),
     )
     timed_out = False
     try:

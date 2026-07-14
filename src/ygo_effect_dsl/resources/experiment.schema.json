@@ -1,15 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Tao-pyth/ygo-effect-dsl/experiment.schema.json",
-  "title": "ygo-effect-dsl Experiment v0.3b",
+  "title": "ygo-effect-dsl Experiment v0.4",
   "type": "object",
   "required": [
     "schema_version", "experiment_id", "objective", "deck", "player",
     "turn_limit", "information_mode", "information_policy", "evaluate_at", "success_predicate",
-    "evaluator", "search", "interruption", "replay"
+    "evaluator", "search", "interruption", "replay", "scenario"
   ],
   "properties": {
-    "schema_version": {"const": "0.3b"},
+    "schema_version": {"const": "0.4"},
     "experiment_id": {"type": "string", "minLength": 1},
     "objective": {"type": "string", "minLength": 1},
     "deck": {
@@ -17,8 +17,22 @@
       "required": ["id", "source"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
-        "source": {"enum": ["fixed", "inline", "ydk"]}
-      }
+        "source": {"enum": ["fixed", "inline", "ydk"]},
+        "main": {"$ref": "#/$defs/cardCodes"},
+        "extra": {"$ref": "#/$defs/cardCodes"},
+        "side": {"$ref": "#/$defs/cardCodes"},
+        "path": {"type": "string", "minLength": 1}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"source": {"const": "inline"}}},
+          "then": {"required": ["main", "extra", "side"]}
+        },
+        {
+          "if": {"properties": {"source": {"const": "ydk"}}},
+          "then": {"required": ["path"]}
+        }
+      ]
     },
     "player": {
       "type": "object",
@@ -55,7 +69,9 @@
           "anyOf": [{"required": ["max_nodes"]}, {"required": ["max_seconds"]}],
           "properties": {
             "max_nodes": {"type": "integer", "minimum": 1},
-            "max_seconds": {"type": "number", "exclusiveMinimum": 0}
+            "max_seconds": {"type": "number", "exclusiveMinimum": 0},
+            "max_depth": {"type": "integer", "minimum": 1},
+            "max_replays": {"type": "integer", "minimum": 1}
           }
         },
         "parameters": {"type": "object"}
@@ -65,7 +81,7 @@
       "type": "object",
       "required": ["mode", "definitions"],
       "properties": {
-        "mode": {"enum": ["none", "scripted", "sampled"]},
+        "mode": {"enum": ["none", "scripted", "sampled", "specified"]},
         "sampling": {
           "type": "object",
           "required": ["schema_version", "sampler_id", "seed"],
@@ -83,6 +99,51 @@
       "required": ["strict_versions"],
       "properties": {"strict_versions": {"type": "boolean"}}
     },
+    "scenario": {
+      "type": "object",
+      "required": ["schema_version", "opening_hand"],
+      "properties": {
+        "schema_version": {"const": "scenario-v1"},
+        "opening_hand": {
+          "type": "object",
+          "required": ["mode"],
+          "properties": {
+            "mode": {"enum": ["fixed", "random", "conditional"]},
+            "cards": {"$ref": "#/$defs/cardCodes"},
+            "seed": {"type": "integer", "minimum": 0},
+            "size": {"type": "integer", "minimum": 1},
+            "max_attempts": {"type": "integer", "minimum": 1},
+            "conditions": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["code"],
+                "properties": {
+                  "code": {"type": "integer", "minimum": 1},
+                  "min_count": {"type": "integer", "minimum": 0},
+                  "max_count": {"type": "integer", "minimum": 0}
+                }
+              }
+            }
+          },
+          "allOf": [
+            {
+              "if": {"properties": {"mode": {"const": "fixed"}}},
+              "then": {"required": ["cards"]}
+            },
+            {
+              "if": {"properties": {"mode": {"enum": ["random", "conditional"]}}},
+              "then": {"required": ["seed"]}
+            },
+            {
+              "if": {"properties": {"mode": {"const": "conditional"}}},
+              "then": {"required": ["conditions"]}
+            }
+          ]
+        }
+      }
+    },
     "runner": {
       "type": "object",
       "required": ["adapter", "scenario_id"],
@@ -93,6 +154,10 @@
     }
   },
   "$defs": {
+    "cardCodes": {
+      "type": "array",
+      "items": {"type": "integer", "minimum": 1}
+    },
     "plugin": {
       "type": "object",
       "required": ["id", "version", "config"],

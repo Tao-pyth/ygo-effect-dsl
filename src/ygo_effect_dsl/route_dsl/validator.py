@@ -42,7 +42,11 @@ from ygo_effect_dsl.engine.replay import (
     assert_complete_io_trace,
     build_action_occurrence_id,
 )
-from ygo_effect_dsl.experiment import EXPERIMENT_SCHEMA_VERSION, validate_experiment
+from ygo_effect_dsl.experiment import (
+    EXPERIMENT_SCHEMA_VERSION,
+    INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION,
+    validate_experiment,
+)
 
 
 ROUTE_DSL_NAME = "ygo-route"
@@ -99,9 +103,10 @@ def _validate_information_policy_links(
     replay: Mapping[str, Any] | None,
     issues: list[RouteValidationIssue],
 ) -> None:
-    if experiment is None or experiment.get("schema_version") != (
-        EXPERIMENT_SCHEMA_VERSION
-    ):
+    if experiment is None or experiment.get("schema_version") not in {
+        INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION,
+        EXPERIMENT_SCHEMA_VERSION,
+    }:
         return
     try:
         policy = InformationAccessPolicy.from_experiment(experiment)

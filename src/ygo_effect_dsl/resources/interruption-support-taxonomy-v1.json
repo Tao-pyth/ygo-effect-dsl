@@ -1,0 +1,41 @@
+{
+  "schema_version": "interruption-support-taxonomy-v1",
+  "mvp_supported_shapes": [
+    "hand_targetless",
+    "hand_cost_single_target",
+    "field_multi_target",
+    "option_response"
+  ],
+  "fixture_evidence": {
+    "hand_targetless": "interruption_candidate_matrix_v1",
+    "hand_cost_single_target": "interruption_candidate_matrix_v1",
+    "field_multi_target": "interruption_candidate_matrix_v1",
+    "option_response": "action_aggregation_selection_edges_v1"
+  },
+  "validation_categories": {
+    "standard": {
+      "status": "verified_fixture_category",
+      "default": true
+    },
+    "damage_step": {
+      "status": "fail_close_pending_fixture",
+      "default": false
+    },
+    "mandatory_trigger": {
+      "status": "fail_close_pending_fixture",
+      "default": false
+    },
+    "segoc": {
+      "status": "fail_close_pending_fixture",
+      "default": false
+    }
+  },
+  "rules": {
+    "candidate_authority": "ocgcore_decision_request_only",
+    "effect_inference": false,
+    "legality_inference": false,
+    "timing_inference": false,
+    "ambiguous_response": "configuration_failure",
+    "candidate_disappearance": "path_failure"
+  }
+}
