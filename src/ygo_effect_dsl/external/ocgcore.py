@@ -371,6 +371,33 @@ def verify_asset_repository(
     }
 
 
+def _fetch_locked_commit(
+    *, repository: str, commit: str, destination: Path
+) -> None:
+    """Acquire one immutable commit without depending on a movable ref."""
+
+    _run(["git", "init", destination])
+    _run(["git", "remote", "add", "origin", repository], cwd=destination)
+    _run(
+        [
+            "git",
+            "fetch",
+            "--filter=blob:none",
+            "--no-tags",
+            "--depth=1",
+            "origin",
+            commit,
+        ],
+        cwd=destination,
+    )
+    fetched = _run(["git", "rev-parse", "FETCH_HEAD"], cwd=destination)
+    if fetched != commit:
+        raise OcgcoreBootstrapError(
+            f"locked commit fetch mismatch: expected {commit}, got {fetched}"
+        )
+    _run(["git", "checkout", "--detach", commit], cwd=destination)
+
+
 def _acquire_asset_repository(
     lock: OcgcoreAssetLock,
     layout: OcgcoreLayout,
@@ -391,19 +418,11 @@ def _acquire_asset_repository(
     if partial.exists():
         _remove_owned_tree(partial, layout.install_root)
     try:
-        _run(
-            [
-                "git",
-                "clone",
-                "--filter=blob:none",
-                "--no-checkout",
-                "--branch",
-                str(expected["ref"]),
-                str(expected["repository"]),
-                partial,
-            ]
+        _fetch_locked_commit(
+            repository=str(expected["repository"]),
+            commit=str(expected["commit"]),
+            destination=partial,
         )
-        _run(["git", "checkout", "--detach", str(expected["commit"])], cwd=partial)
         observed = verify_asset_repository(name, expected, partial)
         partial.replace(destination)
         return observed

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 from pathlib import Path
@@ -8,8 +9,10 @@ import pytest
 
 from ygo_effect_dsl.external.ocgcore import (
     EXTERNAL_ROOT_ENV,
+    OcgcoreAssetLock,
     OcgcoreBootstrapError,
     OcgcoreLayout,
+    _acquire_asset_repository,
     _verify_required_asset_files,
     _configure_reproducible_link,
     acquire_source,
@@ -79,6 +82,52 @@ def test_required_asset_file_verification_fails_closed(tmp_path: Path) -> None:
     asset.write_bytes(b"tampered")
     with pytest.raises(OcgcoreBootstrapError, match="size/SHA-256"):
         _verify_required_asset_files(tmp_path, required)
+
+
+def test_asset_acquisition_uses_pinned_commit_without_requiring_ref(
+    tmp_path: Path,
+) -> None:
+    origin = tmp_path / "origin"
+    origin.mkdir()
+    _git(origin, "init")
+    _git(origin, "config", "user.email", "test@example.invalid")
+    _git(origin, "config", "user.name", "Test")
+    asset = origin / "cards.cdb"
+    asset.write_bytes(b"tagged revision")
+    _git(origin, "add", "cards.cdb")
+    _git(origin, "commit", "-m", "tagged revision")
+    _git(origin, "tag", "historical-tag")
+    asset.write_bytes(b"locked revision after tag")
+    _git(origin, "add", "cards.cdb")
+    _git(origin, "commit", "-m", "locked revision")
+    commit = _git(origin, "rev-parse", "HEAD")
+    tree = _git(origin, "rev-parse", "HEAD^{tree}")
+    digest = hashlib.sha256(asset.read_bytes()).hexdigest()
+    expected = {
+        "directory": "BabelCDB",
+        "repository": str(origin),
+        "ref": "deleted-or-moved-ref",
+        "commit": commit,
+        "tree": tree,
+        "license": "NOASSERTION",
+        "required_files": {
+            "cards.cdb": {"size": asset.stat().st_size, "sha256": digest}
+        },
+    }
+    lock = OcgcoreAssetLock(
+        data={"repositories": {"card_database": expected}},
+        sha256="fixture",
+    )
+    layout = OcgcoreLayout.create(load_ocgcore_lock(), tmp_path / "external")
+
+    observed = _acquire_asset_repository(
+        lock, layout, "card_database", offline=False
+    )
+
+    assert observed["ref"] == "deleted-or-moved-ref"
+    assert observed["commit"] == commit
+    assert observed["tree"] == tree
+    assert _git(layout.assets / "BabelCDB", "rev-parse", "HEAD") == commit
 
 
 def test_external_root_can_be_shared_by_dev_ci_and_packaged_entrypoint(
