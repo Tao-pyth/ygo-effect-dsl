@@ -33,7 +33,7 @@ from ygo_effect_dsl.route_dsl import (
 from ygo_effect_dsl.runtime_imports import current_checkout_environment
 
 
-REAL_DECK_QUALIFICATION_SCHEMA_VERSION = "real-deck-qualification-index-v1"
+REAL_DECK_QUALIFICATION_SCHEMA_VERSION = "real-deck-qualification-index-v2"
 QUALIFICATION_PROFILE_IDS = ("short", "long", "grave_banish")
 QUALIFICATION_REPETITIONS = 2
 LONG_PROFILE_MIN_ACTIONS = 12
@@ -240,15 +240,16 @@ def derive_qualification_witness(
     result = _mapping(route.get("result"), "route.result")
     terminal = _mapping(result.get("terminal_board"), "route.result.terminal_board")
     action_count = len(events)
+    success = _boolean(result.get("success"), "route.result.success")
+    stop_reason = _string(
+        terminal.get("stop_reason"), "route.result.terminal_board.stop_reason"
+    )
+    successful_legal_stop = success and stop_reason == "core_end_turn_available"
 
     if profile_id == "short":
-        success = _boolean(result.get("success"), "route.result.success")
-        stop_reason = _string(
-            terminal.get("stop_reason"), "route.result.terminal_board.stop_reason"
-        )
         witness = {
             "action_count": action_count,
-            "observed": success and stop_reason == "core_end_turn_available",
+            "observed": successful_legal_stop,
             "success": success,
             "terminal_stop_reason": stop_reason,
             "witness_type": "short-legal-stop-success-v1",
@@ -275,10 +276,14 @@ def derive_qualification_witness(
             "checkpoint_count": len(checkpoints),
             "minimum_action_count": LONG_PROFILE_MIN_ACTIONS,
             "observed": (
-                action_count >= LONG_PROFILE_MIN_ACTIONS and bool(progression)
+                successful_legal_stop
+                and action_count >= LONG_PROFILE_MIN_ACTIONS
+                and bool(progression)
             ),
+            "success": success,
+            "terminal_stop_reason": stop_reason,
             "turn_phase_progression": progression,
-            "witness_type": "long-action-turn-phase-v1",
+            "witness_type": "long-action-turn-phase-legal-stop-success-v2",
         }
     elif profile_id == "grave_banish":
         checkpoints = [
@@ -312,9 +317,11 @@ def derive_qualification_witness(
             previous_counts = current_counts
             previous_step = step
         witness = {
-            "observed": bool(transitions),
+            "observed": successful_legal_stop and bool(transitions),
+            "success": success,
+            "terminal_stop_reason": stop_reason,
             "transitions": transitions,
-            "witness_type": "grave-banish-zone-transition-v1",
+            "witness_type": "grave-banish-zone-transition-legal-stop-success-v2",
         }
     else:
         raise RealDeckQualificationError(
@@ -587,13 +594,22 @@ def _validate_witness(profile_id: str, value: Any, path: str) -> None:
                 "checkpoint_count",
                 "minimum_action_count",
                 "observed",
+                "success",
+                "terminal_stop_reason",
                 "turn_phase_progression",
                 "witness_type",
             },
             path,
         )
-        if witness.get("witness_type") != "long-action-turn-phase-v1":
+        if (
+            witness.get("witness_type")
+            != "long-action-turn-phase-legal-stop-success-v2"
+        ):
             raise RealDeckQualificationError(f"{path}.witness_type is unsupported")
+        if not _boolean(witness.get("success"), f"{path}.success"):
+            raise RealDeckQualificationError(f"{path}.success must be true")
+        if witness.get("terminal_stop_reason") != "core_end_turn_available":
+            raise RealDeckQualificationError(f"{path} has no legal-stop witness")
         action_count = _integer(
             witness.get("action_count"), f"{path}.action_count", minimum=1
         )
@@ -621,11 +637,24 @@ def _validate_witness(profile_id: str, value: Any, path: str) -> None:
     else:
         _exact_keys(
             witness,
-            {"observed", "transitions", "witness_type"},
+            {
+                "observed",
+                "success",
+                "terminal_stop_reason",
+                "transitions",
+                "witness_type",
+            },
             path,
         )
-        if witness.get("witness_type") != "grave-banish-zone-transition-v1":
+        if (
+            witness.get("witness_type")
+            != "grave-banish-zone-transition-legal-stop-success-v2"
+        ):
             raise RealDeckQualificationError(f"{path}.witness_type is unsupported")
+        if not _boolean(witness.get("success"), f"{path}.success"):
+            raise RealDeckQualificationError(f"{path}.success must be true")
+        if witness.get("terminal_stop_reason") != "core_end_turn_available":
+            raise RealDeckQualificationError(f"{path} has no legal-stop witness")
         transitions = _sequence(witness.get("transitions"), f"{path}.transitions")
         if not transitions:
             raise RealDeckQualificationError(f"{path} has no zone transition")

@@ -109,7 +109,7 @@ def test_release_documents_match_the_current_version_baseline() -> None:
         "scenario-v1",
         "ygo-replay-manifest-v1",
         "fresh-replay-verification-v1",
-        "real-deck-qualification-index-v1",
+        "real-deck-qualification-index-v2",
         "ocgcore-lua-load-qualification-v1",
         "information-policy-v1",
         "ygo-state-id-v1",

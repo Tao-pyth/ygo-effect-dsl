@@ -55,14 +55,18 @@ def _witness(profile_id: str) -> dict:
             "checkpoint_count": 12,
             "minimum_action_count": 12,
             "observed": True,
+            "success": True,
+            "terminal_stop_reason": "core_end_turn_available",
             "turn_phase_progression": [
                 {"phase": "main1", "turn": 1},
                 {"phase": "main1", "turn": 2},
             ],
-            "witness_type": "long-action-turn-phase-v1",
+            "witness_type": "long-action-turn-phase-legal-stop-success-v2",
         }
     return {
         "observed": True,
+        "success": True,
+        "terminal_stop_reason": "core_end_turn_available",
         "transitions": [
             {
                 "after_count": 1,
@@ -73,7 +77,7 @@ def _witness(profile_id: str) -> dict:
                 "zone": "graveyard",
             }
         ],
-        "witness_type": "grave-banish-zone-transition-v1",
+        "witness_type": "grave-banish-zone-transition-legal-stop-success-v2",
     }
 
 
@@ -222,7 +226,10 @@ def _long_route(actions: int = 12) -> dict:
             for index in range(actions)
         ],
         "replay": {"events": [{"action": {}} for _ in range(actions)]},
-        "result": {"terminal_board": {}},
+        "result": {
+            "success": True,
+            "terminal_board": {"stop_reason": "core_end_turn_available"},
+        },
     }
 
 
@@ -253,7 +260,10 @@ def _grave_route(*, moved: bool = True) -> dict:
                 ]
             },
         },
-        "result": {"terminal_board": {}},
+        "result": {
+            "success": True,
+            "terminal_board": {"stop_reason": "core_end_turn_available"},
+        },
     }
 
 
@@ -289,6 +299,27 @@ def test_witnesses_are_derived_only_from_route_observations() -> None:
 )
 def test_missing_profile_witnesses_fail_closed(profile_id, route, message) -> None:
     with pytest.raises(RealDeckQualificationError, match=message):
+        derive_qualification_witness(profile_id, route)
+
+
+@pytest.mark.parametrize("profile_id", ["long", "grave_banish"])
+@pytest.mark.parametrize(
+    ("success", "stop_reason"),
+    [
+        (False, "core_end_turn_available"),
+        (True, "max_depth"),
+    ],
+)
+def test_all_profile_witnesses_require_successful_legal_stop(
+    profile_id: str, success: bool, stop_reason: str
+) -> None:
+    route = _long_route() if profile_id == "long" else _grave_route()
+    route["result"] = {
+        "success": success,
+        "terminal_board": {"stop_reason": stop_reason},
+    }
+
+    with pytest.raises(RealDeckQualificationError, match="required core-observed witness"):
         derive_qualification_witness(profile_id, route)
 
 
