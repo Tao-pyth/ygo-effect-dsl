@@ -52,7 +52,7 @@ stale asset lock、1から100,000外のnode budget、妨害有効時のcard code
 - 960×700ではsearch dialogをscrollableにし、header/footer commandを維持する。
 - hash routeはselected deckとsearch/compare viewのbrowser再現に限定する。OS deep linkはdistribution gateまで保留する。
 
-100,000 row virtualization、screen reader実機、WebView2 lifecycle、renderer/host/worker crash recoveryは、このstatic visual evidenceでは保証しない。それぞれ[#165](https://github.com/Tao-pyth/ygo-effect-dsl/issues/165)と[#245](https://github.com/Tao-pyth/ygo-effect-dsl/issues/245)のrelease gateである。
+このbrowser visual evidence単独では、100,000 row virtualizationとdesktop lifecycleを保証しない。virtualizationは[#165](https://github.com/Tao-pyth/ygo-effect-dsl/issues/165)、screen-reader name/WebView2/renderer・host・worker recoveryは[#245](https://github.com/Tao-pyth/ygo-effect-dsl/issues/245)の[別証跡](19_desktop_lifecycle_recovery.md)で検証する。
 
 ## Security and distribution
 

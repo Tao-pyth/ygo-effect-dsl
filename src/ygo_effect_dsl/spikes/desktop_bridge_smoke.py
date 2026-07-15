@@ -78,7 +78,7 @@ def collect_desktop_bridge_smoke() -> dict[str, Any]:
             "limitations": [
                 "hidden_same_host_window",
                 "system_describe_round_trip_only",
-                "worker_lifecycle_and_accessibility_deferred_to_issue_245",
+                "worker_lifecycle_and_accessibility_verified_by_desktop_lifecycle_evidence",
             ],
             "pywebview_version": importlib.metadata.version("pywebview"),
             "response": response,

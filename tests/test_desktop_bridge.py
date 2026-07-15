@@ -197,6 +197,78 @@ def test_preflight_search_queue_status_and_cancel_use_existing_catalog(
     assert len(experiment_files) == 1
 
 
+def test_service_composes_valid_versioned_experiments_for_each_strategy(
+    tmp_path: Path,
+) -> None:
+    service = DesktopApplicationService(tmp_path, preflight=_preflight)
+    bridge = DesktopBridge(service.handlers())
+    deck = bridge.invoke(
+        _request(
+            "deck.register_inline",
+            {"extra": [], "main": _codes(), "name": "Compose", "side": []},
+        )
+    )["result"]["deck"]
+
+    for strategy in ("random_search_v1", "beam_search_v1", "mcts_v1"):
+        response = bridge.invoke(
+            _request(
+                "scenario.compose_search",
+                {
+                    "configuration": {
+                        "interruption_card_code": 97268402,
+                        "max_depth": 32,
+                        "max_nodes": 1000,
+                        "max_seconds": 120,
+                        "seed": 42017,
+                        "strategy": strategy,
+                    },
+                    "deck_id": deck["deck_id"],
+                },
+            )
+        )
+        experiment = response["result"]["experiment"]
+
+        assert response["ok"] is True
+        assert experiment["schema_version"] == "0.4"
+        assert experiment["deck"]["source"] == "inline"
+        assert experiment["scenario"]["opening_hand"] == {
+            "mode": "random",
+            "seed": 42017,
+            "size": 5,
+        }
+        assert experiment["search"]["strategy"] == strategy
+        assert experiment["interruption"]["mode"] == "specified"
+
+
+def test_service_rejects_unknown_strategy_before_preflight(tmp_path: Path) -> None:
+    service = DesktopApplicationService(tmp_path, preflight=_preflight)
+    bridge = DesktopBridge(service.handlers())
+    deck = service.deck_catalog.register(
+        name="Reject",
+        source="inline",
+        sections={"extra": (), "main": tuple(_codes()), "side": ()},
+    )
+    response = bridge.invoke(
+        _request(
+            "scenario.compose_search",
+            {
+                "configuration": {
+                    "interruption_card_code": None,
+                    "max_depth": 8,
+                    "max_nodes": 10,
+                    "max_seconds": 30,
+                    "seed": 1,
+                    "strategy": "future_strategy",
+                },
+                "deck_id": deck.deck_id,
+            },
+        )
+    )
+
+    assert response["ok"] is False
+    assert response["diagnostics"][0]["code"] == "unsupported_search_strategy"
+
+
 def test_cancel_does_not_finish_a_job_claimed_during_the_request(
     tmp_path: Path,
 ) -> None:
@@ -261,6 +333,7 @@ def test_analytics_and_card_capabilities_fail_closed_or_use_typed_contracts(
     )
 
     assert description["result"]["capabilities"]["card_presentation"] is False
+    assert description["result"]["capabilities"]["worker_health"] == "unknown"
     assert query["ok"] is True
     assert query["result"]["rows"] == []
     assert card["ok"] is False

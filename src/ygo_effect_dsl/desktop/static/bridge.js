@@ -12,6 +12,7 @@
     "job.cancel",
     "job.enqueue_search",
     "job.status",
+    "scenario.compose_search",
     "scenario.preflight",
     "system.describe",
   ]);

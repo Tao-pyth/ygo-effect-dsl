@@ -16,9 +16,18 @@ from ygo_effect_dsl.engine.canonical import (
     stable_digest,
     to_canonical_data,
 )
+from ygo_effect_dsl.engine.information import InformationAccessPolicy
+from ygo_effect_dsl.engine.search import strategy_from_experiment
+from ygo_effect_dsl.experiment.schema import assert_valid_experiment
 from ygo_effect_dsl.experiment.scenario import parse_ydk, preflight_scenario
 from ygo_effect_dsl.presentation import CardPresentationQuery
-from ygo_effect_dsl.storage.jobs import JobCatalog, JobKind, JobSpec, JobState
+from ygo_effect_dsl.storage.jobs import (
+    JobCatalog,
+    JobKind,
+    JobRetryPolicy,
+    JobSpec,
+    JobState,
+)
 from ygo_effect_dsl.storage.query import (
     AnalyticsQueryRequest,
     AnalyticsQueryService,
@@ -30,6 +39,9 @@ from ygo_effect_dsl.version import __version__
 DESKTOP_DECK_CATALOG_VERSION = "desktop-deck-catalog-v1"
 DESKTOP_SERVICE_VERSION = "desktop-application-service-v1"
 MAX_CATALOG_DECKS = 10_000
+MAX_DESKTOP_SEARCH_NODES = 100_000
+MAX_DESKTOP_SEARCH_DEPTH = 256
+MAX_DESKTOP_SEARCH_SECONDS = 3_600.0
 
 
 class YdkPicker(Protocol):
@@ -79,6 +91,34 @@ def _cards(value: Any, field: str) -> tuple[int, ...]:
             )
         result.append(code)
     return tuple(result)
+
+
+def _integer(value: Any, field: str, *, minimum: int, maximum: int) -> int:
+    if (
+        not isinstance(value, int)
+        or isinstance(value, bool)
+        or not minimum <= value <= maximum
+    ):
+        raise DesktopServiceError(
+            "invalid_search_configuration",
+            f"{field} must be an integer between {minimum} and {maximum}",
+            path=f"$.payload.configuration.{field}",
+        )
+    return value
+
+
+def _number(value: Any, field: str, *, minimum: float, maximum: float) -> float:
+    if (
+        not isinstance(value, (int, float))
+        or isinstance(value, bool)
+        or not minimum <= float(value) <= maximum
+    ):
+        raise DesktopServiceError(
+            "invalid_search_configuration",
+            f"{field} must be between {minimum:g} and {maximum:g}",
+            path=f"$.payload.configuration.{field}",
+        )
+    return float(value)
 
 
 def _validate_structure(sections: Mapping[str, tuple[int, ...]]) -> None:
@@ -336,6 +376,8 @@ class DesktopApplicationService:
             Callable[[Mapping[str, Any]], Mapping[str, Any]] | None
         ) = None,
         preflight: Callable[..., Any] = preflight_scenario,
+        worker_execution: str = "external_worker_required",
+        worker_health: Callable[[], str] | None = None,
     ) -> None:
         self.data_root = Path(data_root).expanduser().resolve()
         self.external_root = (
@@ -349,6 +391,13 @@ class DesktopApplicationService:
         self.card_provider = card_provider
         self.comparison_handler = comparison_handler
         self.preflight = preflight
+        if worker_execution not in {
+            "desktop-supervisor-v1",
+            "external_worker_required",
+        }:
+            raise ValueError("unsupported desktop worker execution mode")
+        self.worker_execution = worker_execution
+        self.worker_health = worker_health
         if analytics_service is None:
             snapshots = AnalyticsSnapshotStore()
             snapshots.register(AnalyticsSnapshot(rows=()))
@@ -366,6 +415,7 @@ class DesktopApplicationService:
             "job.cancel": self.job_cancel,
             "job.enqueue_search": self.job_enqueue_search,
             "job.status": self.job_status,
+            "scenario.compose_search": self.scenario_compose_search,
             "scenario.preflight": self.scenario_preflight,
             "system.describe": self.system_describe,
         }
@@ -379,7 +429,12 @@ class DesktopApplicationService:
                 "comparison": self.comparison_handler is not None,
                 "native_ydk_import": self.ydk_picker is not None,
                 "search_job_queue": True,
-                "worker_execution": "external_worker_required",
+                "worker_execution": self.worker_execution,
+                "worker_health": (
+                    self.worker_health()
+                    if self.worker_health is not None
+                    else "unknown"
+                ),
             },
             "package_version": __version__,
             "schema_version": DESKTOP_SERVICE_VERSION,
@@ -461,6 +516,169 @@ class DesktopApplicationService:
         }
         return resolved
 
+    def scenario_compose_search(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, {"configuration", "deck_id"}, "scenario.compose_search")
+        configuration = payload["configuration"]
+        if not isinstance(configuration, Mapping):
+            raise DesktopServiceError(
+                "invalid_search_configuration",
+                "configuration must be an object",
+                path="$.payload.configuration",
+            )
+        expected = {
+            "interruption_card_code",
+            "max_depth",
+            "max_nodes",
+            "max_seconds",
+            "seed",
+            "strategy",
+        }
+        if set(configuration) != expected:
+            raise DesktopServiceError(
+                "invalid_search_configuration",
+                f"configuration fields must be exactly {sorted(expected)}",
+                path="$.payload.configuration",
+            )
+        record = self.deck_catalog.get(payload["deck_id"])
+        seed = _integer(configuration["seed"], "seed", minimum=0, maximum=2**63 - 1)
+        max_nodes = _integer(
+            configuration["max_nodes"],
+            "max_nodes",
+            minimum=1,
+            maximum=MAX_DESKTOP_SEARCH_NODES,
+        )
+        max_depth = _integer(
+            configuration["max_depth"],
+            "max_depth",
+            minimum=1,
+            maximum=MAX_DESKTOP_SEARCH_DEPTH,
+        )
+        max_seconds = _number(
+            configuration["max_seconds"],
+            "max_seconds",
+            minimum=1,
+            maximum=MAX_DESKTOP_SEARCH_SECONDS,
+        )
+        strategy = configuration["strategy"]
+        strategy_parameters: dict[str, Any]
+        if strategy == "random_search_v1":
+            strategy_parameters = {"seed": seed}
+        elif strategy == "beam_search_v1":
+            strategy_parameters = {"beam_width": 4, "seed": seed}
+        elif strategy == "mcts_v1":
+            strategy_parameters = {
+                "reward_ceiling": 100,
+                "reward_floor": 0,
+                "seed": seed,
+                "simulations": 8,
+            }
+        else:
+            raise DesktopServiceError(
+                "unsupported_search_strategy",
+                "desktop search strategy is not supported",
+                path="$.payload.configuration.strategy",
+            )
+        strategy_parameters.update(
+            {
+                "max_frontier_actions": 128,
+                "termination": {"stop_on_success": True},
+            }
+        )
+        interruption_code = configuration["interruption_card_code"]
+        if interruption_code is None:
+            interruption = {"definitions": [], "mode": "none"}
+        else:
+            code = _integer(
+                interruption_code,
+                "interruption_card_code",
+                minimum=1,
+                maximum=2**31 - 1,
+            )
+            interruption = {
+                "definitions": [
+                    {
+                        "id": f"desktop_specified_{code}",
+                        "response_roles": [],
+                        "source_card_code": code,
+                        "source_player": 1,
+                        "source_zone": "hand",
+                    }
+                ],
+                "mode": "specified",
+            }
+        policy = InformationAccessPolicy(
+            information_mode="complete_information",
+            deck_order="known",
+            opening_hand="natural",
+        )
+        identity = {
+            "deck_id": record.deck_id,
+            "interruption": interruption,
+            "max_depth": max_depth,
+            "max_nodes": max_nodes,
+            "max_seconds": max_seconds,
+            "seed": seed,
+            "strategy": strategy,
+        }
+        experiment_id = stable_digest(identity, prefix="desktopexperiment_")
+        experiment: dict[str, Any] = {
+            "deck": {
+                "extra": list(record.extra),
+                "id": record.deck_id,
+                "main": list(record.main),
+                "side": list(record.side),
+                "source": "inline",
+            },
+            "evaluate_at": "legal_stop",
+            "evaluator": {
+                "config": {
+                    "hand_weight": 1,
+                    "missing_value_policy": "error",
+                    "monster_weight": 10,
+                    "temporary_value_policy": "exclude_expired_or_unverified_v1",
+                },
+                "id": "real_core_board_count",
+                "version": "1",
+            },
+            "experiment_id": experiment_id,
+            "information_mode": "complete_information",
+            "information_policy": policy.to_experiment_dict(),
+            "interruption": interruption,
+            "objective": "maximize_terminal_board",
+            "player": {"perspective": 0, "starting_player": 0},
+            "replay": {"strict_versions": True},
+            "scenario": {
+                "opening_hand": {"mode": "random", "seed": seed, "size": 5},
+                "schema_version": "scenario-v1",
+            },
+            "schema_version": "0.4",
+            "search": {
+                "budget": {
+                    "max_depth": max_depth,
+                    "max_nodes": max_nodes,
+                    "max_replays": max_nodes,
+                    "max_seconds": max_seconds,
+                },
+                "parameters": strategy_parameters,
+                "strategy": strategy,
+            },
+            "success_predicate": {
+                "config": {"min_count": 1, "player": 0, "zone": "monster_zone"},
+                "id": "real_core_min_monster_count",
+                "version": "1",
+            },
+            "turn_limit": 2,
+        }
+        try:
+            assert_valid_experiment(experiment)
+            strategy_from_experiment(experiment)
+        except (TypeError, ValueError) as exc:
+            raise DesktopServiceError(
+                "invalid_composed_experiment",
+                "desktop search configuration did not produce a valid Experiment",
+            ) from exc
+        return {"experiment": experiment}
+
     def scenario_preflight(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         _exact(payload, {"deck_id", "experiment"}, "scenario.preflight")
         experiment = self._resolved_experiment(payload)
@@ -507,6 +725,9 @@ class DesktopApplicationService:
                 "experiment_id": experiment["experiment_id"],
             },
             priority=payload["priority"],
+            retry_policy=JobRetryPolicy(
+                attempt_timeout_seconds=self._attempt_timeout(experiment),
+            ),
         )
         job = self.job_catalog.create_job(
             spec,
@@ -517,6 +738,15 @@ class DesktopApplicationService:
             "job": job.to_dict(),
             "preflight": preflight.to_dict(),
         }
+
+    @staticmethod
+    def _attempt_timeout(experiment: Mapping[str, Any]) -> float:
+        search = experiment.get("search")
+        budget = search.get("budget") if isinstance(search, Mapping) else None
+        max_seconds = (
+            budget.get("max_seconds", 300) if isinstance(budget, Mapping) else 300
+        )
+        return float(max_seconds) + 60.0
 
     def job_status(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         _exact(payload, {"job_id"}, "job.status")

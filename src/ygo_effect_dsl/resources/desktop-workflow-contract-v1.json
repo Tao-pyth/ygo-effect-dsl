@@ -35,7 +35,7 @@
     "browser_and_desktop_share_artifact": true,
     "desktop_deck_catalog": "python_application_service",
     "preview_adapter": "synthetic_search_browser_only",
-    "worker_execution": "python_application_service_only"
+    "worker_execution": "desktop-supervisor-v1"
   },
   "large_catalog": {
     "issue": 165,

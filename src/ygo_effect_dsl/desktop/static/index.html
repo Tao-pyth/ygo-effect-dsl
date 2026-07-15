@@ -229,9 +229,9 @@
               <div><h3 id="scenario-title">Scenario</h3><p>Uses Experiment 0.4 without UI rule inference.</p></div>
             </div>
             <div class="form-grid three-columns">
-              <label><span>Objective</span><select id="objective"><option>Maximize terminal board</option><option>Reach success predicate</option><option>Explore legal lines</option></select></label>
-              <label><span>Opening hand</span><select id="opening-hand"><option>Seeded random</option><option>Fixed hand</option><option>Conditional hand</option></select></label>
-              <label><span>Artifact target</span><select id="artifact-target"><option>Local catalog (atomic)</option><option>Choose external directory</option></select></label>
+              <label><span>Objective</span><select id="objective"><option>Maximize terminal board</option></select></label>
+              <label><span>Opening hand</span><select id="opening-hand"><option>Seeded random</option></select></label>
+              <label><span>Artifact target</span><select id="artifact-target"><option>Local catalog (atomic)</option></select></label>
             </div>
           </section>
 
@@ -242,9 +242,9 @@
             </div>
             <fieldset class="strategy-options">
               <legend class="visually-hidden">Search strategy</legend>
-              <label><input type="radio" name="strategy" value="random-search-strategy-v1" checked><span><strong>Random</strong><small>Broad deterministic sampling</small></span></label>
-              <label><input type="radio" name="strategy" value="beam-search-strategy-v1"><span><strong>Beam</strong><small>Score-ranked frontier</small></span></label>
-              <label><input type="radio" name="strategy" value="mcts-strategy-v1"><span><strong>MCTS</strong><small>Exploration and rollout</small></span></label>
+              <label><input type="radio" name="strategy" value="random_search_v1" checked><span><strong>Random</strong><small>Broad deterministic sampling</small></span></label>
+              <label><input type="radio" name="strategy" value="beam_search_v1"><span><strong>Beam</strong><small>Score-ranked frontier</small></span></label>
+              <label><input type="radio" name="strategy" value="mcts_v1"><span><strong>MCTS</strong><small>Exploration and rollout</small></span></label>
             </fieldset>
             <div class="form-grid budget-grid">
               <label><span>Seed</span><input id="seed" type="number" min="0" step="1" value="42017"></label>

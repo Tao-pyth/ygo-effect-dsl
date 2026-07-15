@@ -2,7 +2,7 @@
 
 ## Status
 
-`desktop-bridge-v1` is the v0.5 Windows developer-MVP boundary between the packaged renderer and the Python application service. It implements ADR 0016 and Issue #244. WebView2 lifecycle, accessibility, process-tree cleanup, packaged crash recovery, and installer security remain Issue #245 release gates.
+`desktop-bridge-v1` is the v0.5 Windows developer-MVP boundary between the packaged renderer and the Python application service. It implements ADR 0016 and Issue #244. Issue #245 adds the worker lifecycle and evidence described in [desktop lifecycle contract](19_desktop_lifecycle_recovery.md). Signing/update and distribution approval remain #134/#91 gates.
 
 ## Process and authority
 
@@ -29,13 +29,14 @@ The machine-readable source is `src/ygo_effect_dsl/resources/desktop-bridge-v1.j
 | `deck.catalog` | registered normalized deck summaries | forbidden |
 | `deck.import_ydk` | native selection and fail-closed YDK parse | forbidden |
 | `deck.register_inline` | inline structural registration | forbidden |
+| `scenario.compose_search` | typed UI configuration to validated Experiment 0.4 | forbidden |
 | `scenario.preflight` | Experiment 0.4 and real-asset preflight | forbidden |
 | `job.enqueue_search` | repeated preflight, immutable Experiment persist, SQLite queue | forbidden |
 | `job.status` / `job.cancel` | status snapshot and cooperative cancellation | forbidden |
 | `analytics.query` / `analytics.compare` | typed analytics contracts | forbidden |
 | `card.get` | read-only `card-presentation-v1` query | forbidden |
 
-`job.enqueue_search` stores a content-addressed Experiment and creates the existing `job-spec-v2` search record only after a successful preflight. It does not run Search in the UI thread. A background worker must claim the job and use the existing real-core frontier process. An unconfigured comparison source or card presentation provider returns a specific capability diagnostic.
+`scenario.compose_search` accepts only the visible strategy, seed, budget, and optional specified-interruption card code. The Python service owns the evaluator, success predicate, information policy, opening-hand mode, and Experiment identity; the renderer does not infer rules. `job.enqueue_search` stores a content-addressed Experiment and creates the existing `job-spec-v2` search record only after a successful preflight. It does not run Search in the UI thread. `desktop-search-worker-v1` claims the job and uses the existing real-core frontier process. An unconfigured comparison source or card presentation provider returns a specific capability diagnostic.
 
 ## Deck catalog
 
@@ -54,10 +55,10 @@ No CDB, card text/image, ocgcore binary, CardScripts checkout, or downloaded Web
 Focused verification is:
 
 ```powershell
-python -m pytest -q tests/test_desktop_bridge.py tests/test_desktop_shell.py tests/test_desktop_frontend.py
+python -m pytest -q tests/test_desktop_bridge.py tests/test_desktop_shell.py tests/test_desktop_frontend.py tests/test_desktop_lifecycle.py
 python -m build
 ```
 
-The browser harness and pywebview shell both load `src/ygo_effect_dsl/desktop/static/index.html`. Browser execution retains the explicit synthetic search adapter; desktop bridge availability enables the real local deck catalog and native YDK import. Connecting the search form to a continuously running background worker, large-table virtualization, lifecycle/a11y evidence, signing, update, and distribution remain separate release work rather than being represented as verified by this bridge contract.
+The browser harness and pywebview shell both load `src/ygo_effect_dsl/desktop/static/index.html`. Browser execution retains the explicit synthetic search adapter. Desktop bridge availability enables the real local deck catalog, native YDK import, Python-owned Experiment composition, preflight, queue/status/cancel, and continuously supervised background Search. Large-table virtualization, signing, update, and distribution remain #165/#134/#91 work.
 
-The same-host hidden WebView2 smoke loaded the packaged frontend, let `app.js` query the desktop deck catalog, and then completed a JavaScript `system.describe` Promise through `DesktopBridge.invoke`. The committed evidence is `docs/ui/evidence/desktop_bridge_smoke.json` with ID `desktopbridgesmoke_d018dd37888414b4f3f22b0d70f5626e4815a34d5b0e5737b7c28f34e81d0a70`; it records pywebview 6.2.1, Evergreen WebView2 150.0.4078.65, and a 1.905784 second smoke duration on this host. This is a bridge contract check, not the lifecycle/performance threshold owned by #245.
+The same-host hidden WebView2 smoke loaded the packaged frontend, queried the desktop deck catalog, and completed `system.describe` through `DesktopBridge.invoke`. The current evidence is `docs/ui/evidence/desktop_bridge_smoke.json`, ID `desktopbridgesmoke_7666a9fde12209f57b06d8220e695dd736352d3fcafbb0847e68b859ec870068`. Lifecycle and performance measurements are kept separately so a browser/bridge pass cannot substitute for worker recovery evidence.

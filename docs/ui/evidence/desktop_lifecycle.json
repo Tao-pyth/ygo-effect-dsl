@@ -1,0 +1,166 @@
+{
+  "bridge": {
+    "method_count": 12,
+    "method_drift": false,
+    "path_input_diagnostic": "renderer_path_forbidden",
+    "public_python_methods": [
+      "invoke"
+    ]
+  },
+  "evidence_id": "desktoplifecycleevidence_e294d061ecb793951cf7933b186dda6ec6031293637c27302b296316dcc3bfd9",
+  "frontend": {
+    "accessibility": {
+      "dialog_count": 5,
+      "focusable_control_count": 36,
+      "forced_colors_rules": true,
+      "icon_button_names_complete": true,
+      "label_count": 14,
+      "minimum_window": [
+        960,
+        700
+      ],
+      "reduced_motion_rules": true,
+      "skip_link": true,
+      "tab_arrow_navigation": true
+    },
+    "security": {
+      "csp_default_deny": true,
+      "local_rest_api": false,
+      "network_api_absent": true,
+      "remote_urls_absent": true
+    }
+  },
+  "host": {
+    "machine": "AMD64",
+    "operating_system": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.7",
+    "pywebview": "6.2.1"
+  },
+  "job_fault_matrix": {
+    "cancel": {
+      "artifacts": 0,
+      "state": "cancelled"
+    },
+    "renderer_crash": {
+      "heartbeat_preserved": true,
+      "state_before_recovery": "running",
+      "worker_lease_survived_renderer_read": true
+    },
+    "worker_crash": {
+      "artifacts": 0,
+      "state": "retrying"
+    },
+    "worker_timeout": {
+      "artifacts": 0,
+      "error_code": "hard_timeout",
+      "state": "retrying"
+    }
+  },
+  "process_containment": {
+    "contract": {
+      "descendant_policy": "inherit-and-terminate-as-one-tree",
+      "linux_test_containment": "posix-process-group-v1",
+      "outer_job_policy": "breakaway-when-allowed-otherwise-nested",
+      "schema_version": "desktop-process-containment-v1",
+      "windows_containment": "windows-job-object-kill-on-close-v1",
+      "worker_contract": "desktop-search-worker-v1"
+    },
+    "descendant_cleanup": {
+      "after": {
+        "active_processes": 0,
+        "containment": "windows-job-object-kill-on-close-v1",
+        "launch_mode": "breakaway",
+        "peak_job_memory_bytes": 8400896,
+        "total_processes": 2
+      },
+      "before": {
+        "active_processes": 2,
+        "containment": "windows-job-object-kill-on-close-v1",
+        "launch_mode": "breakaway",
+        "peak_job_memory_bytes": 8400896,
+        "total_processes": 2
+      }
+    },
+    "host_crash_restart": {
+      "attempt_after_restart": 2,
+      "checkpoint_completed_units": 17,
+      "checkpoint_position": "search:frontier:17",
+      "job_id": "job_f949f2a3252f814e9a464798e70497d9196394677b68c32b08fac31287e0459c",
+      "process_tree_after_termination": {
+        "active_processes": 0,
+        "containment": "windows-job-object-kill-on-close-v1",
+        "launch_mode": "breakaway",
+        "peak_job_memory_bytes": 29163520,
+        "total_processes": 2
+      },
+      "process_tree_before_termination": {
+        "active_processes": 2,
+        "containment": "windows-job-object-kill-on-close-v1",
+        "launch_mode": "breakaway",
+        "peak_job_memory_bytes": 29163520,
+        "total_processes": 2
+      },
+      "reclaimed_state": "retrying",
+      "resume_input_digest_matches": true
+    }
+  },
+  "real_core_search": {
+    "artifact_count": 2,
+    "artifacts": [
+      {
+        "kind": "search-run-report",
+        "schema_version": "search-run-report-v1",
+        "sha256": "553d000280923756009a96506b6efbad34012cebb3596e4a5f35eb291961d756"
+      },
+      {
+        "kind": "route-dsl",
+        "schema_version": "route-dsl-v0.3a",
+        "sha256": "7be8fed7c18f3f4496d22e3f03bef925e2af8d0ca74b1c6deeeef8ccb614db5a"
+      }
+    ],
+    "asset_lock_id": "ocgcore-assets-202504-v1",
+    "card_database_commit": "f89c9a4be9a5f193e29b788e3cf880563f4f79b4",
+    "card_scripts_commit": "c8e9c0bcd026a5ccc303bbc73881b8f86f818657",
+    "checkpoint": {
+      "completed_units": 5,
+      "position": "search:attempt:1:complete",
+      "semantic_result_digest": "jobsemantic_2a281db8222b8fa204114d79f8363398ff41a4c029efadc0263c1425a4c88d2d",
+      "total_units": 10
+    },
+    "deck_sha256": "7f5e9c3257547b88942d66afca56466bd56090b741e309958e34e4678762b563",
+    "elapsed_seconds": 33.728181,
+    "job_id": "job_4db62da44ef38be7b13eef5bca18a5ebf70e7345dca7253cac145c92ccd7451c",
+    "probe_id": "desktoprealcoreprobe_2c1224172be3bfbdb9890f72781c5c732623bc1b3e38aa4212451c81c81e1f44",
+    "process_count_before_cleanup": 0,
+    "return_code": 0,
+    "schema_version": "desktop-real-core-search-probe-v1",
+    "state": "succeeded"
+  },
+  "schema_version": "desktop-lifecycle-evidence-v1",
+  "startup": {
+    "cold": {
+      "backend": "edgechromium",
+      "cold_start_seconds": 1.80358,
+      "family_process_count": 7,
+      "family_rss_bytes": 418287616,
+      "loaded": true,
+      "probe_site_packages_bytes": 299890077,
+      "pywebview_version": "6.2.1"
+    },
+    "diagnostics": {
+      "missing_runtime": "webview2_runtime_missing",
+      "outdated_pywebview": "pywebview_version_mismatch"
+    },
+    "warm": {
+      "backend": "edgechromium",
+      "cold_start_seconds": 1.567594,
+      "family_process_count": 7,
+      "family_rss_bytes": 420950016,
+      "loaded": true,
+      "probe_site_packages_bytes": 299890077,
+      "pywebview_version": "6.2.1"
+    },
+    "webview2_version": "150.0.4078.65"
+  },
+  "workflow_contract": "desktop-workflow-v1"
+}

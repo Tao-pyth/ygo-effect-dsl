@@ -13,6 +13,7 @@ from typing import Any, BinaryIO, Mapping
 
 from ygo_effect_dsl.desktop import desktop_frontend_entrypoint
 from ygo_effect_dsl.desktop.bridge import DesktopBridge
+from ygo_effect_dsl.desktop.lifecycle import DesktopWorkerSupervisor
 from ygo_effect_dsl.desktop.service import DesktopApplicationService
 
 PYWEBVIEW_REQUIREMENT = "6.2.1"
@@ -223,6 +224,7 @@ def start_desktop(
     data_root: str | Path,
     external_root: str | Path | None = None,
     webview_module: ModuleType | None = None,
+    supervisor_factory: type[DesktopWorkerSupervisor] = DesktopWorkerSupervisor,
 ) -> None:
     if webview_module is None:
         try:
@@ -234,11 +236,17 @@ def start_desktop(
             ) from exc
     else:
         webview = webview_module
+    supervisor = supervisor_factory(
+        data_root,
+        external_root=external_root,
+    )
     picker = NativeYdkPicker(webview)
     service = DesktopApplicationService(
         data_root,
         external_root=external_root,
         ydk_picker=picker,
+        worker_execution="desktop-supervisor-v1",
+        worker_health=lambda: supervisor.health,
     )
     bridge = DesktopBridge(service.handlers())
     window = webview.create_window(
@@ -255,6 +263,7 @@ def start_desktop(
             "pywebview did not create the desktop window",
         )
     picker.window = window
+    supervisor.start()
     try:
         webview.start(gui="edgechromium", debug=False, private_mode=True)
     except Exception as exc:
@@ -263,6 +272,14 @@ def start_desktop(
             "pywebview could not start the EdgeChromium desktop shell",
             details={"error_type": type(exc).__name__},
         ) from exc
+    finally:
+        try:
+            supervisor.stop()
+        except RuntimeError as exc:
+            raise DesktopStartupError(
+                "desktop_worker_shutdown_failed",
+                "desktop worker process tree did not stop cleanly",
+            ) from exc
 
 
 def main(argv: list[str] | None = None) -> int:

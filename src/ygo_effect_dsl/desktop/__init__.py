@@ -7,6 +7,15 @@ import json
 from pathlib import Path
 from typing import Any
 
+from ygo_effect_dsl.desktop.lifecycle import (
+    DESKTOP_PROCESS_CONTAINMENT_SCHEMA_VERSION,
+    DESKTOP_WORKER_SCHEMA_VERSION,
+    DesktopSearchWorker,
+    DesktopWorkerOutcome,
+    DesktopWorkerSupervisor,
+    process_containment_contract,
+)
+
 DESKTOP_WORKFLOW_CONTRACT_VERSION = "desktop-workflow-v1"
 DESKTOP_BRIDGE_CONTRACT_VERSION = "desktop-bridge-v1"
 
@@ -45,8 +54,14 @@ def desktop_bridge_contract_document() -> dict[str, Any]:
 __all__ = [
     "DESKTOP_WORKFLOW_CONTRACT_VERSION",
     "DESKTOP_BRIDGE_CONTRACT_VERSION",
+    "DESKTOP_PROCESS_CONTAINMENT_SCHEMA_VERSION",
+    "DESKTOP_WORKER_SCHEMA_VERSION",
+    "DesktopSearchWorker",
+    "DesktopWorkerOutcome",
+    "DesktopWorkerSupervisor",
     "desktop_bridge_contract_document",
     "desktop_frontend_entrypoint",
     "desktop_frontend_root",
     "desktop_workflow_contract_document",
+    "process_containment_contract",
 ]

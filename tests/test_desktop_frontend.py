@@ -159,6 +159,16 @@ def test_visual_css_preserves_dense_layout_and_accessibility_states() -> None:
     assert "border-radius: 999" not in css
 
 
+def test_desktop_cancel_keeps_polling_until_worker_acknowledges() -> None:
+    _, _, _, javascript = _assets()
+
+    assert (
+        "Cancellation requested. Waiting for the active worker to stop." in javascript
+    )
+    assert "Cancellation status polling failed closed." in javascript
+    assert "elements.cancelJob.disabled = true" in javascript
+
+
 def test_committed_edge_evidence_and_screenshots_are_content_addressed() -> None:
     evidence_path = EVIDENCE_ROOT / "desktop_frontend.json"
     evidence = json.loads(evidence_path.read_text(encoding="utf-8"))

@@ -28,9 +28,7 @@ def test_desktop_dependency_and_entrypoint_are_optional() -> None:
     assert "pywebview" not in project_section
     assert '"pywebview==6.2.1"' in desktop_section
     assert 'ygo-effect-dsl = "ygo_effect_dsl.cli.main:main"' in pyproject
-    assert (
-        'ygo-effect-dsl-desktop = "ygo_effect_dsl.desktop.shell:main"' in pyproject
-    )
+    assert 'ygo-effect-dsl-desktop = "ygo_effect_dsl.desktop.shell:main"' in pyproject
 
 
 def _runtime(tmp_path: Path, version: str = "150.0.4078.65") -> dict[str, str]:
@@ -96,6 +94,20 @@ def test_start_desktop_uses_packaged_frontend_and_single_bridge_method(
 ) -> None:
     captured: dict[str, Any] = {}
 
+    class Supervisor:
+        health = "stopped"
+
+        def __init__(self, *_: Any, **__: Any) -> None:
+            captured["supervisor"] = self
+
+        def start(self) -> None:
+            self.health = "running"
+            captured["supervisor_started"] = True
+
+        def stop(self) -> None:
+            self.health = "stopped"
+            captured["supervisor_stopped"] = True
+
     class Window:
         def create_file_dialog(self, *_: Any, **__: Any) -> None:
             return None
@@ -113,7 +125,11 @@ def test_start_desktop_uses_packaged_frontend_and_single_bridge_method(
         create_window=create_window,
         start=start,
     )
-    start_desktop(data_root=tmp_path, webview_module=webview)
+    start_desktop(
+        data_root=tmp_path,
+        webview_module=webview,
+        supervisor_factory=Supervisor,  # type: ignore[arg-type]
+    )
 
     assert captured["url"].startswith("file:")
     assert captured["width"] == DEFAULT_WINDOW_SIZE[0]
@@ -125,6 +141,8 @@ def test_start_desktop_uses_packaged_frontend_and_single_bridge_method(
         "gui": "edgechromium",
         "private_mode": True,
     }
+    assert captured["supervisor_started"] is True
+    assert captured["supervisor_stopped"] is True
 
 
 def test_start_desktop_wraps_edgechromium_startup_failure(tmp_path: Path) -> None:

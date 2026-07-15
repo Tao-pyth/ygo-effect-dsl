@@ -96,7 +96,7 @@ installer、signing、auto-update、YDK file association、deep linkはdistribut
 
 ## Window and performance requirements
 
-実装済みstatic prototypeのnavigation、form、visual token、viewport evidenceは[deck dashboard workflow](17_deck_dashboard_workflow.md)を正本とする。v0.5 shell minimumは960×700、主要検証viewportは1440×900とする。実bridge、100k virtualization、desktop lifecycle/a11y gateはそれぞれ#244、#165、#245へ分離する。
+実装済みfrontendのnavigation、form、visual token、viewport evidenceは[deck dashboard workflow](17_deck_dashboard_workflow.md)を正本とする。v0.5 shell minimumは960×700、主要検証viewportは1440×900とする。実bridgeとdesktop lifecycle/a11yは#244/#245で検証済み、100k virtualizationは#165へ分離する。
 
 主要desktop解像度と最小window sizeを実装Issueで確定し、text、toolbar、table、dialog、detail panelのoverlap/truncationを禁止する。deck/card/run tableはserver-side queryとvirtualizationを使い、dynamic contentでrow/tool dimensionsを変動させない。
 
@@ -118,7 +118,7 @@ installer、signing、auto-update、YDK file association、deep linkはdistribut
 | Decision | Owner |
 |---|---|
 | pywebview shell、versioned bridge実装 | [#244](https://github.com/Tao-pyth/ygo-effect-dsl/issues/244) |
-| WebView2 lifecycle、a11y、packaged recovery検証 | [#245](https://github.com/Tao-pyth/ygo-effect-dsl/issues/245) |
+| WebView2 lifecycle、a11y、packaged recovery検証 | [#245](https://github.com/Tao-pyth/ygo-effect-dsl/issues/245) / [desktop lifecycle contract](19_desktop_lifecycle_recovery.md) |
 | Installer/update、signing、file association | [#91](https://github.com/Tao-pyth/ygo-effect-dsl/issues/91), [#134](https://github.com/Tao-pyth/ygo-effect-dsl/issues/134) |
 | Deck catalog/search formのfield・state・navigation詳細 | [#182](https://github.com/Tao-pyth/ygo-effect-dsl/issues/182) |
 | Card text source、locale、presentation schema、license/fallback | [#183](https://github.com/Tao-pyth/ygo-effect-dsl/issues/183) |

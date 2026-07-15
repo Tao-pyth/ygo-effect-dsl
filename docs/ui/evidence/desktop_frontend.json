@@ -4,12 +4,12 @@
     "search_dialog_present": true,
     "workflow_version_present": true
   },
-  "evidence_id": "desktopfrontendevidence_4df75aa6ab31c365d77b590b7d2507ef51fbfeda5166d63bb63b801466827580",
+  "evidence_id": "desktopfrontendevidence_ab95e3e6ec0d0395b8c2e909f24c6e158fc379cf653edb9c355d17d9bb10324b",
   "limitations": [
     "synthetic_search_browser_adapter_only",
     "desktop_bridge_is_verified_separately_from_browser_capture",
     "continuous_search_worker_execution_not_exercised_by_browser_capture",
-    "screen_reader_and_webview2_lifecycle_deferred_to_issue_245",
+    "desktop_lifecycle_and_accessibility_verified_separately",
     "catalog_virtualization_deferred_to_issue_165",
     "single_windows_host_headless_edge_capture"
   ],
@@ -23,10 +23,10 @@
       "width": 1440
     },
     {
-      "bytes": 52923,
+      "bytes": 52360,
       "filename": "deck_search_960x700.png",
       "height": 700,
-      "sha256": "ee40e5052ace3f7e71779d1a35b77fb72e498b1c7cde1ebf46abd91aa6a87967",
+      "sha256": "bb825775b85902924076398047ad029d0753e803b80d251860f5cb93e65e04e5",
       "width": 960
     }
   ],
