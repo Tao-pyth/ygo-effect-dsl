@@ -421,7 +421,7 @@ def main() -> int:
 
     ocgcore_doctor = sub.add_parser(
         "ocgcore-doctor",
-        help="report the pinned ocgcore build prerequisites without installing them",
+        help="fail-close the Windows x64 platform and pinned build prerequisites",
     )
     ocgcore_doctor.add_argument("--external-root", help="override the external dependency root")
     ocgcore_doctor.set_defaults(func=cmd_ocgcore_doctor)

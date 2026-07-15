@@ -1,0 +1,88 @@
+name: Real-core self-hosted smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: [self-hosted, Windows, X64, ygo-real-core]
+    timeout-minutes: 45
+    env:
+      YGO_EFFECT_DSL_EXTERNAL_ROOT: ${{ vars.YGO_EFFECT_DSL_EXTERNAL_ROOT }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Initialize sanitized smoke summary
+        shell: pwsh
+        run: |
+          $work = Join-Path $env:RUNNER_TEMP 'ygo-real-core-smoke'
+          New-Item -ItemType Directory -Force -Path $work | Out-Null
+          [ordered]@{ schema_version = 'self-hosted-real-core-smoke-v1'; status = 'running'; commit = $env:GITHUB_SHA; run_id = $env:GITHUB_RUN_ID } | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $work 'summary.json')
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install current checkout
+        shell: pwsh
+        run: |
+          python -m pip install -e .
+          python -c "from pathlib import Path; import ygo_effect_dsl; assert Path(ygo_effect_dsl.__file__).resolve().parent == (Path.cwd() / 'src' / 'ygo_effect_dsl').resolve()"
+
+      - name: Run pinned real-core smoke
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $work = Join-Path $env:RUNNER_TEMP 'ygo-real-core-smoke'
+          New-Item -ItemType Directory -Force -Path $work | Out-Null
+          $summary = [ordered]@{ schema_version = 'self-hosted-real-core-smoke-v1'; status = 'running'; commit = $env:GITHUB_SHA; run_id = $env:GITHUB_RUN_ID }
+          try {
+            if ([string]::IsNullOrWhiteSpace($env:YGO_EFFECT_DSL_EXTERNAL_ROOT)) { throw 'YGO_EFFECT_DSL_EXTERNAL_ROOT repository variable is required' }
+            python -m ygo_effect_dsl ocgcore-doctor | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw 'ocgcore-doctor failed' }
+            python -m ygo_effect_dsl ocgcore-verify
+            if ($LASTEXITCODE -ne 0) { throw 'ocgcore-verify failed' }
+            python -m ygo_effect_dsl ocgcore-assets-verify
+            if ($LASTEXITCODE -ne 0) { throw 'ocgcore-assets-verify failed' }
+            python -m ygo_effect_dsl ocgcore-lua-qualify --smoke-limit 2 --out (Join-Path $work 'lua.json')
+            if ($LASTEXITCODE -ne 0) { throw 'ocgcore-lua-qualify failed' }
+            $experiment = 'examples/experiments/general_search_inline.yaml'
+            python -m ygo_effect_dsl experiment-search $experiment --out (Join-Path $work 'best.route.yaml') --search-report (Join-Path $work 'search.json')
+            if ($LASTEXITCODE -ne 0) { throw 'experiment-search failed' }
+            python -m ygo_effect_dsl experiment-replay $experiment (Join-Path $work 'best.route.yaml') --verification-report (Join-Path $work 'replay.json')
+            if ($LASTEXITCODE -ne 0) { throw 'experiment-replay failed' }
+            python -m ygo_effect_dsl.external.self_hosted_smoke --search (Join-Path $work 'search.json') --replay (Join-Path $work 'replay.json') --lua (Join-Path $work 'lua.json') --out (Join-Path $work 'summary.json')
+            if ($LASTEXITCODE -ne 0) { throw 'smoke evidence validation failed' }
+          } catch {
+            $summary.status = 'failure'
+            $summary['failure_category'] = 'smoke_command_failed'
+            $summary | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $work 'summary.json')
+            throw
+          }
+
+      - name: Upload sanitized smoke summary
+        if: always()
+        shell: pwsh
+        run: |
+          $path = Join-Path $env:RUNNER_TEMP 'ygo-real-core-smoke\summary.json'
+          $summary = Get-Content -Raw -Encoding utf8 $path | ConvertFrom-Json
+          if ($summary.status -eq 'running') {
+            $summary.status = 'failure'
+            $summary | Add-Member -NotePropertyName failure_category -NotePropertyValue 'job_incomplete'
+            $summary | ConvertTo-Json | Set-Content -Encoding utf8 $path
+          }
+
+      - name: Publish sanitized smoke summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-core-smoke-summary
+          path: ${{ runner.temp }}/ygo-real-core-smoke/summary.json
+          if-no-files-found: error
+          retention-days: 14
