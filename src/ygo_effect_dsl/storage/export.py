@@ -35,6 +35,7 @@ from ygo_effect_dsl.storage.jobs import (
     JobRecord,
     JobRetryPolicy,
     JobSpec,
+    JobState,
 )
 from ygo_effect_dsl.storage.query import (
     ANALYTICS_QUERY_VALUE_SCHEMA_VERSION,
@@ -828,6 +829,9 @@ class AnalyticsExportWorker:
         except OSError as exc:
             return self._retry_or_fail(job, "transient_io", str(exc))
         except (ValueError, RuntimeError) as exc:
+            cancelled = self._finish_active_cancel(job)
+            if cancelled is not None:
+                return cancelled
             self.catalog.quarantine_job(
                 job.job_id,
                 actor=self.worker_id,
@@ -846,6 +850,26 @@ class AnalyticsExportWorker:
             now=self.now(),
         )
         return signal.should_stop
+
+    def _finish_active_cancel(
+        self, job: JobRecord
+    ) -> AnalyticsExportWorkerOutcome | None:
+        current = self.catalog.get_job(job.job_id)
+        if (
+            current is None
+            or current.state != JobState.CANCELLING
+            or current.attempt != job.attempt
+            or current.lease_token != job.lease_token
+        ):
+            return None
+        self.catalog.finish_cancelled(
+            job.job_id,
+            actor=self.worker_id,
+            now=self.now(),
+            reason="export_cancelled",
+            lease_token=job.lease_token,
+        )
+        return AnalyticsExportWorkerOutcome("cancelled", job.job_id, job.attempt)
 
     def _retry_or_fail(
         self, job: JobRecord, error_code: str, message: str

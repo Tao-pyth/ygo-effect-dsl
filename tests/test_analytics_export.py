@@ -317,6 +317,42 @@ def test_export_worker_honors_cancel_and_retry(tmp_path: Path) -> None:
     assert retry_queue.catalog.get_job(retry_job.job_id).attempt == 2
 
 
+@pytest.mark.parametrize("publication_phase", ["stage_bytes", "publish"])
+def test_export_worker_acknowledges_cancel_during_publication(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    publication_phase: str,
+) -> None:
+    service, _ = _service()
+    queue = AnalyticsExportQueue(tmp_path / publication_phase, service)
+    job = queue.enqueue(_request(AnalyticsExportFormat.JSON), created_at=T0)
+    worker = AnalyticsExportWorker(queue, now=lambda: T0)
+    original = getattr(worker.publisher, publication_phase)
+    cancel_requested = False
+
+    def cancel_then_publish(*args: object, **kwargs: object):
+        nonlocal cancel_requested
+        if not cancel_requested:
+            cancel_requested = True
+            queue.catalog.request_cancel(
+                job.job_id,
+                actor="test",
+                now=T0,
+                reason=f"cancel_during_{publication_phase}",
+            )
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(worker.publisher, publication_phase, cancel_then_publish)
+
+    outcome = worker.run_once()
+    status = queue.catalog.status_snapshot(job.job_id)
+
+    assert cancel_requested is True
+    assert outcome.status == "cancelled"
+    assert status.job.state == JobState.CANCELLED
+    assert status.artifacts == ()
+
+
 def test_cli_desktop_api_and_service_publish_identical_export_bytes(
     tmp_path: Path,
 ) -> None:
