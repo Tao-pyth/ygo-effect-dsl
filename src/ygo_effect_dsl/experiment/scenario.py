@@ -16,8 +16,9 @@ from ygo_effect_dsl.engine.bridge.ocgcore import (
     SQLiteCardDataProvider,
     card_scripts_profile_for_experiment_schema,
 )
-from ygo_effect_dsl.engine.canonical import canonical_json
+from ygo_effect_dsl.engine.canonical import canonical_json, stable_digest, to_canonical_data
 from ygo_effect_dsl.experiment.schema import (
+    BOARD_BREAK_INITIAL_STATE_SCHEMA_VERSION,
     EXPERIMENT_SCHEMA_VERSION,
     SCENARIO_SCHEMA_VERSION,
     assert_valid_experiment,
@@ -63,10 +64,16 @@ class ScenarioManifest:
     asset_lock_sha256: str | None
     card_database_commit: str | None
     card_scripts_commit: str | None
+    initial_state: Mapping[str, Any] | None = None
+    initial_state_id: str | None = None
     schema_version: str = SCENARIO_MANIFEST_SCHEMA_VERSION
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        document = asdict(self)
+        if self.initial_state is None:
+            document.pop("initial_state")
+            document.pop("initial_state_id")
+        return document
 
 
 @dataclass(frozen=True)
@@ -310,6 +317,89 @@ def _asset_identity(assets: OcgcoreAssets) -> dict[str, str | None]:
     }
 
 
+def _initial_state(
+    scenario: Mapping[str, Any],
+) -> tuple[dict[str, Any] | None, str | None]:
+    raw_state = scenario.get("initial_state")
+    if raw_state is None:
+        return None, None
+    if not isinstance(raw_state, Mapping):
+        raise ScenarioInputError(
+            "invalid_initial_state",
+            "$.scenario.initial_state",
+            "must be a mapping",
+        )
+    if raw_state.get("schema_version") != BOARD_BREAK_INITIAL_STATE_SCHEMA_VERSION:
+        raise ScenarioInputError(
+            "unsupported_initial_state_schema",
+            "$.scenario.initial_state.schema_version",
+            f"must be {BOARD_BREAK_INITIAL_STATE_SCHEMA_VERSION!r}",
+        )
+    if raw_state.get("turn_player") != 0:
+        raise ScenarioInputError(
+            "unsupported_initial_turn_player",
+            "$.scenario.initial_state.turn_player",
+            "must be 0 for the current native board-break snapshot adapter",
+        )
+    raw_cards = raw_state.get("public_cards")
+    if not isinstance(raw_cards, Sequence) or isinstance(
+        raw_cards, (str, bytes, bytearray)
+    ):
+        raise ScenarioInputError(
+            "invalid_initial_cards",
+            "$.scenario.initial_state.public_cards",
+            "must be a public card list",
+        )
+    cards = []
+    coordinates: set[tuple[int, str, int]] = set()
+    for index, raw_card in enumerate(raw_cards):
+        path = f"$.scenario.initial_state.public_cards[{index}]"
+        if not isinstance(raw_card, Mapping):
+            raise ScenarioInputError("invalid_initial_card", path, "must be a mapping")
+        card = {
+            "card_code": int(raw_card["card_code"]),
+            "controller": int(raw_card["controller"]),
+            "location": str(raw_card["location"]),
+            "owner": int(raw_card["owner"]),
+            "position": str(raw_card["position"]),
+            "sequence": int(raw_card["sequence"]),
+            "visibility": str(raw_card["visibility"]),
+        }
+        coordinate = (card["controller"], card["location"], card["sequence"])
+        if coordinate in coordinates:
+            raise ScenarioInputError(
+                "duplicate_initial_coordinate",
+                path,
+                f"duplicates public card coordinate {coordinate!r}",
+            )
+        coordinates.add(coordinate)
+        if card["location"] in {"graveyard", "banished"} and card[
+            "position"
+        ] != "face_up_attack":
+            raise ScenarioInputError(
+                "unsupported_initial_position",
+                f"{path}.position",
+                "graveyard and banished cards must use face_up_attack",
+            )
+        cards.append(card)
+    cards.sort(
+        key=lambda card: (
+            card["controller"],
+            card["location"],
+            card["sequence"],
+            card["card_code"],
+        )
+    )
+    document = to_canonical_data(
+        {
+            "public_cards": cards,
+            "schema_version": BOARD_BREAK_INITIAL_STATE_SCHEMA_VERSION,
+            "turn_player": 0,
+        }
+    )
+    return document, stable_digest(document, prefix="boardbreakstate_")
+
+
 def preflight_scenario(
     experiment: Mapping[str, Any],
     *,
@@ -346,6 +436,7 @@ def preflight_scenario(
         hand, hand_seed = _opening_hand(
             sections, experiment["scenario"]["opening_hand"]
         )
+        initial_state, initial_state_id = _initial_state(experiment["scenario"])
     except ScenarioInputError as exc:
         diagnostics.append(exc.diagnostic)
         return ScenarioPreflightResult(tuple(diagnostics), None)
@@ -371,7 +462,10 @@ def preflight_scenario(
             }
             card_codes = {
                 code for cards in sections.values() for code in cards
-            } | interruption_codes
+            } | interruption_codes | {
+                int(card["card_code"])
+                for card in (initial_state or {}).get("public_cards", ())
+            }
             for code in sorted(card_codes):
                 try:
                     database.get_database_row(code)
@@ -414,6 +508,8 @@ def preflight_scenario(
         opening_hand_mode=str(experiment["scenario"]["opening_hand"]["mode"]),
         opening_hand_seed=hand_seed,
         interruption_source_codes=tuple(sorted(interruption_codes)),
+        initial_state=initial_state,
+        initial_state_id=initial_state_id,
         **identity,
     )
     return ScenarioPreflightResult((), manifest)

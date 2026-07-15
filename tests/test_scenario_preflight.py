@@ -104,6 +104,105 @@ def test_inline_preflight_builds_reproducible_manifest(tmp_path: Path) -> None:
     assert first.manifest.deck_sha256
     assert first.manifest.opening_hand == CARD_CODES[:5]
     assert first.manifest.asset_lock_id == "test-assets"
+    assert "initial_state" not in first.manifest.to_dict()
+
+
+def test_public_board_break_initial_state_is_normalized_and_identified(
+    tmp_path: Path,
+) -> None:
+    experiment = _experiment()
+    experiment["scenario"]["initial_state"] = {
+        "schema_version": "board-break-initial-state-v1",
+        "turn_player": 0,
+        "public_cards": [
+            {
+                "card_code": CARD_CODES[2],
+                "owner": 1,
+                "controller": 1,
+                "location": "graveyard",
+                "sequence": 0,
+                "position": "face_up_attack",
+                "visibility": "public",
+            },
+            {
+                "card_code": CARD_CODES[1],
+                "owner": 1,
+                "controller": 1,
+                "location": "monster_zone",
+                "sequence": 0,
+                "position": "face_up_attack",
+                "visibility": "public",
+            },
+        ],
+    }
+
+    first = preflight_scenario(experiment, assets=_assets(tmp_path))
+    experiment["scenario"]["initial_state"]["public_cards"].reverse()
+    second = preflight_scenario(experiment, assets=_assets(tmp_path))
+
+    assert first.ok and second.ok
+    assert first.manifest is not None and second.manifest is not None
+    assert first.manifest.initial_state_id == second.manifest.initial_state_id
+    assert first.manifest.initial_state == second.manifest.initial_state
+    assert first.manifest.initial_state_id.startswith("boardbreakstate_")
+    assert first.manifest.initial_state["turn_player"] == 0
+
+
+def test_board_break_initial_state_rejects_non_public_or_empty_cards(
+    tmp_path: Path,
+) -> None:
+    experiment = _experiment()
+    public_card = {
+        "card_code": CARD_CODES[1],
+        "owner": 1,
+        "controller": 1,
+        "location": "monster_zone",
+        "sequence": 0,
+        "position": "face_up_attack",
+        "visibility": "public",
+    }
+    experiment["scenario"]["initial_state"] = {
+        "schema_version": "board-break-initial-state-v1",
+        "turn_player": 0,
+        "public_cards": [public_card, dict(public_card)],
+    }
+
+    duplicate = preflight_scenario(experiment, assets=_assets(tmp_path))
+    private = deepcopy(experiment)
+    private["scenario"]["initial_state"]["public_cards"] = [dict(public_card)]
+    private["scenario"]["initial_state"]["public_cards"][0]["visibility"] = "private"
+    rejected_private = preflight_scenario(private, assets=_assets(tmp_path))
+    face_down = deepcopy(experiment)
+    face_down["scenario"]["initial_state"]["public_cards"] = [dict(public_card)]
+    face_down["scenario"]["initial_state"]["public_cards"][0]["position"] = (
+        "face_down_defense"
+    )
+    rejected_face_down = preflight_scenario(face_down, assets=_assets(tmp_path))
+    invalid_sequence = deepcopy(experiment)
+    invalid_sequence["scenario"]["initial_state"]["public_cards"] = [
+        dict(public_card)
+    ]
+    invalid_sequence["scenario"]["initial_state"]["public_cards"][0]["sequence"] = 7
+    rejected_sequence = preflight_scenario(
+        invalid_sequence, assets=_assets(tmp_path)
+    )
+    empty = deepcopy(experiment)
+    empty["scenario"]["initial_state"]["public_cards"] = []
+    rejected_empty = preflight_scenario(empty, assets=_assets(tmp_path))
+
+    assert not duplicate.ok
+    assert {item.code for item in duplicate.diagnostics} == {
+        "duplicate_initial_coordinate"
+    }
+    assert not rejected_private.ok
+    assert rejected_private.diagnostics[0].code == "invalid_experiment"
+    assert "private_initial_card_not_allowed" in rejected_private.diagnostics[0].message
+    assert not rejected_face_down.ok
+    assert "unsupported_initial_position" in rejected_face_down.diagnostics[0].message
+    assert not rejected_sequence.ok
+    assert "initial_sequence_out_of_range" in rejected_sequence.diagnostics[0].message
+    assert not rejected_empty.ok
+    assert "expected_non_empty_list" in rejected_empty.diagnostics[0].message
 
 
 def test_ydk_normalization_and_content_hash(tmp_path: Path) -> None:

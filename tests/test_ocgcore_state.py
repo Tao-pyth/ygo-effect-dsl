@@ -270,6 +270,25 @@ def test_sampling_reference_changes_state_hash_for_the_same_board() -> None:
     )
 
 
+def test_pending_request_preserves_missing_action_kind_for_state_compatibility() -> None:
+    request = DecisionRequest(
+        request_id="request-place",
+        request_type="select_place",
+        player=0,
+        candidates=(Candidate(candidate_id="zone:0", kind="zone"),),
+        constraints=DecisionConstraints(),
+        context=DecisionContext(),
+    )
+
+    snapshot = OcgcoreStateAdapter().capture(
+        _FakeDuel({}),
+        pending_request=request,
+        environment={"assets": "fixed", "core": "v11", "seed": [1, 2, 3, 4]},
+    )
+
+    assert snapshot.pending_request["candidate_action_kinds"] == [None]
+
+
 def test_visible_projection_redacts_opponent_hidden_card_and_request() -> None:
     complete = _snapshot()
     visible = project_visible(complete, viewer=1).to_dict()

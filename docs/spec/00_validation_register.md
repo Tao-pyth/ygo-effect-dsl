@@ -41,6 +41,7 @@ Last updated: 2026-07-15
 | `VAL-024` | fresh Replay success artifact | SearchRunと共通のExperiment digest、Route/State/manifest/scenario/runtime/Lua identityを結ぶ`fresh-replay-verification-v1`を一意tempからatomic保存。general-search実core CLIとWindows並行writerで確認 | `VERIFIED_LOCAL` | [#193](https://github.com/Tao-pyth/ygo-effect-dsl/issues/193) |
 | `VAL-025` | 外部3 deck qualification harness | `real-deck-qualification-index-v2`、全profileのsuccess/legal stop、外部path制約、2回反復、profile witness、distinct deck hash、custom fixture/妨害拒否、atomic sanitized indexを確認。実行済みindexは`docs/ocgcore/evidence/real_deck_qualification.json` | `VERIFIED_LOCAL` | [#194](https://github.com/Tao-pyth/ygo-effect-dsl/issues/194) / [#203](https://github.com/Tao-pyth/ygo-effect-dsl/issues/203) |
 | `VAL-026` | operator walkthrough | editable install/import、doctor/bootstrap/verify、inline/YDK preflight、Search artifact commit、fresh Replay、owned cache復旧、diagnostic routingを現CLIへ同期。既存cacheで10-node inline Search/Replayを手順どおり実行 | `VERIFIED_LOCAL` | [#143](https://github.com/Tao-pyth/ygo-effect-dsl/issues/143) |
+| `VAL-027` | 後攻盤面突破snapshot | 公開初期盤面manifest、version付き評価・成功条件、公式カードによるtargetless/targeting/grave-banish、指定非公開妨害によるfirst divergence、PlayerView非漏洩を実core fresh Replayで確認 | `VERIFIED_LOCAL` | [#154](https://github.com/Tao-pyth/ygo-effect-dsl/issues/154) |
 
 ## Verification commands used
 

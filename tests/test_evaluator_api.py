@@ -133,3 +133,83 @@ def test_board_count_evaluator_applies_missing_value_policy() -> None:
     assert result.vector == {"field_count": 1, "hand_count": 0}
     assert result.score_breakdown.to_dict()["missing_metrics"] == ["hand_count"]
     assert result.score_breakdown.to_dict()["terms"][1]["resolution"] == "zero"
+
+
+def test_board_break_evaluator_scores_observed_public_zones() -> None:
+    state = EvaluationInput(
+        state_hash="state_board_break",
+        board_summary={
+            "zone_counts": {
+                "0": {"hand": 3, "monster_zone": 1},
+                "1": {
+                    "banished": 1,
+                    "graveyard": 0,
+                    "monster_zone": 0,
+                    "spell_trap_zone": 1,
+                },
+            }
+        },
+        turn=1,
+        phase="main1",
+        information_mode="complete_information",
+    )
+    experiment = {
+        "experiment_id": "board_break_evaluation_fixture",
+        "evaluate_at": "legal_stop",
+        "information_mode": "complete_information",
+        "evaluator": {
+            "id": "real_core_board_break",
+            "version": "1",
+            "config": {
+                "actor_player": 0,
+                "weights": {
+                    "opponent_banished_count": 5,
+                    "opponent_monster_count": -10,
+                    "opponent_spell_trap_count": -6,
+                },
+            },
+        },
+    }
+
+    result = build_default_evaluator_registry().evaluate_experiment(
+        experiment, state
+    )
+
+    assert result.vector == {
+        "opponent_banished_count": 1,
+        "opponent_monster_count": 0,
+        "opponent_spell_trap_count": 1,
+    }
+    assert result.total_score == -1
+    assert result.explanations == (
+        {
+            "actor_player": 0,
+            "opponent_player": 1,
+            "schema_version": "board-break-evaluation-v1",
+        },
+    )
+
+
+def test_board_break_evaluator_rejects_unknown_config() -> None:
+    experiment = {
+        "experiment_id": "invalid_board_break_evaluation_fixture",
+        "evaluate_at": "legal_stop",
+        "information_mode": "complete_information",
+        "evaluator": {
+            "id": "real_core_board_break",
+            "version": "1",
+            "config": {"actor_player": 0, "inferred_card_power": 10},
+        },
+    }
+
+    with pytest.raises(ValueError, match="unknown config keys"):
+        build_default_evaluator_registry().evaluate_experiment(
+            experiment,
+            EvaluationInput(
+                state_hash="state_invalid_board_break",
+                board_summary={"zone_counts": {"0": {}, "1": {}}},
+                turn=1,
+                phase="main1",
+                information_mode="complete_information",
+            ),
+        )

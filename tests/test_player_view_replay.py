@@ -239,6 +239,24 @@ def test_hidden_marker_is_observation_scoped_and_not_card_scoped() -> None:
     assert marker(first) != marker(second)
 
 
+def test_legacy_null_candidate_kind_projects_as_unspecified() -> None:
+    snapshot = _snapshot()
+    pending_request = dict(snapshot.pending_request)
+    pending_request["candidate_action_kinds"] = [None, "ACTIVATE_EFFECT"]
+
+    observation = project_player_view_observation(
+        replace(snapshot, pending_request=pending_request),
+        viewer=0,
+        turn=1,
+        phase="main1",
+    )
+
+    assert observation["pending_request"]["action_categories"] == [
+        "ACTIVATE_EFFECT",
+        "UNSPECIFIED",
+    ]
+
+
 def test_unknown_query_shape_fails_closed() -> None:
     snapshot = _snapshot()
     zones = list(snapshot.zones)
