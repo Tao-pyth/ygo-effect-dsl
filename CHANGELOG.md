@@ -16,6 +16,7 @@ All notable package changes are documented here. Package versions follow Semanti
 - [v0.5.0] `job-catalog-v2` recovery contracts for job deadlines, deterministic retry backoff, monotonic checkpoints, cooperative cancellation, hard-timeout supervision, crash-safe filesystem publication, orphan reconciliation, fault injection, and `job-inspect` CLI status.
 - [v0.5.0] `analytics-query-contract-v1` with typed filters and selected fields, immutable snapshot-bound cursor pagination, explicit missing/redacted/quarantined value states, bounded synchronous scans, and asynchronous export-job fallback.
 - [v0.5.0] `analytics-comparison-contract-v1` with validated baseline/interrupted/recovery lineage pairing, fail-closed version and budget compatibility, explicit censored/missing states, paired deltas, provisional confidence metadata, and visible pruning bias.
+- [v0.5.0] `parquet-lifecycle-contract-v1` with measured layout policy, manifest-bound immutable snapshots, disk preflight, semantic parity, small-file compaction, explicit migration/backfill, crash-safe pointer activation, and rollback.
 
 ### Changed
 

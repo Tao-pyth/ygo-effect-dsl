@@ -1,0 +1,73 @@
+{
+  "calibration": {
+    "candidates": {
+      "snappy_rg16384_sorted": {
+        "compression": "snappy",
+        "compression_level": null,
+        "file_bytes": 1832077,
+        "row_count": 20000,
+        "row_group_count": 2,
+        "row_group_size": 16384,
+        "run_id_statistics_non_overlapping": true,
+        "semantic_digest": "lifecyclecalibrationsemantic_c52329e154010bd52f287d80731c47ba9d8cd4fd384b7b5713d9ab4656aed826"
+      },
+      "zstd3_rg16384_sorted": {
+        "compression": "zstd",
+        "compression_level": 3,
+        "file_bytes": 911526,
+        "row_count": 20000,
+        "row_group_count": 2,
+        "row_group_size": 16384,
+        "run_id_statistics_non_overlapping": true,
+        "semantic_digest": "lifecyclecalibrationsemantic_c52329e154010bd52f287d80731c47ba9d8cd4fd384b7b5713d9ab4656aed826"
+      },
+      "zstd3_rg16384_unsorted": {
+        "compression": "zstd",
+        "compression_level": 3,
+        "file_bytes": 968869,
+        "row_count": 20000,
+        "row_group_count": 2,
+        "row_group_size": 16384,
+        "run_id_statistics_non_overlapping": false,
+        "semantic_digest": "lifecyclecalibrationsemantic_c52329e154010bd52f287d80731c47ba9d8cd4fd384b7b5713d9ab4656aed826"
+      },
+      "zstd3_rg4096_sorted": {
+        "compression": "zstd",
+        "compression_level": 3,
+        "file_bytes": 934282,
+        "row_count": 20000,
+        "row_group_count": 5,
+        "row_group_size": 4096,
+        "run_id_statistics_non_overlapping": true,
+        "semantic_digest": "lifecyclecalibrationsemantic_c52329e154010bd52f287d80731c47ba9d8cd4fd384b7b5713d9ab4656aed826"
+      }
+    },
+    "row_count": 20000,
+    "selected": {
+      "compression": "zstd",
+      "compression_level": 3,
+      "layout_policy_id": "parquetlayout_7a99a419d66cf6e4a57c9c927eadf715060286b91fee23cd890c047a19c3fd20",
+      "observed_file_bytes": 911526,
+      "observed_file_bytes_per_row": 45.5763,
+      "planning_bytes_per_row": 256,
+      "planning_rows_per_file": 65536,
+      "row_group_size": 16384,
+      "sort_keys": [
+        "run_id",
+        "route_id",
+        "target_board",
+        "aggregation_record_id"
+      ],
+      "target_file_size_bytes": 16777216
+    },
+    "semantic_digest": "lifecyclecalibrationsemantic_c52329e154010bd52f287d80731c47ba9d8cd4fd384b7b5713d9ab4656aed826"
+  },
+  "evidence_id": "parquetlifecycleevidence_96175fa716cefe9a75d8e0a02ec60a61bc10b6e58f315435478dd3d3d675aa3f",
+  "limitations": [
+    "single_partition_synthetic_unique_workload",
+    "timings_excluded_as_machine_dependent",
+    "production_scale_recalibration_remains_issue_167"
+  ],
+  "pyarrow_version": "25.0.0",
+  "schema_version": "parquet-lifecycle-evidence-v1"
+}

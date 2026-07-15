@@ -2,7 +2,7 @@
 
 Status: Implemented optional analytics backend
 
-Last updated: 2026-07-13
+Last updated: 2026-07-15
 
 ## Boundary
 
@@ -33,7 +33,7 @@ Parquet schema metadataへ`ygo.schema_version=aggregation-v1`と`ygo.partition_l
 
 ## Partition Layout
 
-1 fileは1 runかつ1 partitionに限定する。Hive形式のpathは次である。
+ingest writerの1 fileは1 runかつ1 partitionに限定する。Hive形式のpathは次である。
 
 ```text
 evaluator_version=<version>/experiment_id=<id>/run_date=YYYY-MM-DD/part-<batch-id>.parquet
@@ -54,6 +54,18 @@ partition値はpercent encodeし、slashやWindows予約文字をdirectory境界
 
 filesystemとSQLiteを単一transactionにはできない。手順6が失敗した場合、catalogから参照されない完成fileが残るが、不完全fileへの参照は作られない。同一batchの再実行はfile内容とcatalog recordが一致すれば冪等に成功し、不一致なら拒否する。orphan fileの削除はcatalog照合後に行う保守処理であり、このwriterが推測削除しない。
 
+## Snapshot Lifecycle
+
+`parquet-lifecycle-contract-v1`はingest fileを変更せず、その上にimmutable snapshotを構築する。compaction fileは同一partition内に限り複数runを保持できる。active readerは`current-snapshot.json`が指すmanifestに列挙されたfileだけを読み、過去snapshotと`_staging`をrecursive scanしない。
+
+active snapshot後に追加された新runのingest fileは、現在のreader結果へ混在させず次回compactionでsnapshotと統合する。これによりpagination中のdatasetは変化しない。active snapshotに存在するrecord IDを別metric値で通常ingestすることは拒否し、明示migrationを要求する。
+
+manifestはfile SHA-256、bytes、row count、partition、sort min/max、source snapshot/file ID、created-by job、disk preflight、write amplification、semantic summaryを持つ。compaction/migrationはstagingへ書き、全fileを再読込し、snapshot directoryをrenameした後でpointerをatomic replaceする。crashがpointer更新前なら旧snapshot、更新後なら完成した新snapshotが見える。
+
+20,000 unique行の固定calibrationでは、zstd level 3・16,384-row group・sort済み構成が911,526 bytes、snappyが1,832,077 bytes、4,096-row groupのzstdが934,282 bytesだった。sortしないzstdは968,869 bytesでrun IDのrow-group min/maxが重なった。したがってv0.5 policyはzstd level 3、16,384-row group、run/Route/target/record ID sortを採用する。16 MiB targetと256 bytes/rowの保守見積りから65,536行/fileを計画するが、production規模の再校正は#167で行う。
+
+nullable derived metricのbackfillはcore semantic summaryが一致する場合に限りside-by-side migrationとして許可する。score、success、State hash、Action count、record set、partitionが変わるmigrationは拒否する。未知schemaを推測せず、明示codecが追加されるまでfail-closeする。rollbackは保持済みsnapshotを検証してpointerを再切替する。
+
 ## Schema Evolution
 
 同じ`aggregation-v1`内で後方互換とするのは、schemaで宣言済みのnullable metric列が旧fileに存在しない場合だけである。readerはその列を`null`で補う。metricの型変更、必須化、意味変更、partition変更は新しいaggregation schema versionを作り、旧artifactを別pathへ保持したまま書き直す。
@@ -63,6 +75,12 @@ Run catalogはParquet参照追加により`run-catalog-v2`となる。v1 databas
 ## Evidence
 
 固定evidenceは`docs/storage/evidence/parquet_backend.json`、evidence IDは`parquetevidence_d715ef89e639f4f4159c85d5695a2e2b7b273caa63740a2349335d64a8d0b69c`である。代表実Routeのwrite/read、catalog公開、nullable列追加、型変更拒否、Windows wheel/起動probeを含む。
+
+snapshot lifecycleの固定evidenceは`docs/storage/evidence/parquet_lifecycle.json`である。zstd/snappy、row group 4,096/16,384、sorted/unsortedのfile bytes、row-group statistics、semantic digest一致を保存する。再生成は次で行う。
+
+```powershell
+python -m ygo_effect_dsl.spikes.parquet_lifecycle_evidence --out docs/storage/evidence/parquet_lifecycle.json
+```
 
 機能部分はtestごとにfresh temporary directoryへ再生成する。配布probeを再取得する場合は、PyArrow wheelとPolars wheel一式を明示して次を実行する。
 

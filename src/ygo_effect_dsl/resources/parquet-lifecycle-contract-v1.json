@@ -1,0 +1,63 @@
+{
+  "atomic_publication": {
+    "legacy_delta_visibility": "next_compacted_snapshot_only",
+    "pointer": "current-snapshot.json",
+    "reader_visibility": "one_complete_old_or_new_snapshot",
+    "staging_directory": "_staging"
+  },
+  "calibration": {
+    "evidence": "docs/storage/evidence/parquet_lifecycle.json",
+    "production_recalibration_issue": 167,
+    "status": "measured_provisional",
+    "workload_rows": 20000
+  },
+  "disk_preflight": {
+    "bytes_per_row_estimate": 256,
+    "minimum_free_headroom_bytes": 67108864,
+    "required": true
+  },
+  "layout": {
+    "bytes_per_row_estimate": 256,
+    "compression": "zstd",
+    "compression_level": 3,
+    "minimum_free_headroom_bytes": 67108864,
+    "partition_keys": [
+      "evaluator_version",
+      "experiment_id",
+      "run_date"
+    ],
+    "policy_id": "parquetlayout_7a99a419d66cf6e4a57c9c927eadf715060286b91fee23cd890c047a19c3fd20",
+    "row_group_size": 16384,
+    "schema_version": "parquet-layout-policy-v1",
+    "sort_keys": [
+      "run_id",
+      "route_id",
+      "target_board",
+      "aggregation_record_id"
+    ],
+    "target_file_size_bytes": 16777216,
+    "target_rows_per_file": 131072
+  },
+  "manifest": {
+    "file_fields": [
+      "sha256",
+      "row_count",
+      "size_bytes",
+      "partition",
+      "sort_min",
+      "sort_max"
+    ],
+    "schema_version": "aggregation-snapshot-manifest-v1",
+    "source_set": [
+      "snapshot_ids",
+      "file_ids"
+    ]
+  },
+  "migration": {
+    "in_place": false,
+    "semantic_parity": "aggregation-semantic-summary-v1",
+    "unknown_target_schema": "fail_close_without_explicit_codec"
+  },
+  "rollback": "atomic_pointer_reactivation",
+  "version": "parquet-lifecycle-contract-v1"
+}

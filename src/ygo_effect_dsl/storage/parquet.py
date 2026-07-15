@@ -336,6 +336,28 @@ def write_aggregation_partition(
         return AggregationArtifact(
             batch_id, destination, len(ordered), digest, ordered[0].partition
         )
+    from ygo_effect_dsl.storage.parquet_lifecycle import (
+        current_aggregation_snapshot_id,
+        read_aggregation_snapshot,
+    )
+
+    active_snapshot_id = current_aggregation_snapshot_id(destination_root)
+    if active_snapshot_id is not None:
+        active_ids = {
+            item.record_id
+            for item in read_aggregation_snapshot(
+                destination_root,
+                snapshot_id=active_snapshot_id,
+            ).records
+        }
+        duplicates = sorted(
+            item.record_id for item in ordered if item.record_id in active_ids
+        )
+        if duplicates:
+            raise ValueError(
+                "active aggregation snapshot already contains record identities "
+                f"{duplicates}; use explicit migration for metric changes"
+            )
     temporary = partition_directory / (
         f".{destination.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp"
     )
@@ -361,8 +383,18 @@ def write_aggregation_partition(
 
 def read_aggregation_dataset(root: str | Path) -> tuple[AggregationRecord, ...]:
     source_root = Path(root)
+    from ygo_effect_dsl.storage.parquet_lifecycle import (
+        aggregation_current_pointer_path,
+        is_aggregation_lifecycle_internal_path,
+        read_aggregation_snapshot,
+    )
+
+    if aggregation_current_pointer_path(source_root).is_file():
+        return read_aggregation_snapshot(source_root).records
     records: list[AggregationRecord] = []
     for path in sorted(source_root.rglob("*.parquet")):
+        if is_aggregation_lifecycle_internal_path(path.relative_to(source_root)):
+            continue
         file_records = _read_file(path)
         _assert_partition_path(source_root, path, file_records)
         records.extend(file_records)
