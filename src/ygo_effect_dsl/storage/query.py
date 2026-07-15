@@ -366,6 +366,7 @@ def analytics_row_from_aggregation(
         "action_count",
         "resource_consumption",
         "state_hash",
+        "version",
     }
     overlap = protected & set(supplied)
     if overlap:
@@ -381,7 +382,7 @@ def analytics_row_from_aggregation(
             "success": record.success,
             "score": record.score,
             "time": record.run_date,
-            "version": supplied.get("version", record.evaluator_version),
+            "version": record.evaluator_version,
             "target_board": record.target_board,
             "action_count": record.action_count,
             "resource_consumption": (
@@ -826,9 +827,15 @@ def _matches(row: AnalyticsQueryRow, item: AnalyticsFilter) -> bool:
         return False
     observed = value.value
     if item.operator == "eq":
-        return observed == item.value
+        return _comparable_value(item.field, observed) == _comparable_value(
+            item.field, item.value
+        )
     if item.operator == "in":
-        return observed in item.value
+        comparable = _comparable_value(item.field, observed)
+        return any(
+            comparable == _comparable_value(item.field, candidate)
+            for candidate in item.value
+        )
     if item.operator == "gte":
         return _comparable_value(item.field, observed) >= _comparable_value(
             item.field, item.value

@@ -166,6 +166,9 @@ def test_aggregation_adapter_preserves_identity_and_explicit_dimensions() -> Non
     assert row.values["resource_consumption"].state == AnalyticsValueState.MISSING
     assert row.values["interruption"].state == AnalyticsValueState.NOT_APPLICABLE
 
+    with pytest.raises(ValueError, match="cannot replace aggregation fields"):
+        analytics_row_from_aggregation(record, dimensions={"version": "other"})
+
 
 @pytest.mark.parametrize(
     "item",
@@ -252,6 +255,22 @@ def test_timestamp_range_and_sort_use_time_semantics_not_string_order() -> None:
         "analyticsrow_0",
         "analyticsrow_fractional",
     ]
+
+
+@pytest.mark.parametrize("operator", ("eq", "in"))
+def test_timestamp_exact_filters_normalize_equivalent_utc_instants(
+    operator: str,
+) -> None:
+    service, _, _ = _service((_row(0),))
+    operand: object = "2026-07-10T00:00:00Z"
+    if operator == "in":
+        operand = [operand]
+
+    result = service.execute(
+        _request(filters=(AnalyticsFilter("time", operator, operand),))
+    )
+
+    assert [item["row_id"] for item in result.rows] == ["analyticsrow_0"]
 
 
 def test_timestamp_with_non_utc_offset_fails_close() -> None:
