@@ -12,6 +12,7 @@ All notable package changes are documented here. Package versions follow Semanti
 - [v0.4.0] Core-driven multi-interruption timing, going-second board-break, multi-turn lifecycle, and strategy/interruption/recovery cross-validation contracts.
 - [v0.5.0] Reproducible SQLite, DuckDB, and Parquet storage-boundary evidence selecting SQLite for operational state and Parquet for derived analytics.
 - [v0.5.0] `corpus-manifest-v1` provenance, exact and semantic duplicate identities, idempotent ingest, aggregation eligibility, and structured quarantine diagnostics.
+- [v0.5.0] `job-state-machine-v1` with typed search/replay/import/aggregate/export jobs, dependency-aware priority scheduling, leases, heartbeats, retries, cancellation, orphan recovery, transition audit, and atomic artifact commit.
 
 ### Changed
 
