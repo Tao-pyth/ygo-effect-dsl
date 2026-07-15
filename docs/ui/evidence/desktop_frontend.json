@@ -1,0 +1,38 @@
+{
+  "dom": {
+    "deck_row_count": 4,
+    "search_dialog_present": true,
+    "workflow_version_present": true
+  },
+  "evidence_id": "desktopfrontendevidence_e55ee6cbe767164a02ad398c4a8bdb9dee5f19718c4ed88fb3dc9253e15792f3",
+  "limitations": [
+    "synthetic_fixture_adapter_only",
+    "real_bridge_and_worker_execution_deferred_to_issue_244",
+    "screen_reader_and_webview2_lifecycle_deferred_to_issue_245",
+    "catalog_virtualization_deferred_to_issue_165",
+    "single_windows_host_headless_edge_capture"
+  ],
+  "schema_version": "desktop-frontend-evidence-v1",
+  "screenshots": [
+    {
+      "bytes": 72886,
+      "filename": "deck_dashboard_1440x900.png",
+      "height": 900,
+      "sha256": "46d1365a53f02e3b6b528a7a0de79e30a1475290082e810eaa9fcdf9cd29ffd9",
+      "width": 1440
+    },
+    {
+      "bytes": 52923,
+      "filename": "deck_search_960x700.png",
+      "height": 700,
+      "sha256": "ee40e5052ace3f7e71779d1a35b77fb72e498b1c7cde1ebf46abd91aa6a87967",
+      "width": 960
+    }
+  ],
+  "security": {
+    "remote_content": false,
+    "runtime_network_access": false,
+    "third_party_card_assets": false
+  },
+  "workflow_version": "desktop-workflow-v1"
+}
