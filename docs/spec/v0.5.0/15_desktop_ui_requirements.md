@@ -96,6 +96,8 @@ installer、signing、auto-update、YDK file association、deep linkはdistribut
 
 ## Window and performance requirements
 
+実装済みstatic prototypeのnavigation、form、visual token、viewport evidenceは[deck dashboard workflow](17_deck_dashboard_workflow.md)を正本とする。v0.5 shell minimumは960×700、主要検証viewportは1440×900とする。実bridge、100k virtualization、desktop lifecycle/a11y gateはそれぞれ#244、#165、#245へ分離する。
+
 主要desktop解像度と最小window sizeを実装Issueで確定し、text、toolbar、table、dialog、detail panelのoverlap/truncationを禁止する。deck/card/run tableはserver-side queryとvirtualizationを使い、dynamic contentでrow/tool dimensionsを変動させない。
 
 10万deck/run相当のworkloadでinput-to-result、sort/filter、selection、detail open、memoryを測定する。測定前に無制限queryや全row client loadを既定にしない。

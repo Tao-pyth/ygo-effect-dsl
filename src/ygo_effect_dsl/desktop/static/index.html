@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="desktop-workflow-contract" content="desktop-workflow-v1">
+    <title>RouteLab Deck Research</title>
+    <link rel="stylesheet" href="app.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">Skip to workspace</a>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-block" aria-label="Application identity">
+          <span class="brand-mark" aria-hidden="true">RL</span>
+          <div>
+            <strong>RouteLab</strong>
+            <span>Deck research workspace</span>
+          </div>
+        </div>
+        <div class="environment-status" role="status">
+          <span class="status-dot status-ready" aria-hidden="true"></span>
+          <span>Local assets verified</span>
+          <code>ocgcore 11.0</code>
+        </div>
+        <div class="topbar-actions">
+          <button class="button secondary" id="import-deck" type="button">Import YDK</button>
+          <button class="button primary" id="new-inline" type="button">New inline deck</button>
+        </div>
+      </header>
+
+      <nav class="rail" aria-label="Primary navigation">
+        <button class="rail-item is-active" type="button" data-view="decks" aria-current="page">
+          <span class="rail-glyph" aria-hidden="true">D</span>
+          <span>Decks</span>
+        </button>
+        <button class="rail-item" type="button" data-view="runs">
+          <span class="rail-glyph" aria-hidden="true">R</span>
+          <span>Runs</span>
+        </button>
+        <button class="rail-item" type="button" data-view="compare">
+          <span class="rail-glyph" aria-hidden="true">C</span>
+          <span>Compare</span>
+        </button>
+        <div class="rail-spacer"></div>
+        <button class="rail-item" type="button" data-view="settings">
+          <span class="rail-glyph" aria-hidden="true">S</span>
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      <main class="workspace" id="workspace" tabindex="-1">
+        <section class="catalog-pane" aria-labelledby="catalog-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Corpus / registered decks</p>
+              <h1 id="catalog-title">Deck catalog</h1>
+            </div>
+            <div class="catalog-count"><strong id="visible-count">4</strong><span>decks</span></div>
+          </div>
+
+          <div class="metric-strip" aria-label="Catalog summary">
+            <div class="metric">
+              <span>Search runs</span>
+              <strong>12,480</strong>
+              <small>3 fixtures qualified</small>
+            </div>
+            <div class="metric">
+              <span>Success rate</span>
+              <strong>73.4%</strong>
+              <small class="positive">+2.8 points</small>
+            </div>
+            <div class="metric">
+              <span>Median nodes</span>
+              <strong>42.6k</strong>
+              <small>p95 96.2k</small>
+            </div>
+            <div class="metric">
+              <span>Needs review</span>
+              <strong>1</strong>
+              <small class="warning-text">stale asset lock</small>
+            </div>
+          </div>
+
+          <div class="catalog-toolbar" role="search">
+            <label class="search-field">
+              <span class="visually-hidden">Filter decks</span>
+              <span aria-hidden="true">/</span>
+              <input id="deck-filter" type="search" placeholder="Filter by deck name, hash, or tag" autocomplete="off">
+            </label>
+            <label class="select-field">
+              <span>Sort</span>
+              <select id="deck-sort">
+                <option value="updated">Recently updated</option>
+                <option value="runs">Most runs</option>
+                <option value="success">Highest success</option>
+                <option value="name">Name</option>
+              </select>
+            </label>
+            <div class="segmented" aria-label="Catalog density">
+              <button type="button" class="is-selected" aria-pressed="true" data-density="compact">Compact</button>
+              <button type="button" aria-pressed="false" data-density="comfortable">Comfortable</button>
+            </div>
+          </div>
+
+          <div class="table-frame" tabindex="0" aria-label="Deck catalog table region">
+            <table class="deck-table">
+              <thead>
+                <tr>
+                  <th scope="col">Deck</th>
+                  <th scope="col">Cards</th>
+                  <th scope="col">Preflight</th>
+                  <th scope="col">Runs</th>
+                  <th scope="col">Success</th>
+                  <th scope="col">Best score</th>
+                  <th scope="col">Updated</th>
+                </tr>
+              </thead>
+              <tbody id="deck-table-body"></tbody>
+            </table>
+            <div class="empty-state" id="empty-state" hidden>
+              <strong>No matching decks</strong>
+              <span>Adjust the filter or import a YDK file.</span>
+            </div>
+          </div>
+
+          <div class="table-footer">
+            <span>Showing a deterministic fixture window</span>
+            <span>100k catalog virtualization: release gate #165</span>
+          </div>
+        </section>
+
+        <aside class="detail-pane" aria-labelledby="detail-title">
+          <div class="detail-heading">
+            <div>
+              <span class="status-chip success" id="detail-status">Ready</span>
+              <h2 id="detail-title">Short route fixture</h2>
+              <code id="detail-hash">a72f91c8</code>
+            </div>
+            <button class="button primary run-search" id="open-search" type="button">Run search</button>
+          </div>
+
+          <div class="detail-tabs" role="tablist" aria-label="Deck detail sections">
+            <button id="tab-overview" role="tab" aria-selected="true" aria-controls="panel-overview" type="button">Overview</button>
+            <button id="tab-cards" role="tab" aria-selected="false" aria-controls="panel-cards" type="button">Cards</button>
+            <button id="tab-runs" role="tab" aria-selected="false" aria-controls="panel-runs" type="button">Runs</button>
+          </div>
+
+          <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview">
+            <dl class="deck-facts">
+              <div><dt>Main</dt><dd id="main-count">40</dd></div>
+              <div><dt>Extra</dt><dd id="extra-count">15</dd></div>
+              <div><dt>Side</dt><dd id="side-count">0</dd></div>
+              <div><dt>Source</dt><dd id="source-kind">inline</dd></div>
+            </dl>
+
+            <section class="detail-section" aria-labelledby="performance-title">
+              <div class="subheading">
+                <h3 id="performance-title">Search performance</h3>
+                <span>last 30 runs</span>
+              </div>
+              <div class="score-line">
+                <div><span>Success</span><strong id="detail-success">84.2%</strong></div>
+                <div><span>Peak</span><strong id="detail-peak">18.6</strong></div>
+                <div><span>Terminal</span><strong id="detail-terminal">14.1</strong></div>
+              </div>
+              <div class="bar-chart" id="bar-chart" aria-label="Strategy success comparison"></div>
+            </section>
+
+            <section class="detail-section" aria-labelledby="composition-title">
+              <div class="subheading">
+                <h3 id="composition-title">Composition</h3>
+                <span>main deck</span>
+              </div>
+              <div class="composition-bar" aria-label="Monster 55 percent, Spell 32 percent, Trap 13 percent">
+                <span class="monster part-55"></span>
+                <span class="spell part-32"></span>
+                <span class="trap part-13"></span>
+              </div>
+              <div class="legend">
+                <span><i class="monster"></i>Monster 22</span>
+                <span><i class="spell"></i>Spell 13</span>
+                <span><i class="trap"></i>Trap 5</span>
+              </div>
+            </section>
+
+            <section class="diagnostic success" id="preflight-summary" aria-label="Latest preflight">
+              <div>
+                <strong>Preflight passed</strong>
+                <span>DB, Lua scripts, asset lock, and deck shape verified.</span>
+              </div>
+              <time datetime="2026-07-16T02:14:00+09:00">02:14</time>
+            </section>
+          </div>
+
+          <div id="panel-cards" role="tabpanel" aria-labelledby="tab-cards" hidden>
+            <div class="card-list-header"><span>Card presentation</span><span>Count</span></div>
+            <div class="card-list" id="card-list"></div>
+          </div>
+
+          <div id="panel-runs" role="tabpanel" aria-labelledby="tab-runs" hidden>
+            <ol class="run-list" id="run-list"></ol>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <dialog class="search-dialog" id="search-dialog" aria-labelledby="search-dialog-title">
+      <form id="search-form" method="dialog">
+        <div class="dialog-header">
+          <div>
+            <p class="eyebrow">New experiment</p>
+            <h2 id="search-dialog-title">Search <span id="search-deck-name">Short route fixture</span></h2>
+          </div>
+          <button class="close-button" id="close-search" type="button" aria-label="Close search form">×</button>
+        </div>
+
+        <div class="dialog-body">
+          <section class="form-section" aria-labelledby="scenario-title">
+            <div class="form-section-heading">
+              <span>01</span>
+              <div><h3 id="scenario-title">Scenario</h3><p>Uses Experiment 0.4 without UI rule inference.</p></div>
+            </div>
+            <div class="form-grid three-columns">
+              <label><span>Objective</span><select id="objective"><option>Maximize terminal board</option><option>Reach success predicate</option><option>Explore legal lines</option></select></label>
+              <label><span>Opening hand</span><select id="opening-hand"><option>Seeded random</option><option>Fixed hand</option><option>Conditional hand</option></select></label>
+              <label><span>Artifact target</span><select id="artifact-target"><option>Local catalog (atomic)</option><option>Choose external directory</option></select></label>
+            </div>
+          </section>
+
+          <section class="form-section" aria-labelledby="strategy-title">
+            <div class="form-section-heading">
+              <span>02</span>
+              <div><h3 id="strategy-title">Strategy and budget</h3><p>Deterministic for the same seed and semantic node identity.</p></div>
+            </div>
+            <fieldset class="strategy-options">
+              <legend class="visually-hidden">Search strategy</legend>
+              <label><input type="radio" name="strategy" value="random-search-strategy-v1" checked><span><strong>Random</strong><small>Broad deterministic sampling</small></span></label>
+              <label><input type="radio" name="strategy" value="beam-search-strategy-v1"><span><strong>Beam</strong><small>Score-ranked frontier</small></span></label>
+              <label><input type="radio" name="strategy" value="mcts-strategy-v1"><span><strong>MCTS</strong><small>Exploration and rollout</small></span></label>
+            </fieldset>
+            <div class="form-grid budget-grid">
+              <label><span>Seed</span><input id="seed" type="number" min="0" step="1" value="42017"></label>
+              <label><span>Max nodes</span><input id="max-nodes" type="number" min="1" max="100000" step="1000" value="50000"></label>
+              <label><span>Max depth</span><input id="max-depth" type="number" min="1" max="256" value="48"></label>
+              <label><span>Max seconds</span><input id="max-seconds" type="number" min="1" max="3600" value="120"></label>
+            </div>
+          </section>
+
+          <section class="form-section" aria-labelledby="interruption-title">
+            <div class="form-section-heading">
+              <span>03</span>
+              <div><h3 id="interruption-title">Interruption</h3><p>Only core-presented activation opportunities are branched.</p></div>
+            </div>
+            <label class="toggle-row">
+              <span><strong>Enable specified interruption</strong><small>Baseline and interrupted routes retain shared lineage.</small></span>
+              <input id="interruption-toggle" type="checkbox" role="switch">
+            </label>
+            <label id="interruption-card-field" hidden><span>Opponent card code</span><input id="interruption-code" type="number" min="1" placeholder="Card code"></label>
+          </section>
+
+          <section class="preflight-box" id="preflight-box" aria-live="polite">
+            <div class="preflight-icon" aria-hidden="true">✓</div>
+            <div><strong>Ready for preflight</strong><span>Validation runs before any worker is started.</span></div>
+            <button class="button secondary" id="run-preflight" type="button">Validate</button>
+          </section>
+        </div>
+
+        <div class="dialog-footer">
+          <span id="experiment-summary">random-search-strategy-v1 · seed 42017 · 50,000 nodes</span>
+          <div>
+            <button class="button secondary" id="cancel-search" type="button">Cancel</button>
+            <button class="button primary" id="queue-search" type="submit" disabled>Queue search</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="job-dialog" id="job-dialog" aria-labelledby="job-title">
+      <div class="job-content">
+        <div class="job-header">
+          <div><p class="eyebrow">Search job</p><h2 id="job-title">Replaying frontier nodes</h2></div>
+          <code id="job-id">job_fixture_0042</code>
+        </div>
+        <progress id="job-progress" class="progress-track" aria-label="Search progress" max="100" value="0">0%</progress>
+        <div class="job-stats">
+          <div><span>Logical nodes</span><strong id="job-nodes">0 / 50,000</strong></div>
+          <div><span>Fresh replays</span><strong id="job-replays">0</strong></div>
+          <div><span>Best score</span><strong id="job-score">0.0</strong></div>
+          <div><span>Elapsed</span><strong id="job-elapsed">0.0s</strong></div>
+        </div>
+        <div class="job-log" id="job-log" aria-live="polite">Queued through synthetic preview adapter. No worker has started.</div>
+        <div class="job-actions">
+          <button class="button secondary danger" id="cancel-job" type="button">Cancel job</button>
+          <button class="button primary" id="view-result" type="button" hidden>View best route</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="card-dialog" id="card-dialog" aria-labelledby="card-title">
+      <div class="card-detail">
+        <div class="card-detail-header">
+          <div><p class="eyebrow" id="card-code">Code 10000</p><h2 id="card-title">Synthetic Relay Alpha</h2></div>
+          <button class="close-button" id="close-card" type="button" aria-label="Close card detail">×</button>
+        </div>
+        <dl class="card-metadata" id="card-metadata"></dl>
+        <section class="effect-text" aria-labelledby="effect-title">
+          <div class="subheading"><h3 id="effect-title">Effect text</h3><span>synthetic fixture / en</span></div>
+          <p id="effect-text">When this synthetic fixture is selected, record one deterministic decision. This text is for presentation testing only.</p>
+        </section>
+        <div class="source-note"><strong>Presentation only</strong><span>Never used by Search, Replay, State, Decision, or Evaluation.</span></div>
+      </div>
+    </dialog>
+
+    <dialog class="compare-dialog" id="compare-dialog" aria-labelledby="compare-title">
+      <div class="compare-content">
+        <div class="card-detail-header">
+          <div><p class="eyebrow">Paired route statistics</p><h2 id="compare-title">Baseline / interruption / recovery</h2></div>
+          <button class="close-button" id="close-compare" type="button" aria-label="Close comparison">×</button>
+        </div>
+        <div class="comparison-notice"><strong>30 paired runs</strong><span>Same deck, seed family, budget, strategy, and evaluator versions.</span></div>
+        <div class="table-frame">
+          <table class="comparison-table">
+            <thead><tr><th scope="col">Cohort</th><th scope="col">Success</th><th scope="col">Peak</th><th scope="col">Terminal</th><th scope="col">Censoring</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Baseline</th><td>84.2%</td><td>18.6</td><td>14.1</td><td>0 / 30</td></tr>
+              <tr><th scope="row">Interrupted</th><td>46.7%</td><td>11.2</td><td>8.4</td><td>2 / 30</td></tr>
+              <tr><th scope="row">Recovery</th><td>63.3%</td><td>14.8</td><td>11.7</td><td>1 / 30</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="comparison-footnote">Confidence metadata is provisional; pruning bias remains visible and statistical pruning stays disabled by default.</p>
+      </div>
+    </dialog>
+
+    <dialog class="result-dialog" id="result-dialog" aria-labelledby="result-title">
+      <div class="result-content">
+        <div class="card-detail-header">
+          <div><p class="eyebrow">Best route / fresh replay verified</p><h2 id="result-title">Route result</h2></div>
+          <button class="close-button" id="close-result" type="button" aria-label="Close route result">×</button>
+        </div>
+        <div class="result-identity"><span>Route ID</span><code>route_fixture_5b7a2c10</code></div>
+        <div class="job-stats result-stats">
+          <div><span>Success</span><strong>Yes</strong></div>
+          <div><span>Peak score</span><strong>18.6</strong></div>
+          <div><span>Terminal score</span><strong>14.1</strong></div>
+          <div><span>Actions</span><strong>12</strong></div>
+        </div>
+        <ol class="route-line">
+          <li><span>01</span><div><strong>Decision response</strong><small>candidate fixture_action_01</small></div></li>
+          <li><span>02</span><div><strong>State transition</strong><small>state_fixture_a3 → state_fixture_b8</small></div></li>
+          <li><span>03</span><div><strong>Legal stop</strong><small>STOP_LINE, separate from END_TURN</small></div></li>
+        </ol>
+        <div class="source-note"><strong>Synthetic preview result</strong><span>#244 replaces this adapter with the typed Python bridge and real job artifacts.</span></div>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  </body>
+</html>

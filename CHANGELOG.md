@@ -19,6 +19,7 @@ All notable package changes are documented here. Package versions follow Semanti
 - [v0.5.0] `parquet-lifecycle-contract-v1` with measured layout policy, manifest-bound immutable snapshots, disk preflight, semantic parity, small-file compaction, explicit migration/backfill, crash-safe pointer activation, and rollback.
 - [v0.5.0] Windows desktop shell ADR and same-host evidence selecting pywebview/WebView2, a versioned allowlist bridge, existing isolated search workers, and separate browser/desktop verification boundaries.
 - [v0.5.0] `card-presentation-v1` and a verified local BabelCDB read-only provider with explicit locale fallback, PlayerView redaction, structured missing/stale/version diagnostics, metadata projection, and a strict no-Search/Replay dependency boundary.
+- [v0.5.0] `desktop-workflow-v1` and a packaged, interactive deck-first research dashboard prototype covering catalog statistics, card detail, search preflight, synthetic job/result flow, comparison, responsive states, and default-deny frontend security.
 
 ### Changed
 

@@ -1,0 +1,71 @@
+{
+  "authority": {
+    "card_effect_interpretation": "forbidden",
+    "experiment_contract_owner": "python_application_service",
+    "fixture_preview_may_execute_workers": false,
+    "legality_and_timing": "ocgcore_only",
+    "renderer_is_authoritative": false
+  },
+  "catalog_states": [
+    "loading",
+    "ready",
+    "empty",
+    "asset_unavailable",
+    "invalid_deck",
+    "stale_asset_lock",
+    "quarantined",
+    "partial_statistics",
+    "query_failure"
+  ],
+  "commands": [
+    "import_ydk",
+    "register_inline",
+    "inspect_deck",
+    "inspect_card",
+    "open_search",
+    "run_preflight",
+    "enqueue_search",
+    "cancel_job",
+    "inspect_result"
+  ],
+  "initial_view": "deck_catalog",
+  "integration": {
+    "bridge_issue": 244,
+    "browser_and_desktop_share_artifact": true,
+    "preview_adapter": "synthetic_fixture_only",
+    "worker_execution": "python_application_service_only"
+  },
+  "large_catalog": {
+    "issue": 165,
+    "query": "server_cursor_window",
+    "status": "virtualization_release_gate",
+    "target_rows": 100000
+  },
+  "routes": [
+    "decks",
+    "deck_detail",
+    "search_form",
+    "job_progress",
+    "result",
+    "runs",
+    "compare"
+  ],
+  "schema_version": "desktop-workflow-v1",
+  "search_strategies": [
+    "random-search-strategy-v1",
+    "beam-search-strategy-v1",
+    "mcts-strategy-v1"
+  ],
+  "views": [
+    "deck_catalog",
+    "deck_detail",
+    "deck_statistics",
+    "card_detail",
+    "search_form",
+    "preflight",
+    "job_progress",
+    "result",
+    "runs",
+    "compare"
+  ]
+}
