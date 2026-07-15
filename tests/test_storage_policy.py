@@ -108,6 +108,57 @@ def test_sqlite_catalog_tracks_run_lifecycle_and_route_reference(tmp_path: Path)
         )
 
 
+def test_sqlite_catalog_batches_run_lifecycle_atomically(tmp_path: Path) -> None:
+    path = tmp_path / "batch-runs.sqlite3"
+    catalog = RunCatalog(path)
+    records = tuple(
+        RunRecord(
+            run_id=f"run_{index}",
+            experiment_id="experiment_batch",
+            status=RunStatus.RUNNING,
+            started_at="2026-07-13T10:00:00Z",
+        )
+        for index in range(4)
+    )
+
+    assert catalog.create_runs(records) == 4
+    assert catalog.finish_runs(
+        (record.run_id for record in records),
+        status=RunStatus.COMPLETE,
+        finished_at="2026-07-13T10:01:00Z",
+    ) == 4
+    with sqlite3.connect(path) as connection:
+        assert connection.execute(
+            "SELECT status, COUNT(*) FROM runs GROUP BY status"
+        ).fetchall() == [("complete", 4)]
+
+    with pytest.raises(ValueError, match="missing or already finished"):
+        catalog.finish_runs(
+            ("run_0", "missing"),
+            status=RunStatus.FAILED,
+            finished_at="2026-07-13T10:02:00Z",
+        )
+    with sqlite3.connect(path) as connection:
+        assert connection.execute(
+            "SELECT COUNT(*) FROM runs WHERE status = 'failed'"
+        ).fetchone() == (0,)
+
+    pending = RunRecord(
+        run_id="run_pending",
+        experiment_id="experiment_batch",
+        status=RunStatus.RUNNING,
+        started_at="2026-07-13T10:03:00Z",
+    )
+    catalog.create_run(pending)
+    with pytest.raises(ValueError, match="missing or already finished"):
+        catalog.finish_runs(
+            (pending.run_id, "missing"),
+            status=RunStatus.FAILED,
+            finished_at="2026-07-13T10:04:00Z",
+        )
+    assert catalog.get_run(pending.run_id).status == RunStatus.RUNNING
+
+
 def test_sqlite_catalog_requires_explicit_schema_migration(tmp_path: Path) -> None:
     path = tmp_path / "runs.sqlite3"
     catalog = RunCatalog(path)

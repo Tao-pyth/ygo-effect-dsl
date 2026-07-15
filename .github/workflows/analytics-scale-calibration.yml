@@ -1,0 +1,65 @@
+name: Analytics scale calibration
+
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: Run catalog rows
+        required: true
+        default: "100000"
+      event_rows:
+        description: Raw Event/Decision rows
+        required: true
+        default: "1000000"
+      analytical_rows:
+        description: Aggregation/query rows
+        required: true
+        default: "100000"
+
+permissions:
+  contents: read
+
+jobs:
+  calibrate:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 180
+
+    steps:
+      - name: Check out exact commit
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+
+      - name: Install current checkout with analytics support
+        shell: powershell
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[analytics]"
+
+      - name: Run persistent-storage calibration
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'analytics-scale-calibration.json'
+          $samples = Join-Path $env:RUNNER_TEMP 'analytics-scale-samples.parquet'
+          python -m ygo_effect_dsl.spikes.analytics_scale_calibration `
+            --runs '${{ inputs.runs }}' `
+            --event-rows '${{ inputs.event_rows }}' `
+            --analytical-rows '${{ inputs.analytical_rows }}' `
+            --out $out `
+            --samples-out $samples
+          if ($LASTEXITCODE -ne 0) { throw 'analytics scale calibration failed' }
+
+      - name: Upload calibration evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: analytics-scale-calibration-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/analytics-scale-calibration.json
+            ${{ runner.temp }}/analytics-scale-samples.parquet
+          if-no-files-found: error
+          retention-days: 30

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from contextlib import closing
 from dataclasses import dataclass
 from enum import Enum
@@ -139,21 +140,38 @@ class RunCatalog:
                 )
 
     def create_run(self, record: RunRecord) -> None:
-        if record.status != RunStatus.RUNNING or record.finished_at is not None:
+        self.create_runs((record,))
+
+    def create_runs(self, records: Iterable[RunRecord]) -> int:
+        received = tuple(records)
+        if not received:
+            raise ValueError("batch run creation requires at least one record")
+        if any(not isinstance(record, RunRecord) for record in received):
+            raise TypeError("records must contain RunRecord values")
+        if any(
+            record.status != RunStatus.RUNNING or record.finished_at is not None
+            for record in received
+        ):
             raise ValueError("new run must have status=running and no finished_at")
+        if len({record.run_id for record in received}) != len(received):
+            raise ValueError("batch run creation contains duplicate run IDs")
         self.initialize()
         with closing(self._connect()) as connection, connection:
-            connection.execute(
+            connection.executemany(
                 "INSERT INTO runs VALUES (?, ?, ?, ?, ?, ?)",
                 (
-                    record.run_id,
-                    record.experiment_id,
-                    record.status.value,
-                    record.started_at,
-                    record.finished_at,
-                    record.error_summary,
+                    (
+                        record.run_id,
+                        record.experiment_id,
+                        record.status.value,
+                        record.started_at,
+                        record.finished_at,
+                        record.error_summary,
+                    )
+                    for record in received
                 ),
             )
+        return len(received)
 
     def finish_run(
         self,
@@ -163,20 +181,48 @@ class RunCatalog:
         finished_at: str,
         error_summary: str | None = None,
     ) -> None:
+        self.finish_runs(
+            (run_id,),
+            status=status,
+            finished_at=finished_at,
+            error_summary=error_summary,
+        )
+
+    def finish_runs(
+        self,
+        run_ids: Iterable[str],
+        *,
+        status: RunStatus,
+        finished_at: str,
+        error_summary: str | None = None,
+    ) -> int:
         if status not in {RunStatus.COMPLETE, RunStatus.FAILED}:
             raise ValueError("finished run status must be complete or failed")
+        received = tuple(run_ids)
+        if not received:
+            raise ValueError("batch run completion requires at least one run ID")
+        if any(not isinstance(run_id, str) or not run_id for run_id in received):
+            raise ValueError("run IDs must be non-empty strings")
+        if len(set(received)) != len(received):
+            raise ValueError("batch run completion contains duplicate run IDs")
         self.initialize()
         with closing(self._connect()) as connection, connection:
-            cursor = connection.execute(
+            cursor = connection.executemany(
                 """
                 UPDATE runs
                 SET status = ?, finished_at = ?, error_summary = ?
                 WHERE run_id = ? AND status = 'running'
                 """,
-                (status.value, finished_at, error_summary, run_id),
+                (
+                    (status.value, finished_at, error_summary, run_id)
+                    for run_id in received
+                ),
             )
-            if cursor.rowcount != 1:
-                raise ValueError(f"run {run_id!r} is missing or already finished")
+            if cursor.rowcount != len(received):
+                raise ValueError(
+                    "one or more batch runs are missing or already finished"
+                )
+        return len(received)
 
     def add_route(
         self,

@@ -1,6 +1,6 @@
 # Package 0.5.0 Work Breakdown and Acceptance
 
-Status: Issue-backed plan
+Status: Implementation complete; release gates remain
 
 Last updated: 2026-07-16
 
@@ -28,7 +28,7 @@ Last updated: 2026-07-16
 
 ## Implementation status
 
-Items 1 through 16 are implemented and backed by versioned local evidence. Item 14 is specified by [desktop lifecycle contract](19_desktop_lifecycle_recovery.md) and `desktoplifecycleevidence_307c69c7...`; it includes real ocgcore desktop execution, process-tree cleanup, retry/checkpoint recovery, and the structural accessibility/security baseline. Item 15 is specified by [virtualized analytics table](21_virtualized_analytics_table.md) and `desktopvirtualtableevidence_908bda8b...`; it verifies the 100,000-row-equivalent UI workload. Item 16 is specified by [versioned export parity](22_versioned_export_parity.md) and `analyticsexportevidence_babc372e...`; it verifies JSON/CSV/Parquet semantic parity and service/CLI/desktop worker byte parity. Item 17 remains the active v0.5 completion path and owns persistent-storage scale calibration. Signing/update and distribution approval remain separate #134/#91 release gates and are not implied by completion of this table.
+Items 1 through 17 are implemented and backed by versioned local evidence. Item 14 is specified by [desktop lifecycle contract](19_desktop_lifecycle_recovery.md) and `desktoplifecycleevidence_307c69c7...`; it includes real ocgcore desktop execution, process-tree cleanup, retry/checkpoint recovery, and the structural accessibility/security baseline. Item 15 is specified by [virtualized analytics table](21_virtualized_analytics_table.md) and `desktopvirtualtableevidence_908bda8b...`; it verifies the 100,000-row-equivalent UI workload. Item 16 is specified by [versioned export parity](22_versioned_export_parity.md) and `analyticsexportevidence_babc372e...`; it verifies JSON/CSV/Parquet semantic parity and service/CLI/desktop worker byte parity. Item 17 is specified by [production scale calibration](23_production_scale_calibration.md) and `analyticsscaleevidence_2227888e...`; it verifies 100,000 runs, 1,000,000 Event/Decision rows, persistent query/recovery, and measured 100,000-row export limits. Signing/update and distribution approval remain separate #134/#91 release gates and are not implied by completion of this table.
 
 ## Gate A: data integrity
 
@@ -80,6 +80,8 @@ Items 1 through 16 are implemented and backed by versioned local evidence. Item 
 - UI input-to-result latency、long task、layout stability
 
 hardware/software/workload manifestを付け、測定値からdefault limit、partition、file size、query timeoutを決める。CIは縮小smokeとし、大規模evidenceはmanual/self-hostedで保持する。
+
+このgateは[production scale calibration](23_production_scale_calibration.md)で完了した。100,000行exportの最大peak RSSが約2.48 GBだったため、未測定の100万行を許可せずscan/output hard capを100,000行へ縮小した。UI rendererの10万行証跡とpersistent storage証跡は別workloadとして保持する。
 
 ## Release rejection conditions
 

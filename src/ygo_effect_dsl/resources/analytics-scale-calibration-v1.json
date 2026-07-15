@@ -1,0 +1,35 @@
+{
+  "execution": {
+    "ci": "same harness with reduced positive row counts",
+    "full_scale": "manual or self-hosted workflow"
+  },
+  "limits": {
+    "analytical_rows_minimum": 100000,
+    "event_decision_rows_minimum": 1000000,
+    "runs_minimum": 100000
+  },
+  "operations": [
+    "raw_event_ingest",
+    "catalog_batch_create_finish",
+    "aggregation_publish_read",
+    "aggregation_compaction",
+    "aggregation_migration_rollback",
+    "aggregation_crash_recovery",
+    "persistent_filter_sort_drill_down_comparison",
+    "application_query",
+    "desktop_bridge_query",
+    "json_csv_parquet_export",
+    "concurrent_catalog_ingest_query",
+    "concurrent_compaction_read",
+    "concurrent_export_cancel"
+  ],
+  "outputs": {
+    "samples": "Parquet operation samples with latency, throughput, and RSS",
+    "summary": "content-addressed JSON with hardware/software/workload manifest"
+  },
+  "ui_boundary": {
+    "persistent": "Python desktop bridge query measurement",
+    "renderer": "separate deterministic 100k-row Playwright evidence"
+  },
+  "version": "analytics-scale-calibration-v1"
+}

@@ -24,12 +24,14 @@ All notable package changes are documented here. Package versions follow Semanti
 - [v0.5.0] `desktop-search-worker-v1` and Windows Job Object containment with real-core Search execution, lease heartbeat, cooperative cancellation, retry/checkpoint restart, atomic Route/SearchRun publication, cold/warm WebView2 evidence, and accessibility/security audits.
 - [v0.5.0] `desktop-virtual-table-v1` with immutable 500-row cursor pages, server-side sort/filter integration, bounded viewport DOM rendering, keyboard/ARIA support, column and density controls, and 100,000-row-equivalent Edge evidence.
 - [v0.5.0] `analytics-export-contract-v1` with snapshot-bound JSON/CSV/Parquet semantic parity, manifests and checksums, CLI/desktop background-job byte parity, cancel/retry/atomic publication, and formula/path/row/byte/disk safeguards.
+- [v0.5.0] `analytics-scale-calibration-v1` with 100,000 catalog runs, 1,000,000 raw Event/Decision rows, 100,000 persistent analytics rows, operation-level Parquet samples, crash/migration/concurrency recovery, and a manual Windows self-hosted workflow.
 
 ### Changed
 
 - [v0.4.0] Search output now uses `search-run-result-v5`, `search-executor-v5`, `search-frontier-v2`, and content-addressed `search-strategy-evidence-v1`.
 - [v0.4.0] Interruption execution supports ordered multiple opportunities and explicit turn/phase budgets without changing Python into a rules engine.
 - [v0.5.0] The packaged desktop search form now composes Experiment 0.4 in the Python service and uses real preflight, SQLite job status/cancel, and the background worker; only the browser fixture retains synthetic progress.
+- [v0.5.0] Analytics export scan/output hard caps are 100,000 rows after measured three-format exports reached approximately 2.48 GB peak RSS; the unverified one-million-row export path now fails closed.
 
 ### Fixed
 

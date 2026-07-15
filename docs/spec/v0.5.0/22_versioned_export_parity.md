@@ -48,7 +48,7 @@ Workerはcancel signalをquery走査中とserialize前に検査し、transient I
 
 ## Limits and security
 
-既定上限はscan 1,000,000 rows、output 1,000,000 rows、data 512 MiBである。direct writerとbackground workerはいずれもstagingを含む空きdiskを事前検査する。出力先はcallerまたはservice所有rootで解決し、export ID directoryと固定filenameだけを使用する。rendererからpath、URI、filename、Python objectを受け取らない。memory、latency、disk、write amplificationのproduction値は#167の測定結果なしに引き上げない。
+既定上限はscan 100,000 rows、output 100,000 rows、data 512 MiBである。#167の実測では100,000行のJSON/CSV/Parquet buildが約28.7から30.6秒、peak RSSが最大約2.48GBであり、未検証の1,000,000行exportを許可しない。direct writerとbackground workerはいずれもstagingを含む空きdiskを事前検査する。出力先はcallerまたはservice所有rootで解決し、export ID directoryと固定filenameだけを使用する。rendererからpath、URI、filename、Python objectを受け取らない。
 
 ## Verification
 
