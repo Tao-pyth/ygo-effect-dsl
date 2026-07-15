@@ -293,9 +293,19 @@ def test_search_run_rejects_an_invalid_experiment_digest() -> None:
 
 
 def test_beam_and_mcts_are_explicitly_unimplemented() -> None:
-    for strategy in ("beam_search_v1", "mcts_v1"):
+    parameters = {
+        "beam_search_v1": {"beam_width": 2, "seed": 17},
+        "mcts_v1": {
+            "reward_ceiling": 100,
+            "reward_floor": 0,
+            "seed": 17,
+            "simulations": 4,
+        },
+    }
+    for strategy, strategy_parameters in parameters.items():
         experiment = _experiment()
         experiment["search"]["strategy"] = strategy
+        experiment["search"]["parameters"] = strategy_parameters
         with pytest.raises(UnsupportedSearchStrategyError, match="not implemented"):
             strategy_from_experiment(experiment)
 
