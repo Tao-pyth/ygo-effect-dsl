@@ -9,15 +9,15 @@ version_labels:
   - version: 0.4.0
     label: version:0.4.0
     milestone: v0.4.0
-    release_state: active
+    release_state: superseded
   - version: 0.5.0
     label: version:0.5.0
     milestone: v0.5.0
-    release_state: planned
+    release_state: released
   - version: 0.5.1
     label: version:0.5.1
     milestone: v0.5.1
-    release_state: planned
+    release_state: active
   - version: 1.0.0
     label: version:1.0.0
     milestone: v1.0.0

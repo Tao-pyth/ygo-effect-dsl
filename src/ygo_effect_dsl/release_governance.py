@@ -124,7 +124,12 @@ def load_release_governance_policy(path: str | Path) -> ReleaseGovernancePolicy:
         )
         if not all((rule.version, rule.label, rule.milestone, rule.release_state)):
             raise ValueError(f"$.version_labels[{index}] has an empty field")
-        if rule.release_state not in {"active", "planned", "released"}:
+        if rule.release_state not in {
+            "active",
+            "planned",
+            "released",
+            "superseded",
+        }:
             raise ValueError(f"$.version_labels[{index}] has an invalid release state")
         if (
             rule.version in versions
@@ -213,6 +218,8 @@ def audit_issue(
         codes.append("wrong_milestone")
     if expected.release_state == "released" and issue.state == "open":
         codes.append("open_issue_in_released_milestone")
+    if expected.release_state == "superseded" and issue.state == "open":
+        codes.append("open_issue_in_superseded_milestone")
     return IssueGovernanceFinding(
         issue.number,
         version,

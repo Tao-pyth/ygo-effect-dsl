@@ -1,6 +1,6 @@
 # Package 0.4.0 Scope: General Strategies and PlayerView
 
-Status: Planned items 1-13 implemented; node-level pool/cache follow-up [#231](https://github.com/Tao-pyth/ygo-effect-dsl/issues/231) remains open; parent [#132](https://github.com/Tao-pyth/ygo-effect-dsl/issues/132)
+Status: Implemented stage; superseded by cumulative package 0.5.0; production node-level pool/cache remains [#231](https://github.com/Tao-pyth/ygo-effect-dsl/issues/231)
 
 Last updated: 2026-07-15
 
@@ -47,3 +47,5 @@ package `0.4.0`は、`0.3.0`でqualificationしたreal-core frontierとfresh Rep
 ## Delivery claim
 
 `0.4.0`完了時に許される主張は「Random/Beam/MCTSを同じreal-core executorから決定論的に実行し、指定した複数妨害や複数turnを探索でき、PlayerView成果物に既知private情報を保存しない」である。探索が最適解であること、相手AIとして完全であること、統計的勝率を示すことは主張しない。
+
+この実装stageは2026-07-16に完了し、独立package tagを作らず累積package `0.5.0`へ収録した。damage step、simultaneous trigger、mandatory trigger、SEGOCは未検証時にfail-closeし、#207-#210で`1.0.0`のproduction qualificationとして継続する。node-level pool/cache統合#231も`1.0.0`へ分離した。

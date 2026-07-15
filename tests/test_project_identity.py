@@ -17,8 +17,10 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 sys.path.insert(0, str(SRC))
 
-from ygo_effect_dsl import PROJECT_IDENTITY, __version__
-from ygo_effect_dsl.project_identity import PROJECT_IDENTITY_SCHEMA_VERSION
+from ygo_effect_dsl import PROJECT_IDENTITY, __version__  # noqa: E402
+from ygo_effect_dsl.project_identity import (  # noqa: E402
+    PROJECT_IDENTITY_SCHEMA_VERSION,
+)
 
 
 def test_project_identity_keeps_compatible_technical_names() -> None:
@@ -53,10 +55,10 @@ def test_distribution_metadata_matches_project_identity() -> None:
     }
 
 
-def test_package_release_version_is_0_3_0_and_single_sourced() -> None:
+def test_package_release_version_is_0_5_0_and_single_sourced() -> None:
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
-    assert __version__ == "0.3.0"
+    assert __version__ == "0.5.0"
     assert 'dynamic = ["version"]' in pyproject
     assert 'version = {attr = "ygo_effect_dsl.version.__version__"}' in pyproject
 
@@ -146,7 +148,7 @@ def test_release_documents_match_the_current_version_baseline() -> None:
             assert f"`{version}`" in document, f"{path} is missing {version}"
 
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    assert f"## {__version__} - 2026-07-15" in changelog
+    assert f"## {__version__} - 2026-07-16" in changelog
 
     experiment_schema = (
         ROOT / "docs/experiment/10_schema.md"

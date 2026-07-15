@@ -27,6 +27,9 @@ def test_release_governance_has_unique_label_and_milestone_pairs() -> None:
         "1.0.0",
     )
     assert policy.versions["0.3.0"].release_state == "released"
+    assert policy.versions["0.4.0"].release_state == "superseded"
+    assert policy.versions["0.5.0"].release_state == "released"
+    assert policy.versions["0.5.1"].release_state == "active"
     assert policy.versions["0.5.1"].milestone == "v0.5.1"
 
 
@@ -44,7 +47,7 @@ def test_title_version_precedes_legacy_range_and_override() -> None:
 def test_audit_reports_each_label_and_milestone_failure() -> None:
     policy = load_release_governance_policy(POLICY_PATH)
     missing = audit_issue(
-        IssueSnapshot(159, "[v0.5.0][spec] jobs", (), None),
+        IssueSnapshot(159, "[v0.5.0][spec] jobs", (), None, "closed"),
         policy,
     )
     conflicting = audit_issue(
@@ -53,6 +56,7 @@ def test_audit_reports_each_label_and_milestone_failure() -> None:
             "[v0.5.0][spec] jobs",
             ("version:0.4.0", "version:0.5.1"),
             "v0.4.0",
+            "closed",
         ),
         policy,
     )
@@ -99,3 +103,20 @@ def test_released_target_rejects_an_open_issue() -> None:
     )
 
     assert finding.codes == ("open_issue_in_released_milestone",)
+
+
+def test_superseded_target_rejects_an_open_issue() -> None:
+    policy = load_release_governance_policy(POLICY_PATH)
+
+    finding = audit_issue(
+        IssueSnapshot(
+            187,
+            "[v0.4.0][wiki] historical guide",
+            ("version:0.4.0",),
+            "v0.4.0",
+            "open",
+        ),
+        policy,
+    )
+
+    assert finding.codes == ("open_issue_in_superseded_milestone",)

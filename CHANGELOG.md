@@ -4,12 +4,18 @@ All notable package changes are documented here. Package versions follow Semanti
 
 ## Unreleased
 
+No changes yet.
+
+## 0.5.0 - 2026-07-16
+
+Status: Cumulative Windows desktop analytics source milestone for Python engineers. Package stage 0.4.0 was not tagged separately. General distribution and production support remain blocked.
+
 ### Added
 
-- [v0.4.0] `beam-search-strategy-v1` execution through the shared real-core frontier adapter and `experiment-search` CLI/API path.
-- [v0.4.0] `mcts-strategy-v1` selection, expansion, deterministic rollout, reward normalization, and single backpropagation through the shared executor.
-- [v0.4.0] PlayerView Route/Replay artifacts with private lineage separation and `information-access-audit-v2` leak detection.
-- [v0.4.0] Core-driven multi-interruption timing, going-second board-break, multi-turn lifecycle, and strategy/interruption/recovery cross-validation contracts.
+- [v0.5.0] `beam-search-strategy-v1` execution through the shared real-core frontier adapter and `experiment-search` CLI/API path.
+- [v0.5.0] `mcts-strategy-v1` selection, expansion, deterministic rollout, reward normalization, and single backpropagation through the shared executor.
+- [v0.5.0] PlayerView Route/Replay artifacts with private lineage separation and `information-access-audit-v2` leak detection.
+- [v0.5.0] Core-driven multi-interruption timing, going-second board-break, multi-turn lifecycle, and strategy/interruption/recovery cross-validation contracts.
 - [v0.5.0] Reproducible SQLite, DuckDB, and Parquet storage-boundary evidence selecting SQLite for operational state and Parquet for derived analytics.
 - [v0.5.0] `corpus-manifest-v1` provenance, exact and semantic duplicate identities, idempotent ingest, aggregation eligibility, and structured quarantine diagnostics.
 - [v0.5.0] `job-state-machine-v1` with typed search/replay/import/aggregate/export jobs, dependency-aware priority scheduling, leases, heartbeats, retries, cancellation, orphan recovery, transition audit, and atomic artifact commit.
@@ -28,19 +34,19 @@ All notable package changes are documented here. Package versions follow Semanti
 
 ### Changed
 
-- [v0.4.0] Search output now uses `search-run-result-v5`, `search-executor-v5`, `search-frontier-v2`, and content-addressed `search-strategy-evidence-v1`.
-- [v0.4.0] Interruption execution supports ordered multiple opportunities and explicit turn/phase budgets without changing Python into a rules engine.
+- [v0.5.0] Search output now uses `search-run-result-v5`, `search-executor-v5`, `search-frontier-v2`, and content-addressed `search-strategy-evidence-v1`.
+- [v0.5.0] Interruption execution supports ordered multiple opportunities and explicit turn/phase budgets without changing Python into a rules engine.
 - [v0.5.0] The packaged desktop search form now composes Experiment 0.4 in the Python service and uses real preflight, SQLite job status/cancel, and the background worker; only the browser fixture retains synthetic progress.
 - [v0.5.0] Analytics export scan/output hard caps are 100,000 rows after measured three-format exports reached approximately 2.48 GB peak RSS; the unverified one-million-row export path now fails closed.
 
 ### Fixed
 
-- [v0.4.0] Treat native `MSG_WIN` as the authoritative duel terminal event even when ocgcore API 11.0 continues to report `AWAITING`; conflicting outcomes fail closed.
+- [v0.5.0] Treat native `MSG_WIN` as the authoritative duel terminal event even when ocgcore API 11.0 continues to report `AWAITING`; conflicting outcomes fail closed.
 
 ### Governance
 
 - [v0.5.0] Added mandatory CHANGELOG maintenance, one-version-label/one-milestone Issue rules, a release work-item form, PR checklist, and a repeatable GitHub governance audit.
-- [v0.5.1] Added milestone and Issue scope for reducing verification wall time and agent log/token volume without deleting unique regression coverage.
+- [v0.5.0] Recorded untagged package stage 0.4.0 as superseded by this cumulative source milestone and retargeted incomplete production qualification without closing it as complete.
 
 ### Compatibility
 

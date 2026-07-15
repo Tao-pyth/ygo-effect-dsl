@@ -1,6 +1,6 @@
 # Strategy, Interruption, and Recovery Cross-validation
 
-Status: Implemented and qualified locally; node-level pool/cache runtime remains [#231](https://github.com/Tao-pyth/ygo-effect-dsl/issues/231)
+Status: Implemented and qualified locally; production node-level pool/cache runtime remains [#231](https://github.com/Tao-pyth/ygo-effect-dsl/issues/231)
 
 Last updated: 2026-07-15
 
@@ -50,7 +50,7 @@ baseline/interrupted lineageは次をfail-closeで照合する。
 
 sanitized evidenceはRoute ID、event semantic ID、terminal summary、first divergence、recovery event semantic ID、SearchRun統計だけを保存する。raw Route、snapshot、hand、core response hexは保存しない。content IDは`strategyintmatrix_` prefixで全reportを拘束する。
 
-pool 1/2/4、cache on/off、retry injectionの決定性は、`parallel-search-aggregate-v2`、`prefix-cache-verification-v1`、`parallel-worker-attempt-v1`の既存contract regressionを参照する。現行SearchExecutorはこれらをnode-level runtimeへ直接接続していないため、本matrixをnode-level pool/cache実行済みとは主張しない。実接続と同じ3 deck × 3 strategy再計測は#231のv0.5.0 gateとする。
+pool 1/2/4、cache on/off、retry injectionの決定性は、`parallel-search-aggregate-v2`、`prefix-cache-verification-v1`、`parallel-worker-attempt-v1`の既存contract regressionを参照する。現行SearchExecutorはこれらをnode-level runtimeへ直接接続していないため、本matrixをnode-level pool/cache実行済みとは主張しない。実接続と同じ3 deck × 3 strategy再計測は#231のv1.0.0 production gateとする。
 
 ## Local qualification
 

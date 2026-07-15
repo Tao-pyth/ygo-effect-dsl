@@ -1,6 +1,6 @@
 # Package 0.5.0 Work Breakdown and Acceptance
 
-Status: Implementation complete; release gates remain
+Status: Released source milestone; distribution gates remain
 
 Last updated: 2026-07-16
 
@@ -18,7 +18,7 @@ Last updated: 2026-07-16
 | 8 | [#126](https://github.com/Tao-pyth/ygo-effect-dsl/issues/126), [#164](https://github.com/Tao-pyth/ygo-effect-dsl/issues/164) | analytics UI and Route drill-down | screen/state contract、PlayerView compliance |
 | 9 | [#181](https://github.com/Tao-pyth/ygo-effect-dsl/issues/181) | Windows desktop shell/Python service ADR | startup/RSS/package/security/rollback比較 |
 | 10 | [#182](https://github.com/Tao-pyth/ygo-effect-dsl/issues/182) | deck catalog to search-launch workflow | packaged static import/preflight/form/job/result prototype、Edge DOM/screenshot evidence |
-| 11 | [#183](https://github.com/Tao-pyth/ygo-effect-dsl/issues/183) / [#247](https://github.com/Tao-pyth/ygo-effect-dsl/issues/247) | card detail/effect-text presentation | local provider、locale、license、dependency boundary、localized source/label drift qualification |
+| 11 | [#183](https://github.com/Tao-pyth/ygo-effect-dsl/issues/183) | card detail/effect-text presentation | local provider、operator-declared locale、license、dependency boundary |
 | 12 | [#184](https://github.com/Tao-pyth/ygo-effect-dsl/issues/184) | research dashboard visual/interaction system | versioned tokens/states、1440×900/960×700 prototype、keyboard/CSP baseline |
 | 13 | [#244](https://github.com/Tao-pyth/ygo-effect-dsl/issues/244) | pywebview shell/versioned bridge | single invoke allowlist、native YDK、job/query/card adapter、WebView2 live smoke |
 | 14 | [#245](https://github.com/Tao-pyth/ygo-effect-dsl/issues/245) | desktop lifecycle/a11y/recovery | process-tree cleanup、crash recovery、screen reader、packaged smoke |
@@ -28,7 +28,7 @@ Last updated: 2026-07-16
 
 ## Implementation status
 
-Items 1 through 17 are implemented and backed by versioned local evidence. Item 14 is specified by [desktop lifecycle contract](19_desktop_lifecycle_recovery.md) and `desktoplifecycleevidence_307c69c7...`; it includes real ocgcore desktop execution, process-tree cleanup, retry/checkpoint recovery, and the structural accessibility/security baseline. Item 15 is specified by [virtualized analytics table](21_virtualized_analytics_table.md) and `desktopvirtualtableevidence_908bda8b...`; it verifies the 100,000-row-equivalent UI workload. Item 16 is specified by [versioned export parity](22_versioned_export_parity.md) and `analyticsexportevidence_babc372e...`; it verifies JSON/CSV/Parquet semantic parity and service/CLI/desktop worker byte parity. Item 17 is specified by [production scale calibration](23_production_scale_calibration.md) and `analyticsscaleevidence_2227888e...`; it verifies 100,000 runs, 1,000,000 Event/Decision rows, persistent query/recovery, and measured 100,000-row export limits. Signing/update and distribution approval remain separate #134/#91 release gates and are not implied by completion of this table.
+Items 1 through 17 are implemented and backed by versioned local evidence. Item 14 is specified by [desktop lifecycle contract](19_desktop_lifecycle_recovery.md) and `desktoplifecycleevidence_307c69c7...`; it includes real ocgcore desktop execution, process-tree cleanup, retry/checkpoint recovery, and the structural accessibility/security baseline. Item 15 is specified by [virtualized analytics table](21_virtualized_analytics_table.md) and `desktopvirtualtableevidence_908bda8b...`; it verifies the 100,000-row-equivalent UI workload. Item 16 is specified by [versioned export parity](22_versioned_export_parity.md); it verifies JSON/CSV/Parquet semantic parity and service/CLI/desktop worker byte parity. Item 17 is specified by [production scale calibration](23_production_scale_calibration.md) and `analyticsscaleevidence_2227888e...`; it verifies 100,000 runs, 1,000,000 Event/Decision rows, persistent query/recovery, and measured 100,000-row export limits. Non-English presentation source/label drift #247、node-level pool/cache #231、signing/update/distribution #134/#91は`1.0.0`へ分離し、このsource milestoneの完了から一般配布承認を導かない。
 
 ## Gate A: data integrity
 

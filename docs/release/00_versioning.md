@@ -18,8 +18,9 @@ Until the project declares a stable public contract, releases stay in the
 - reserve `v1.0.0` for the first release where the project is ready to treat
   its documented DSL and tool behavior as stable
 
-The current package and CLI version is `0.3.0`, published from the reviewed
-`v0.3.0` tag. The single source of truth is
+The current package and CLI version is `0.5.0`, published from the reviewed
+`v0.5.0` source tag. The implemented 0.4.0 stage was not tagged separately;
+its cumulative changes are included in 0.5.0. The single source of truth is
 `ygo_effect_dsl.version.__version__`; setuptools reads that value as dynamic
 project metadata and the CLI exposes it through `--version`.
 
