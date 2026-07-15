@@ -1,0 +1,158 @@
+{
+  "consistency": {
+    "concurrent_ingest": "a new ingest creates a new immutable snapshot",
+    "cursor_reuse": "idempotent while the referenced snapshot is retained",
+    "response_series": "all pages remain bound to the cursor snapshot"
+  },
+  "cursor": {
+    "opaque": true,
+    "schema_version": "analytics-cursor-v1",
+    "tie_breaker": "row_id ascending",
+    "validates": [
+      "checksum",
+      "request_fingerprint",
+      "snapshot_id",
+      "last_row_id",
+      "sort_values"
+    ]
+  },
+  "fields": {
+    "action_count": {
+      "filter_operators": ["eq", "in", "gte", "lte", "between", "state_is"],
+      "sortable": true,
+      "value_type": "integer"
+    },
+    "card": {
+      "filter_operators": ["contains", "contains_any", "contains_all", "state_is"],
+      "sortable": false,
+      "value_type": "string_list"
+    },
+    "deck": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
+    "evaluator": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
+    "experiment": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
+    "interruption": {
+      "filter_operators": ["contains", "contains_any", "contains_all", "state_is"],
+      "sortable": false,
+      "value_type": "string_list"
+    },
+    "resource_consumption": {
+      "filter_operators": ["eq", "in", "gte", "lte", "between", "state_is"],
+      "sortable": true,
+      "value_type": "number"
+    },
+    "route": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
+    "run": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
+    "score": {
+      "filter_operators": ["eq", "in", "gte", "lte", "between", "state_is"],
+      "sortable": true,
+      "value_type": "number"
+    },
+    "state_hash": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
+    "status": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
+    "strategy": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
+    "success": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "boolean"
+    },
+    "target_board": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
+    "time": {
+      "filter_operators": ["eq", "in", "gte", "lte", "between", "state_is"],
+      "sortable": true,
+      "value_type": "timestamp"
+    },
+    "version": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    }
+  },
+  "limits": {
+    "default_limit": 100,
+    "default_max_sync_scan_rows": 10000,
+    "max_fields": 32,
+    "max_filter_list_items": 100,
+    "max_filters": 16,
+    "max_limit": 500,
+    "max_sorts": 4
+  },
+  "schemas": {
+    "error": {
+      "required": ["async_job_required", "code", "details", "message", "schema_version"],
+      "schema_version": "analytics-query-error-v1",
+      "type": "object"
+    },
+    "request": {
+      "required": ["cursor", "fields", "filters", "limit", "schema_version", "snapshot_id", "sort"],
+      "schema_version": "analytics-query-request-v1",
+      "type": "object"
+    },
+    "response": {
+      "required": ["matched_rows", "next_cursor", "request_fingerprint", "rows", "scanned_rows", "schema_version", "snapshot_id"],
+      "schema_version": "analytics-query-response-v1",
+      "type": "object"
+    },
+    "row": {
+      "schema_version": "analytics-query-row-v1",
+      "type": "object"
+    },
+    "snapshot": {
+      "schema_version": "analytics-snapshot-v1",
+      "type": "object"
+    },
+    "value": {
+      "schema_version": "analytics-query-value-v1",
+      "states": {
+        "empty": "observed empty string, list, or object",
+        "missing": "field was absent from the source schema or artifact",
+        "not_applicable": "field does not apply to this row",
+        "quarantined": "source value is retained only as untrusted evidence",
+        "redacted": "value was withheld by the information policy",
+        "unknown": "source represented the field but could not determine it",
+        "value": "observed non-null value"
+      },
+      "type": "object"
+    }
+  },
+  "sync_scan_policy": {
+    "fallback_job_kind": "export",
+    "rule": "reject when snapshot row count exceeds max_sync_scan_rows"
+  },
+  "version": "analytics-query-contract-v1"
+}

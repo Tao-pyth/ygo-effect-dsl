@@ -113,13 +113,16 @@ requires explicit migration and is never modified in place by a v2 reader.
 
 ## Query API
 
-query APIはstable cursor ordering、limit、filter、selected fieldsを持つ。最低filterはrun/deck/card/strategy/interruption/success/score/time/version/statusである。
+`analytics-query-contract-v1`は同期query APIの公開境界である。request、response、errorはそれぞれ`analytics-query-request-v1`、`analytics-query-response-v1`、`analytics-query-error-v1`でversion管理し、配布物の`analytics-query-contract-v1.json`をmachine-readable contractとする。
 
-- cursorはquery/filter/sort/snapshot identityへbindする。
-- concurrent ingest中も一つのresponse seriesは同じsnapshotを読む。
-- unbounded scan/exportを同期APIで実行しない。
-- unknown、missing、redacted、not-applicable、quarantinedを別値として表す。
-- request/response/errorにversion付きmachine-readable schemaを持つ。
+- filter fieldはrun、deck、card、strategy、interruption、success、score、time、version、statusを必須集合とし、route、experiment、evaluator、target board、action count、resource consumption、state hashも選択できる。filterはfieldごとの型付きoperatorだけを受理し、文字列式や任意SQLは受理しない。
+- cardとinterruptionは複数値を保持し、contains、contains-any、contains-allで検査する。score、time、数値metricはinclusive rangeを持つ。
+- valueはvalue、empty、missing、unknown、redacted、not-applicable、quarantinedを明示し、`null`へ統合しない。通常filterはobserved valueだけに適用し、状態自体は`state_is`でfilterする。
+- sortは許可fieldを最大4個まで指定し、同値時は常に`row_id`昇順で順序を固定する。selected fieldsはrow identityを削らず、payloadのvaluesだけを縮小する。
+- cursorはchecksum、request fingerprint、snapshot ID、last row ID、sort valuesを含むopaque tokenである。fields、filter、sort、limitまたはsnapshotを変更した再利用はfail-closeする。同一cursorの再利用は同じsnapshotが保持される間idempotentである。
+- snapshotはcontent-addressedかつimmutableとする。concurrent ingestは新snapshotをcurrentにするだけで、既存cursorのresponse seriesは旧snapshotを読み続ける。旧snapshotを破棄した場合は`snapshot_unavailable`を返し、暗黙に新snapshotへ移動しない。
+- 同期実装が検査可能なsnapshot row数には明示上限を設ける。上限超過は`sync_scan_limit_exceeded`と`async_job_required=true`を返し、既存`export` jobへquery snapshot IDを渡す。同期APIでunbounded scan/exportを開始しない。
+- `AggregationRecord`のschemaは変更せず、`analytics_row_from_aggregation()`でquery rowへ変換する。元recordに存在しないdeck/card/strategy/interruption/statusは呼び出し側がprovenanceから明示し、省略時はmissingとする。
 
 ## Comparison semantics
 
