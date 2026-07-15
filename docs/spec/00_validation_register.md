@@ -44,6 +44,7 @@ Last updated: 2026-07-15
 | `VAL-027` | 後攻盤面突破snapshot | 公開初期盤面manifest、version付き評価・成功条件、公式カードによるtargetless/targeting/grave-banish、指定非公開妨害によるfirst divergence、PlayerView非漏洩を実core fresh Replayで確認 | `VERIFIED_LOCAL` | [#154](https://github.com/Tao-pyth/ygo-effect-dsl/issues/154) |
 | `VAL-028` | multi-turn lifecycle | `multi-turn-lifecycle-v1`とbudget所有者を実装。pinned inline deckをfresh workerで1/2/3 turnまで進め、各main1、最終turnのEND_TURN除外、Route lifecycle report、fresh Replay一致を確認。実duel-end terminal decodeは未検証 | `VERIFIED_LOCAL` | [#155](https://github.com/Tao-pyth/ygo-effect-dsl/issues/155), [#229](https://github.com/Tao-pyth/ygo-effect-dsl/issues/229) |
 | `VAL-029` | strategy/interruption/recovery cross-validation | 3 distinct real inline deck × Random/Beam/MCTSの9 cellをbaseline/interrupted treatmentで実行し、18 Routeをfresh Replay。各profileのsemantic Route、first divergence、recovery tailがstrategy間一致、path failure 0。node-level pool/cache接続は別gate | `VERIFIED_LOCAL` | [#156](https://github.com/Tao-pyth/ygo-effect-dsl/issues/156), [#231](https://github.com/Tao-pyth/ygo-effect-dsl/issues/231) |
+| `VAL-030` | core terminal frontier | pinned ocgcore API 11.0でLP 0/deck-outの`MSG_WIN`を観測し、winner/reason、Action 0件、DecisionRequestなし、terminal State/Route lineage、fresh Replay、Random/Beam/MCTSの`duel_end` boundary一致を確認。native `END`単独はfail-close。`VAL-028`のduel-end未検証注記を更新する | `VERIFIED_LOCAL` | [#229](https://github.com/Tao-pyth/ygo-effect-dsl/issues/229) |
 
 ## Verification commands used
 

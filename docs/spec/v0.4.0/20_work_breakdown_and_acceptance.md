@@ -1,6 +1,6 @@
 # Package 0.4.0 Work Breakdown and Acceptance
 
-Status: Items 1-12 implemented; runtime follow-ups #229 and #231 tracked separately
+Status: Items 1-13 implemented; node-level pool/cache follow-up #231 tracked separately
 
 Last updated: 2026-07-15
 
@@ -20,6 +20,7 @@ Last updated: 2026-07-15
 | 10 | [#154](https://github.com/Tao-pyth/ygo-effect-dsl/issues/154) | going-second board-break scenarios | targeting/targetless/grave-banish fixtures |
 | 11 | [#155](https://github.com/Tao-pyth/ygo-effect-dsl/issues/155) | multi-turn lifecycle/budget | 1/2/3 turn deterministic vectors |
 | 12 | [#156](https://github.com/Tao-pyth/ygo-effect-dsl/issues/156) | strategy/interruption/recovery cross-validation | 3 deck × 3 strategy × interruption matrix |
+| 13 | [#229](https://github.com/Tao-pyth/ygo-effect-dsl/issues/229) | core terminal frontier runtime | LP 0/deck-out MSG_WIN, Action-free terminal frontier, fresh Replay, 3-strategy boundary |
 
 ## Gate A: strategy conformance
 

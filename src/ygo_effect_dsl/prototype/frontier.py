@@ -143,22 +143,45 @@ class RealCoreFrontierAdapter:
             if not isinstance(state_completeness, str):
                 raise ValueError("real-core frontier is missing state_completeness")
             can_stop = bool(legal_stop.get("can_stop")) and route is not None
-            request = dict(document["request"])
-            request["interruption_taxonomy"] = document.get(
-                "interruption_taxonomy", []
-            )
-            request["interruption_composition"] = document.get(
-                "interruption_composition"
-            )
-            request["interruption_opportunities"] = document.get(
-                "interruption_opportunities"
-            )
+            raw_request = document.get("request")
+            if raw_request is not None and not isinstance(raw_request, Mapping):
+                raise ValueError(
+                    "real-core frontier request must be a mapping or null"
+                )
+            raw_terminal = document.get("terminal_observation")
+            if raw_terminal is not None and not isinstance(raw_terminal, Mapping):
+                raise ValueError(
+                    "real-core terminal_observation must be a mapping or null"
+                )
+            if (raw_request is None) == (raw_terminal is None):
+                raise ValueError(
+                    "real-core frontier requires exactly one request or terminal observation"
+                )
+            request = dict(raw_request) if raw_request is not None else None
+            if request is not None:
+                request["interruption_taxonomy"] = document.get(
+                    "interruption_taxonomy", []
+                )
+                request["interruption_composition"] = document.get(
+                    "interruption_composition"
+                )
+                request["interruption_opportunities"] = document.get(
+                    "interruption_opportunities"
+                )
             raw_turn_lifecycle = document.get("turn_lifecycle")
             if not isinstance(raw_turn_lifecycle, Mapping):
                 raise ValueError("real-core frontier is missing turn_lifecycle")
-            request["turn_lifecycle"] = MultiTurnLifecycleDecision.from_dict(
+            turn_lifecycle = MultiTurnLifecycleDecision.from_dict(
                 raw_turn_lifecycle
             ).to_dict()
+            if request is not None:
+                request["turn_lifecycle"] = turn_lifecycle
+            terminal_observation = None
+            if raw_terminal is not None:
+                terminal_observation = {
+                    **raw_terminal,
+                    "turn_lifecycle": turn_lifecycle,
+                }
             return SearchFrontier(
                 state_id=str(document["state_id"]),
                 state_completeness=state_completeness,
@@ -171,6 +194,7 @@ class RealCoreFrontierAdapter:
                 legal_stop_reason=str(legal_stop.get("reason", "unknown")),
                 route_document=route if can_stop else None,
                 replay_count=int(document.get("replay_count", 1)),
+                terminal_observation=terminal_observation,
             )
         except (KeyError, TypeError, ValueError) as exc:
             if not self._last_replay_attempts:

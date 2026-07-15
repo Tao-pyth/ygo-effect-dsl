@@ -39,7 +39,7 @@ SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION = "search-artifact-commit-v1"
 class SearchFrontier:
     state_id: str
     state_completeness: str
-    request: Mapping[str, Any]
+    request: Mapping[str, Any] | None
     actions: tuple[Action, ...]
     score: int | float
     peak_score: int | float
@@ -48,6 +48,7 @@ class SearchFrontier:
     legal_stop_reason: str
     route_document: Mapping[str, Any] | None = None
     replay_count: int = 1
+    terminal_observation: Mapping[str, Any] | None = None
     schema_version: str = SEARCH_FRONTIER_SCHEMA_VERSION
 
     def __post_init__(self) -> None:
@@ -61,13 +62,28 @@ class SearchFrontier:
             )
         if not isinstance(self.actions, tuple):
             object.__setattr__(self, "actions", tuple(self.actions))
+        if self.request is None and self.terminal_observation is None:
+            raise ValueError(
+                "SearchFrontier requires a request or terminal_observation"
+            )
+        if self.request is not None and self.terminal_observation is not None:
+            raise ValueError(
+                "SearchFrontier request and terminal_observation are mutually exclusive"
+            )
+        if self.terminal_observation is not None:
+            if not isinstance(self.terminal_observation, Mapping):
+                raise ValueError("terminal_observation must be a mapping or None")
+            if self.actions:
+                raise ValueError("a terminal SearchFrontier cannot expose Actions")
+            if not self.legal_stop:
+                raise ValueError("a terminal SearchFrontier must be a legal stop")
         if self.route_document is not None and not self.legal_stop:
             raise ValueError("route_document requires a legal stop")
         if self.legal_stop and self.route_document is None:
             raise ValueError("a legal stop requires a replayable route_document")
         if not isinstance(self.replay_count, int) or self.replay_count < 1:
             raise ValueError("replay_count must be an integer >= 1")
-        if "turn_lifecycle" in self.request:
+        if self.request is not None and "turn_lifecycle" in self.request:
             lifecycle = MultiTurnLifecycleDecision.from_dict(
                 self.request["turn_lifecycle"]
             )
@@ -75,6 +91,22 @@ class SearchFrontier:
                 self,
                 "request",
                 {**self.request, "turn_lifecycle": lifecycle.to_dict()},
+            )
+        if self.terminal_observation is not None:
+            lifecycle = MultiTurnLifecycleDecision.from_dict(
+                self.terminal_observation.get("turn_lifecycle")
+            )
+            if not lifecycle.duel_ended:
+                raise ValueError(
+                    "terminal_observation requires a duel-ended lifecycle"
+                )
+            object.__setattr__(
+                self,
+                "terminal_observation",
+                {
+                    **self.terminal_observation,
+                    "turn_lifecycle": lifecycle.to_dict(),
+                },
             )
 
 
@@ -362,7 +394,16 @@ class SearchExecutor:
                 prefix="route_",
             )
         if key not in runtime.route_prefixes:
-            lifecycle_boundary = frontier.request.get("turn_lifecycle")
+            boundary_source = (
+                frontier.terminal_observation
+                if frontier.terminal_observation is not None
+                else frontier.request
+            )
+            lifecycle_boundary = (
+                boundary_source.get("turn_lifecycle")
+                if isinstance(boundary_source, Mapping)
+                else None
+            )
             runtime.route_prefixes.add(key)
             runtime.routes.append(
                 SearchRouteSummary(
