@@ -59,6 +59,13 @@ DEFAULT_SORT_KEYS = (
 )
 
 
+class _ExpectedCurrentUnset:
+    pass
+
+
+_EXPECTED_CURRENT_UNSET = _ExpectedCurrentUnset()
+
+
 def _string(value: Any, name: str) -> str:
     if not isinstance(value, str) or not value:
         raise ValueError(f"{name} must be a non-empty string")
@@ -357,6 +364,7 @@ def build_aggregation_semantic_summary(
     core_metrics = [
         {
             "action_count": item.action_count,
+            "partition": list(item.partition),
             "record_id": item.record_id,
             "score": item.score,
             "state_hash": item.state_hash,
@@ -1247,21 +1255,23 @@ def activate_aggregation_snapshot(
     root: str | Path,
     snapshot_id: str,
     *,
-    expected_current_snapshot_id: str | None = None,
+    expected_current_snapshot_id: str | None | _ExpectedCurrentUnset = (
+        _EXPECTED_CURRENT_UNSET
+    ),
     injector: ParquetLifecycleFaultInjector | None = None,
 ) -> AggregationSnapshot:
     root_path = Path(root)
     snapshot = read_aggregation_snapshot(root_path, snapshot_id=snapshot_id)
+    pointer = _pointer_document(root_path, snapshot.manifest)
+    _inject(injector, ParquetLifecycleFaultPoint.BEFORE_POINTER_REPLACE)
     observed_current = current_aggregation_snapshot_id(root_path)
     if (
-        expected_current_snapshot_id is not None
+        expected_current_snapshot_id is not _EXPECTED_CURRENT_UNSET
         and observed_current != expected_current_snapshot_id
     ):
         raise ValueError(
             "current aggregation snapshot changed before pointer activation"
         )
-    pointer = _pointer_document(root_path, snapshot.manifest)
-    _inject(injector, ParquetLifecycleFaultPoint.BEFORE_POINTER_REPLACE)
     atomic_write_text(
         aggregation_current_pointer_path(root_path),
         canonical_json(pointer) + "\n",

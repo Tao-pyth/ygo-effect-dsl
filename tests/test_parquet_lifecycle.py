@@ -22,6 +22,7 @@ from ygo_effect_dsl.storage.parquet_lifecycle import (
     InjectedParquetLifecycleFault,
     ParquetLayoutPolicy,
     ParquetLifecycleFaultPoint,
+    activate_aggregation_snapshot,
     compact_aggregation_dataset,
     current_aggregation_snapshot_id,
     migrate_aggregation_snapshot,
@@ -103,6 +104,40 @@ def test_compaction_publishes_one_manifest_bound_snapshot(tmp_path: Path) -> Non
     assert current_aggregation_snapshot_id(tmp_path) == manifest.snapshot_id
     assert read_aggregation_dataset(tmp_path) == records
     assert read_aggregation_snapshot(tmp_path).records == records
+
+
+def test_first_activation_rejects_a_competing_snapshot(tmp_path: Path) -> None:
+    records = _legacy_dataset(tmp_path, count=2)
+    competing = compact_aggregation_dataset(
+        tmp_path,
+        created_by_job_id="job_competing_snapshot",
+        policy=_small_policy(),
+        activate=False,
+    )
+
+    def activate_competing_snapshot(point: ParquetLifecycleFaultPoint) -> None:
+        if point == ParquetLifecycleFaultPoint.AFTER_SNAPSHOT_RENAME:
+            activate_aggregation_snapshot(
+                tmp_path,
+                competing.manifest.snapshot_id,
+                expected_current_snapshot_id=None,
+            )
+
+    with pytest.raises(
+        ValueError,
+        match="current aggregation snapshot changed before pointer activation",
+    ):
+        compact_aggregation_dataset(
+            tmp_path,
+            created_by_job_id="job_stale_first_publish",
+            policy=_small_policy(),
+            injector=activate_competing_snapshot,
+        )
+
+    assert current_aggregation_snapshot_id(tmp_path) == (
+        competing.manifest.snapshot_id
+    )
+    assert read_aggregation_dataset(tmp_path) == records
 
 
 def test_layout_chunks_files_and_sets_real_min_max_bounds(tmp_path: Path) -> None:
@@ -271,6 +306,34 @@ def test_migration_rejects_semantic_change_and_unknown_schema(
 
     assert read_aggregation_dataset(tmp_path) == records
     assert current_aggregation_snapshot_id(tmp_path) is None
+
+
+def test_migration_rejects_partition_swaps_between_records(
+    tmp_path: Path,
+) -> None:
+    first = _record(0, run_date="2026-07-15")
+    second = _record(1, run_date="2026-07-16")
+    for record in (first, second):
+        write_aggregation_partition(tmp_path, (record,))
+
+    def swap_partition(record: AggregationRecord) -> AggregationRecord:
+        run_date = (
+            second.run_date if record.record_id == first.record_id else first.run_date
+        )
+        return replace(record, run_date=run_date)
+
+    with pytest.raises(ValueError, match="changed the aggregation semantic"):
+        migrate_aggregation_snapshot(
+            tmp_path,
+            created_by_job_id="job_partition_swap",
+            migration_id="swap-run-dates",
+            transform=swap_partition,
+            policy=_small_policy(),
+        )
+
+    assert read_aggregation_dataset(tmp_path) == tuple(
+        sorted((first, second), key=lambda item: item.record_id)
+    )
 
 
 def test_disk_preflight_fails_before_snapshot_staging(tmp_path: Path) -> None:
