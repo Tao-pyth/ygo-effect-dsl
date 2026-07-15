@@ -83,7 +83,9 @@ from ygo_effect_dsl.engine.information import (
     InformationAccessPolicy,
     InformationField,
     OpeningHandPolicy,
+    audit_information_artifact,
     build_opening_hand_sampling_evidence,
+    build_player_view_canary_registry,
 )
 from ygo_effect_dsl.engine.peak import (
     DURABLE_EVALUATION_TIMING,
@@ -196,7 +198,7 @@ REAL_CORE_DOCUMENT_KINDS = frozenset(
     {"route", "activation_rollback_probe", "player_view", "search_frontier"}
 )
 REAL_CORE_FRONTIER_SCHEMA_VERSION = "real-core-frontier-v2"
-REAL_CORE_PLAYER_VIEW_RESULT_SCHEMA_VERSION = "real-core-player-view-result-v1"
+REAL_CORE_PLAYER_VIEW_RESULT_SCHEMA_VERSION = "real-core-player-view-result-v2"
 PLAYER_VIEW_LINEAGE_SCHEMA_VERSION = "player-view-lineage-v1"
 PLAYER_VIEW_VERIFICATION_SCHEMA_VERSION = "player-view-verification-v1"
 STATUS_DISABLED = 0x0001
@@ -3832,8 +3834,22 @@ def run_real_core_worker(
             )
         )
         assert_valid_player_view_replay(player_view)
+        private_canary_registry = build_player_view_canary_registry(
+            source_route=document,
+            snapshots=(
+                initial_snapshot_object,
+                *(snapshot for snapshot, _, _ in checkpoint_snapshots),
+            ),
+            viewer=viewer,
+        )
+        information_audit = audit_information_artifact(
+            player_view,
+            artifact_kind="player_view_replay",
+            registry=private_canary_registry,
+        )
         verification_identity = {
             "event_count": len(events),
+            "information_access_audit_id": information_audit["audit_id"],
             "player_view_id": player_view["player_view_id"],
             "schema_version": PLAYER_VIEW_VERIFICATION_SCHEMA_VERSION,
             "status": "verified",
@@ -3855,6 +3871,7 @@ def run_real_core_worker(
             "source_route_id": document["route_id"],
             "verification_id": verification["verification_id"],
             "viewer": viewer,
+            "information_access_audit_id": information_audit["audit_id"],
         }
         private_lineage = {
             "lineage_id": stable_digest(
@@ -3863,7 +3880,9 @@ def run_real_core_worker(
             **lineage_identity,
         }
         return {
+            "information_audit": information_audit,
             "player_view": player_view,
+            "private_canary_registry": private_canary_registry.to_private_dict(),
             "private_lineage": private_lineage,
             "schema_version": REAL_CORE_PLAYER_VIEW_RESULT_SCHEMA_VERSION,
             "verification": verification,

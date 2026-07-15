@@ -9,6 +9,11 @@ from typing import Any, Mapping
 
 from ygo_effect_dsl.engine.action import action_from_dict
 from ygo_effect_dsl.engine.canonical import canonical_json
+from ygo_effect_dsl.engine.information import (
+    InformationCanaryRegistry,
+    assert_information_artifact_safe,
+    audit_information_artifact,
+)
 from ygo_effect_dsl.engine.replay import assert_valid_player_view_replay
 from ygo_effect_dsl.prototype.real_core import (
     PLAYER_VIEW_LINEAGE_SCHEMA_VERSION,
@@ -22,8 +27,10 @@ from ygo_effect_dsl.runtime_imports import current_checkout_environment
 @dataclass(frozen=True)
 class RealCorePlayerViewResult:
     player_view: Mapping[str, Any]
+    information_audit: Mapping[str, Any]
     verification: Mapping[str, Any]
     private_lineage: Mapping[str, Any]
+    private_canary_registry: Mapping[str, Any]
 
 
 class RealCorePlayerViewWorkerError(RuntimeError):
@@ -77,7 +84,9 @@ class RealCorePlayerViewAdapter:
         }
         document = self._invoke(envelope)
         expected_fields = {
+            "information_audit",
             "player_view",
+            "private_canary_registry",
             "private_lineage",
             "schema_version",
             "verification",
@@ -91,17 +100,43 @@ class RealCorePlayerViewAdapter:
                 "worker_protocol", retry_exhausted=False
             )
         player_view = document.get("player_view")
+        information_audit = document.get("information_audit")
+        private_canary_registry = document.get("private_canary_registry")
         verification = document.get("verification")
         lineage = document.get("private_lineage")
-        if not all(isinstance(value, Mapping) for value in (player_view, verification, lineage)):
+        if not all(
+            isinstance(value, Mapping)
+            for value in (
+                player_view,
+                information_audit,
+                private_canary_registry,
+                verification,
+                lineage,
+            )
+        ):
             raise RealCorePlayerViewWorkerError(
                 "worker_protocol", retry_exhausted=False
             )
         assert_valid_player_view_replay(player_view)
+        registry = InformationCanaryRegistry.from_private_dict(
+            private_canary_registry
+        )
+        repeated_audit = audit_information_artifact(
+            player_view,
+            artifact_kind="player_view_replay",
+            registry=registry,
+        )
+        if canonical_json(repeated_audit) != canonical_json(information_audit):
+            raise RealCorePlayerViewWorkerError(
+                "worker_protocol", retry_exhausted=False
+            )
+        assert_information_artifact_safe(repeated_audit)
         if (
             verification.get("schema_version")
             != PLAYER_VIEW_VERIFICATION_SCHEMA_VERSION
             or verification.get("player_view_id") != player_view.get("player_view_id")
+            or verification.get("information_access_audit_id")
+            != information_audit.get("audit_id")
             or verification.get("status") != "verified"
         ):
             raise RealCorePlayerViewWorkerError(
@@ -111,14 +146,18 @@ class RealCorePlayerViewAdapter:
             lineage.get("schema_version") != PLAYER_VIEW_LINEAGE_SCHEMA_VERSION
             or lineage.get("player_view_id") != player_view.get("player_view_id")
             or lineage.get("verification_id") != verification.get("verification_id")
+            or lineage.get("information_access_audit_id")
+            != information_audit.get("audit_id")
         ):
             raise RealCorePlayerViewWorkerError(
                 "worker_protocol", retry_exhausted=False
             )
         return RealCorePlayerViewResult(
             player_view=dict(player_view),
+            information_audit=dict(information_audit),
             verification=dict(verification),
             private_lineage=dict(lineage),
+            private_canary_registry=dict(private_canary_registry),
         )
 
     def _invoke(self, envelope: Mapping[str, Any]) -> Mapping[str, Any]:

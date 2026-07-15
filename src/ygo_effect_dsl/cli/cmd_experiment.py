@@ -22,12 +22,20 @@ from ygo_effect_dsl.experiment import (
 from ygo_effect_dsl.reporting import write_markdown_report
 from ygo_effect_dsl.prototype import (
     RealCoreFrontierAdapter,
+    RealCorePlayerViewAdapter,
+    RealCorePlayerViewWorkerError,
     build_real_core_route,
     dump_route_document,
     verify_real_core_route,
 )
-from ygo_effect_dsl.engine.canonical import canonical_json
+from ygo_effect_dsl.engine.canonical import canonical_json, stable_digest
 from ygo_effect_dsl.engine.failures import FailureRecord, classify_failure
+from ygo_effect_dsl.engine.information import (
+    InformationArtifactLeakError,
+    InformationCanaryRegistry,
+    assert_information_artifact_safe,
+    audit_information_artifact,
+)
 from ygo_effect_dsl.engine.search import (
     SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION,
     SEARCH_RUN_FAILURE_SCHEMA_VERSION,
@@ -49,6 +57,10 @@ from ygo_effect_dsl.storage import (
     RunStatus,
     write_raw_log,
 )
+
+
+PLAYER_VIEW_PUBLICATION_AUDIT_SCHEMA_VERSION = "player-view-publication-audit-v1"
+PLAYER_VIEW_PUBLICATION_FAILURE_SCHEMA_VERSION = "player-view-publication-failure-v1"
 
 
 def _search_artifact_commit(
@@ -379,6 +391,140 @@ def cmd_experiment_replay(args: argparse.Namespace) -> int:
         f"experiment-replay: ok run_id={run_id} experiment_id={experiment['experiment_id']} "
         f"route_id={result.route_id} events={result.event_count} "
         f"final_state_hash={result.final_state_hash}{report_suffix}"
+    )
+    return 0
+
+
+def _player_view_failure_report(
+    *,
+    status: str,
+    failure_code: str,
+    failed_audit: Mapping[str, object] | None = None,
+) -> dict[str, object]:
+    report: dict[str, object] = {
+        "artifact_commit": {"status": "not_published"},
+        "failure_code": failure_code,
+        "schema_version": PLAYER_VIEW_PUBLICATION_FAILURE_SCHEMA_VERSION,
+        "status": status,
+    }
+    if failed_audit is not None:
+        report["failed_audit"] = dict(failed_audit)
+    return report
+
+
+def cmd_experiment_player_view(args: argparse.Namespace) -> int:
+    output_paths = {
+        "audit_report": Path(args.audit_report),
+        "out": Path(args.out),
+        "private_lineage": Path(args.private_lineage),
+        "verification_report": Path(args.verification_report),
+    }
+    resolved_paths = [path.resolve() for path in output_paths.values()]
+    if len(resolved_paths) != len(set(resolved_paths)):
+        raise ValueError("PlayerView output paths must be distinct")
+    experiment = _resolved_experiment(args)
+    route = load_route_document(args.route_file)
+    assert_experiment_matches_route(experiment, route)
+    adapter = RealCorePlayerViewAdapter(
+        external_root=args.external_root,
+        experiment_path=args.experiment_file,
+        timeout_seconds=args.worker_timeout,
+        max_retries=args.max_retries,
+    )
+    try:
+        result = adapter.project(route, viewer=args.viewer)
+    except InformationArtifactLeakError as exc:
+        failure_report = _player_view_failure_report(
+            status="audit_failure",
+            failure_code="information_leak_detected",
+            failed_audit=exc.report,
+        )
+        atomic_write_text(
+            output_paths["audit_report"], canonical_json(failure_report) + "\n"
+        )
+        raise ValueError("PlayerView publication blocked by information audit") from None
+    except RealCorePlayerViewWorkerError as exc:
+        failure_report = _player_view_failure_report(
+            status="worker_failure",
+            failure_code=exc.code,
+        )
+        atomic_write_text(
+            output_paths["audit_report"], canonical_json(failure_report) + "\n"
+        )
+        raise ValueError(
+            f"PlayerView generation failed with safe code {exc.code!r}"
+        ) from None
+    registry = InformationCanaryRegistry.from_private_dict(
+        result.private_canary_registry
+    )
+    try:
+        player_view_audit = audit_information_artifact(
+            result.player_view,
+            artifact_kind="player_view_replay",
+            registry=registry,
+        )
+        assert_information_artifact_safe(player_view_audit)
+        if canonical_json(player_view_audit) != canonical_json(
+            result.information_audit
+        ):
+            raise ValueError("worker and CLI PlayerView audits differ")
+        verification_audit = audit_information_artifact(
+            result.verification,
+            artifact_kind="player_view_verification",
+            registry=registry.for_artifact_kind("player_view_verification"),
+        )
+        assert_information_artifact_safe(verification_audit)
+        publication_identity = {
+            "artifact_audits": [player_view_audit, verification_audit],
+            "artifact_commit": {
+                "player_view_id": result.player_view["player_view_id"],
+                "status": "committed",
+            },
+            "schema_version": PLAYER_VIEW_PUBLICATION_AUDIT_SCHEMA_VERSION,
+            "status": "passed",
+            "viewer": args.viewer,
+        }
+        publication_report = {
+            "publication_audit_id": stable_digest(
+                publication_identity, prefix="playerviewpublicationaudit_"
+            ),
+            **publication_identity,
+        }
+        report_safety = audit_information_artifact(
+            publication_report,
+            artifact_kind="player_view_audit_report",
+            registry=registry.for_artifact_kind("player_view_audit_report"),
+        )
+        assert_information_artifact_safe(report_safety)
+    except InformationArtifactLeakError as exc:
+        failure_report = _player_view_failure_report(
+            status="audit_failure",
+            failure_code="information_leak_detected",
+            failed_audit=exc.report,
+        )
+        failure_safety = audit_information_artifact(
+            failure_report,
+            artifact_kind="player_view_failure_report",
+            registry=registry.for_artifact_kind("player_view_failure_report"),
+        )
+        assert_information_artifact_safe(failure_safety)
+        atomic_write_text(
+            output_paths["audit_report"], canonical_json(failure_report) + "\n"
+        )
+        raise ValueError("PlayerView publication blocked by information audit") from None
+    private_lineage_text = canonical_json(result.private_lineage) + "\n"
+    verification_text = canonical_json(result.verification) + "\n"
+    audit_text = canonical_json(publication_report) + "\n"
+    player_view_text = canonical_json(result.player_view) + "\n"
+    atomic_write_text(output_paths["private_lineage"], private_lineage_text)
+    atomic_write_text(output_paths["verification_report"], verification_text)
+    atomic_write_text(output_paths["audit_report"], audit_text)
+    atomic_write_text(output_paths["out"], player_view_text)
+    print(
+        "experiment-player-view: ok "
+        f"player_view_id={result.player_view['player_view_id']} "
+        f"viewer={args.viewer} events={len(result.player_view['events'])} "
+        f"audit_id={player_view_audit['audit_id']}"
     )
     return 0
 

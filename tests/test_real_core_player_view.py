@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import subprocess
+import sys
 
 import pytest
 
@@ -15,7 +17,9 @@ from ygo_effect_dsl.external.ocgcore import (
 from ygo_effect_dsl.prototype import (
     RealCoreFrontierAdapter,
     RealCorePlayerViewAdapter,
+    dump_route_document,
 )
+from ygo_effect_dsl.runtime_imports import current_checkout_environment
 
 
 ROOT = Path(__file__).parents[1]
@@ -57,7 +61,9 @@ def _source_route() -> dict:
     return dict(frontier.route_document)
 
 
-def test_real_core_player_view_is_fresh_replay_verified_for_both_viewers() -> None:
+def test_real_core_player_view_is_fresh_replay_verified_for_both_viewers(
+    tmp_path: Path,
+) -> None:
     _runtime_or_skip()
     source_route = _source_route()
     adapter = RealCorePlayerViewAdapter(
@@ -84,3 +90,48 @@ def test_real_core_player_view_is_fresh_replay_verified_for_both_viewers() -> No
     assert source_route["route_id"] == viewer0_first.private_lineage[
         "source_route_id"
     ]
+
+    route_path = tmp_path / "source-route.yaml"
+    player_view_path = tmp_path / "player-view.json"
+    audit_path = tmp_path / "audit.json"
+    verification_path = tmp_path / "verification.json"
+    lineage_path = tmp_path / "private-lineage.json"
+    dump_route_document(source_route, route_path)
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ygo_effect_dsl",
+            "experiment-player-view",
+            str(EXPERIMENT),
+            str(route_path),
+            "--viewer",
+            "0",
+            "--out",
+            str(player_view_path),
+            "--audit-report",
+            str(audit_path),
+            "--verification-report",
+            str(verification_path),
+            "--private-lineage",
+            str(lineage_path),
+            "--max-retries",
+            "0",
+        ],
+        cwd=ROOT,
+        env=current_checkout_environment(),
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert json.loads(audit_path.read_text(encoding="utf-8"))["status"] == "passed"
+    assert json.loads(verification_path.read_text(encoding="utf-8"))["status"] == (
+        "verified"
+    )
+    assert json.loads(player_view_path.read_text(encoding="utf-8")) == (
+        viewer0_first.player_view
+    )
+    assert source_route["route_id"] in lineage_path.read_text(encoding="utf-8")
+    assert source_route["route_id"] not in player_view_path.read_text(encoding="utf-8")
