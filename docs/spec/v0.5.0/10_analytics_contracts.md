@@ -54,25 +54,27 @@ exact duplicateはcontent identityでidempotentに扱う。semantic duplicateの
 ## Job state machine
 
 The implemented baseline is `job-state-machine-v1`, persisted in a dedicated
-`job-catalog-v1` SQLite catalog. The public states are `queued`, `running`,
+`job-catalog-v2` SQLite catalog. The public states are `queued`, `running`,
 `cancelling`, `cancelled`, `succeeded`, `failed`, `retrying`, and
 `quarantined`. Every transition stores the attempt, actor, UTC timestamp, and
 reason. Invalid transitions fail closed.
 
 | From | Allowed targets |
 |---|---|
-| queued | running, cancelling, quarantined |
+| queued | running, cancelling, failed, quarantined |
 | running | cancelling, succeeded, failed, retrying, quarantined |
 | cancelling | cancelled, failed, quarantined |
 | failed | retrying, quarantined |
 | retrying | running, cancelling, failed, quarantined |
 | cancelled, succeeded, quarantined | none |
 
-`JobSpec` provides common idempotency, input digest, priority, maximum attempt,
-and dependency fields. It validates exact payloads for search, replay, import,
-aggregate, and export jobs. A dependency must already exist and must reach
-`succeeded` before its child can be claimed. Selection is deterministic by
-priority, creation time, and job ID.
+`job-spec-v2` provides common idempotency, input digest, priority, maximum
+attempt, dependency, job deadline, and `job-retry-policy-v1` fields. It
+validates exact payloads for search, replay, import, aggregate, and export jobs.
+A dependency must already exist and must reach `succeeded` before its child can
+be claimed. Selection is deterministic by priority, creation time, and job ID.
+Search budgets and semantic stop conditions remain inside the referenced
+Experiment; the generic job deadline only bounds execution time.
 
 Running work is owned by an attempt-scoped lease token. Heartbeats extend the
 lease, stale tokens cannot mutate a newer attempt, and expired jobs return to
@@ -81,11 +83,33 @@ lease, stale tokens cannot mutate a newer attempt, and expired jobs return to
 SQLite transaction; constraint failure leaves the job running and publishes no
 artifact.
 
-Checkpoint serialization, cancellation checkpoints, retry backoff policy,
-partial-artifact quarantine, and worker process control remain the scope of
-[#160](https://github.com/Tao-pyth/ygo-effect-dsl/issues/160). Search budgets and
-semantic stop conditions remain inside the referenced search Experiment. #160
-will add a separate generic job deadline for execution control.
+`job-checkpoint-v1` binds canonical payload, input digest, attempt, sequence,
+recovery position, completed units, optional total units, and optional semantic
+result digest. Recovery position is an idempotency key: equal content is
+accepted, conflicting content fails closed. Progress cannot decrease, a known
+total cannot change, payload size is limited to 1 MiB, and resume requires the
+immutable JobSpec input digest. This preserves unknown totals rather than
+inventing a percentage.
+
+Workers poll `job-control-v1` for cooperative cancel, lease expiry, attempt hard
+timeout, and job deadline. `JobRecoverySupervisor` invokes the process owner's
+terminate/kill callback before releasing a timed-out lease. Failed termination
+leaves the attempt running. Retry eligibility and exponential backoff come only
+from the versioned policy; exhausted or non-retryable attempts fail closed.
+
+Filesystem publication follows ADR 0015: write and fsync an attempt staging
+file, verify its SHA-256, atomically rename it, then commit success and artifact
+references in SQLite. `JobArtifactPublisher.reconcile()` verifies every
+committed reference, preserves active attempts, and removes unreferenced files
+from inactive attempts. Missing or hash-mismatched committed artifacts are
+corruption. Fault vectors cover checkpoint commit boundaries, partial writes,
+disk full, aggregate multi-artifact rename, catalog commit, hard timeout, and
+process-termination failure.
+
+`job-status-v1` is read from one SQLite snapshot and exposed by the API and
+`job-inspect --catalog CATALOG JOB_ID`. It includes attempt, cancel/retry reason,
+recovery position, latest checkpoint, transitions, and artifacts. Catalog v1
+requires explicit migration and is never modified in place by a v2 reader.
 
 ## Query API
 

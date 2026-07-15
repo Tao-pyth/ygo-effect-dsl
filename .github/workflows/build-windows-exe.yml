@@ -59,6 +59,7 @@ jobs:
           .\dist\ygo-effect-dsl.exe validate data/exe_smoke/yaml
           .\dist\ygo-effect-dsl.exe validate-route examples/route_dsl/minimal_route.yaml
           .\dist\ygo-effect-dsl.exe experiment-search --help
+          .\dist\ygo-effect-dsl.exe job-inspect --help
 
       - name: Upload executable artifact
         uses: actions/upload-artifact@v7

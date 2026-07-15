@@ -285,18 +285,18 @@ def test_orphan_is_retried_then_failed_at_max_attempts(tmp_path: Path) -> None:
 
     first_reclaim = catalog.reclaim_orphans(now=T12)
     assert first_reclaim[0].state == JobState.RETRYING
-    second_claim = _claim(catalog, now=T12)
+    second_claim = _claim(catalog, now="2026-07-15T10:00:13Z")
     assert second_claim.attempt == 2
     assert second_claim.lease_token != first_claim.lease_token
     with pytest.raises(JobLeaseError, match="does not match"):
         catalog.heartbeat(
             job.job_id,
             lease_token=first_claim.lease_token,
-            now=T12,
+            now="2026-07-15T10:00:13Z",
             lease_seconds=10,
         )
 
-    final_reclaim = catalog.reclaim_orphans(now=T23)
+    final_reclaim = catalog.reclaim_orphans(now="2026-07-15T10:00:23Z")
 
     assert final_reclaim[0].state == JobState.FAILED
     assert final_reclaim[0].error_code == "attempts_exhausted"
@@ -421,7 +421,7 @@ def test_catalog_requires_explicit_schema_migration_without_mutation(
             "CREATE TABLE schema_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)"
         )
         connection.execute(
-            "INSERT INTO schema_meta VALUES ('schema_version', 'job-catalog-v0')"
+            "INSERT INTO schema_meta VALUES ('schema_version', 'job-catalog-v1')"
         )
 
     with pytest.raises(ValueError, match="explicit migration"):
@@ -438,5 +438,5 @@ def test_catalog_requires_explicit_schema_migration_without_mutation(
             "SELECT value FROM schema_meta WHERE key='schema_version'"
         ).fetchone()[0]
     assert tables == {"schema_meta"}
-    assert version == "job-catalog-v0"
-    assert JOB_CATALOG_SCHEMA_VERSION == "job-catalog-v1"
+    assert version == "job-catalog-v1"
+    assert JOB_CATALOG_SCHEMA_VERSION == "job-catalog-v2"

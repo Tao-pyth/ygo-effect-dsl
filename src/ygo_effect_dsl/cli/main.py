@@ -20,6 +20,7 @@ from ygo_effect_dsl.cli.cmd_experiment import (
     cmd_migrate_experiment,
     cmd_validate_experiment,
 )
+from ygo_effect_dsl.cli.cmd_jobs import cmd_job_inspect
 from ygo_effect_dsl.cli.cmd_ocgcore import (
     cmd_ocgcore_assets_bootstrap,
     cmd_ocgcore_assets_verify,
@@ -141,6 +142,21 @@ def main() -> int:
     pr = sub.add_parser("validate-route", help="validate a Route DSL YAML or JSON document")
     pr.add_argument("route_file", help="path to a Route DSL document")
     pr.set_defaults(func=cmd_validate_route)
+
+    job_inspect = sub.add_parser(
+        "job-inspect",
+        help="print job state, recovery position, transitions, and artifacts",
+    )
+    job_inspect.add_argument(
+        "job_id",
+        help="content-addressed job ID",
+    )
+    job_inspect.add_argument(
+        "--catalog",
+        required=True,
+        help="job catalog SQLite path",
+    )
+    job_inspect.set_defaults(func=cmd_job_inspect)
 
     experiment_validate = sub.add_parser(
         "validate-experiment",
