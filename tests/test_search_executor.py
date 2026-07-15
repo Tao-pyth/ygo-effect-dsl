@@ -13,6 +13,7 @@ from ygo_effect_dsl.engine.failures import (
     RecoveryAction,
 )
 from ygo_effect_dsl.engine.search import (
+    BeamSearchStrategyV1,
     RandomSearchStrategyV1,
     SearchBudget,
     SearchExecutor,
@@ -87,6 +88,17 @@ def _experiment(seed: int = 17) -> dict:
     }
 
 
+def _beam_experiment(beam_width: int = 1, seed: int = 17) -> dict:
+    return {
+        "experiment_id": "beam_search_executor_test",
+        "search": {
+            "strategy": "beam_search_v1",
+            "budget": {"max_nodes": 20},
+            "parameters": {"beam_width": beam_width, "seed": seed},
+        },
+    }
+
+
 def test_random_search_is_semantically_deterministic() -> None:
     left = _action("left")
     right = _action("right")
@@ -111,10 +123,13 @@ def test_random_search_is_semantically_deterministic() -> None:
 
     assert first.semantic_dict() == second.semantic_dict()
     assert first.run_id == second.run_id
-    assert first.executor_schema_version == "search-executor-v4"
+    assert first.executor_schema_version == "search-executor-v5"
     assert first.experiment_digest.startswith("experiment_")
     assert first.frontier_schema_version == "search-frontier-v2"
-    assert first.schema_version == "search-run-result-v4"
+    assert first.schema_version == "search-run-result-v5"
+    assert first.strategy_schema_version == "random-search-strategy-v1"
+    assert first.strategy_parameters == {"seed": 41}
+    assert first.strategy_evidence["evidence_id"].startswith("strategyevidence_")
     assert first.best_route is not None
     assert first.best_route.route_id == "route_right"
     assert [route.route_id for route in first.routes] == ["route_right", "route_left"]
@@ -292,22 +307,233 @@ def test_search_run_rejects_an_invalid_experiment_digest() -> None:
         replace(result, experiment_digest="experiment_tampered")
 
 
-def test_beam_and_mcts_are_explicitly_unimplemented() -> None:
-    parameters = {
-        "beam_search_v1": {"beam_width": 2, "seed": 17},
-        "mcts_v1": {
-            "reward_ceiling": 100,
-            "reward_floor": 0,
-            "seed": 17,
-            "simulations": 4,
-        },
+def test_beam_strategy_is_constructed_and_mcts_remains_unimplemented() -> None:
+    experiment = _experiment()
+    experiment["search"]["strategy"] = "beam_search_v1"
+    experiment["search"]["parameters"] = {
+        "beam_width": 2,
+        "max_frontier_actions": 128,
+        "seed": 17,
+        "termination": {"stop_on_success": True},
     }
-    for strategy, strategy_parameters in parameters.items():
-        experiment = _experiment()
-        experiment["search"]["strategy"] = strategy
-        experiment["search"]["parameters"] = strategy_parameters
-        with pytest.raises(UnsupportedSearchStrategyError, match="not implemented"):
-            strategy_from_experiment(experiment)
+
+    strategy = strategy_from_experiment(experiment)
+
+    assert isinstance(strategy, BeamSearchStrategyV1)
+    assert strategy.parameters == {"beam_width": 2, "seed": 17}
+
+    experiment["search"]["strategy"] = "mcts_v1"
+    experiment["search"]["parameters"] = {
+        "reward_ceiling": 100,
+        "reward_floor": 0,
+        "seed": 17,
+        "simulations": 4,
+    }
+    with pytest.raises(UnsupportedSearchStrategyError, match="not implemented"):
+        strategy_from_experiment(experiment)
+
+
+def test_beam_width_one_is_greedy_by_complete_layer_score() -> None:
+    left = _action("left")
+    right = _action("right")
+    left_finish = _action("left_finish")
+    right_finish = _action("right_finish")
+    adapter = FakeFrontierAdapter(
+        {
+            (): _frontier("root", actions=(right, left)),
+            ("left",): _frontier(
+                "left", actions=(left_finish,), score=20, legal=True
+            ),
+            ("right",): _frontier(
+                "right", actions=(right_finish,), score=10, legal=True
+            ),
+            ("left", "left_finish"): _frontier(
+                "left-finish", score=1, legal=True
+            ),
+            ("right", "right_finish"): _frontier(
+                "right-finish", score=100, success=True, legal=True
+            ),
+        }
+    )
+
+    result = SearchExecutor(
+        adapter,
+        BeamSearchStrategyV1(beam_width=1, seed=5),
+        SearchBudget(max_nodes=20),
+        clock=lambda: 0.0,
+    ).run(_beam_experiment(beam_width=1, seed=5))
+
+    assert {prefix for prefix in adapter.prefixes if len(prefix) == 1} == {
+        ("left",),
+        ("right",),
+    }
+    assert [prefix for prefix in adapter.prefixes if len(prefix) == 2] == [
+        ("left", "left_finish")
+    ]
+    assert result.best_route is not None
+    assert result.best_route.route_id == "route_left"
+    assert result.strategy_schema_version == "beam-search-strategy-v1"
+    assert result.strategy_parameters == {"beam_width": 1, "seed": 5}
+
+
+def test_beam_success_precedes_a_higher_failure_score() -> None:
+    successful = _action("successful")
+    high_score = _action("high_score")
+    success_child = _action("success_child")
+    score_child = _action("score_child")
+    adapter = FakeFrontierAdapter(
+        {
+            (): _frontier("root", actions=(successful, high_score)),
+            ("successful",): _frontier(
+                "successful",
+                actions=(success_child,),
+                score=0,
+                success=True,
+                legal=True,
+            ),
+            ("high_score",): _frontier(
+                "high-score", actions=(score_child,), score=100, legal=True
+            ),
+            ("successful", "success_child"): _frontier(
+                "success-child", score=0, success=True, legal=True
+            ),
+            ("high_score", "score_child"): _frontier(
+                "score-child", score=200, legal=True
+            ),
+        }
+    )
+
+    result = SearchExecutor(
+        adapter,
+        BeamSearchStrategyV1(beam_width=1),
+        SearchBudget(max_nodes=20),
+        clock=lambda: 0.0,
+    ).run(_beam_experiment())
+
+    assert [prefix for prefix in adapter.prefixes if len(prefix) == 2] == [
+        ("successful", "success_child")
+    ]
+    assert result.best_route is not None
+    assert result.best_route.success is True
+
+
+def test_beam_does_not_select_from_a_budget_truncated_layer() -> None:
+    actions = tuple(_action(name) for name in ("a", "b", "c"))
+    child = _action("child")
+    frontiers = {(): _frontier("root", actions=actions)}
+    frontiers.update(
+        {
+            (name,): _frontier(name, actions=(child,), score=index)
+            for index, name in enumerate(("a", "b", "c"))
+        }
+    )
+    adapter = FakeFrontierAdapter(frontiers)
+
+    result = SearchExecutor(
+        adapter,
+        BeamSearchStrategyV1(beam_width=2, seed=19),
+        SearchBudget(max_nodes=3),
+        clock=lambda: 0.0,
+    ).run(_beam_experiment(beam_width=2, seed=19))
+
+    assert result.termination_reason == "max_nodes"
+    assert len([prefix for prefix in adapter.prefixes if len(prefix) == 1]) == 2
+    assert not [prefix for prefix in adapter.prefixes if len(prefix) == 2]
+    layer = result.strategy_evidence["logical_updates"][-1]
+    assert layer["complete"] is False
+    assert layer["selected_prefix_ids"] == []
+
+
+@pytest.mark.parametrize(
+    ("state_completeness", "expected_duplicates", "expected_depth_two"),
+    [("exact", 1, 1), ("query_api_projection", 0, 2)],
+)
+def test_beam_deduplicates_only_exact_state_identity(
+    state_completeness: str,
+    expected_duplicates: int,
+    expected_depth_two: int,
+) -> None:
+    left = _action("left")
+    right = _action("right")
+    child = _action("child")
+    adapter = FakeFrontierAdapter(
+        {
+            (): _frontier("root", actions=(left, right)),
+            ("left",): _frontier(
+                "same",
+                state_completeness=state_completeness,
+                actions=(child,),
+            ),
+            ("right",): _frontier(
+                "same",
+                state_completeness=state_completeness,
+                actions=(child,),
+            ),
+            ("left", "child"): _frontier("left-child", legal=True),
+            ("right", "child"): _frontier("right-child", legal=True),
+        }
+    )
+
+    result = SearchExecutor(
+        adapter,
+        BeamSearchStrategyV1(beam_width=2, seed=3),
+        SearchBudget(max_nodes=10),
+        clock=lambda: 0.0,
+    ).run(_beam_experiment(beam_width=2, seed=3))
+
+    assert result.exact_state_duplicates == expected_duplicates
+    assert len([prefix for prefix in adapter.prefixes if len(prefix) == 2]) == (
+        expected_depth_two
+    )
+
+
+def test_search_run_rejects_tampered_strategy_evidence() -> None:
+    result = SearchExecutor(
+        FakeFrontierAdapter({(): _frontier("root")}),
+        RandomSearchStrategyV1(1),
+        SearchBudget(max_nodes=1),
+        clock=lambda: 0.0,
+    ).run(_experiment(seed=1))
+    tampered = dict(result.strategy_evidence)
+    tampered["parameters"] = {"seed": 999}
+
+    with pytest.raises(ValueError, match="content ID"):
+        replace(result, strategy_evidence=tampered)
+
+
+def test_beam_worker_failure_keeps_healthy_siblings_searchable() -> None:
+    failing = _action("failing")
+    healthy = _action("healthy")
+
+    class PathFailureAdapter(FakeFrontierAdapter):
+        def replay(
+            self, experiment: Mapping, action_prefix: Sequence[Action]
+        ) -> SearchFrontier:
+            key = tuple(
+                action.selections[0].candidate_id for action in action_prefix
+            )
+            if key == ("failing",):
+                raise RuntimeError("worker crashed")
+            return super().replay(experiment, action_prefix)
+
+    adapter = PathFailureAdapter(
+        {
+            (): _frontier("root", actions=(failing, healthy)),
+            ("healthy",): _frontier("healthy", score=4, legal=True),
+        }
+    )
+
+    result = SearchExecutor(
+        adapter,
+        BeamSearchStrategyV1(beam_width=2, seed=9),
+        SearchBudget(max_nodes=10),
+        clock=lambda: 0.0,
+    ).run(_beam_experiment(beam_width=2, seed=9))
+
+    assert result.best_route is not None
+    assert result.best_route.route_id == "route_healthy"
+    assert len(result.path_failures) == 1
+    assert result.path_failures[0]["status"] == "path_failure"
 
 
 def test_worker_error_stops_only_the_affected_path() -> None:

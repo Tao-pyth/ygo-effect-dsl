@@ -17,6 +17,7 @@ from ygo_effect_dsl.engine.canonical import (
     to_canonical_data,
 )
 from ygo_effect_dsl.engine.search import (
+    LEGACY_SEARCH_RUN_RESULT_SCHEMA_VERSIONS,
     SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION,
     SEARCH_RUN_RESULT_SCHEMA_VERSION,
 )
@@ -890,8 +891,13 @@ def validate_real_deck_qualification_index(value: Any) -> dict[str, Any]:
             )
             _integer(search.get("nodes"), f"{run_path}.search.nodes", minimum=1)
             _integer(search.get("replays"), f"{run_path}.search.replays", minimum=1)
-            if search.get("schema_version") != SEARCH_RUN_RESULT_SCHEMA_VERSION:
-                raise RealDeckQualificationError(f"{run_path} requires SearchRun v4")
+            if search.get("schema_version") not in {
+                SEARCH_RUN_RESULT_SCHEMA_VERSION,
+                *LEGACY_SEARCH_RUN_RESULT_SCHEMA_VERSIONS,
+            }:
+                raise RealDeckQualificationError(
+                    f"{run_path} uses an unsupported SearchRun version"
+                )
             if search.get("strategy_id") != "random_search_v1":
                 raise RealDeckQualificationError(f"{run_path} requires Random Search")
             _string(

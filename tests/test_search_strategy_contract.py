@@ -7,6 +7,7 @@ import pytest
 from ygo_effect_dsl.engine.action import Action, ActionKind, Selection
 from ygo_effect_dsl.engine.search import (
     BeamSearchParametersV1,
+    BeamSearchStrategyV1,
     MctsSearchParametersV1,
     RandomSearchStrategyV1,
     beam_rank_key,
@@ -92,6 +93,23 @@ def test_beam_v1_parameters_and_rank_vectors() -> None:
     ]
     with pytest.raises(ValueError, match="unknown strategy parameters"):
         BeamSearchParametersV1.from_mapping({"beam_width": 2, "workers": 4})
+
+
+def test_beam_v1_satisfies_the_common_strategy_contract() -> None:
+    strategy = BeamSearchStrategyV1(beam_width=3, seed=11)
+    actions = tuple(_action(name) for name in ("left", "middle", "right"))
+
+    first = build_strategy_conformance_report(
+        strategy, node_id="node_fixture", actions=actions
+    )
+    second = build_strategy_conformance_report(
+        strategy, node_id="node_fixture", actions=tuple(reversed(actions))
+    )
+
+    assert first == second
+    assert first["execution_mode"] == "beam"
+    assert first["parameters"] == {"beam_width": 3, "seed": 11}
+    assert first["strategy_schema_version"] == "beam-search-strategy-v1"
 
 
 def test_mcts_v1_reward_and_uct_vectors() -> None:

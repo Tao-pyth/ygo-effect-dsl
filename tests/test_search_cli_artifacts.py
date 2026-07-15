@@ -12,6 +12,7 @@ from ygo_effect_dsl.engine.failures import (
     FailureRecord,
     RecoveryAction,
 )
+from ygo_effect_dsl.engine.search import BeamSearchStrategyV1
 from ygo_effect_dsl.io_atomic import atomic_write_text, sha256_file
 from ygo_effect_dsl.prototype.frontier import RealCoreFrontierWorkerError
 
@@ -88,7 +89,7 @@ def test_search_cli_publishes_route_before_commit_report(tmp_path, monkeypatch) 
         run_id="searchrun_fixture",
         to_dict=lambda: {
             "best_route": {"route_id": "route_fixture"},
-            "schema_version": "search-run-result-v4",
+            "schema_version": "search-run-result-v5",
             "termination_reason": "max_nodes",
         },
     )
@@ -178,3 +179,58 @@ def test_search_cli_rejects_shared_route_and_report_path(tmp_path, monkeypatch) 
 
     with pytest.raises(ValueError, match="different paths"):
         command_module.cmd_experiment_search(args)
+
+
+def test_search_cli_selects_beam_strategy(tmp_path, monkeypatch) -> None:
+    args = _args(tmp_path)
+    adapter = _Adapter()
+    adapter.worker_attempts = []
+    adapter.quarantined_attempt_ids = []
+    experiment = _experiment()
+    experiment["search"]["strategy"] = "beam_search_v1"
+    experiment["search"]["parameters"] = {
+        "beam_width": 2,
+        "seed": 7,
+        "termination": {"stop_on_success": True},
+    }
+    result = SimpleNamespace(
+        best_route=SimpleNamespace(
+            route_document={"route_id": "route_fixture"},
+            route_id="route_fixture",
+        ),
+        nodes=2,
+        replays=2,
+        run_id="searchrun_fixture",
+        to_dict=lambda: {
+            "best_route": {"route_id": "route_fixture"},
+            "schema_version": "search-run-result-v5",
+            "strategy_id": "beam_search_v1",
+            "termination_reason": "goal_reached",
+        },
+    )
+    captured = {}
+
+    class _Executor:
+        def __init__(self, _adapter, strategy, _budget):
+            captured["strategy"] = strategy
+
+        def run(self, _experiment):
+            return result
+
+    monkeypatch.setattr(command_module, "_resolved_experiment", lambda _args: experiment)
+    monkeypatch.setattr(
+        command_module, "preflight_scenario", lambda *_args, **_kwargs: _Preflight()
+    )
+    monkeypatch.setattr(
+        command_module, "RealCoreFrontierAdapter", lambda **_kwargs: adapter
+    )
+    monkeypatch.setattr(command_module, "SearchExecutor", _Executor)
+    monkeypatch.setattr(
+        command_module,
+        "dump_route_document",
+        lambda _document, path: atomic_write_text(path, "route\n"),
+    )
+
+    assert command_module.cmd_experiment_search(args) == 0
+    assert isinstance(captured["strategy"], BeamSearchStrategyV1)
+    assert captured["strategy"].parameters == {"beam_width": 2, "seed": 7}

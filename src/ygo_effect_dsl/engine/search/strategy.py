@@ -13,6 +13,7 @@ SEARCH_STRATEGY_CONFORMANCE_SCHEMA_VERSION = "search-strategy-conformance-v1"
 SEARCH_STRATEGY_CONFORMANCE_REPORT_SCHEMA_VERSION = (
     "search-strategy-conformance-report-v1"
 )
+SEARCH_STRATEGY_EVIDENCE_SCHEMA_VERSION = "search-strategy-evidence-v1"
 RANDOM_SEARCH_STRATEGY_SCHEMA_VERSION = "random-search-strategy-v1"
 BEAM_SEARCH_STRATEGY_SCHEMA_VERSION = "beam-search-strategy-v1"
 MCTS_STRATEGY_SCHEMA_VERSION = "mcts-strategy-v1"
@@ -159,6 +160,42 @@ class BeamSearchParametersV1:
 
     def to_dict(self) -> dict[str, Any]:
         return {"beam_width": self.beam_width, "seed": self.seed}
+
+
+@dataclass(frozen=True)
+class BeamSearchStrategyV1:
+    beam_width: int
+    seed: int = 0
+    execution_mode: str = "beam"
+    strategy_id: str = "beam_search_v1"
+    schema_version: str = BEAM_SEARCH_STRATEGY_SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        BeamSearchParametersV1(beam_width=self.beam_width, seed=self.seed)
+
+    @property
+    def parameters(self) -> Mapping[str, Any]:
+        return {"beam_width": self.beam_width, "seed": self.seed}
+
+    def order_actions(
+        self, *, node_id: str, actions: Sequence[Action]
+    ) -> tuple[Action, ...]:
+        return tuple(
+            sorted(
+                actions,
+                key=lambda action: (
+                    deterministic_decision_key(
+                        seed=self.seed,
+                        strategy_id=self.strategy_id,
+                        strategy_version=self.schema_version,
+                        node_id=node_id,
+                        purpose="expand_action_order",
+                        candidate_id=action.action_id,
+                    ),
+                    action.action_id,
+                ),
+            )
+        )
 
 
 def beam_rank_key(
@@ -313,6 +350,25 @@ def build_strategy_conformance_report(
     }
 
 
+def build_strategy_evidence(
+    strategy: SearchStrategy,
+    *,
+    logical_updates: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    identity = {
+        "execution_mode": strategy.execution_mode,
+        "logical_updates": [to_canonical_data(update) for update in logical_updates],
+        "parameters": to_canonical_data(strategy.parameters),
+        "schema_version": SEARCH_STRATEGY_EVIDENCE_SCHEMA_VERSION,
+        "strategy_id": strategy.strategy_id,
+        "strategy_schema_version": strategy.schema_version,
+    }
+    return {
+        **identity,
+        "evidence_id": stable_digest(identity, prefix="strategyevidence_"),
+    }
+
+
 def strategy_from_experiment(experiment: Mapping[str, Any]) -> SearchStrategy:
     search = experiment.get("search")
     if not isinstance(search, Mapping):
@@ -321,21 +377,53 @@ def strategy_from_experiment(experiment: Mapping[str, Any]) -> SearchStrategy:
     parameters = search.get("parameters", {})
     if not isinstance(parameters, Mapping):
         raise ValueError("experiment.search.parameters must be a mapping")
+    shared_parameter_names = {"max_frontier_actions", "termination"}
     if strategy_id == "random_search_v1":
         checked = _parameters(
             parameters,
-            known={"max_frontier_actions", "seed", "termination"},
+            known={"seed", *shared_parameter_names},
             required=set(),
         )
-        return RandomSearchStrategyV1(seed=_integer(checked.get("seed", 0), "seed", minimum=0))
+        return RandomSearchStrategyV1(
+            seed=_integer(checked.get("seed", 0), "seed", minimum=0)
+        )
     if strategy_id == "beam_search_v1":
-        BeamSearchParametersV1.from_mapping(parameters)
-        raise UnsupportedSearchStrategyError(
-            "beam_search_v1 conforms to search-strategy-conformance-v1 "
-            "but execution is not implemented"
+        checked_parameters = _parameters(
+            parameters,
+            known={"beam_width", "seed", *shared_parameter_names},
+            required={"beam_width"},
+        )
+        checked = BeamSearchParametersV1.from_mapping(
+            {
+                name: value
+                for name, value in checked_parameters.items()
+                if name not in shared_parameter_names
+            }
+        )
+        return BeamSearchStrategyV1(
+            beam_width=checked.beam_width,
+            seed=checked.seed,
         )
     if strategy_id == "mcts_v1":
-        MctsSearchParametersV1.from_mapping(parameters)
+        checked_parameters = _parameters(
+            parameters,
+            known={
+                "exploration_constant",
+                "reward_ceiling",
+                "reward_floor",
+                "seed",
+                "simulations",
+                *shared_parameter_names,
+            },
+            required={"reward_ceiling", "reward_floor", "simulations"},
+        )
+        MctsSearchParametersV1.from_mapping(
+            {
+                name: value
+                for name, value in checked_parameters.items()
+                if name not in shared_parameter_names
+            }
+        )
         raise UnsupportedSearchStrategyError(
             "mcts_v1 conforms to search-strategy-conformance-v1 "
             "but execution is not implemented"
