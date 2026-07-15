@@ -8,6 +8,7 @@ from typing import Any, Protocol
 from ygo_effect_dsl.engine.action import Action
 from ygo_effect_dsl.engine.canonical import stable_digest, to_canonical_data
 from ygo_effect_dsl.engine.failures import FailureRecord
+from ygo_effect_dsl.engine.search.lifecycle import MultiTurnLifecycleDecision
 from ygo_effect_dsl.engine.search.parallel import build_search_node_id
 from ygo_effect_dsl.engine.search.strategy import (
     RANDOM_SEARCH_STRATEGY_SCHEMA_VERSION,
@@ -66,6 +67,15 @@ class SearchFrontier:
             raise ValueError("a legal stop requires a replayable route_document")
         if not isinstance(self.replay_count, int) or self.replay_count < 1:
             raise ValueError("replay_count must be an integer >= 1")
+        if "turn_lifecycle" in self.request:
+            lifecycle = MultiTurnLifecycleDecision.from_dict(
+                self.request["turn_lifecycle"]
+            )
+            object.__setattr__(
+                self,
+                "request",
+                {**self.request, "turn_lifecycle": lifecycle.to_dict()},
+            )
 
 
 class FrontierAdapter(Protocol):
@@ -85,6 +95,16 @@ class SearchRouteSummary:
     action_count: int
     action_ids: tuple[str, ...]
     route_document: Mapping[str, Any]
+    lifecycle_boundary: Mapping[str, Any] | None = None
+
+    def __post_init__(self) -> None:
+        if self.lifecycle_boundary is not None:
+            decision = MultiTurnLifecycleDecision.from_dict(
+                self.lifecycle_boundary
+            )
+            if not decision.legal_stop:
+                raise ValueError("route lifecycle_boundary must be a legal stop")
+            object.__setattr__(self, "lifecycle_boundary", decision.to_dict())
 
     @property
     def rank_key(self) -> tuple[Any, ...]:
@@ -105,6 +125,10 @@ class SearchRouteSummary:
             "success": self.success,
             "terminal_score": self.terminal_score,
         }
+        if self.lifecycle_boundary is not None:
+            payload["lifecycle_boundary"] = to_canonical_data(
+                self.lifecycle_boundary
+            )
         if include_document:
             payload["route_document"] = to_canonical_data(self.route_document)
         return payload
@@ -338,6 +362,7 @@ class SearchExecutor:
                 prefix="route_",
             )
         if key not in runtime.route_prefixes:
+            lifecycle_boundary = frontier.request.get("turn_lifecycle")
             runtime.route_prefixes.add(key)
             runtime.routes.append(
                 SearchRouteSummary(
@@ -348,6 +373,11 @@ class SearchExecutor:
                     action_count=len(prefix),
                     action_ids=key,
                     route_document=frontier.route_document,
+                    lifecycle_boundary=(
+                        lifecycle_boundary
+                        if isinstance(lifecycle_boundary, Mapping)
+                        else None
+                    ),
                 )
             )
         if frontier.success and self.budget.stop_on_success:

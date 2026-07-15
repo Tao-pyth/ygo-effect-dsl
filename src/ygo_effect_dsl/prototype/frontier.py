@@ -22,7 +22,10 @@ from ygo_effect_dsl.engine.failures import (
     RecoveryAction,
     classify_failure,
 )
-from ygo_effect_dsl.engine.search import SearchFrontier
+from ygo_effect_dsl.engine.search import (
+    MultiTurnLifecycleDecision,
+    SearchFrontier,
+)
 from ygo_effect_dsl.prototype.real_core import (
     REAL_CORE_FRONTIER_SCHEMA_VERSION,
     WORKER_FAILURE_ENVELOPE_SCHEMA_VERSION,
@@ -150,6 +153,12 @@ class RealCoreFrontierAdapter:
             request["interruption_opportunities"] = document.get(
                 "interruption_opportunities"
             )
+            raw_turn_lifecycle = document.get("turn_lifecycle")
+            if not isinstance(raw_turn_lifecycle, Mapping):
+                raise ValueError("real-core frontier is missing turn_lifecycle")
+            request["turn_lifecycle"] = MultiTurnLifecycleDecision.from_dict(
+                raw_turn_lifecycle
+            ).to_dict()
             return SearchFrontier(
                 state_id=str(document["state_id"]),
                 state_completeness=state_completeness,
