@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import tomllib
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -22,15 +21,15 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_desktop_dependency_and_entrypoint_are_optional() -> None:
-    project = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
-        "project"
-    ]
+    pyproject = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    project_section = pyproject.split("[project.optional-dependencies]", 1)[0]
+    desktop_section = pyproject.split("desktop = [", 1)[1].split("]", 1)[0]
 
-    assert all("pywebview" not in item for item in project["dependencies"])
-    assert project["optional-dependencies"]["desktop"] == ["pywebview==6.2.1"]
-    assert project["scripts"]["ygo-effect-dsl"] == "ygo_effect_dsl.cli.main:main"
-    assert project["scripts"]["ygo-effect-dsl-desktop"] == (
-        "ygo_effect_dsl.desktop.shell:main"
+    assert "pywebview" not in project_section
+    assert '"pywebview==6.2.1"' in desktop_section
+    assert 'ygo-effect-dsl = "ygo_effect_dsl.cli.main:main"' in pyproject
+    assert (
+        'ygo-effect-dsl-desktop = "ygo_effect_dsl.desktop.shell:main"' in pyproject
     )
 
 
