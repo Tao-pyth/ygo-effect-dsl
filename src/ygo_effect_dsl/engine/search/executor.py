@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 from collections.abc import Mapping, Sequence
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from ygo_effect_dsl.engine.action import Action
@@ -11,17 +11,21 @@ from ygo_effect_dsl.engine.failures import FailureRecord
 from ygo_effect_dsl.engine.search.parallel import build_search_node_id
 from ygo_effect_dsl.engine.search.strategy import (
     RANDOM_SEARCH_STRATEGY_SCHEMA_VERSION,
+    SEARCH_STRATEGY_EVIDENCE_SCHEMA_VERSION,
     RandomSearchStrategyV1,
     SearchStrategy,
     UnsupportedSearchStrategyError,
+    beam_rank_key,
+    build_strategy_evidence,
     strategy_from_experiment,
 )
 from ygo_effect_dsl.engine.search.termination import SearchBudget, TerminationReason
 
 
-SEARCH_EXECUTOR_SCHEMA_VERSION = "search-executor-v4"
+SEARCH_EXECUTOR_SCHEMA_VERSION = "search-executor-v5"
 SEARCH_FRONTIER_SCHEMA_VERSION = "search-frontier-v2"
-SEARCH_RUN_RESULT_SCHEMA_VERSION = "search-run-result-v4"
+SEARCH_RUN_RESULT_SCHEMA_VERSION = "search-run-result-v5"
+LEGACY_SEARCH_RUN_RESULT_SCHEMA_VERSIONS = ("search-run-result-v4",)
 SEARCH_RUN_REPORT_SCHEMA_VERSION = "search-run-report-v1"
 SEARCH_RUN_FAILURE_SCHEMA_VERSION = "search-run-failure-v2"
 SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION = "search-artifact-commit-v1"
@@ -108,6 +112,9 @@ class SearchRunResult:
     experiment_id: str
     experiment_digest: str
     strategy_id: str
+    strategy_schema_version: str
+    strategy_parameters: Mapping[str, Any]
+    strategy_evidence: Mapping[str, Any]
     termination_reason: str
     nodes: int
     replays: int
@@ -148,6 +155,48 @@ class SearchRunResult:
             or any(character not in "0123456789abcdef" for character in digest)
         ):
             raise ValueError("experiment_digest must be an experiment_ content ID")
+        if (
+            not isinstance(self.strategy_schema_version, str)
+            or not self.strategy_schema_version
+        ):
+            raise ValueError("strategy_schema_version must be a non-empty string")
+        if not isinstance(self.strategy_parameters, Mapping):
+            raise ValueError("strategy_parameters must be a mapping")
+        if not isinstance(self.strategy_evidence, Mapping):
+            raise ValueError("strategy_evidence must be a mapping")
+        expected_evidence_fields = {
+            "evidence_id",
+            "execution_mode",
+            "logical_updates",
+            "parameters",
+            "schema_version",
+            "strategy_id",
+            "strategy_schema_version",
+        }
+        if set(self.strategy_evidence) != expected_evidence_fields:
+            raise ValueError("strategy_evidence fields do not match v1")
+        if (
+            self.strategy_evidence.get("schema_version")
+            != SEARCH_STRATEGY_EVIDENCE_SCHEMA_VERSION
+        ):
+            raise ValueError("unsupported strategy_evidence schema")
+        evidence_identity = {
+            key: value
+            for key, value in self.strategy_evidence.items()
+            if key != "evidence_id"
+        }
+        if self.strategy_evidence.get("evidence_id") != stable_digest(
+            evidence_identity, prefix="strategyevidence_"
+        ):
+            raise ValueError("strategy_evidence content ID does not match its payload")
+        if (
+            self.strategy_evidence.get("strategy_id") != self.strategy_id
+            or self.strategy_evidence.get("strategy_schema_version")
+            != self.strategy_schema_version
+            or self.strategy_evidence.get("parameters")
+            != to_canonical_data(self.strategy_parameters)
+        ):
+            raise ValueError("strategy_evidence provenance does not match the result")
 
     def semantic_dict(self) -> dict[str, Any]:
         return {
@@ -165,7 +214,10 @@ class SearchRunResult:
             "replays": self.replays,
             "routes": [route.to_dict() for route in self.routes],
             "schema_version": self.schema_version,
+            "strategy_evidence": to_canonical_data(self.strategy_evidence),
             "strategy_id": self.strategy_id,
+            "strategy_parameters": to_canonical_data(self.strategy_parameters),
+            "strategy_schema_version": self.strategy_schema_version,
             "termination_reason": self.termination_reason,
         }
 
@@ -179,6 +231,34 @@ class SearchRunResult:
             "elapsed_seconds": self.elapsed_seconds,
             "run_id": self.run_id,
         }
+
+
+@dataclass
+class _SearchRuntime:
+    experiment: Mapping[str, Any]
+    experiment_id: str
+    started: float
+    cache: dict[tuple[str, ...], SearchFrontier] = field(default_factory=dict)
+    node_ids: dict[tuple[str, ...], str] = field(default_factory=dict)
+    seen_states: set[str] = field(default_factory=set)
+    routes: list[SearchRouteSummary] = field(default_factory=list)
+    path_failures: list[Mapping[str, Any]] = field(default_factory=list)
+    logical_updates: list[Mapping[str, Any]] = field(default_factory=list)
+    nodes: int = 0
+    replays: int = 0
+    cache_hits: int = 0
+    duplicates: int = 0
+    max_depth_reached: int = 0
+    termination: TerminationReason = TerminationReason.EXHAUSTED
+
+
+@dataclass(frozen=True)
+class _ObservedNode:
+    prefix: tuple[Action, ...]
+    prefix_id: str
+    node_id: str
+    frontier: SearchFrontier
+    duplicate: bool
 
 
 class SearchExecutor:
@@ -197,135 +277,337 @@ class SearchExecutor:
         self.budget = budget
         self.clock = clock
 
+    @staticmethod
+    def _key(prefix: Sequence[Action]) -> tuple[str, ...]:
+        return tuple(action.action_id for action in prefix)
+
+    @staticmethod
+    def _prefix_id(experiment_id: str, key: Sequence[str]) -> str:
+        return stable_digest(
+            {"action_ids": list(key), "experiment_id": experiment_id},
+            prefix="searchprefix_",
+        )
+
+    def _hard_budget_reason(
+        self, runtime: _SearchRuntime
+    ) -> TerminationReason | None:
+        elapsed = self.clock() - runtime.started
+        if self.budget.max_seconds is not None and elapsed >= self.budget.max_seconds:
+            return TerminationReason.MAX_SECONDS
+        if self.budget.max_nodes is not None and runtime.nodes >= self.budget.max_nodes:
+            return TerminationReason.MAX_NODES
+        if (
+            self.budget.max_replays is not None
+            and runtime.replays >= self.budget.max_replays
+        ):
+            return TerminationReason.MAX_REPLAYS
+        return None
+
+    def _record_route(
+        self,
+        runtime: _SearchRuntime,
+        prefix: tuple[Action, ...],
+        frontier: SearchFrontier,
+    ) -> None:
+        if not frontier.legal_stop or not prefix:
+            return
+        assert frontier.route_document is not None
+        key = self._key(prefix)
+        route_id = str(frontier.route_document.get("route_id", ""))
+        if not route_id:
+            route_id = stable_digest(
+                {
+                    "experiment_id": runtime.experiment_id,
+                    "prefix": list(key),
+                    "state_id": frontier.state_id,
+                },
+                prefix="route_",
+            )
+        runtime.routes.append(
+            SearchRouteSummary(
+                route_id=route_id,
+                success=frontier.success,
+                peak_score=frontier.peak_score,
+                terminal_score=frontier.score,
+                action_count=len(prefix),
+                action_ids=key,
+                route_document=frontier.route_document,
+            )
+        )
+        if frontier.success and self.budget.stop_on_success:
+            runtime.termination = TerminationReason.GOAL_REACHED
+        if (
+            self.budget.target_score is not None
+            and frontier.score >= self.budget.target_score
+        ):
+            runtime.termination = TerminationReason.GOAL_REACHED
+
+    def _replay_prefix(
+        self,
+        runtime: _SearchRuntime,
+        prefix: tuple[Action, ...],
+    ) -> _ObservedNode | None:
+        depth = len(prefix)
+        runtime.max_depth_reached = max(runtime.max_depth_reached, depth)
+        key = self._key(prefix)
+        frontier = runtime.cache.get(key)
+        if frontier is None:
+            try:
+                frontier = self.adapter.replay(runtime.experiment, prefix)
+            except Exception as exc:
+                if not prefix:
+                    raise
+                runtime.nodes += 1
+                runtime.replays += 1
+                path_failure: dict[str, Any] = {
+                    "action_ids": list(key),
+                    "depth": depth,
+                    "exception_type": type(exc).__name__,
+                    "message": str(exc),
+                    "status": "path_failure",
+                }
+                failure = getattr(exc, "failure", None)
+                if isinstance(failure, FailureRecord):
+                    path_failure["failure"] = failure.to_dict()
+                runtime.path_failures.append(path_failure)
+                return None
+            runtime.cache[key] = frontier
+            runtime.replays += frontier.replay_count
+        else:
+            runtime.cache_hits += 1
+        runtime.nodes += 1
+        self._record_route(runtime, prefix, frontier)
+        duplicate = False
+        if frontier.state_completeness == "exact":
+            if frontier.state_id in runtime.seen_states:
+                runtime.duplicates += 1
+                duplicate = True
+            else:
+                runtime.seen_states.add(frontier.state_id)
+        node_id = build_search_node_id(
+            experiment_id=runtime.experiment_id,
+            state_id=frontier.state_id,
+            depth=depth,
+            parent_node_id=runtime.node_ids.get(key[:-1]) if depth else None,
+            action_id=prefix[-1].action_id if depth else None,
+        )
+        runtime.node_ids[key] = node_id
+        return _ObservedNode(
+            prefix=prefix,
+            prefix_id=self._prefix_id(runtime.experiment_id, key),
+            node_id=node_id,
+            frontier=frontier,
+            duplicate=duplicate,
+        )
+
+    def _run_depth_first(self, runtime: _SearchRuntime) -> None:
+        pending: list[tuple[Action, ...]] = [()]
+        while pending:
+            reason = self._hard_budget_reason(runtime)
+            if reason is not None:
+                runtime.termination = reason
+                break
+            prefix = pending.pop()
+            observed = self._replay_prefix(runtime, prefix)
+            if observed is None:
+                continue
+            if runtime.termination == TerminationReason.GOAL_REACHED:
+                break
+            if observed.duplicate:
+                continue
+            depth = len(prefix)
+            if self.budget.max_depth is not None and depth >= self.budget.max_depth:
+                runtime.termination = TerminationReason.MAX_DEPTH
+                continue
+            ordered = self.strategy.order_actions(
+                node_id=observed.node_id,
+                actions=observed.frontier.actions,
+            )
+            runtime.logical_updates.append(
+                {
+                    "action_ids": list(self._key(prefix)),
+                    "node_id": observed.node_id,
+                    "ordered_action_ids": [action.action_id for action in ordered],
+                    "prefix_id": observed.prefix_id,
+                    "update_type": "depth_first_expansion",
+                }
+            )
+            for action in reversed(ordered):
+                pending.append((*prefix, action))
+
+    @staticmethod
+    def _beam_sort_key(observed: _ObservedNode) -> tuple[Any, ...]:
+        return beam_rank_key(
+            success=observed.frontier.success,
+            peak_score=observed.frontier.peak_score,
+            terminal_score=observed.frontier.score,
+            action_count=len(observed.prefix),
+            semantic_prefix_id=observed.prefix_id,
+        )
+
+    def _run_beam(self, runtime: _SearchRuntime) -> None:
+        beam_width = self.strategy.parameters.get("beam_width")
+        if (
+            not isinstance(beam_width, int)
+            or isinstance(beam_width, bool)
+            or beam_width < 1
+        ):
+            raise ValueError("beam strategy requires an integer beam_width >= 1")
+        reason = self._hard_budget_reason(runtime)
+        if reason is not None:
+            runtime.termination = reason
+            return
+        root = self._replay_prefix(runtime, ())
+        if root is None:
+            return
+        current = [] if root.duplicate else [root]
+        while current and runtime.termination != TerminationReason.GOAL_REACHED:
+            child_nodes: list[_ObservedNode] = []
+            child_records: list[dict[str, Any]] = []
+            layer_complete = True
+            depth_limited = False
+            layer_depth = len(current[0].prefix) + 1
+            for parent in current:
+                parent_depth = len(parent.prefix)
+                if (
+                    self.budget.max_depth is not None
+                    and parent_depth >= self.budget.max_depth
+                ):
+                    depth_limited = True
+                    continue
+                ordered = self.strategy.order_actions(
+                    node_id=parent.node_id,
+                    actions=parent.frontier.actions,
+                )
+                for action in ordered:
+                    reason = self._hard_budget_reason(runtime)
+                    if reason is not None:
+                        runtime.termination = reason
+                        layer_complete = False
+                        break
+                    prefix = (*parent.prefix, action)
+                    child = self._replay_prefix(runtime, prefix)
+                    if child is None:
+                        key = self._key(prefix)
+                        child_records.append(
+                            {
+                                "action_ids": list(key),
+                                "prefix_id": self._prefix_id(
+                                    runtime.experiment_id, key
+                                ),
+                                "selected": False,
+                                "status": "path_failure",
+                            }
+                        )
+                        continue
+                    child_at_depth_limit = (
+                        self.budget.max_depth is not None
+                        and len(prefix) >= self.budget.max_depth
+                    )
+                    if child_at_depth_limit:
+                        depth_limited = True
+                    expandable = bool(child.frontier.actions) and not (
+                        child.duplicate or child_at_depth_limit
+                    )
+                    child_records.append(
+                        {
+                            "action_ids": list(self._key(prefix)),
+                            "duplicate": child.duplicate,
+                            "expandable": expandable,
+                            "peak_score": child.frontier.peak_score,
+                            "prefix_id": child.prefix_id,
+                            "score": child.frontier.score,
+                            "selected": False,
+                            "state_completeness": child.frontier.state_completeness,
+                            "state_id": child.frontier.state_id,
+                            "status": "observed",
+                            "success": child.frontier.success,
+                        }
+                    )
+                    if expandable:
+                        child_nodes.append(child)
+                    if runtime.termination == TerminationReason.GOAL_REACHED:
+                        layer_complete = False
+                        break
+                if not layer_complete:
+                    break
+            selected: list[_ObservedNode] = []
+            if layer_complete:
+                selected = sorted(child_nodes, key=self._beam_sort_key)[:beam_width]
+            selected_ids = {node.prefix_id for node in selected}
+            child_records = [
+                {
+                    **record,
+                    "selected": record["prefix_id"] in selected_ids,
+                }
+                for record in child_records
+            ]
+            runtime.logical_updates.append(
+                {
+                    "complete": layer_complete,
+                    "depth": layer_depth,
+                    "observed_children": child_records,
+                    "parent_prefix_ids": [parent.prefix_id for parent in current],
+                    "selected_prefix_ids": [node.prefix_id for node in selected],
+                    "termination_reason": (
+                        runtime.termination.value if not layer_complete else None
+                    ),
+                    "update_type": "beam_layer",
+                }
+            )
+            if not layer_complete:
+                break
+            current = selected
+            if not current:
+                if depth_limited:
+                    runtime.termination = TerminationReason.MAX_DEPTH
+                break
+
+    def _result(self, runtime: _SearchRuntime) -> SearchRunResult:
+        ordered_routes = tuple(
+            sorted(runtime.routes, key=lambda route: route.rank_key)
+        )
+        evidence = build_strategy_evidence(
+            self.strategy,
+            logical_updates=runtime.logical_updates,
+        )
+        return SearchRunResult(
+            experiment_digest=stable_digest(
+                runtime.experiment, prefix="experiment_"
+            ),
+            experiment_id=runtime.experiment_id,
+            strategy_id=self.strategy.strategy_id,
+            strategy_schema_version=self.strategy.schema_version,
+            strategy_parameters=dict(self.strategy.parameters),
+            strategy_evidence=evidence,
+            termination_reason=runtime.termination.value,
+            nodes=runtime.nodes,
+            replays=runtime.replays,
+            max_depth_reached=runtime.max_depth_reached,
+            exact_state_duplicates=runtime.duplicates,
+            prefix_cache_hits=runtime.cache_hits,
+            prefix_cache_entries=len(runtime.cache),
+            path_failures=tuple(runtime.path_failures),
+            routes=ordered_routes,
+            best_route=ordered_routes[0] if ordered_routes else None,
+            elapsed_seconds=max(0.0, self.clock() - runtime.started),
+        )
+
     def run(self, experiment: Mapping[str, Any]) -> SearchRunResult:
         experiment_id = str(experiment.get("experiment_id", ""))
         if not experiment_id:
             raise ValueError("experiment_id must be a non-empty string")
-        started = self.clock()
-        pending: list[tuple[Action, ...]] = [()]
-        cache: dict[tuple[str, ...], SearchFrontier] = {}
-        node_ids: dict[tuple[str, ...], str] = {}
-        seen_states: set[str] = set()
-        routes: list[SearchRouteSummary] = []
-        nodes = 0
-        replays = 0
-        cache_hits = 0
-        duplicates = 0
-        path_failures: list[Mapping[str, Any]] = []
-        max_depth_reached = 0
-        termination = TerminationReason.EXHAUSTED
-        while pending:
-            elapsed = self.clock() - started
-            if self.budget.max_seconds is not None and elapsed >= self.budget.max_seconds:
-                termination = TerminationReason.MAX_SECONDS
-                break
-            if self.budget.max_nodes is not None and nodes >= self.budget.max_nodes:
-                termination = TerminationReason.MAX_NODES
-                break
-            if self.budget.max_replays is not None and replays >= self.budget.max_replays:
-                termination = TerminationReason.MAX_REPLAYS
-                break
-            prefix = pending.pop()
-            depth = len(prefix)
-            max_depth_reached = max(max_depth_reached, depth)
-            key = tuple(action.action_id for action in prefix)
-            frontier = cache.get(key)
-            if frontier is None:
-                try:
-                    frontier = self.adapter.replay(experiment, prefix)
-                except Exception as exc:
-                    if not prefix:
-                        raise
-                    nodes += 1
-                    replays += 1
-                    path_failure = {
-                        "action_ids": list(key),
-                        "depth": depth,
-                        "exception_type": type(exc).__name__,
-                        "message": str(exc),
-                        "status": "path_failure",
-                    }
-                    failure = getattr(exc, "failure", None)
-                    if isinstance(failure, FailureRecord):
-                        path_failure["failure"] = failure.to_dict()
-                    path_failures.append(path_failure)
-                    continue
-                cache[key] = frontier
-                replays += frontier.replay_count
-            else:
-                cache_hits += 1
-            nodes += 1
-            if frontier.legal_stop and prefix:
-                assert frontier.route_document is not None
-                route_id = str(frontier.route_document.get("route_id", ""))
-                if not route_id:
-                    route_id = stable_digest(
-                        {
-                            "experiment_id": experiment_id,
-                            "prefix": list(key),
-                            "state_id": frontier.state_id,
-                        },
-                        prefix="route_",
-                    )
-                routes.append(
-                    SearchRouteSummary(
-                        route_id=route_id,
-                        success=frontier.success,
-                        peak_score=frontier.peak_score,
-                        terminal_score=frontier.score,
-                        action_count=depth,
-                        action_ids=key,
-                        route_document=frontier.route_document,
-                    )
-                )
-                if frontier.success and self.budget.stop_on_success:
-                    termination = TerminationReason.GOAL_REACHED
-                    break
-                if (
-                    self.budget.target_score is not None
-                    and frontier.score >= self.budget.target_score
-                ):
-                    termination = TerminationReason.GOAL_REACHED
-                    break
-            if frontier.state_completeness == "exact":
-                if frontier.state_id in seen_states:
-                    duplicates += 1
-                    continue
-                seen_states.add(frontier.state_id)
-            if self.budget.max_depth is not None and depth >= self.budget.max_depth:
-                termination = TerminationReason.MAX_DEPTH
-                continue
-            node_id = build_search_node_id(
-                experiment_id=experiment_id,
-                state_id=frontier.state_id,
-                depth=depth,
-                parent_node_id=(
-                    node_ids[key[:-1]]
-                    if depth
-                    else None
-                ),
-                action_id=prefix[-1].action_id if depth else None,
-            )
-            node_ids[key] = node_id
-            ordered = self.strategy.order_actions(node_id=node_id, actions=frontier.actions)
-            for action in reversed(ordered):
-                pending.append((*prefix, action))
-        ordered_routes = tuple(sorted(routes, key=lambda route: route.rank_key))
-        best = ordered_routes[0] if ordered_routes else None
-        elapsed_seconds = max(0.0, self.clock() - started)
-        return SearchRunResult(
-            experiment_digest=stable_digest(experiment, prefix="experiment_"),
+        runtime = _SearchRuntime(
+            experiment=experiment,
             experiment_id=experiment_id,
-            strategy_id=self.strategy.strategy_id,
-            termination_reason=termination.value,
-            nodes=nodes,
-            replays=replays,
-            max_depth_reached=max_depth_reached,
-            exact_state_duplicates=duplicates,
-            prefix_cache_hits=cache_hits,
-            prefix_cache_entries=len(cache),
-            path_failures=tuple(path_failures),
-            routes=ordered_routes,
-            best_route=best,
-            elapsed_seconds=elapsed_seconds,
+            started=self.clock(),
         )
+        if self.strategy.execution_mode == "depth_first":
+            self._run_depth_first(runtime)
+        elif self.strategy.execution_mode == "beam":
+            self._run_beam(runtime)
+        else:
+            raise UnsupportedSearchStrategyError(
+                f"unsupported search execution mode {self.strategy.execution_mode!r}"
+            )
+        return self._result(runtime)

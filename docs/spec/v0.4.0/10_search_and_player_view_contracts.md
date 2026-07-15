@@ -54,6 +54,12 @@ while beam and budget remains:
 
 parameter、width、success優先、同点prefix IDの実行可能vectorは`tests/test_search_strategy_contract.py`を正本とする。
 
+## Beam Search v1 implementation status
+
+2026-07-15時点で`beam-search-strategy-v1`は`SearchExecutor`へ接続済みである。公開結果は`search-run-result-v5`、executorは`search-executor-v5`とし、strategy ID/schema、canonical parameter、層ごとの評価・選択・budget中断を`search-strategy-evidence-v1`へ保存する。層の途中でhard budgetへ到達した場合、その層で観測済みのRouteとfailureは保存するが、部分集合から次層を選択しない。
+
+Random Searchは同じresult/evidence contractへ移行するが、探索順とRoute順位の意味は変更しない。Beam Searchも`RealCoreFrontierAdapter`を共有し、exact Stateのみをdedup authorityとして扱う。`query_api_projection`は同値でも枝を削除しない。
+
 ## MCTS v1 decisions
 
 `mcts-strategy-v1`は`simulations >= 1`、有限な`reward_floor < reward_ceiling`を必須とし、`exploration_constant >= 0`はdefault `sqrt(2)`、`seed >= 0`はdefault 0とする。未知parameterと`resume_from`を拒否する。v1はcheckpoint resumeを行わず、version付きlogical update evidenceからfresh Replayで再構築する。

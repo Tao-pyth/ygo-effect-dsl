@@ -65,6 +65,7 @@ from ygo_effect_dsl.engine.search.termination import (
     TerminationReason,
 )
 from ygo_effect_dsl.engine.search.executor import (
+    LEGACY_SEARCH_RUN_RESULT_SCHEMA_VERSIONS,
     SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION,
     SEARCH_EXECUTOR_SCHEMA_VERSION,
     SEARCH_FRONTIER_SCHEMA_VERSION,
@@ -83,13 +84,16 @@ from ygo_effect_dsl.engine.search.strategy import (
     RANDOM_SEARCH_STRATEGY_SCHEMA_VERSION,
     SEARCH_STRATEGY_CONFORMANCE_REPORT_SCHEMA_VERSION,
     SEARCH_STRATEGY_CONFORMANCE_SCHEMA_VERSION,
+    SEARCH_STRATEGY_EVIDENCE_SCHEMA_VERSION,
     BeamSearchParametersV1,
+    BeamSearchStrategyV1,
     MctsSearchParametersV1,
     RandomSearchStrategyV1,
     SearchStrategy,
     UnsupportedSearchStrategyError,
     beam_rank_key,
     build_strategy_conformance_report,
+    build_strategy_evidence,
     deterministic_decision_key,
     mcts_uct_score,
     normalize_mcts_reward,
@@ -97,6 +101,7 @@ from ygo_effect_dsl.engine.search.strategy import (
 )
 
 __all__ = [
+    "LEGACY_SEARCH_RUN_RESULT_SCHEMA_VERSIONS",
     "LEGACY_PARALLEL_RESULT_SCHEMA_VERSION",
     "PARALLEL_AGGREGATE_SCHEMA_VERSION",
     "PARALLEL_ATTEMPT_SCHEMA_VERSION",
@@ -126,6 +131,7 @@ __all__ = [
     "RANDOM_SEARCH_STRATEGY_SCHEMA_VERSION",
     "SEARCH_STRATEGY_CONFORMANCE_REPORT_SCHEMA_VERSION",
     "SEARCH_STRATEGY_CONFORMANCE_SCHEMA_VERSION",
+    "SEARCH_STRATEGY_EVIDENCE_SCHEMA_VERSION",
     "SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION",
     "SEARCH_EXECUTOR_SCHEMA_VERSION",
     "SEARCH_FRONTIER_SCHEMA_VERSION",
@@ -134,6 +140,7 @@ __all__ = [
     "SEARCH_RUN_RESULT_SCHEMA_VERSION",
     "ActionEvidence",
     "BeamSearchParametersV1",
+    "BeamSearchStrategyV1",
     "CachePersistenceMode",
     "CacheVerificationStatus",
     "ParallelCandidate",
@@ -176,6 +183,7 @@ __all__ = [
     "beam_rank_key",
     "build_prefix_cache_run_metadata",
     "build_strategy_conformance_report",
+    "build_strategy_evidence",
     "deterministic_decision_key",
     "mcts_uct_score",
     "normalize_mcts_reward",

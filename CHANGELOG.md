@@ -2,6 +2,19 @@
 
 All notable package changes are documented here. Package versions follow Semantic Versioning and remain independent from Experiment, Route DSL, Replay, Search, and other functional contract versions.
 
+## Unreleased
+
+### Added
+
+- `beam-search-strategy-v1` execution through the shared real-core frontier adapter and `experiment-search` CLI/API path.
+- `search-run-result-v5` and `search-strategy-evidence-v1` with content-addressed strategy parameters and logical updates.
+
+### Compatibility
+
+- Historical `search-run-result-v4` qualification indexes remain readable.
+- Random Search keeps its depth-first expansion and common best-Route ranking semantics.
+- MCTS remains explicitly unavailable until its v0.4 implementation issue is complete.
+
 ## 0.3.0 - 2026-07-15
 
 Status: Real ocgcore / EDOPro Lua qualified source milestone for Python engineers on Windows x64. General distribution and production support remain blocked.

@@ -27,7 +27,7 @@ package versionと機能契約のschema versionは独立して管理します。
 | Information boundary | `information-policy-v1` / `information-audit-v1` | 探索・評価が参照できる情報とaccess証跡 |
 | State identity | `ygo-state-id-v1` / `ygo-rule-state-v1` / `ygo-visibility-state-v1` | exact dedup、ルール状態、可視性状態 |
 | Evaluation | `evaluation-result-v1` / `score-breakdown-v1` / `route-resource-consumption-v1` | 成功、盤面score、資源消費 |
-| Search executor | `search-executor-v4` / `search-frontier-v2` / `search-run-result-v4` / `search-run-report-v1` / `search-run-failure-v2` / `search-artifact-commit-v1` / `random-search-strategy-v1` | state completeness、構造化worker失敗、atomic artifact commitを明示する決定論的Random Search。Beam/MCTSは未実装 |
+| Search executor | `search-executor-v5` / `search-frontier-v2` / `search-run-result-v5` / `search-strategy-evidence-v1` / `search-run-report-v1` / `search-run-failure-v2` / `search-artifact-commit-v1` / `random-search-strategy-v1` / `beam-search-strategy-v1` | Random Searchと層単位Beam Searchを同一executorで実行し、strategy version・parameter・logical update evidenceを保存する。MCTSは未実装 |
 | Search support | `search-termination-v1` / `prefix-cache-policy-v1` / `parallel-search-result-v2` / `pruning-guardrail-policy-v2` | 予算、cache、並列結果、枝刈りguardrail |
 | Real-core frontier | `real-core-frontier-v2` / `real-core-worker-failure-v1` / `real-core-frontier-worker-attempt-v1` / `real-core-frontier-worker-failure-v1` | fresh worker Replay、state completeness、retry/quarantine evidence |
 | Core bootstrap qualification | `ocgcore-clean-bootstrap-qualification-v1` | 空root、再実行、build/download中断復旧とper-build runtime hashのlocal証跡 |
@@ -114,7 +114,7 @@ package `0.3.0`でqualificationした範囲:
 
 production前または後続Issue:
 
-- Beam Search / MCTS本体。MVPではstrategy interfaceと明示的な未実装エラーだけを提供する
+- MCTS本体。`mcts-strategy-v1`の契約は固定済みだが、実行指定時は明示的な未実装エラーにする
 - PlayerView Replay（#125）。real-coreでは引き続きfail-closeする
 - 大規模デッキ統計と比較UI（#126）
 - #110の統計的枝刈り校正と#108の評価weight校正
