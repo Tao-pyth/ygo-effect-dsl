@@ -1,0 +1,75 @@
+{
+  "authority": {
+    "effect_interpretation": "forbidden",
+    "legality_or_timing": "ocgcore_only",
+    "search_input": false
+  },
+  "cards": [
+    {
+      "auxiliary_region_count": 4,
+      "availability": "available",
+      "card_code": 2511,
+      "effect_text_chars": 481,
+      "effect_text_present": true,
+      "locale_status": "exact",
+      "metadata_fields_present": [
+        "alias",
+        "attack",
+        "attribute_bits",
+        "attribute_labels",
+        "defense",
+        "level",
+        "race_bits",
+        "race_labels",
+        "setcodes",
+        "type_bits",
+        "type_labels"
+      ],
+      "name_chars": 17,
+      "name_present": true,
+      "presentation_id": "cardpresentation_6d8fb43b7b1149f97b2439dc1b3b4086281f3113b55c2c67d2fb048fbcf6e970",
+      "resolved_locale": "en"
+    },
+    {
+      "auxiliary_region_count": 0,
+      "availability": "available",
+      "card_code": 10000,
+      "effect_text_chars": 196,
+      "effect_text_present": true,
+      "locale_status": "exact",
+      "metadata_fields_present": [
+        "alias",
+        "attack",
+        "attribute_bits",
+        "attribute_labels",
+        "defense",
+        "level",
+        "race_bits",
+        "race_labels",
+        "setcodes",
+        "type_bits",
+        "type_labels"
+      ],
+      "name_chars": 19,
+      "name_present": true,
+      "presentation_id": "cardpresentation_ee533c7a964a193d131daad54341b9d7f143bd9d32fec176405522094f31467b",
+      "resolved_locale": "en"
+    }
+  ],
+  "evidence_id": "cardpresentationevidence_970d89f3a97ae4a01a4c5e983fccfad83907a1bf74e59673c4168f6299dbfe6c",
+  "provider_version": "sqlite-card-presentation-provider-v1",
+  "schema_version": "card-presentation-evidence-v1",
+  "source": {
+    "asset_lock_id": "ocgcore-assets-202504-v1",
+    "database_filename": "cards.cdb",
+    "database_sha256": "c49a077285e1d999f32056cb65303b75e311e859b4486c48f41772a193069225",
+    "license_status": "NOASSERTION",
+    "locale": "en",
+    "repository": "https://github.com/ProjectIgnis/BabelCDB.git",
+    "schema_version": "card-presentation-source-v1",
+    "source_commit": "f89c9a4be9a5f193e29b788e3cf880563f4f79b4",
+    "source_id": "cardpresentationsource_d88b182cdc9bba6132865244eb0830fdb0135dbafe46ef2cebe310956a75288a",
+    "source_tree": "2468d312ab6e7bdbc403f3764ee24f9062f61335"
+  },
+  "text_payload_embedded": false
+}

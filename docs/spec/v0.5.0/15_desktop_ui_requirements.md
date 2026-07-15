@@ -69,7 +69,7 @@ formは既存Experiment/Search contractを編集するpresentationであり、UI
 
 card detailは利用可能な範囲でcode、localized name、type、attribute、race、level/rank/link、ATK、DEF、scale、setcode、effect text、source/localeを表示する。長文、改行、Unicode、missing fieldでlayoutを壊さない。
 
-effect textはpresentation専用である。合法性、timing、candidate生成、Replay、State、Evaluationの入力にしてはならない。現行real-core providerは`datas`表だけを読み、presentation text providerは未実装であるため、[#183](https://github.com/Tao-pyth/ygo-effect-dsl/issues/183)で独立contractを定義する。
+effect textはpresentation専用である。合法性、timing、candidate生成、Replay、State、Evaluationの入力にしてはならない。表示用`card-presentation-v1`はreal-core providerから独立して実装し、source/hash/locale/fallback/redactionの詳細を[card presentation contract](16_card_presentation_contract.md)に固定する。非英語sourceの実データqualificationとlabel-map drift検出は[#247](https://github.com/Tao-pyth/ygo-effect-dsl/issues/247)で継続する。
 
 textが取得できない場合はcard code、source、diagnosticを表示し、推測文を生成しない。card text/CDB/imageをlicense review前にrepositoryやinstallerへ同梱しない。card imageは未確定であり、text-onlyを必須fallbackとする。
 
