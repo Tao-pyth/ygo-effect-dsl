@@ -93,6 +93,22 @@ Changelog entries should group user-visible changes by intent, such as:
 The changelog should describe what changed and whether contributors need to
 adjust datasets, expectations, or downstream tooling.
 
+The mandatory entry categories, target-version notation, exemptions, release
+cut procedure, and pull-request checks are defined in
+[`10_changelog_and_issue_governance.md`](10_changelog_and_issue_governance.md).
+
+## GitHub Issue And Milestone Policy
+
+Every managed work item has exactly one `version:X.Y.Z` label and the matching
+`vX.Y.Z` milestone. Parent and child issues normally share the same target;
+cross-release work is split into independently accepted child issues. The
+machine-readable mapping is `.github/release-governance.yml`, and drift is
+checked with `python -m ygo_effect_dsl.release_governance --check`.
+
+Historical issues before the configured management baseline retain their
+original labels and milestones. A released milestone is closed and is not
+reopened for later fixes; compatible follow-up work targets a patch milestone.
+
 ## Release And Contract Version Separation
 
 Package and functional contract version lines are intentionally independent:
