@@ -1,0 +1,73 @@
+{
+  "arms": [
+    "baseline",
+    "interrupted",
+    "recovery"
+  ],
+  "compatibility": {
+    "different_contexts_require": "analytics-comparison-compatibility-v1 with validated_semantic_equivalence",
+    "exact_context_fields": [
+      "evaluator_id/version/config_hash",
+      "search_strategy_id/version/config_hash",
+      "observation_schema_version",
+      "search_schema_version"
+    ]
+  },
+  "confidence": {
+    "method": "normal_mean_v1",
+    "minimum_sample_count": 2,
+    "status": "available_provisional"
+  },
+  "lineage": {
+    "accepted_source_schema": "strategy-interruption-lineage-v1",
+    "requires_status": "validated",
+    "tamper_checks": [
+      "divergence_id",
+      "lineage_id",
+      "recovery_action_count",
+      "arm_semantic_id"
+    ]
+  },
+  "metrics": {
+    "absolute_delta": "after - before",
+    "missing_or_incomparable": "never coerced to zero or failure",
+    "relative_delta": "(after - before) / abs(before)",
+    "zero_before": "not_applicable"
+  },
+  "pairing": {
+    "key_fields": [
+      "deck_id",
+      "scenario_id",
+      "opening_hand_id",
+      "trial_id",
+      "interruption_id",
+      "validated_lineage_id"
+    ],
+    "missing_arms": "explicit incomplete pair"
+  },
+  "schemas": {
+    "budget": "analytics-comparison-budget-v1",
+    "compatibility": "analytics-comparison-compatibility-v1",
+    "confidence": "analytics-comparison-confidence-v1",
+    "context": "analytics-comparison-context-v1",
+    "lineage": "analytics-comparison-lineage-v1",
+    "metric": "analytics-comparison-metric-v1",
+    "observation": "analytics-comparison-observation-v1",
+    "pair": "analytics-comparison-pair-v1",
+    "request": "analytics-comparison-request-v1",
+    "response": "analytics-comparison-response-v1"
+  },
+  "uncertainty": {
+    "censored_completion_states": [
+      "early_stop",
+      "timeout",
+      "pruned",
+      "partial_budget",
+      "failed",
+      "quarantined"
+    ],
+    "partial_budget": "reported per arm and pair",
+    "statistical_pruning": "reported as explicit potential bias"
+  },
+  "version": "analytics-comparison-contract-v1"
+}

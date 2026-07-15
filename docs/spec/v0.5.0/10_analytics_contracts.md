@@ -126,13 +126,16 @@ requires explicit migration and is never modified in place by a v2 reader.
 
 ## Comparison semantics
 
-baseline/interrupted/recoveryの比較はvalidated lineage keyに基づく。絶対差、相対差、pair completeness、budget completeness、sample size、confidence情報を別fieldにする。
+`analytics-comparison-contract-v1`はquery snapshotから作るbaseline/interrupted/recovery比較の共通payloadである。UI、CLI、exportは独自に差分を再計算せず、`build_analytics_comparison_report()`のversion付きresponseを利用する。
 
-- pair欠落を0差にしない。
-- evaluator/search/schema versionが異なる場合、比較可能条件を満たさなければrejectする。
-- early stop、timeout、pruning、partial budgetをuncertainty metadataへ残す。
-- confidence intervalを表示する場合はmethod/version/assumption/sample countを保存する。
-- statistical pruningやweight由来のbiasを隠さない。
+- 対応キーはdeck、scenario、opening hand、trial、interruptionと`strategy-interruption-lineage-v1`のvalidated lineage IDから作る。source lineageのdivergence ID、lineage ID、recovery action count、各arm semantic IDを再計算して照合し、任意のrun IDだけでpairを推測しない。
+- pairはbaseline、interrupted、recoveryを別armとして保持する。arm欠落は`incomplete`とmissing valueを返し、0差や失敗へ変換しない。重複armとsnapshot混在はconfiguration errorとしてfail-closeする。
+- absolute deltaは`after - before`、relative deltaは`(after - before) / abs(before)`とする。beforeが0の場合のrelative deltaは`not_applicable`であり、0ではない。missing、unknown、redacted、quarantined等はquery value stateを維持する。
+- evaluator ID/version/config、search strategy ID/version/config、observation schema、search schemaが完全一致する場合だけ既定で比較する。差がある場合は両context IDを指定した`validated_semantic_equivalence` evidenceが必要で、なければ`incomparable`としてdeltaを出さない。
+- planned budgetのunitと上限が一致し、budget evidenceが記録されていることをpair deltaの条件とする。consumed/plannedとpartial状態はarmごとに保存する。early stop、timeout、pruned、partial budget、failed、quarantined completionはcensoredとして表示し、集約deltaとconfidence sampleから除外する。
+- statistical pruning policyはpairとreportのbias metadataへ必ず残す。partial budget pair数、censored pair数、context不一致、missing pair数をsample情報として分離する。
+- confidenceはpaired meanのnormal approximation v1をprovisional methodとしてversion、confidence level、assumption、sample countと共に返す。2 pair未満は`unavailable_insufficient_sample`とし、値を生成しない。将来別methodを追加しても既存methodを暗黙変更しない。
+- machine-readable正本は配布resourceの`analytics-comparison-contract-v1.json`とする。既存`interruption-comparison-v1`は単一Route pairの詳細比較として維持し、corpus統計契約へ置き換えない。
 
 ## Parquet and snapshots
 
