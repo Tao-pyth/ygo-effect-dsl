@@ -1,8 +1,8 @@
 # Package 0.4.0 Work Breakdown and Acceptance
 
-Status: Issue-backed plan
+Status: Items 1-7 implemented; scenario breadth items 8-12 pending
 
-Last updated: 2026-07-14
+Last updated: 2026-07-15
 
 ## Work items
 

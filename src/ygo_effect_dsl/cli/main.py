@@ -12,6 +12,7 @@ from ygo_effect_dsl.cli.cmd_corpus import cmd_ocgcore_decision_corpus
 from ygo_effect_dsl.cli.cmd_experiment import (
     cmd_experiment_inspect,
     cmd_experiment_interrupt,
+    cmd_experiment_player_view,
     cmd_experiment_report,
     cmd_experiment_replay,
     cmd_experiment_run,
@@ -224,6 +225,28 @@ def main() -> int:
         help="optional canonical JSON report written only after fresh Replay succeeds",
     )
     experiment_replay.set_defaults(func=cmd_experiment_replay)
+
+    experiment_player_view = sub.add_parser(
+        "experiment-player-view",
+        help="fresh-Replay a complete Route and publish an audited PlayerView artifact",
+    )
+    add_experiment_source(experiment_player_view)
+    experiment_player_view.add_argument("route_file", help="complete Route DSL path")
+    experiment_player_view.add_argument("--viewer", type=int, choices=[0, 1], required=True)
+    experiment_player_view.add_argument("--out", required=True, help="public PlayerView JSON path")
+    experiment_player_view.add_argument(
+        "--audit-report", required=True, help="public information-audit JSON path"
+    )
+    experiment_player_view.add_argument(
+        "--verification-report", required=True, help="public fresh-Replay verification JSON path"
+    )
+    experiment_player_view.add_argument(
+        "--private-lineage", required=True, help="private source-Route lineage JSON path"
+    )
+    experiment_player_view.add_argument("--external-root")
+    experiment_player_view.add_argument("--worker-timeout", type=float, default=30.0)
+    experiment_player_view.add_argument("--max-retries", type=int, default=1)
+    experiment_player_view.set_defaults(func=cmd_experiment_player_view)
 
     experiment_inspect = sub.add_parser(
         "experiment-inspect",

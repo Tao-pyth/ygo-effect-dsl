@@ -1,6 +1,6 @@
 # PlayerView Replay Persistence and Redaction Contract
 
-Status: accepted for implementation
+Status: implemented and verified
 
 Last updated: 2026-07-15
 

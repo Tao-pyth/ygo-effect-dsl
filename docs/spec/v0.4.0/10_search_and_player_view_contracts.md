@@ -1,6 +1,6 @@
 # Package 0.4.0 Search and PlayerView Contracts
 
-Status: Search and PlayerView contracts accepted; scenario contracts in progress
+Status: Search and PlayerView safety implemented; scenario contracts in progress
 
 Last updated: 2026-07-15
 
@@ -109,6 +109,12 @@ PlayerView artifactはcomplete Replayと別schema/identityを持ち、complete h
 ## InformationAccessAudit
 
 [#151](https://github.com/Tao-pyth/ygo-effect-dsl/issues/151)はReplayだけでなく、exception、worker log、SearchRun、Parquet、export、future UI payloadまでcanary valueを追跡する。false positive allowlistはversion付きで、value/field/path単位の根拠を持つ。漏洩検出時はartifact publishを停止する。
+
+## PlayerView implementation status
+
+2026-07-15時点で、`player-view-replay-v1`は実ocgcoreのfresh Replay中に各snapshotをallowlist投影して生成する。完全Routeとのcanonical一致をworker内で検証し、公開PlayerView、`player-view-verification-v1`、`information-access-audit-v2`、非公開`player-view-lineage-v1`を分離する。CLIは`experiment-player-view`で4成果物を出力し、audit失敗時は既存の公開artifactを変更しない。
+
+`information-access-audit-v2`はfield name、serialized leaf、sequence canary、side channelを走査する。private canary registry自体は公開せず、公開reportにはcanary IDとJSON pathだけを残す。workerと親processでauditを再計算し、viewer 0/1、actor switch、shuffle、draw、search、set、random selection、worker crash、JSON/Parquet/UI exportの回帰matrixを通す。
 
 ## Multi-interruption scenario
 
