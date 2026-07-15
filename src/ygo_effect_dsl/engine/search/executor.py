@@ -12,11 +12,14 @@ from ygo_effect_dsl.engine.search.parallel import build_search_node_id
 from ygo_effect_dsl.engine.search.strategy import (
     RANDOM_SEARCH_STRATEGY_SCHEMA_VERSION,
     SEARCH_STRATEGY_EVIDENCE_SCHEMA_VERSION,
+    MctsSearchStrategyV1,
     RandomSearchStrategyV1,
     SearchStrategy,
     UnsupportedSearchStrategyError,
     beam_rank_key,
     build_strategy_evidence,
+    mcts_uct_score,
+    normalize_mcts_reward,
     strategy_from_experiment,
 )
 from ygo_effect_dsl.engine.search.termination import SearchBudget, TerminationReason
@@ -242,6 +245,7 @@ class _SearchRuntime:
     node_ids: dict[tuple[str, ...], str] = field(default_factory=dict)
     seen_states: set[str] = field(default_factory=set)
     routes: list[SearchRouteSummary] = field(default_factory=list)
+    route_prefixes: set[tuple[str, ...]] = field(default_factory=set)
     path_failures: list[Mapping[str, Any]] = field(default_factory=list)
     logical_updates: list[Mapping[str, Any]] = field(default_factory=list)
     nodes: int = 0
@@ -259,6 +263,16 @@ class _ObservedNode:
     node_id: str
     frontier: SearchFrontier
     duplicate: bool
+
+
+@dataclass
+class _MctsTreeNode:
+    observed: _ObservedNode
+    incoming_action_id: str | None
+    untried_actions: list[Action]
+    children: dict[str, _MctsTreeNode] = field(default_factory=dict)
+    visits: int = 0
+    value_sum: float = 0.0
 
 
 class SearchExecutor:
@@ -323,17 +337,19 @@ class SearchExecutor:
                 },
                 prefix="route_",
             )
-        runtime.routes.append(
-            SearchRouteSummary(
-                route_id=route_id,
-                success=frontier.success,
-                peak_score=frontier.peak_score,
-                terminal_score=frontier.score,
-                action_count=len(prefix),
-                action_ids=key,
-                route_document=frontier.route_document,
+        if key not in runtime.route_prefixes:
+            runtime.route_prefixes.add(key)
+            runtime.routes.append(
+                SearchRouteSummary(
+                    route_id=route_id,
+                    success=frontier.success,
+                    peak_score=frontier.peak_score,
+                    terminal_score=frontier.score,
+                    action_count=len(prefix),
+                    action_ids=key,
+                    route_document=frontier.route_document,
+                )
             )
-        )
         if frontier.success and self.budget.stop_on_success:
             runtime.termination = TerminationReason.GOAL_REACHED
         if (
@@ -563,6 +579,295 @@ class SearchExecutor:
                     runtime.termination = TerminationReason.MAX_DEPTH
                 break
 
+    def _mcts_strategy(self) -> MctsSearchStrategyV1:
+        if not isinstance(self.strategy, MctsSearchStrategyV1):
+            raise ValueError("mcts execution requires MctsSearchStrategyV1")
+        return self.strategy
+
+    def _mcts_tree_node(
+        self,
+        observed: _ObservedNode,
+        *,
+        incoming_action_id: str | None,
+    ) -> _MctsTreeNode:
+        strategy = self._mcts_strategy()
+        ordered = strategy.order_actions_for_purpose(
+            node_id=observed.node_id,
+            actions=observed.frontier.actions,
+            purpose="mcts_expansion",
+        )
+        return _MctsTreeNode(
+            observed=observed,
+            incoming_action_id=incoming_action_id,
+            untried_actions=list(ordered),
+        )
+
+    def _mcts_boundary(self, observed: _ObservedNode) -> str | None:
+        if observed.frontier.legal_stop:
+            return "legal_stop"
+        if observed.duplicate:
+            return "exact_state_duplicate"
+        if (
+            self.budget.max_depth is not None
+            and len(observed.prefix) >= self.budget.max_depth
+        ):
+            return "max_depth"
+        if not observed.frontier.actions:
+            return "frontier_exhausted"
+        return None
+
+    def _select_mcts_child(
+        self, node: _MctsTreeNode
+    ) -> tuple[_MctsTreeNode, float]:
+        strategy = self._mcts_strategy()
+        ranked: list[tuple[tuple[Any, ...], _MctsTreeNode, float]] = []
+        for child in node.children.values():
+            assert child.incoming_action_id is not None
+            score = mcts_uct_score(
+                parent_visits=max(1, node.visits),
+                child_visits=child.visits,
+                child_value_sum=child.value_sum,
+                exploration_constant=strategy.exploration_constant,
+            )
+            ranked.append(
+                (
+                    (
+                        -score,
+                        strategy.decision_key(
+                            node_id=node.observed.node_id,
+                            purpose="mcts_selection",
+                            candidate_id=child.incoming_action_id,
+                        ),
+                        child.incoming_action_id,
+                    ),
+                    child,
+                    score,
+                )
+            )
+        if not ranked:
+            raise ValueError("MCTS selection requires at least one child")
+        _, selected, score = min(ranked, key=lambda item: item[0])
+        return selected, score
+
+    @staticmethod
+    def _mcts_incomplete_update(
+        *,
+        ordinal: int,
+        status: str,
+        selections: Sequence[Mapping[str, Any]],
+        expansion: Mapping[str, Any] | None,
+        rollout: Sequence[Mapping[str, Any]],
+    ) -> dict[str, Any]:
+        return {
+            "backpropagation": [],
+            "completed": False,
+            "discarded_from_statistics": True,
+            "expansion": expansion,
+            "ordinal": ordinal,
+            "reward": None,
+            "rollout": list(rollout),
+            "selection": list(selections),
+            "status": status,
+            "update_type": "mcts_simulation",
+        }
+
+    def _run_mcts(self, runtime: _SearchRuntime) -> None:
+        strategy = self._mcts_strategy()
+        reason = self._hard_budget_reason(runtime)
+        if reason is not None:
+            runtime.termination = reason
+            return
+        root_observed = self._replay_prefix(runtime, ())
+        if root_observed is None:
+            return
+        root = self._mcts_tree_node(root_observed, incoming_action_id=None)
+        completed_simulations = 0
+        for ordinal in range(1, strategy.simulations + 1):
+            reason = self._hard_budget_reason(runtime)
+            if reason is not None:
+                runtime.termination = reason
+                runtime.logical_updates.append(
+                    self._mcts_incomplete_update(
+                        ordinal=ordinal,
+                        status=f"hard_budget:{reason.value}",
+                        selections=(),
+                        expansion=None,
+                        rollout=(),
+                    )
+                )
+                break
+            node = root
+            tree_path = [root]
+            selections: list[Mapping[str, Any]] = []
+            expansion: Mapping[str, Any] | None = None
+            rollout: list[Mapping[str, Any]] = []
+            boundary = self._mcts_boundary(node.observed)
+            while boundary is None and not node.untried_actions and node.children:
+                child, uct_score = self._select_mcts_child(node)
+                selections.append(
+                    {
+                        "action_id": child.incoming_action_id,
+                        "child_prefix_id": child.observed.prefix_id,
+                        "child_value_sum": child.value_sum,
+                        "child_visits": child.visits,
+                        "parent_prefix_id": node.observed.prefix_id,
+                        "parent_visits": node.visits,
+                        "uct_score": None if uct_score == float("inf") else uct_score,
+                        "unvisited": uct_score == float("inf"),
+                    }
+                )
+                node = child
+                tree_path.append(node)
+                boundary = self._mcts_boundary(node.observed)
+
+            hard_stop = False
+            path_failure = False
+            if boundary is None and node.untried_actions:
+                reason = self._hard_budget_reason(runtime)
+                if reason is not None:
+                    runtime.termination = reason
+                    hard_stop = True
+                else:
+                    action = node.untried_actions.pop(0)
+                    prefix = (*node.observed.prefix, action)
+                    child_observed = self._replay_prefix(runtime, prefix)
+                    expansion = {
+                        "action_id": action.action_id,
+                        "parent_prefix_id": node.observed.prefix_id,
+                        "prefix_id": self._prefix_id(
+                            runtime.experiment_id, self._key(prefix)
+                        ),
+                        "status": (
+                            "observed" if child_observed is not None else "path_failure"
+                        ),
+                    }
+                    if child_observed is None:
+                        path_failure = True
+                    else:
+                        child_node = self._mcts_tree_node(
+                            child_observed,
+                            incoming_action_id=action.action_id,
+                        )
+                        node.children[action.action_id] = child_node
+                        node = child_node
+                        tree_path.append(node)
+                        boundary = self._mcts_boundary(node.observed)
+
+            terminal = node.observed
+            while not hard_stop and not path_failure and boundary is None:
+                ordered = strategy.order_actions_for_purpose(
+                    node_id=terminal.node_id,
+                    actions=terminal.frontier.actions,
+                    purpose="mcts_rollout",
+                )
+                if not ordered:
+                    boundary = "frontier_exhausted"
+                    break
+                reason = self._hard_budget_reason(runtime)
+                if reason is not None:
+                    runtime.termination = reason
+                    hard_stop = True
+                    break
+                action = ordered[0]
+                prefix = (*terminal.prefix, action)
+                next_observed = self._replay_prefix(runtime, prefix)
+                rollout.append(
+                    {
+                        "action_id": action.action_id,
+                        "parent_prefix_id": terminal.prefix_id,
+                        "prefix_id": self._prefix_id(
+                            runtime.experiment_id, self._key(prefix)
+                        ),
+                        "status": (
+                            "observed" if next_observed is not None else "path_failure"
+                        ),
+                    }
+                )
+                if next_observed is None:
+                    path_failure = True
+                    break
+                terminal = next_observed
+                boundary = self._mcts_boundary(terminal)
+
+            if hard_stop:
+                assert runtime.termination in {
+                    TerminationReason.MAX_NODES,
+                    TerminationReason.MAX_REPLAYS,
+                    TerminationReason.MAX_SECONDS,
+                }
+                runtime.logical_updates.append(
+                    self._mcts_incomplete_update(
+                        ordinal=ordinal,
+                        status=f"hard_budget:{runtime.termination.value}",
+                        selections=selections,
+                        expansion=expansion,
+                        rollout=rollout,
+                    )
+                )
+                break
+            if path_failure:
+                runtime.logical_updates.append(
+                    self._mcts_incomplete_update(
+                        ordinal=ordinal,
+                        status="path_failure",
+                        selections=selections,
+                        expansion=expansion,
+                        rollout=rollout,
+                    )
+                )
+                continue
+
+            reward = normalize_mcts_reward(
+                success=terminal.frontier.success,
+                terminal_score=terminal.frontier.score,
+                reward_floor=strategy.reward_floor,
+                reward_ceiling=strategy.reward_ceiling,
+            )
+            backpropagation = []
+            for visited_node in reversed(tree_path):
+                visited_node.visits += 1
+                visited_node.value_sum += reward
+                backpropagation.append(
+                    {
+                        "prefix_id": visited_node.observed.prefix_id,
+                        "value_sum": visited_node.value_sum,
+                        "visits": visited_node.visits,
+                    }
+                )
+            completed_simulations += 1
+            runtime.logical_updates.append(
+                {
+                    "backpropagation": backpropagation,
+                    "boundary": boundary,
+                    "completed": True,
+                    "discarded_from_statistics": False,
+                    "expansion": expansion,
+                    "ordinal": ordinal,
+                    "reward": reward,
+                    "rollout": rollout,
+                    "selection": selections,
+                    "status": "complete",
+                    "terminal": {
+                        "peak_score": terminal.frontier.peak_score,
+                        "prefix_id": terminal.prefix_id,
+                        "score": terminal.frontier.score,
+                        "success": terminal.frontier.success,
+                    },
+                    "update_type": "mcts_simulation",
+                }
+            )
+            if runtime.termination == TerminationReason.GOAL_REACHED:
+                break
+        runtime.logical_updates.append(
+            {
+                "completed_simulations": completed_simulations,
+                "requested_simulations": strategy.simulations,
+                "root_value_sum": root.value_sum,
+                "root_visits": root.visits,
+                "update_type": "mcts_summary",
+            }
+        )
+
     def _result(self, runtime: _SearchRuntime) -> SearchRunResult:
         ordered_routes = tuple(
             sorted(runtime.routes, key=lambda route: route.rank_key)
@@ -606,6 +911,8 @@ class SearchExecutor:
             self._run_depth_first(runtime)
         elif self.strategy.execution_mode == "beam":
             self._run_beam(runtime)
+        elif self.strategy.execution_mode == "mcts":
+            self._run_mcts(runtime)
         else:
             raise UnsupportedSearchStrategyError(
                 f"unsupported search execution mode {self.strategy.execution_mode!r}"

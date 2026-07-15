@@ -123,6 +123,7 @@ def test_release_documents_match_the_current_version_baseline() -> None:
         "search-artifact-commit-v1",
         "random-search-strategy-v1",
         "beam-search-strategy-v1",
+        "mcts-strategy-v1",
         "real-core-frontier-v2",
         "real-core-frontier-worker-attempt-v1",
         "real-core-frontier-worker-failure-v1",

@@ -12,7 +12,7 @@ from ygo_effect_dsl.engine.failures import (
     FailureRecord,
     RecoveryAction,
 )
-from ygo_effect_dsl.engine.search import BeamSearchStrategyV1
+from ygo_effect_dsl.engine.search import BeamSearchStrategyV1, MctsSearchStrategyV1
 from ygo_effect_dsl.io_atomic import atomic_write_text, sha256_file
 from ygo_effect_dsl.prototype.frontier import RealCoreFrontierWorkerError
 
@@ -181,18 +181,54 @@ def test_search_cli_rejects_shared_route_and_report_path(tmp_path, monkeypatch) 
         command_module.cmd_experiment_search(args)
 
 
-def test_search_cli_selects_beam_strategy(tmp_path, monkeypatch) -> None:
+@pytest.mark.parametrize(
+    ("strategy_id", "parameters", "strategy_type", "expected_parameters"),
+    [
+        (
+            "beam_search_v1",
+            {
+                "beam_width": 2,
+                "seed": 7,
+                "termination": {"stop_on_success": True},
+            },
+            BeamSearchStrategyV1,
+            {"beam_width": 2, "seed": 7},
+        ),
+        (
+            "mcts_v1",
+            {
+                "reward_ceiling": 100,
+                "reward_floor": 0,
+                "seed": 7,
+                "simulations": 4,
+                "termination": {"stop_on_success": True},
+            },
+            MctsSearchStrategyV1,
+            {
+                "exploration_constant": pytest.approx(2**0.5),
+                "reward_ceiling": 100.0,
+                "reward_floor": 0.0,
+                "seed": 7,
+                "simulations": 4,
+            },
+        ),
+    ],
+)
+def test_search_cli_selects_non_random_strategy(
+    tmp_path,
+    monkeypatch,
+    strategy_id,
+    parameters,
+    strategy_type,
+    expected_parameters,
+) -> None:
     args = _args(tmp_path)
     adapter = _Adapter()
     adapter.worker_attempts = []
     adapter.quarantined_attempt_ids = []
     experiment = _experiment()
-    experiment["search"]["strategy"] = "beam_search_v1"
-    experiment["search"]["parameters"] = {
-        "beam_width": 2,
-        "seed": 7,
-        "termination": {"stop_on_success": True},
-    }
+    experiment["search"]["strategy"] = strategy_id
+    experiment["search"]["parameters"] = parameters
     result = SimpleNamespace(
         best_route=SimpleNamespace(
             route_document={"route_id": "route_fixture"},
@@ -204,7 +240,7 @@ def test_search_cli_selects_beam_strategy(tmp_path, monkeypatch) -> None:
         to_dict=lambda: {
             "best_route": {"route_id": "route_fixture"},
             "schema_version": "search-run-result-v5",
-            "strategy_id": "beam_search_v1",
+            "strategy_id": strategy_id,
             "termination_reason": "goal_reached",
         },
     )
@@ -232,5 +268,5 @@ def test_search_cli_selects_beam_strategy(tmp_path, monkeypatch) -> None:
     )
 
     assert command_module.cmd_experiment_search(args) == 0
-    assert isinstance(captured["strategy"], BeamSearchStrategyV1)
-    assert captured["strategy"].parameters == {"beam_width": 2, "seed": 7}
+    assert isinstance(captured["strategy"], strategy_type)
+    assert captured["strategy"].parameters == expected_parameters
