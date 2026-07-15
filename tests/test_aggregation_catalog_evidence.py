@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from ygo_effect_dsl.spikes.aggregation_catalog_evidence import (
     AGGREGATION_CATALOG_EVIDENCE_SCHEMA_VERSION,
     collect_failure_mode_evidence,
@@ -34,6 +36,7 @@ def test_storage_boundary_keeps_authority_out_of_ui_and_query_caches() -> None:
 
 
 def test_selected_backends_fail_closed_on_representative_corruption() -> None:
+    pytest.importorskip("pyarrow")
     evidence = collect_failure_mode_evidence(include_duckdb=False)
 
     assert evidence == {
