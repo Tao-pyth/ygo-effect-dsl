@@ -30,7 +30,7 @@ def test_real_core_workflow_is_manual_self_hosted_and_sanitized() -> None:
     assert "actions/checkout@" not in raw
     assert "fetch --no-tags --depth=1 origin $env:GITHUB_SHA" in raw
     assert "if ($actual -ne $env:GITHUB_SHA)" in raw
-    assert "actions/setup-python@v6" in raw
+    assert "sys.version_info >= (3, 10)" in raw
     assert "actions/upload-artifact@v7" in raw
     published = raw.split("Publish sanitized smoke summary", 1)[1]
     assert "best.route.yaml" not in published
