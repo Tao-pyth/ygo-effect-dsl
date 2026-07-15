@@ -2,20 +2,19 @@
 
 Status: Planned package milestones
 
-Last updated: 2026-07-14
+Last updated: 2026-07-15
 
 ## Purpose
 
-本書はpackage `0.3.0`から`1.0.0`までのstage、依存関係、責任境界、親Issueを一つの索引にする。現行packageは`0.2.0`であり、以下のversionは完了条件を満たすまで未releaseである。
+本書はpackage `0.3.0`から`1.0.0`までのstage、依存関係、責任境界、親Issueを一つの索引にする。現行packageは`0.3.0`であり、`0.4.0`以降は完了条件を満たすまで未releaseである。
 
 ## Stage dependency
 
 ```text
-0.2.0 implemented source baseline
-  -> 0.3.0 real-core and EDOPro Lua qualification
-      -> 0.4.0 search breadth and private-view safety
-          -> 0.5.0 corpus analytics and UI
-              -> 1.0.0 stable distribution and operations
+0.3.0 real-core and EDOPro Lua qualified baseline
+  -> 0.4.0 search breadth and private-view safety
+      -> 0.5.0 corpus analytics and UI
+          -> 1.0.0 stable distribution and operations
 ```
 
 | Stage | Parent | 入力 | 主成果 | 次stageへ渡す不変条件 |

@@ -2,6 +2,30 @@
 
 All notable package changes are documented here. Package versions follow Semantic Versioning and remain independent from Experiment, Route DSL, Replay, Search, and other functional contract versions.
 
+## 0.3.0 - 2026-07-15
+
+Status: Real ocgcore / EDOPro Lua qualified source milestone for Python engineers on Windows x64. General distribution and production support remain blocked.
+
+### Added
+
+- Clean, idempotent ocgcore and pinned asset bootstrap qualification with structured failure and recovery evidence.
+- Official CardScripts native-load qualification, strict resolver diagnostics, and a fail-closed Decision shape corpus.
+- Repeated preflight, Random Search, best Route, and fresh Replay qualification for three external deck profiles.
+- 100,000 logical-node evidence, 480 fresh real-core Replay measurements, and self-hosted Windows smoke evidence.
+- Fail-closed wheel/sdist content audit and clean-venv wheel smoke in CI.
+
+### Decisions
+
+- Adopted worker pool 4 by default, pool 8 as the calibrated maximum, a 1.5 GiB process-memory preflight, and checked process-local script indexing.
+- Kept statistical pruning disabled by default until #110 and kept `resource_consumption_v1` provisional until #108.
+- Kept Experiment `0.4`, Route DSL `0.1`, and existing Replay/Search contract versions unchanged because this package release is non-breaking.
+
+### Compatibility
+
+- Experiment `0.3b` remains executable and `0.3a` remains an explicit migration input.
+- No ocgcore binary, CardScripts, BabelCDB, or downloaded build tool is bundled.
+- Beam Search, MCTS, PlayerView Replay, multi-turn interruption search, corpus UI, and public distribution remain outside this release.
+
 ## 0.2.0 - 2026-07-14
 
 Status: General Search MVP candidate for Python engineers using a local asset cache. This source milestone does not authorize redistribution of third-party assets or claim production support.

@@ -21,7 +21,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .
-          python -m pip install pytest
+          python -m pip install build pytest
 
       - name: Verify installed package version
         run: >
@@ -31,3 +31,15 @@ jobs:
 
       - name: Run pytest
         run: python -m pytest
+
+      - name: Build and audit wheel and sdist
+        run: |
+          python -m build
+          python -m ygo_effect_dsl.release_audit dist/*.whl dist/*.tar.gz > release-artifact-audit.json
+
+      - name: Smoke test wheel in a clean virtual environment
+        run: |
+          python -m venv .release-venv
+          .release-venv/bin/python -m pip install dist/*.whl
+          .release-venv/bin/python -m ygo_effect_dsl --version
+          .release-venv/bin/python -m ygo_effect_dsl experiment-search --help

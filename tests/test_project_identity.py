@@ -53,10 +53,10 @@ def test_distribution_metadata_matches_project_identity() -> None:
     }
 
 
-def test_package_release_version_is_0_2_0_and_single_sourced() -> None:
+def test_package_release_version_is_0_3_0_and_single_sourced() -> None:
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
-    assert __version__ == "0.2.0"
+    assert __version__ == "0.3.0"
     assert 'dynamic = ["version"]' in pyproject
     assert 'version = {attr = "ygo_effect_dsl.version.__version__"}' in pyproject
 
@@ -100,7 +100,7 @@ def test_release_documents_match_the_current_version_baseline() -> None:
         for path in ("README.md", "docs/20_roadmap.md")
     }
     required_versions = (
-        "0.2.0",
+        "0.3.0",
         "0.4",
         "0.3b",
         "0.3a",
@@ -143,7 +143,7 @@ def test_release_documents_match_the_current_version_baseline() -> None:
             assert f"`{version}`" in document, f"{path} is missing {version}"
 
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    assert f"## {__version__} - 2026-07-14" in changelog
+    assert f"## {__version__} - 2026-07-15" in changelog
 
     experiment_schema = (
         ROOT / "docs/experiment/10_schema.md"
