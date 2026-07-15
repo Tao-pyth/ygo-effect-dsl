@@ -751,6 +751,13 @@ def classify_interruption_candidates(
                 path="$.request.candidates",
                 candidate_ids=missing,
             )
+        if expected:
+            expected_set = set(expected)
+            selected = [
+                (candidate_id, zone)
+                for candidate_id, zone in selected
+                if candidate_id in expected_set
+            ]
         if not selected:
             raise _TaxonomyInputError(
                 status="path_failure",

@@ -25,6 +25,9 @@ from ygo_effect_dsl.engine.canonical import to_canonical_data
 from ygo_effect_dsl.engine.interruption.adapter import (
     InterruptionCandidatePolicyError,
 )
+from ygo_effect_dsl.engine.interruption.composition import (
+    MultiInterruptionRuntimeError,
+)
 from ygo_effect_dsl.engine.replay import (
     ReplayEnvironmentMismatchError,
     ReplayFormatError,
@@ -213,6 +216,20 @@ def classify_failure(
     }
     if isinstance(error, InterruptionCandidatePolicyError):
         if _is_runtime_candidate_mismatch(error):
+            return FailureRecord(
+                **shared,
+                disposition=FailureDisposition.PATH_FAILURE,
+                recovery=RecoveryAction.STOP_PATH,
+                retryable=False,
+            )
+        return FailureRecord(
+            **shared,
+            disposition=FailureDisposition.EXPERIMENT_FAILURE,
+            recovery=RecoveryAction.ABORT_EXPERIMENT,
+            retryable=False,
+        )
+    if isinstance(error, MultiInterruptionRuntimeError):
+        if error.path_failure:
             return FailureRecord(
                 **shared,
                 disposition=FailureDisposition.PATH_FAILURE,

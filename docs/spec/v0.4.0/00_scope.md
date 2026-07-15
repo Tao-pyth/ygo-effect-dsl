@@ -1,6 +1,6 @@
 # Package 0.4.0 Scope: General Strategies and PlayerView
 
-Status: In progress; strategy and PlayerView safety gates implemented, scenario breadth pending; parent [#132](https://github.com/Tao-pyth/ygo-effect-dsl/issues/132)
+Status: In progress; strategy, PlayerView safety, and specified-source timing search implemented; going-second and multi-turn breadth pending; parent [#132](https://github.com/Tao-pyth/ygo-effect-dsl/issues/132)
 
 Last updated: 2026-07-15
 

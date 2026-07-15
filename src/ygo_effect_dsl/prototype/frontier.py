@@ -144,6 +144,12 @@ class RealCoreFrontierAdapter:
             request["interruption_taxonomy"] = document.get(
                 "interruption_taxonomy", []
             )
+            request["interruption_composition"] = document.get(
+                "interruption_composition"
+            )
+            request["interruption_opportunities"] = document.get(
+                "interruption_opportunities"
+            )
             return SearchFrontier(
                 state_id=str(document["state_id"]),
                 state_completeness=state_completeness,

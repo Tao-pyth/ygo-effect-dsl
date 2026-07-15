@@ -7,7 +7,7 @@ import sys
 
 import pytest
 
-from ygo_effect_dsl.engine.action import ActionKind
+from ygo_effect_dsl.engine.action import Action, ActionKind, Selection
 from ygo_effect_dsl.experiment import (
     build_fresh_replay_verification_report,
     load_experiment_document,
@@ -22,6 +22,7 @@ from ygo_effect_dsl.external.ocgcore import (
 )
 from ygo_effect_dsl.prototype import (
     RealCoreFrontierAdapter,
+    RealCoreFrontierWorkerError,
     verify_general_search_route,
 )
 from ygo_effect_dsl.io_atomic import sha256_file
@@ -146,6 +147,13 @@ def test_specified_card_activation_opportunity_branches_only_core_candidates() -
         ActionKind.ACTIVATE_EFFECT,
         ActionKind.PASS,
     }
+    composition = frontier.request["interruption_composition"]
+    opportunities = frontier.request["interruption_opportunities"]
+    assert composition["schema_version"] == "multi-interruption-composition-v1"
+    assert opportunities["activation_counts"] == {
+        "opening_hand_trigger_all_opportunities": 0
+    }
+    assert len(opportunities["opportunities"]) == 1
 
     activation = next(
         action
@@ -173,12 +181,99 @@ def test_specified_card_activation_opportunity_branches_only_core_candidates() -
     assert trace[0]["definition_id"] == "opening_hand_trigger_all_opportunities"
     assert trace[0]["activation"]["action_id"] == activation.action_id
     assert trace[0]["activation"]["candidate_ids"] == list(supported_ids)
+    assert trace[0]["composition_id"] == composition["composition_id"]
+    assert trace[0]["opportunity_id"] == opportunities["opportunities"][0][
+        "opportunity_id"
+    ]
     assert trace[0]["prefix_action_ids"] == []
     assert trace[0]["response_steps"] == []
     verify_general_search_route(
         terminal.route_document,
         experiment_path=EXPERIMENT,
     )
+    missing_candidate = Action(
+        kind=ActionKind.ACTIVATE_EFFECT,
+        player=activation.player,
+        selections=(
+            Selection(
+                candidate_id="chain:missing",
+                card_ref=activation.selections[0].card_ref,
+            ),
+        ),
+        request_signature=activation.request_signature,
+    )
+    with pytest.raises(RealCoreFrontierWorkerError) as raised:
+        adapter.replay(experiment, (missing_candidate,))
+    assert raised.value.failure.disposition.value == "path_failure"
+    assert raised.value.failure.recovery.value == "stop_path"
+    assert raised.value.failure.context["code"] == "candidate_disappeared"
+
+
+def test_multiple_specified_sources_keep_all_core_opportunities_in_priority_order(
+) -> None:
+    _runtime_or_skip()
+    experiment = load_experiment_document(EXPERIMENT)
+    experiment["deck"]["main"][1] = 23434538
+    experiment["scenario"]["opening_hand"]["cards"] = [
+        2511,
+        23434538,
+        27551,
+        35699,
+        39015,
+    ]
+    experiment["interruption"] = {
+        "mode": "specified",
+        "definitions": [
+            {
+                "id": "cooclock_late",
+                "priority": 20,
+                "source_card_code": 2511,
+                "source_player": 0,
+                "source_zone": "hand",
+                "response_roles": [],
+            },
+            {
+                "id": "maxx_c_early",
+                "priority": 10,
+                "source_card_code": 23434538,
+                "source_player": 0,
+                "source_zone": "hand",
+                "response_roles": [],
+            },
+        ],
+    }
+    adapter = RealCoreFrontierAdapter(
+        experiment_path=EXPERIMENT,
+        timeout_seconds=30,
+        max_retries=0,
+    )
+
+    frontier = adapter.replay(experiment, ())
+
+    opportunities = frontier.request["interruption_opportunities"]
+    assert [item["definition_id"] for item in opportunities["opportunities"]] == [
+        "maxx_c_early",
+        "cooclock_late",
+    ]
+    assert [
+        action.selections[0].card_ref.public_card_id
+        for action in frontier.actions
+        if action.kind == ActionKind.ACTIVATE_EFFECT
+    ] == [23434538, 2511]
+    assert frontier.actions[0].kind == ActionKind.PASS
+    taxonomy_by_definition = {
+        item["definition_id"]: item
+        for item in frontier.request["interruption_taxonomy"]
+    }
+    assert set(taxonomy_by_definition) == {"cooclock_late", "maxx_c_early"}
+    assert {
+        item["source_card_code"]
+        for item in taxonomy_by_definition["cooclock_late"]["candidates"]
+    } == {2511}
+    assert {
+        item["source_card_code"]
+        for item in taxonomy_by_definition["maxx_c_early"]["candidates"]
+    } == {23434538}
 
 
 def test_general_search_cli_writes_a_joinable_fresh_replay_report(
