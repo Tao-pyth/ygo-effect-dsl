@@ -12,7 +12,6 @@ jobs:
     timeout-minutes: 45
     env:
       YGO_EFFECT_DSL_EXTERNAL_ROOT: ${{ vars.YGO_EFFECT_DSL_EXTERNAL_ROOT }}
-      YGO_SMOKE_CHECKOUT: ${{ runner.temp }}/ygo-checkout
 
     steps:
       - name: Initialize sanitized smoke summary
@@ -29,9 +28,10 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $basic = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("x-access-token:$env:GH_TOKEN"))
-          New-Item -ItemType Directory -Force -Path $env:YGO_SMOKE_CHECKOUT | Out-Null
-          git init $env:YGO_SMOKE_CHECKOUT
-          Set-Location $env:YGO_SMOKE_CHECKOUT
+          $checkout = Join-Path $env:RUNNER_TEMP 'ygo-checkout'
+          New-Item -ItemType Directory -Force -Path $checkout | Out-Null
+          git init $checkout
+          Set-Location $checkout
           git remote add origin "https://github.com/$env:GITHUB_REPOSITORY.git"
           git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $basic" fetch --no-tags --depth=1 origin $env:GITHUB_SHA
           git checkout --detach FETCH_HEAD
@@ -45,14 +45,14 @@ jobs:
 
       - name: Install current checkout
         shell: powershell
-        working-directory: ${{ env.YGO_SMOKE_CHECKOUT }}
+        working-directory: ${{ runner.temp }}/ygo-checkout
         run: |
           python -m pip install -e .
           python -c "from pathlib import Path; import ygo_effect_dsl; assert Path(ygo_effect_dsl.__file__).resolve().parent == (Path.cwd() / 'src' / 'ygo_effect_dsl').resolve()"
 
       - name: Run pinned real-core smoke
         shell: powershell
-        working-directory: ${{ env.YGO_SMOKE_CHECKOUT }}
+        working-directory: ${{ runner.temp }}/ygo-checkout
         run: |
           $ErrorActionPreference = 'Stop'
           $work = Join-Path $env:RUNNER_TEMP 'ygo-real-core-smoke'
