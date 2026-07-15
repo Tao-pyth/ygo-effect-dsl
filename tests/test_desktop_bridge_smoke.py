@@ -30,6 +30,8 @@ def test_committed_pywebview_bridge_smoke_is_content_addressed() -> None:
     entrypoint = desktop_frontend_entrypoint()
     assert evidence["frontend"] == {
         "entrypoint": "index.html",
-        "sha256": hashlib.sha256(entrypoint.read_bytes()).hexdigest(),
+        "sha256": hashlib.sha256(
+            entrypoint.read_text(encoding="utf-8").encode("utf-8")
+        ).hexdigest(),
         "workflow_version": "desktop-workflow-v1",
     }

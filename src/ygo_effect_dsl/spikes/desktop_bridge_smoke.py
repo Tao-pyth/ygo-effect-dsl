@@ -24,7 +24,9 @@ def collect_desktop_bridge_smoke() -> dict[str, Any]:
 
     runtime = preflight_desktop_runtime()
     entrypoint = desktop_frontend_entrypoint()
-    frontend_sha256 = hashlib.sha256(entrypoint.read_bytes()).hexdigest()
+    frontend_sha256 = hashlib.sha256(
+        entrypoint.read_text(encoding="utf-8").encode("utf-8")
+    ).hexdigest()
     result: dict[str, Any] = {}
     started = time.perf_counter()
     with tempfile.TemporaryDirectory(prefix="ygo-desktop-bridge-smoke-") as temporary:
