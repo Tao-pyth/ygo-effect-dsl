@@ -139,9 +139,15 @@ requires explicit migration and is never modified in place by a v2 reader.
 
 ## Parquet and snapshots
 
-partition key、sort、row group、compression、target file sizeはbenchmarkから決める。small-file compactionとmigrationはatomic publishを使い、readerは旧snapshotまたは新snapshotのどちらかだけを見る。
+`parquet-lifecycle-contract-v1`をcompaction、migration、backfill、rollbackの公開境界とし、machine-readable正本を配布resourceの`parquet-lifecycle-contract-v1.json`とする。既存の1 run単位writerは変更せず、lifecycle層が同一partitionのsmall fileをimmutable snapshotへまとめる。
 
-manifestはfile checksum、schema、row count、min/max、partition、source set、created-by jobを持つ。compaction前後とmigration前後でsemantic aggregateを照合する。
+- partitionはevaluator version、Experiment ID、run dateを維持する。sortはrun ID、Route ID、target board、aggregation record ID、compressionはzstd level 3、row groupは16,384行とする。20,000 unique行の固定計測では選択構成が911,526 bytes、snappyが1,832,077 bytes、4,096-row groupのzstdが934,282 bytesだった。
+- target file sizeは16 MiB、保守的なplanning値は256 bytes/rowとし、1 fileあたり最大65,536行を計画する。実測は45.5763 bytes/rowだが単一partition synthetic workloadであるため、production規模の再校正は[#167](https://github.com/Tao-pyth/ygo-effect-dsl/issues/167)で行う。
+- manifestはfile checksum、schema、row count、bytes、column min/max、partition、source snapshot/file set、created-by job、disk preflight、write amplificationを保持する。manifest、file、pointerの不一致はfail-closeする。
+- compactionとmigrationは新snapshot directoryへ全fileとmanifestを書き、再読込とsemantic parityを確認した後、`current-snapshot.json`だけをatomic replaceする。readerはpointerを1回読み、旧snapshotまたは新snapshotの一方だけを読む。stagingと非active snapshotをrecursive scanしない。
+- active snapshot後にingestされた新run fileは、そのsnapshotを途中変更せず次回compactionで取り込む。既存record IDのmetric変更を通常ingestで追加せず、明示migrationを要求する。
+- semantic parityはrecord set、state hash、score、success、Action count、partitionを照合する。nullable derived metricのbackfillは許可するが、core metric変更は拒否する。未知のaggregation schemaはcodecを推測せず拒否する。
+- rollbackは保持済みsnapshotを検証してpointerを再切替する。旧snapshotの削除は自動化せず、明示maintenanceとretention判断へ分離する。
 
 ## UI contract
 
