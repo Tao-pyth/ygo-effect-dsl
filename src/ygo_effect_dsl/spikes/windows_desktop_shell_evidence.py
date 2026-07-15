@@ -284,7 +284,11 @@ def _candidate_matrix(
         "electron": {
             "automation": "playwright_electron_available",
             "decision": "not_selected",
-            "host_gate": "passed" if toolchains["node"] else "missing_node_and_npm",
+            "host_gate": (
+                "passed"
+                if toolchains["node"] and toolchains["npm"]
+                else "missing_node_and_npm"
+            ),
             "process_boundary": "chromium_node_shell_plus_python_child",
             "reason": "duplicates_runtime_and_adds_node_release_surface",
             "spike_level": "toolchain_preflight",

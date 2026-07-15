@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from copy import deepcopy
 import json
 from pathlib import Path
 
 from ygo_effect_dsl.engine.canonical import stable_digest
 from ygo_effect_dsl.spikes.windows_desktop_shell_evidence import (
     WINDOWS_DESKTOP_SHELL_EVIDENCE_SCHEMA_VERSION,
+    build_windows_desktop_shell_evidence,
     desktop_shell_decision,
     official_references,
 )
@@ -79,4 +81,24 @@ def test_checked_shell_evidence_matches_decision_and_content_id() -> None:
     assert candidates["electron"]["decision"] == "not_selected"
     assert candidates["pyside6"]["package_download"]["download_bytes"] > (
         candidates["pywebview"]["package_download"]["download_bytes"]
+    )
+
+
+def test_electron_preflight_requires_both_node_and_npm() -> None:
+    checked = json.loads(EVIDENCE_PATH.read_text(encoding="utf-8"))
+    host = deepcopy(checked["host"])
+    host["toolchains"]["node"] = "C:/Program Files/nodejs/node.exe"
+    host["toolchains"]["npm"] = None
+
+    evidence = build_windows_desktop_shell_evidence(
+        host=host,
+        pywebview_live=checked["candidates"]["pywebview"]["live_probe"],
+        package_downloads={
+            "pyside6": checked["candidates"]["pyside6"]["package_download"],
+            "pywebview": checked["candidates"]["pywebview"]["package_download"],
+        },
+    )
+
+    assert evidence["candidates"]["electron"]["host_gate"] == (
+        "missing_node_and_npm"
     )
