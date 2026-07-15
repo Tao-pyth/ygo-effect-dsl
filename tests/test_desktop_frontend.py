@@ -8,10 +8,12 @@ import struct
 
 from ygo_effect_dsl.desktop import (
     DESKTOP_BRIDGE_CONTRACT_VERSION,
+    DESKTOP_VIRTUAL_TABLE_CONTRACT_VERSION,
     DESKTOP_WORKFLOW_CONTRACT_VERSION,
     desktop_bridge_contract_document,
     desktop_frontend_entrypoint,
     desktop_frontend_root,
+    desktop_virtual_table_contract_document,
     desktop_workflow_contract_document,
 )
 from ygo_effect_dsl.engine.canonical import stable_digest
@@ -73,11 +75,17 @@ def test_packaged_frontend_and_machine_contract_are_versioned() -> None:
         MCTS_STRATEGY_SCHEMA_VERSION,
     ]
     assert contract["large_catalog"] == {
+        "contract": DESKTOP_VIRTUAL_TABLE_CONTRACT_VERSION,
         "issue": 165,
         "query": "server_cursor_window",
-        "status": "virtualization_release_gate",
+        "status": "implemented_with_browser_scale_evidence",
         "target_rows": 100000,
     }
+    virtual_table = desktop_virtual_table_contract_document()
+    assert virtual_table["schema_version"] == DESKTOP_VIRTUAL_TABLE_CONTRACT_VERSION
+    assert virtual_table["pagination"]["query_contract"] == (
+        "analytics-query-contract-v1"
+    )
 
 
 def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
@@ -115,11 +123,15 @@ def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
         "result-dialog",
         "card-dialog",
         "compare-dialog",
+        "analytics-grid",
+        "analytics-pane",
+        "analytics-viewport",
     }
     assert required_ids <= parser.ids
     assert html.count("<dialog") == 5
     assert '<script src="app.js" defer></script>' in html
     assert '<script src="bridge.js" defer></script>' in html
+    assert '<script src="analytics.js" defer></script>' in html
     assert '<link rel="stylesheet" href="app.css">' in html
 
 

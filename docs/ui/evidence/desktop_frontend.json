@@ -4,22 +4,23 @@
     "search_dialog_present": true,
     "workflow_version_present": true
   },
-  "evidence_id": "desktopfrontendevidence_ab95e3e6ec0d0395b8c2e909f24c6e158fc379cf653edb9c355d17d9bb10324b",
+  "evidence_id": "desktopfrontendevidence_4f259a62bc94cc856c13c8cac5a9534afe0f6c5678050d4062f2ed87711ee04b",
   "limitations": [
     "synthetic_search_browser_adapter_only",
     "desktop_bridge_is_verified_separately_from_browser_capture",
     "continuous_search_worker_execution_not_exercised_by_browser_capture",
     "desktop_lifecycle_and_accessibility_verified_separately",
-    "catalog_virtualization_deferred_to_issue_165",
+    "run_virtualization_verified_by_dedicated_100k_equivalent_evidence",
+    "persistent_storage_scale_calibration_deferred_to_issue_167",
     "single_windows_host_headless_edge_capture"
   ],
   "schema_version": "desktop-frontend-evidence-v1",
   "screenshots": [
     {
-      "bytes": 72886,
+      "bytes": 72397,
       "filename": "deck_dashboard_1440x900.png",
       "height": 900,
-      "sha256": "46d1365a53f02e3b6b528a7a0de79e30a1475290082e810eaa9fcdf9cd29ffd9",
+      "sha256": "f0b814dbe9bb4e0c843e7c269b14639fff600675d7a6b215f9534476b781c00e",
       "width": 1440
     },
     {

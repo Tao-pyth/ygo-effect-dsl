@@ -18,6 +18,7 @@ from ygo_effect_dsl.desktop.lifecycle import (
 
 DESKTOP_WORKFLOW_CONTRACT_VERSION = "desktop-workflow-v1"
 DESKTOP_BRIDGE_CONTRACT_VERSION = "desktop-bridge-v1"
+DESKTOP_VIRTUAL_TABLE_CONTRACT_VERSION = "desktop-virtual-table-v1"
 
 
 def desktop_frontend_root() -> Path:
@@ -51,10 +52,21 @@ def desktop_bridge_contract_document() -> dict[str, Any]:
     return document
 
 
+def desktop_virtual_table_contract_document() -> dict[str, Any]:
+    resource = importlib.resources.files("ygo_effect_dsl.resources").joinpath(
+        "desktop-virtual-table-v1.json"
+    )
+    document = json.loads(resource.read_text(encoding="utf-8"))
+    if document.get("schema_version") != DESKTOP_VIRTUAL_TABLE_CONTRACT_VERSION:
+        raise ValueError("desktop virtual-table contract resource version mismatch")
+    return document
+
+
 __all__ = [
     "DESKTOP_WORKFLOW_CONTRACT_VERSION",
     "DESKTOP_BRIDGE_CONTRACT_VERSION",
     "DESKTOP_PROCESS_CONTAINMENT_SCHEMA_VERSION",
+    "DESKTOP_VIRTUAL_TABLE_CONTRACT_VERSION",
     "DESKTOP_WORKER_SCHEMA_VERSION",
     "DesktopSearchWorker",
     "DesktopWorkerOutcome",
@@ -62,6 +74,7 @@ __all__ = [
     "desktop_bridge_contract_document",
     "desktop_frontend_entrypoint",
     "desktop_frontend_root",
+    "desktop_virtual_table_contract_document",
     "desktop_workflow_contract_document",
     "process_containment_contract",
 ]

@@ -1,14 +1,31 @@
 {
-  "elapsed_seconds": 1.582549,
-  "evidence_id": "desktopbridgesmoke_7666a9fde12209f57b06d8220e695dd736352d3fcafbb0847e68b859ec870068",
+  "analytics_response": {
+    "details": {},
+    "diagnostics": [],
+    "method": "analytics.query",
+    "ok": true,
+    "request_id": "renderer-3",
+    "result": {
+      "matched_rows": 0,
+      "next_cursor": null,
+      "request_fingerprint": "analyticsquery_03c4b9a893fd35726f85367386990d8f9ea36a0e8ceca47a2fdf91d5ed47452c",
+      "rows": [],
+      "scanned_rows": 0,
+      "schema_version": "analytics-query-response-v1",
+      "snapshot_id": "analyticssnapshot_85fb4d48ce538695c399e06563b8e2c09f9b415e3dc6d434c65addcfdad14b65"
+    },
+    "schema_version": "desktop-bridge-response-v1"
+  },
+  "elapsed_seconds": 1.74829,
+  "evidence_id": "desktopbridgesmoke_5062c060595d1aa112c0db06810d170df0adb6a73f1e67734f51778a0ae7f4dc",
   "frontend": {
     "entrypoint": "index.html",
-    "sha256": "2910b6b3489022bc4cd97fa9304bfacc155dbe1df0a98234d9b16d7542a5c237",
+    "sha256": "0d7021d2581b44b06d66c83789f37445aad53f145a7e73c82bcbe32424fcfd07",
     "workflow_version": "desktop-workflow-v1"
   },
   "limitations": [
     "hidden_same_host_window",
-    "system_describe_round_trip_only",
+    "system_describe_and_analytics_query_round_trip_only",
     "worker_lifecycle_and_accessibility_verified_by_desktop_lifecycle_evidence"
   ],
   "pywebview_version": "6.2.1",

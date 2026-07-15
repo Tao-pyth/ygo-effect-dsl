@@ -38,9 +38,10 @@
     "worker_execution": "desktop-supervisor-v1"
   },
   "large_catalog": {
+    "contract": "desktop-virtual-table-v1",
     "issue": 165,
     "query": "server_cursor_window",
-    "status": "virtualization_release_gate",
+    "status": "implemented_with_browser_scale_evidence",
     "target_rows": 100000
   },
   "routes": [

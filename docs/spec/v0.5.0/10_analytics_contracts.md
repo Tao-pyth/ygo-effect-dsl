@@ -162,7 +162,7 @@ first screenはmarketing pageやrun overviewではなくdeck catalogとする。
 - Route、Event、Decision、lineage drill-down
 - filter、column、density、shareable state、export
 
-primary flowは`deck catalog -> deck detail/statistics -> search form -> preflight -> job -> result`とする。large tableはserver-side sort/filterとvirtualizationを使う。stable row dimensions、keyboard navigation、focus、screen-reader label、loading/empty/error/partial/redacted/quarantined/stale stateを実装する。PlayerView policyをUI payload、tooltip、downloadにも適用する。
+primary flowは`deck catalog -> deck detail/statistics -> search form -> preflight -> job -> result`とする。run observation tableは`analytics-query-contract-v1`によるserver-side sort/filter、500行cursor pagination、viewport row virtualizationを実装済みである。stable row dimensions、keyboard navigation、focus、screen-reader count/name、loading/empty/errorを`desktop-virtual-table-v1`へ固定する。partial/redacted/quarantined/staleはquery value stateをそのまま表示し、PlayerView policyをUI payload、tooltip、downloadにも適用する。実storage上の100万行校正は#167の別gateであり、browser同等workloadで代替しない。
 
 ## Card presentation contract
 

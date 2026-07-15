@@ -6,9 +6,9 @@ Last updated: 2026-07-16
 
 ## Product boundary
 
-`desktop-workflow-v1`は、Windows desktop applicationのdeck-first navigation、visual tokens、control statesを固定する。packaged frontendは`src/ygo_effect_dsl/desktop/static/index.html`、`app.css`、`bridge.js`、`app.js`の4 assetであり、browser harnessとpywebview/WebView2 shellが同じartifactを読み込む。
+`desktop-workflow-v1`は、Windows desktop applicationのdeck-first navigation、visual tokens、control statesを固定する。packaged frontendは`src/ygo_effect_dsl/desktop/static/index.html`、`app.css`、`bridge.js`、`analytics.js`、`app.js`の5 assetであり、browser harnessとpywebview/WebView2 shellが同じartifactを読み込む。
 
-現段階のfrontend adapterはsynthetic fixture専用で、real workerを起動しない。YDK/inline import、preflight、job、analytics、card presentationを実APIへ接続するversioned bridgeは[#244](https://github.com/Tao-pyth/ygo-effect-dsl/issues/244)が所有する。rendererはExperiment、Search、Replay、State、Decision、Evaluationの権威を持たない。
+browser harnessは明示的なsynthetic fixtureを使い、real workerを起動しない。Windows shellでは[#244](https://github.com/Tao-pyth/ygo-effect-dsl/issues/244)のversioned bridgeがYDK/inline import、preflight、job、analytics、card presentationを実application serviceへ接続する。rendererはExperiment、Search、Replay、State、Decision、Evaluationの権威を持たない。
 
 ## Primary workflow
 
@@ -34,7 +34,7 @@ catalog rowはdeck name/hash、全card count、preflight、run count、success r
 
 detailはmain/extra/side count、source kind、success/peak/terminal、strategy別比較、composition、latest preflightを表示する。Cards tabはcard code/name/type/countから`card-presentation-v1` detailへ進み、Runs tabはstrategy/seed/outcome/timeを表示する。prototypeのcard name/effect textは明示的なsynthetic fixtureであり、第三者text/imageではない。
 
-`ready`、`empty`、`asset_unavailable`、`invalid_deck`、`stale_asset_lock`、`quarantined`、`partial_statistics`、`query_failure`をmachine contractに固定する。現行fixtureはready 3件とstale 1件を操作できる。他stateの実payloadとserver queryは#244、large catalog windowは#165で接続する。
+`ready`、`empty`、`asset_unavailable`、`invalid_deck`、`stale_asset_lock`、`quarantined`、`partial_statistics`、`query_failure`をmachine contractに固定する。現行fixtureはready 3件とstale 1件を操作できる。実payloadとserver queryは#244、100,000行相当のrun observation windowは#165で接続済みである。
 
 ## Search and preflight
 
@@ -52,7 +52,7 @@ stale asset lock、1から100,000外のnode budget、妨害有効時のcard code
 - 960×700ではsearch dialogをscrollableにし、header/footer commandを維持する。
 - hash routeはselected deckとsearch/compare viewのbrowser再現に限定する。OS deep linkはdistribution gateまで保留する。
 
-このbrowser visual evidence単独では、100,000 row virtualizationとdesktop lifecycleを保証しない。virtualizationは[#165](https://github.com/Tao-pyth/ygo-effect-dsl/issues/165)、screen-reader name/WebView2/renderer・host・worker recoveryは[#245](https://github.com/Tao-pyth/ygo-effect-dsl/issues/245)の[別証跡](19_desktop_lifecycle_recovery.md)で検証する。
+deck画面のbrowser visual evidence単独では、100,000 row virtualizationとdesktop lifecycleを保証しない。virtualizationは[#165](https://github.com/Tao-pyth/ygo-effect-dsl/issues/165)の[専用契約](21_virtualized_analytics_table.md)、screen-reader name/WebView2/renderer・host・worker recoveryは[#245](https://github.com/Tao-pyth/ygo-effect-dsl/issues/245)の[別証跡](19_desktop_lifecycle_recovery.md)で検証する。
 
 ## Security and distribution
 
@@ -60,12 +60,13 @@ HTMLはdefault-deny CSPを持ち、remote content、network request、inline scr
 
 ## Evidence
 
-`docs/ui/evidence/desktop_frontend.json`はEdgeで実行後DOMに4 deck rowとworkflow versionが存在すること、2 viewport PNGのdimension/hash、security/limitationを保存する。evidence IDは`desktopfrontendevidence_4df75aa6ab31c365d77b590b7d2507ef51fbfeda5166d63bb63b801466827580`である。
+`docs/ui/evidence/desktop_frontend.json`はEdgeで実行後DOMに4 deck rowとworkflow versionが存在すること、2 viewport PNGのdimension/hash、security/limitationを保存する。evidence IDは`desktopfrontendevidence_4f259a62bc94cc856c13c8cac5a9534afe0f6c5678050d4062f2ed87711ee04b`である。
 
 - [1440×900 deck dashboard](../../ui/evidence/deck_dashboard_1440x900.png)
 - [960×700 search form](../../ui/evidence/deck_search_960x700.png)
 
 ```powershell
 python -m ygo_effect_dsl.spikes.desktop_frontend_evidence --out docs/ui/evidence/desktop_frontend.json --screenshot-dir docs/ui/evidence
-python -m pytest -q tests/test_desktop_frontend.py
+python -m ygo_effect_dsl.spikes.desktop_virtual_table_evidence --out docs/ui/evidence/desktop_virtual_table.json --screenshot-dir docs/ui/evidence
+python -m pytest -q tests/test_desktop_frontend.py tests/test_desktop_virtual_table.py
 ```

@@ -28,7 +28,7 @@ Last updated: 2026-07-16
 
 ## Implementation status
 
-Items 1 through 14 are implemented and backed by versioned local evidence. Item 14 is specified by [desktop lifecycle contract](19_desktop_lifecycle_recovery.md) and `desktoplifecycleevidence_e294d061...`; it includes real ocgcore desktop execution, process-tree cleanup, retry/checkpoint recovery, and the structural accessibility/security baseline. Items 15 through 17 remain the active v0.5 completion path. Signing/update and distribution approval remain separate #134/#91 release gates and are not implied by completion of this table.
+Items 1 through 15 are implemented and backed by versioned local evidence. Item 14 is specified by [desktop lifecycle contract](19_desktop_lifecycle_recovery.md) and `desktoplifecycleevidence_e294d061...`; it includes real ocgcore desktop execution, process-tree cleanup, retry/checkpoint recovery, and the structural accessibility/security baseline. Item 15 is specified by [virtualized analytics table](21_virtualized_analytics_table.md) and `desktopvirtualtableevidence_5983ee3c...`; it verifies the 100,000-row-equivalent UI workload while leaving persistent-storage scale calibration to Item 17. Items 16 and 17 remain the active v0.5 completion path. Signing/update and distribution approval remain separate #134/#91 release gates and are not implied by completion of this table.
 
 ## Gate A: data integrity
 

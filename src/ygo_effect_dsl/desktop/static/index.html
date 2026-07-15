@@ -12,6 +12,7 @@
     <title>RouteLab Deck Research</title>
     <link rel="stylesheet" href="app.css">
     <script src="bridge.js" defer></script>
+    <script src="analytics.js" defer></script>
     <script src="app.js" defer></script>
   </head>
   <body>
@@ -133,7 +134,7 @@
 
           <div class="table-footer">
             <span id="catalog-source-label">Showing a deterministic fixture window</span>
-            <span>100k catalog virtualization: release gate #165</span>
+            <span>Content-addressed deck identities</span>
           </div>
         </section>
 
@@ -209,6 +210,83 @@
             <ol class="run-list" id="run-list"></ol>
           </div>
         </aside>
+
+        <section class="analytics-pane" id="analytics-pane" aria-labelledby="analytics-title" hidden>
+          <div class="section-heading analytics-heading">
+            <div>
+              <p class="eyebrow">Immutable query snapshot</p>
+              <h1 id="analytics-title">Run observations</h1>
+            </div>
+            <div class="analytics-count" aria-live="polite">
+              <strong id="analytics-loaded">0</strong>
+              <span>loaded of <b id="analytics-matched">0</b></span>
+            </div>
+          </div>
+
+          <div class="analytics-toolbar" role="search" aria-label="Run observation filters">
+            <label class="select-field">
+              <span>Filter</span>
+              <select id="analytics-filter-field">
+                <option value="run">Run ID</option>
+                <option value="deck">Deck</option>
+                <option value="strategy">Strategy</option>
+                <option value="status">Status</option>
+              </select>
+            </label>
+            <label class="search-field analytics-filter-value">
+              <span class="visually-hidden">Exact filter value</span>
+              <input id="analytics-filter-value" type="search" placeholder="Exact value" autocomplete="off">
+            </label>
+            <button class="button secondary" id="analytics-apply-filter" type="button">Apply</button>
+            <label class="select-field">
+              <span>Sort</span>
+              <select id="analytics-sort-field">
+                <option value="time">Observed</option>
+                <option value="score">Score</option>
+                <option value="action_count">Actions</option>
+              </select>
+            </label>
+            <button class="icon-button" id="analytics-sort-direction" type="button" data-direction="desc" aria-label="Sort descending" title="Sort direction">↓</button>
+            <details class="column-menu">
+              <summary>Columns</summary>
+              <fieldset>
+                <legend>Visible columns</legend>
+                <label><input type="checkbox" value="run" data-analytics-column checked>Run</label>
+                <label><input type="checkbox" value="deck" data-analytics-column checked>Deck</label>
+                <label><input type="checkbox" value="strategy" data-analytics-column checked>Strategy</label>
+                <label><input type="checkbox" value="success" data-analytics-column checked>Outcome</label>
+                <label><input type="checkbox" value="score" data-analytics-column checked>Score</label>
+                <label><input type="checkbox" value="action_count" data-analytics-column checked>Actions</label>
+                <label><input type="checkbox" value="status" data-analytics-column checked>Status</label>
+                <label><input type="checkbox" value="time" data-analytics-column checked>Observed</label>
+              </fieldset>
+            </details>
+            <div class="segmented" aria-label="Run table density">
+              <button type="button" class="is-selected" aria-pressed="true" data-density="compact">Compact</button>
+              <button type="button" aria-pressed="false" data-density="comfortable">Comfortable</button>
+            </div>
+          </div>
+
+          <div class="virtual-grid" id="analytics-grid" role="grid" aria-label="Run observations" aria-rowcount="1" aria-colcount="8" aria-busy="false">
+            <div class="virtual-grid-header" id="analytics-grid-header" role="row" aria-rowindex="1"></div>
+            <div class="virtual-grid-viewport" id="analytics-viewport" role="presentation" tabindex="0" aria-label="Scrollable run observations">
+              <div class="virtual-grid-spacer" id="analytics-spacer" aria-hidden="true"></div>
+              <div class="virtual-grid-rows" id="analytics-rows" role="rowgroup"></div>
+            </div>
+          </div>
+
+          <div class="analytics-state empty-state" id="analytics-empty" hidden>
+            <strong>No matching observations</strong>
+            <span>Change the exact filter or select another snapshot.</span>
+          </div>
+          <div class="analytics-state diagnostic error" id="analytics-error" role="alert" hidden></div>
+
+          <div class="analytics-footer">
+            <span id="analytics-status" role="status" aria-live="polite">Analytics query not started</span>
+            <code id="analytics-snapshot">No snapshot</code>
+            <button class="button secondary" id="analytics-load-more" type="button" hidden>Load next page</button>
+          </div>
+        </section>
       </main>
     </div>
 

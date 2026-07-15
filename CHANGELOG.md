@@ -22,6 +22,7 @@ All notable package changes are documented here. Package versions follow Semanti
 - [v0.5.0] `desktop-workflow-v1` and a packaged, interactive deck-first research dashboard prototype covering catalog statistics, card detail, search preflight, synthetic job/result flow, comparison, responsive states, and default-deny frontend security.
 - [v0.5.0] `desktop-bridge-v1`, an optional pywebview 6.2.1/WebView2 shell, single-instance catalog ownership, native YDK import, typed application-service allowlist, strict payload/path limits, and existing SQLite job/analytics/card-presentation adapters.
 - [v0.5.0] `desktop-search-worker-v1` and Windows Job Object containment with real-core Search execution, lease heartbeat, cooperative cancellation, retry/checkpoint restart, atomic Route/SearchRun publication, cold/warm WebView2 evidence, and accessibility/security audits.
+- [v0.5.0] `desktop-virtual-table-v1` with immutable 500-row cursor pages, server-side sort/filter integration, bounded viewport DOM rendering, keyboard/ARIA support, column and density controls, and 100,000-row-equivalent Edge evidence.
 
 ### Changed
 

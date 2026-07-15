@@ -1,0 +1,164 @@
+{
+  "accessibility": {
+    "aria_column_count_after_selection": 7,
+    "aria_row_count": 100001,
+    "comfortable_row_height": 48,
+    "keyboard_focus_delta": -1,
+    "keyboard_response_seconds": 0.043408,
+    "named_grid": true,
+    "roving_tabindex": true,
+    "sticky_header_position": "sticky"
+  },
+  "browser": {
+    "console_errors": [],
+    "edge_version": "150.0.4078.65",
+    "page_errors": [],
+    "remote_requests": []
+  },
+  "evidence_id": "desktopvirtualtableevidence_5983ee3c76a3ccd6febc3b4260c2e25fbce52015673c93b344730a1c298d9121",
+  "pagination": {
+    "cursor_contract": "analytics-cursor-v1",
+    "duplicate_fetch": {
+      "loaded_delta": 500,
+      "prevented": 1,
+      "query_delta": 1
+    },
+    "filter_matched_rows": 2500,
+    "filter_response_seconds": 0.162701,
+    "first_run_ascending": "searchrun_fixture_000000",
+    "first_run_descending": "searchrun_fixture_099999",
+    "max_concurrent_queries": 1,
+    "page_size": 500,
+    "snapshot_id": "analyticssnapshot_browser_100k_fixture"
+  },
+  "scale": {
+    "dom_rows_after_end_scroll": 22,
+    "elapsed_seconds": 3.413729,
+    "header_height_after": 38,
+    "header_height_before": 38,
+    "heap_delta_bytes": 0,
+    "initial_dom_rows": 28,
+    "loaded_rows": 100000,
+    "matched_rows": 100000,
+    "maximum_observed_dom_rows": 28,
+    "page_queries": 198,
+    "scroll_height": 4000000,
+    "scroll_top": 3999397
+  },
+  "schema_version": "desktop-virtual-table-evidence-v1",
+  "scope": {
+    "backend": "deterministic_browser_equivalent",
+    "desktop_query_path": "analytics.query",
+    "persistent_storage_calibration_issue": 167
+  },
+  "screenshots": [
+    {
+      "bytes": 96313,
+      "filename": "analytics_runs_1440x900.png",
+      "height": 900,
+      "sha256": "710b44b3a50956a722c56e744fefdbbe77e54b4e56cbf4e6240bf7aaab3515e2",
+      "width": 1440
+    },
+    {
+      "bytes": 66607,
+      "filename": "analytics_runs_760x900.png",
+      "height": 900,
+      "sha256": "3023e3e346202a77ba6d04320955d8726cdeabb889274bc25e268d3e56f6ad72",
+      "width": 760
+    }
+  ],
+  "viewports": [
+    {
+      "body_horizontal_overflow": false,
+      "body_vertical_overflow": false,
+      "boxes": {
+        "#analytics-grid": {
+          "bottom": 840,
+          "height": 643.296875,
+          "left": 96,
+          "right": 1416,
+          "top": 196.703125,
+          "width": 1320
+        },
+        ".analytics-footer": {
+          "bottom": 884,
+          "height": 44,
+          "left": 96,
+          "right": 1416,
+          "top": 840,
+          "width": 1320
+        },
+        ".analytics-heading": {
+          "bottom": 130.703125,
+          "height": 44.703125,
+          "left": 96,
+          "right": 1416,
+          "top": 86,
+          "width": 1320
+        },
+        ".analytics-toolbar": {
+          "bottom": 184.703125,
+          "height": 36,
+          "left": 96,
+          "right": 1416,
+          "top": 148.703125,
+          "width": 1320
+        }
+      },
+      "controls_inside_viewport": true,
+      "grid_internal_horizontal_scroll": false,
+      "outside_controls": [],
+      "vertical_order_stable": true,
+      "viewport": {
+        "height": 900,
+        "width": 1440
+      }
+    },
+    {
+      "body_horizontal_overflow": false,
+      "body_vertical_overflow": false,
+      "boxes": {
+        "#analytics-grid": {
+          "bottom": 840,
+          "height": 599.296875,
+          "left": 82,
+          "right": 736,
+          "top": 240.703125,
+          "width": 654
+        },
+        ".analytics-footer": {
+          "bottom": 884,
+          "height": 44,
+          "left": 82,
+          "right": 736,
+          "top": 840,
+          "width": 654
+        },
+        ".analytics-heading": {
+          "bottom": 130.703125,
+          "height": 44.703125,
+          "left": 82,
+          "right": 736,
+          "top": 86,
+          "width": 654
+        },
+        ".analytics-toolbar": {
+          "bottom": 228.703125,
+          "height": 80,
+          "left": 82,
+          "right": 736,
+          "top": 148.703125,
+          "width": 654
+        }
+      },
+      "controls_inside_viewport": true,
+      "grid_internal_horizontal_scroll": true,
+      "outside_controls": [],
+      "vertical_order_stable": true,
+      "viewport": {
+        "height": 900,
+        "width": 760
+      }
+    }
+  ]
+}
