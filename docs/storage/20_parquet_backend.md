@@ -2,7 +2,7 @@
 
 Status: Implemented optional analytics backend
 
-Last updated: 2026-07-15
+Last updated: 2026-07-16
 
 ## Boundary
 
@@ -62,7 +62,7 @@ active snapshot後に追加された新runのingest fileは、現在のreader結
 
 manifestはfile SHA-256、bytes、row count、partition、sort min/max、source snapshot/file ID、created-by job、disk preflight、write amplification、semantic summaryを持つ。compaction/migrationはstagingへ書き、全fileを再読込し、snapshot directoryをrenameした後でpointerをatomic replaceする。crashがpointer更新前なら旧snapshot、更新後なら完成した新snapshotが見える。
 
-20,000 unique行の固定calibrationでは、zstd level 3・16,384-row group・sort済み構成が911,526 bytes、snappyが1,832,077 bytes、4,096-row groupのzstdが934,282 bytesだった。sortしないzstdは968,869 bytesでrun IDのrow-group min/maxが重なった。したがってv0.5 policyはzstd level 3、16,384-row group、run/Route/target/record ID sortを採用する。16 MiB targetと256 bytes/rowの保守見積りから65,536行/fileを計画するが、production規模の再校正は#167で行う。
+20,000 unique行の固定calibrationでは、zstd level 3・16,384-row group・sort済み構成が911,526 bytes、snappyが1,832,077 bytes、4,096-row groupのzstdが934,282 bytesだった。sortしないzstdは968,869 bytesでrun IDのrow-group min/maxが重なった。10万aggregation rowのscale校正では、このzstd、row group、run/Route/target/record ID sortを維持し、100 legacy fileから2 snapshot fileへのcompaction、semantic parity、crash recoveryを確認した。policyは16 MiB target、256 bytes/rowの保守見積り、131,072行のceilingを持つ。size見積りを先に適用するため既定の実効上限は65,536行/fileであり、partition、row-group、size境界のうち最初に到達した条件で分割する。
 
 nullable derived metricのbackfillはcore semantic summaryが一致する場合に限りside-by-side migrationとして許可する。score、success、State hash、Action count、record set、partitionが変わるmigrationは拒否する。未知schemaを推測せず、明示codecが追加されるまでfail-closeする。rollbackは保持済みsnapshotを検証してpointerを再切替する。
 
@@ -81,6 +81,8 @@ snapshot lifecycleの固定evidenceは`docs/storage/evidence/parquet_lifecycle.j
 ```powershell
 python -m ygo_effect_dsl.spikes.parquet_lifecycle_evidence --out docs/storage/evidence/parquet_lifecycle.json
 ```
+
+production scaleの固定evidenceは`docs/storage/evidence/analytics_scale_calibration.json`と`docs/storage/evidence/analytics_scale_samples.parquet`である。10万run、100万Event/Decision row、10万aggregation rowを使い、compaction write amplification 0.9296、migration write amplification 1.0006、旧または新の完全snapshotだけを読むconcurrent readerを確認した。詳細は[production scale calibration](../spec/v0.5.0/23_production_scale_calibration.md)を参照する。
 
 機能部分はtestごとにfresh temporary directoryへ再生成する。配布probeを再取得する場合は、PyArrow wheelとPolars wheel一式を明示して次を実行する。
 
