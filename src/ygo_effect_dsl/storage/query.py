@@ -772,7 +772,13 @@ def _timestamp_value(value: str) -> datetime:
         return datetime.combine(date.fromisoformat(value), time(), timezone.utc)
     if not value.endswith("Z"):
         raise ValueError("timestamp values with time must use UTC Z suffix")
-    parsed = datetime.fromisoformat(value[:-1] + "+00:00")
+    timestamp = value[:-1]
+    if "." in timestamp:
+        whole, fraction = timestamp.rsplit(".", 1)
+        if not fraction.isdigit() or len(fraction) > 6:
+            raise ValueError("timestamp fraction must contain 1..6 digits")
+        timestamp = f"{whole}.{fraction.ljust(6, '0')}"
+    parsed = datetime.fromisoformat(timestamp + "+00:00")
     return parsed.astimezone(timezone.utc)
 
 
