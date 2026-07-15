@@ -38,6 +38,7 @@ package versionと機能契約のschema versionは独立して管理します。
 | Storage / aggregation | `raw-event-log-v1` / `run-catalog-v2` / `aggregation-v1` | JSONL、run catalog、optional Parquet集計 |
 | Benchmark / policy | `general-search-benchmark-v1` / `real-core-benchmark-base-routes-v2` / `cache-worker-policy-v2` / `memory-preflight-v2` | 外部qualification 3 Routeによる10万logical node校正 |
 | Real Replay policy | `real-core-replay-benchmark-v1` / `real-core-worker-policy-v1` / `real-core-memory-preflight-v1` | 480 fresh Replayのpool別throughput/RSS。既定pool 4、最大8、memory上限1.5 GiB |
+| Resolver index policy | `resolver-index-policy-v1` | cross-process/resident reuseを測定後に棄却し、checked process-local indexを維持 |
 | ocgcore / assets | API `11.0`, `ocgcore-v11.0-win-x64-msvc-v1`, `ocgcore-assets-202504-v1` | commitとhashをlockし、runtime network accessと再配布を禁止 |
 
 package versionの正本は `ygo_effect_dsl.version.__version__` です。`python -m ygo_effect_dsl --version`で現在値を確認できます。機能契約の正本は各moduleの`*_SCHEMA_VERSION`とvalidatorであり、この表はrelease時の互換性索引です。

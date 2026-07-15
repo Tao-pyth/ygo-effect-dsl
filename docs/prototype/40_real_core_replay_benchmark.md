@@ -45,7 +45,7 @@ Evidence IDは`realreplaybench_0e34c19adba235cd1a1824aa7715b17a22a9692733edb6139
 
 CardScripts checked directory indexは20,963 entry、名称推定558,452 bytes、RSS増分約1.9 MiBである。93 scriptのcold resolutionは0.252秒、同一process warm resolutionは0.120秒で約2.09倍差となった。asset directory identity検査を迂回するpersistent indexは採用せず、process-local checked indexを維持する。永続化またはworker常駐化はasset mutation/trust boundaryを[#212](https://github.com/Tao-pyth/ygo-effect-dsl/issues/212)で検証してから判断する。
 
-この校正は[#128](https://github.com/Tao-pyth/ygo-effect-dsl/issues/128)の実Replay受け入れ条件を満たす。一方、[#105](https://github.com/Tao-pyth/ygo-effect-dsl/issues/105)はpersistent indexまたは同等の長寿命共有境界を要求しているため、#212の完了までは閉じない。
+この校正は[#128](https://github.com/Tao-pyth/ygo-effect-dsl/issues/128)の実Replay受け入れ条件を満たす。後続の[#212](https://github.com/Tao-pyth/ygo-effect-dsl/issues/212)ではcross-process indexとresident workerを比較し、mutation検査またはnative isolationを弱めずにend-to-end優位を証明できないため、`resolver-index-policy-v1`で測定済み不採用とした。
 
 crash、timeout、callback failure、retry、process cleanupは`real-core-parallel-stress-v2`の`realcorestress_a6868c...`を参照する。480 Replay測定中に一時的な30秒内部timeoutを観測したため、通常既定30秒は維持しつつbenchmarkだけworker timeoutを90秒へ明示設定した。これはtimeoutを成功へ読み替える変更ではなく、高負荷校正の実行上限を分離するものである。
 
