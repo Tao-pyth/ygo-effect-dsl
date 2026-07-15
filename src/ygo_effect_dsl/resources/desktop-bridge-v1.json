@@ -1,0 +1,75 @@
+{
+  "authority": {
+    "analytics": "immutable_snapshot",
+    "jobs": "sqlite_job_catalog",
+    "legality_and_timing": "ocgcore_worker",
+    "renderer": "non_authoritative",
+    "search_and_replay": "existing_worker_subprocess"
+  },
+  "limits": {
+    "max_request_bytes": 262144,
+    "max_response_bytes": 4194304,
+    "request_id_max_chars": 128
+  },
+  "methods": {
+    "analytics.compare": {
+      "payload_fields": ["request"],
+      "worker_start_allowed": false
+    },
+    "analytics.query": {
+      "payload_fields": ["request"],
+      "worker_start_allowed": false
+    },
+    "card.get": {
+      "payload_fields": ["query"],
+      "worker_start_allowed": false
+    },
+    "deck.catalog": {
+      "payload_fields": [],
+      "worker_start_allowed": false
+    },
+    "deck.import_ydk": {
+      "native_file_picker": true,
+      "payload_fields": [],
+      "renderer_path_input": false,
+      "worker_start_allowed": false
+    },
+    "deck.register_inline": {
+      "payload_fields": ["extra", "main", "name", "side"],
+      "worker_start_allowed": false
+    },
+    "job.cancel": {
+      "payload_fields": ["job_id"],
+      "worker_start_allowed": false
+    },
+    "job.enqueue_search": {
+      "payload_fields": ["deck_id", "experiment", "idempotency_key", "priority"],
+      "preflight_required": true,
+      "worker_start_allowed": false
+    },
+    "job.status": {
+      "payload_fields": ["job_id"],
+      "worker_start_allowed": false
+    },
+    "scenario.preflight": {
+      "payload_fields": ["deck_id", "experiment"],
+      "worker_start_allowed": false
+    },
+    "system.describe": {
+      "payload_fields": [],
+      "worker_start_allowed": false
+    }
+  },
+  "request": {
+    "fields": ["method", "payload", "request_id", "version"],
+    "path_inputs": "forbidden_use_catalog_id_or_native_picker"
+  },
+  "response_schema_version": "desktop-bridge-response-v1",
+  "schema_version": "desktop-bridge-v1",
+  "security": {
+    "generic_python_object": false,
+    "local_rest_api": false,
+    "public_python_methods": ["invoke"],
+    "remote_content": false
+  }
+}

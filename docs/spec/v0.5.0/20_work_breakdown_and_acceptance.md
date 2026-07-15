@@ -20,9 +20,11 @@ Last updated: 2026-07-16
 | 10 | [#182](https://github.com/Tao-pyth/ygo-effect-dsl/issues/182) | deck catalog to search-launch workflow | packaged static import/preflight/form/job/result prototype、Edge DOM/screenshot evidence |
 | 11 | [#183](https://github.com/Tao-pyth/ygo-effect-dsl/issues/183) / [#247](https://github.com/Tao-pyth/ygo-effect-dsl/issues/247) | card detail/effect-text presentation | local provider、locale、license、dependency boundary、localized source/label drift qualification |
 | 12 | [#184](https://github.com/Tao-pyth/ygo-effect-dsl/issues/184) | research dashboard visual/interaction system | versioned tokens/states、1440×900/960×700 prototype、keyboard/CSP baseline |
-| 13 | [#165](https://github.com/Tao-pyth/ygo-effect-dsl/issues/165) | virtualized accessible tables | Playwright、a11y、10万row responsiveness |
-| 14 | [#166](https://github.com/Tao-pyth/ygo-effect-dsl/issues/166) | versioned export parity | CLI/API/UI byte/semantic comparison |
-| 15 | [#167](https://github.com/Tao-pyth/ygo-effect-dsl/issues/167) | 10万run/100万row calibration | p50/p95/p99、RSS、disk、UI evidence |
+| 13 | [#244](https://github.com/Tao-pyth/ygo-effect-dsl/issues/244) | pywebview shell/versioned bridge | single invoke allowlist、native YDK、job/query/card adapter、WebView2 live smoke |
+| 14 | [#245](https://github.com/Tao-pyth/ygo-effect-dsl/issues/245) | desktop lifecycle/a11y/recovery | process-tree cleanup、crash recovery、screen reader、packaged smoke |
+| 15 | [#165](https://github.com/Tao-pyth/ygo-effect-dsl/issues/165) | virtualized accessible tables | Playwright、a11y、10万row responsiveness |
+| 16 | [#166](https://github.com/Tao-pyth/ygo-effect-dsl/issues/166) | versioned export parity | CLI/API/UI byte/semantic comparison |
+| 17 | [#167](https://github.com/Tao-pyth/ygo-effect-dsl/issues/167) | 10万run/100万row calibration | p50/p95/p99、RSS、disk、UI evidence |
 
 ## Gate A: data integrity
 

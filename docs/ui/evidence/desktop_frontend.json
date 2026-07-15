@@ -4,10 +4,11 @@
     "search_dialog_present": true,
     "workflow_version_present": true
   },
-  "evidence_id": "desktopfrontendevidence_e55ee6cbe767164a02ad398c4a8bdb9dee5f19718c4ed88fb3dc9253e15792f3",
+  "evidence_id": "desktopfrontendevidence_4df75aa6ab31c365d77b590b7d2507ef51fbfeda5166d63bb63b801466827580",
   "limitations": [
-    "synthetic_fixture_adapter_only",
-    "real_bridge_and_worker_execution_deferred_to_issue_244",
+    "synthetic_search_browser_adapter_only",
+    "desktop_bridge_is_verified_separately_from_browser_capture",
+    "continuous_search_worker_execution_not_exercised_by_browser_capture",
     "screen_reader_and_webview2_lifecycle_deferred_to_issue_245",
     "catalog_virtualization_deferred_to_issue_165",
     "single_windows_host_headless_edge_capture"

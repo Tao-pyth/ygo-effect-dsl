@@ -11,6 +11,7 @@
     <meta name="desktop-workflow-contract" content="desktop-workflow-v1">
     <title>RouteLab Deck Research</title>
     <link rel="stylesheet" href="app.css">
+    <script src="bridge.js" defer></script>
     <script src="app.js" defer></script>
   </head>
   <body>
@@ -26,8 +27,8 @@
         </div>
         <div class="environment-status" role="status">
           <span class="status-dot status-ready" aria-hidden="true"></span>
-          <span>Local assets verified</span>
-          <code>ocgcore 11.0</code>
+          <span id="environment-label">Local assets verified</span>
+          <code id="environment-code">ocgcore 11.0</code>
         </div>
         <div class="topbar-actions">
           <button class="button secondary" id="import-deck" type="button">Import YDK</button>
@@ -65,7 +66,7 @@
             <div class="catalog-count"><strong id="visible-count">4</strong><span>decks</span></div>
           </div>
 
-          <div class="metric-strip" aria-label="Catalog summary">
+          <div class="metric-strip" id="catalog-metrics" aria-label="Catalog summary">
             <div class="metric">
               <span>Search runs</span>
               <strong>12,480</strong>
@@ -131,12 +132,12 @@
           </div>
 
           <div class="table-footer">
-            <span>Showing a deterministic fixture window</span>
+            <span id="catalog-source-label">Showing a deterministic fixture window</span>
             <span>100k catalog virtualization: release gate #165</span>
           </div>
         </section>
 
-        <aside class="detail-pane" aria-labelledby="detail-title">
+        <aside class="detail-pane" id="detail-pane" aria-labelledby="detail-title">
           <div class="detail-heading">
             <div>
               <span class="status-chip success" id="detail-status">Ready</span>

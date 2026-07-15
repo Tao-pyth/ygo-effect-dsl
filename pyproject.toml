@@ -16,9 +16,13 @@ dependencies = [
 analytics = [
   "pyarrow==25.0.0",
 ]
+desktop = [
+  "pywebview==6.2.1",
+]
 
 [project.scripts]
 ygo-effect-dsl = "ygo_effect_dsl.cli.main:main"
+ygo-effect-dsl-desktop = "ygo_effect_dsl.desktop.shell:main"
 
 
 [tool.setuptools]

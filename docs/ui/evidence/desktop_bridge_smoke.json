@@ -1,0 +1,37 @@
+{
+  "elapsed_seconds": 1.905784,
+  "evidence_id": "desktopbridgesmoke_d018dd37888414b4f3f22b0d70f5626e4815a34d5b0e5737b7c28f34e81d0a70",
+  "frontend": {
+    "entrypoint": "index.html",
+    "sha256": "7952d41adef1f482df9d16c11ab5370b77e7100481dffa51e644b6842f02d8eb",
+    "workflow_version": "desktop-workflow-v1"
+  },
+  "limitations": [
+    "hidden_same_host_window",
+    "system_describe_round_trip_only",
+    "worker_lifecycle_and_accessibility_deferred_to_issue_245"
+  ],
+  "pywebview_version": "6.2.1",
+  "response": {
+    "details": {},
+    "diagnostics": [],
+    "method": "system.describe",
+    "ok": true,
+    "request_id": "renderer-2",
+    "result": {
+      "capabilities": {
+        "analytics_query": true,
+        "card_presentation": false,
+        "comparison": false,
+        "native_ydk_import": false,
+        "search_job_queue": true,
+        "worker_execution": "external_worker_required"
+      },
+      "package_version": "0.3.0",
+      "schema_version": "desktop-application-service-v1"
+    },
+    "schema_version": "desktop-bridge-response-v1"
+  },
+  "schema_version": "desktop-bridge-smoke-v1",
+  "webview2_version": "150.0.4078.65"
+}
