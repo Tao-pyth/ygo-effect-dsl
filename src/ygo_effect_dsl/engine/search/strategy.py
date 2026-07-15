@@ -272,6 +272,85 @@ class MctsSearchParametersV1:
         }
 
 
+@dataclass(frozen=True)
+class MctsSearchStrategyV1:
+    simulations: int
+    reward_floor: float
+    reward_ceiling: float
+    exploration_constant: float = math.sqrt(2.0)
+    seed: int = 0
+    execution_mode: str = "mcts"
+    strategy_id: str = "mcts_v1"
+    schema_version: str = MCTS_STRATEGY_SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        MctsSearchParametersV1(
+            simulations=self.simulations,
+            reward_floor=self.reward_floor,
+            reward_ceiling=self.reward_ceiling,
+            exploration_constant=self.exploration_constant,
+            seed=self.seed,
+        )
+
+    @property
+    def parameters(self) -> Mapping[str, Any]:
+        return {
+            "exploration_constant": self.exploration_constant,
+            "reward_ceiling": self.reward_ceiling,
+            "reward_floor": self.reward_floor,
+            "seed": self.seed,
+            "simulations": self.simulations,
+        }
+
+    def decision_key(
+        self,
+        *,
+        node_id: str,
+        purpose: str,
+        candidate_id: str,
+    ) -> str:
+        return deterministic_decision_key(
+            seed=self.seed,
+            strategy_id=self.strategy_id,
+            strategy_version=self.schema_version,
+            node_id=node_id,
+            purpose=purpose,
+            candidate_id=candidate_id,
+        )
+
+    def order_actions_for_purpose(
+        self,
+        *,
+        node_id: str,
+        actions: Sequence[Action],
+        purpose: str,
+    ) -> tuple[Action, ...]:
+        if purpose not in {"mcts_expansion", "mcts_rollout"}:
+            raise ValueError(f"unsupported MCTS decision purpose {purpose!r}")
+        return tuple(
+            sorted(
+                actions,
+                key=lambda action: (
+                    self.decision_key(
+                        node_id=node_id,
+                        purpose=purpose,
+                        candidate_id=action.action_id,
+                    ),
+                    action.action_id,
+                ),
+            )
+        )
+
+    def order_actions(
+        self, *, node_id: str, actions: Sequence[Action]
+    ) -> tuple[Action, ...]:
+        return self.order_actions_for_purpose(
+            node_id=node_id,
+            actions=actions,
+            purpose="mcts_expansion",
+        )
+
+
 def normalize_mcts_reward(
     *,
     success: bool,
@@ -417,15 +496,18 @@ def strategy_from_experiment(experiment: Mapping[str, Any]) -> SearchStrategy:
             },
             required={"reward_ceiling", "reward_floor", "simulations"},
         )
-        MctsSearchParametersV1.from_mapping(
+        checked = MctsSearchParametersV1.from_mapping(
             {
                 name: value
                 for name, value in checked_parameters.items()
                 if name not in shared_parameter_names
             }
         )
-        raise UnsupportedSearchStrategyError(
-            "mcts_v1 conforms to search-strategy-conformance-v1 "
-            "but execution is not implemented"
+        return MctsSearchStrategyV1(
+            simulations=checked.simulations,
+            reward_floor=checked.reward_floor,
+            reward_ceiling=checked.reward_ceiling,
+            exploration_constant=checked.exploration_constant,
+            seed=checked.seed,
         )
     raise UnsupportedSearchStrategyError(f"unsupported search strategy {strategy_id!r}")

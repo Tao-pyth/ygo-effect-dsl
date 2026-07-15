@@ -7,13 +7,13 @@ All notable package changes are documented here. Package versions follow Semanti
 ### Added
 
 - `beam-search-strategy-v1` execution through the shared real-core frontier adapter and `experiment-search` CLI/API path.
+- `mcts-strategy-v1` selection, expansion, deterministic rollout, reward normalization, and single backpropagation through the shared executor.
 - `search-run-result-v5` and `search-strategy-evidence-v1` with content-addressed strategy parameters and logical updates.
 
 ### Compatibility
 
 - Historical `search-run-result-v4` qualification indexes remain readable.
 - Random Search keeps its depth-first expansion and common best-Route ranking semantics.
-- MCTS remains explicitly unavailable until its v0.4 implementation issue is complete.
 
 ## 0.3.0 - 2026-07-15
 

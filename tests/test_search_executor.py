@@ -14,11 +14,11 @@ from ygo_effect_dsl.engine.failures import (
 )
 from ygo_effect_dsl.engine.search import (
     BeamSearchStrategyV1,
+    MctsSearchStrategyV1,
     RandomSearchStrategyV1,
     SearchBudget,
     SearchExecutor,
     SearchFrontier,
-    UnsupportedSearchStrategyError,
     strategy_from_experiment,
 )
 
@@ -95,6 +95,22 @@ def _beam_experiment(beam_width: int = 1, seed: int = 17) -> dict:
             "strategy": "beam_search_v1",
             "budget": {"max_nodes": 20},
             "parameters": {"beam_width": beam_width, "seed": seed},
+        },
+    }
+
+
+def _mcts_experiment(simulations: int = 4, seed: int = 17) -> dict:
+    return {
+        "experiment_id": "mcts_search_executor_test",
+        "search": {
+            "strategy": "mcts_v1",
+            "budget": {"max_nodes": 20},
+            "parameters": {
+                "reward_ceiling": 100,
+                "reward_floor": 0,
+                "seed": seed,
+                "simulations": simulations,
+            },
         },
     }
 
@@ -307,7 +323,7 @@ def test_search_run_rejects_an_invalid_experiment_digest() -> None:
         replace(result, experiment_digest="experiment_tampered")
 
 
-def test_beam_strategy_is_constructed_and_mcts_remains_unimplemented() -> None:
+def test_beam_and_mcts_strategies_are_constructed() -> None:
     experiment = _experiment()
     experiment["search"]["strategy"] = "beam_search_v1"
     experiment["search"]["parameters"] = {
@@ -329,8 +345,16 @@ def test_beam_strategy_is_constructed_and_mcts_remains_unimplemented() -> None:
         "seed": 17,
         "simulations": 4,
     }
-    with pytest.raises(UnsupportedSearchStrategyError, match="not implemented"):
-        strategy_from_experiment(experiment)
+    strategy = strategy_from_experiment(experiment)
+
+    assert isinstance(strategy, MctsSearchStrategyV1)
+    assert strategy.parameters == {
+        "exploration_constant": pytest.approx(2**0.5),
+        "reward_ceiling": 100.0,
+        "reward_floor": 0.0,
+        "seed": 17,
+        "simulations": 4,
+    }
 
 
 def test_beam_width_one_is_greedy_by_complete_layer_score() -> None:
@@ -534,6 +558,283 @@ def test_beam_worker_failure_keeps_healthy_siblings_searchable() -> None:
     assert result.best_route.route_id == "route_healthy"
     assert len(result.path_failures) == 1
     assert result.path_failures[0]["status"] == "path_failure"
+
+
+def test_mcts_is_semantically_deterministic_and_uses_common_route_rank() -> None:
+    failed_high = _action("failed_high")
+    successful = _action("successful")
+    frontiers = {
+        (): _frontier("root", actions=(failed_high, successful)),
+        ("failed_high",): _frontier("failed-high", score=100, legal=True),
+        ("successful",): _frontier(
+            "successful", score=0, success=True, legal=True
+        ),
+    }
+
+    first = SearchExecutor(
+        FakeFrontierAdapter(frontiers),
+        MctsSearchStrategyV1(
+            simulations=4,
+            reward_floor=0,
+            reward_ceiling=100,
+            seed=23,
+        ),
+        SearchBudget(max_nodes=20),
+        clock=lambda: 0.0,
+    ).run(_mcts_experiment(seed=23))
+    second = SearchExecutor(
+        FakeFrontierAdapter(frontiers),
+        MctsSearchStrategyV1(
+            simulations=4,
+            reward_floor=0,
+            reward_ceiling=100,
+            seed=23,
+        ),
+        SearchBudget(max_nodes=20),
+        clock=lambda: 0.0,
+    ).run(_mcts_experiment(seed=23))
+
+    assert first.semantic_dict() == second.semantic_dict()
+    assert first.run_id == second.run_id
+    assert first.best_route is not None
+    assert first.best_route.route_id == "route_successful"
+    assert first.strategy_schema_version == "mcts-strategy-v1"
+    simulations = [
+        update
+        for update in first.strategy_evidence["logical_updates"]
+        if update["update_type"] == "mcts_simulation"
+    ]
+    assert len(simulations) == 4
+    assert all(update["completed"] for update in simulations)
+    summary = first.strategy_evidence["logical_updates"][-1]
+    assert summary["completed_simulations"] == 4
+    assert summary["root_visits"] == 4
+
+
+def test_mcts_rollout_uses_a_deterministic_core_candidate() -> None:
+    start = _action("start")
+    left = _action("left")
+    right = _action("right")
+    adapter = FakeFrontierAdapter(
+        {
+            (): _frontier("root", actions=(start,)),
+            ("start",): _frontier("start", actions=(right, left), score=3),
+            ("start", "left"): _frontier("left", score=4, legal=True),
+            ("start", "right"): _frontier("right", score=5, legal=True),
+        }
+    )
+
+    result = SearchExecutor(
+        adapter,
+        MctsSearchStrategyV1(
+            simulations=1,
+            reward_floor=0,
+            reward_ceiling=10,
+            seed=11,
+        ),
+        SearchBudget(max_nodes=10),
+        clock=lambda: 0.0,
+    ).run(_mcts_experiment(simulations=1, seed=11))
+
+    assert len([prefix for prefix in adapter.prefixes if len(prefix) == 2]) == 1
+    simulation = result.strategy_evidence["logical_updates"][0]
+    assert simulation["expansion"]["status"] == "observed"
+    assert len(simulation["rollout"]) == 1
+    assert simulation["boundary"] == "legal_stop"
+    assert simulation["backpropagation"][0]["visits"] == 1
+
+
+def test_mcts_reuses_a_verified_prefix_without_duplicate_route_output() -> None:
+    start = _action("start")
+    child = _action("child")
+    adapter = FakeFrontierAdapter(
+        {
+            (): _frontier("root", actions=(start,)),
+            ("start",): _frontier("start", actions=(child,), score=3),
+            ("start", "child"): _frontier("child", score=5, legal=True),
+        }
+    )
+
+    result = SearchExecutor(
+        adapter,
+        MctsSearchStrategyV1(
+            simulations=2,
+            reward_floor=0,
+            reward_ceiling=10,
+            seed=13,
+        ),
+        SearchBudget(max_nodes=10),
+        clock=lambda: 0.0,
+    ).run(_mcts_experiment(simulations=2, seed=13))
+
+    assert result.prefix_cache_hits == 1
+    assert result.prefix_cache_entries == 3
+    assert len(result.routes) == 1
+    assert adapter.prefixes == [(), ("start",), ("start", "child")]
+    summary = result.strategy_evidence["logical_updates"][-1]
+    assert summary["completed_simulations"] == 2
+    assert summary["root_visits"] == 2
+
+
+def test_mcts_discards_a_hard_budget_interrupted_simulation() -> None:
+    start = _action("start")
+    child = _action("child")
+    adapter = FakeFrontierAdapter(
+        {
+            (): _frontier("root", actions=(start,)),
+            ("start",): _frontier("start", actions=(child,), score=5),
+            ("start", "child"): _frontier("child", score=10, legal=True),
+        }
+    )
+
+    result = SearchExecutor(
+        adapter,
+        MctsSearchStrategyV1(
+            simulations=4,
+            reward_floor=0,
+            reward_ceiling=10,
+        ),
+        SearchBudget(max_nodes=2),
+        clock=lambda: 0.0,
+    ).run(_mcts_experiment())
+
+    simulation = result.strategy_evidence["logical_updates"][0]
+    summary = result.strategy_evidence["logical_updates"][-1]
+    assert result.termination_reason == "max_nodes"
+    assert simulation["completed"] is False
+    assert simulation["discarded_from_statistics"] is True
+    assert simulation["backpropagation"] == []
+    assert summary["completed_simulations"] == 0
+    assert summary["root_visits"] == 0
+
+
+def test_mcts_path_failure_does_not_block_or_update_a_healthy_sibling() -> None:
+    failing = _action("failing")
+    healthy = _action("healthy")
+
+    class PathFailureAdapter(FakeFrontierAdapter):
+        def replay(
+            self, experiment: Mapping, action_prefix: Sequence[Action]
+        ) -> SearchFrontier:
+            key = tuple(
+                action.selections[0].candidate_id for action in action_prefix
+            )
+            if key == ("failing",):
+                raise RuntimeError("worker crashed")
+            return super().replay(experiment, action_prefix)
+
+    adapter = PathFailureAdapter(
+        {
+            (): _frontier("root", actions=(failing, healthy)),
+            ("healthy",): _frontier(
+                "healthy", score=4, success=True, legal=True
+            ),
+        }
+    )
+
+    result = SearchExecutor(
+        adapter,
+        MctsSearchStrategyV1(
+            simulations=2,
+            reward_floor=0,
+            reward_ceiling=10,
+            seed=7,
+        ),
+        SearchBudget(max_nodes=10),
+        clock=lambda: 0.0,
+    ).run(_mcts_experiment(simulations=2, seed=7))
+
+    summary = result.strategy_evidence["logical_updates"][-1]
+    assert result.best_route is not None
+    assert result.best_route.route_id == "route_healthy"
+    assert len(result.path_failures) == 1
+    assert summary["completed_simulations"] == 1
+    assert summary["root_visits"] == 1
+
+
+def test_mcts_serializes_unvisited_uct_without_non_finite_evidence() -> None:
+    start = _action("start")
+    child = _action("child")
+
+    class RolloutFailureAdapter(FakeFrontierAdapter):
+        def replay(
+            self, experiment: Mapping, action_prefix: Sequence[Action]
+        ) -> SearchFrontier:
+            key = tuple(
+                action.selections[0].candidate_id for action in action_prefix
+            )
+            if key == ("start", "child"):
+                raise RuntimeError("rollout worker crashed")
+            return super().replay(experiment, action_prefix)
+
+    adapter = RolloutFailureAdapter(
+        {
+            (): _frontier("root", actions=(start,)),
+            ("start",): _frontier("start", actions=(child,), score=4),
+        }
+    )
+
+    result = SearchExecutor(
+        adapter,
+        MctsSearchStrategyV1(
+            simulations=2,
+            reward_floor=0,
+            reward_ceiling=10,
+        ),
+        SearchBudget(max_nodes=10),
+        clock=lambda: 0.0,
+    ).run(_mcts_experiment(simulations=2))
+
+    second_simulation = result.strategy_evidence["logical_updates"][1]
+    summary = result.strategy_evidence["logical_updates"][-1]
+    assert second_simulation["selection"][0]["unvisited"] is True
+    assert second_simulation["selection"][0]["uct_score"] is None
+    assert second_simulation["backpropagation"] == []
+    assert summary["root_visits"] == 0
+
+
+@pytest.mark.parametrize(
+    ("state_completeness", "expected_duplicates"),
+    [("exact", 1), ("query_api_projection", 0)],
+)
+def test_mcts_deduplicates_only_exact_state_identity(
+    state_completeness: str,
+    expected_duplicates: int,
+) -> None:
+    left = _action("left")
+    right = _action("right")
+    adapter = FakeFrontierAdapter(
+        {
+            (): _frontier("root", actions=(left, right)),
+            ("left",): _frontier(
+                "same",
+                state_completeness=state_completeness,
+                score=2,
+                legal=True,
+            ),
+            ("right",): _frontier(
+                "same",
+                state_completeness=state_completeness,
+                score=2,
+                legal=True,
+            ),
+        }
+    )
+
+    result = SearchExecutor(
+        adapter,
+        MctsSearchStrategyV1(
+            simulations=2,
+            reward_floor=0,
+            reward_ceiling=10,
+            seed=3,
+        ),
+        SearchBudget(max_nodes=10),
+        clock=lambda: 0.0,
+    ).run(_mcts_experiment(simulations=2, seed=3))
+
+    assert result.exact_state_duplicates == expected_duplicates
+    assert len(result.routes) == 2
 
 
 def test_worker_error_stops_only_the_affected_path() -> None:

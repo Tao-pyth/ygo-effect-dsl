@@ -83,6 +83,12 @@ rank all replayable legal-stop Routes with the common Route rank
 
 reward、未訪問UCT、平均値、invalid/resume parameterの実行可能vectorは`tests/test_search_strategy_contract.py`を正本とする。
 
+## MCTS v1 implementation status
+
+2026-07-15時点で`mcts-strategy-v1`は`SearchExecutor`へ接続済みである。各simulationはselection、未訪問1枝のfresh Replay、`mcts_rollout`順のrollout、reward正規化、leafからrootへの1回のbackpropagationを`search-strategy-evidence-v1`へ保存する。hard budgetで中断したsimulationとpath failureは`discarded_from_statistics: true`とし、visit/valueへ加えない。
+
+同じAction prefixをrollout後にtree expansionで再訪した場合、prefix cacheは検証済みReplay hintとして利用できる。ただしexact State identityだけを枝の停止根拠とし、`query_api_projection`一致では停止しない。再訪prefixのRouteをartifactへ重複追加せず、別prefixから得たRouteはRoute IDが同じでも個別に保持する。best Routeはvisit数ではなくstrategy共通Route順位で決定する。
+
 ## PlayerView Replay
 
 PlayerViewはactorごとのinformation boundaryを永続成果物に適用する。最低限、次を分類する。

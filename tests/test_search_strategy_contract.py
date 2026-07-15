@@ -9,6 +9,7 @@ from ygo_effect_dsl.engine.search import (
     BeamSearchParametersV1,
     BeamSearchStrategyV1,
     MctsSearchParametersV1,
+    MctsSearchStrategyV1,
     RandomSearchStrategyV1,
     beam_rank_key,
     build_strategy_conformance_report,
@@ -152,6 +153,44 @@ def test_mcts_v1_reward_and_uct_vectors() -> None:
         child_value_sum=1,
         exploration_constant=0,
     ) == pytest.approx(0.5)
+
+
+def test_mcts_v1_satisfies_the_common_strategy_contract() -> None:
+    strategy = MctsSearchStrategyV1(
+        simulations=8,
+        reward_floor=-10,
+        reward_ceiling=20,
+        exploration_constant=1.25,
+        seed=5,
+    )
+    actions = tuple(_action(name) for name in ("left", "middle", "right"))
+
+    first = build_strategy_conformance_report(
+        strategy, node_id="node_fixture", actions=actions
+    )
+    second = build_strategy_conformance_report(
+        strategy, node_id="node_fixture", actions=tuple(reversed(actions))
+    )
+
+    assert first == second
+    assert first["execution_mode"] == "mcts"
+    assert first["strategy_schema_version"] == "mcts-strategy-v1"
+    assert strategy.order_actions_for_purpose(
+        node_id="node_fixture", actions=actions, purpose="mcts_rollout"
+    ) == strategy.order_actions_for_purpose(
+        node_id="node_fixture",
+        actions=tuple(reversed(actions)),
+        purpose="mcts_rollout",
+    )
+    assert strategy.decision_key(
+        node_id="node_fixture",
+        purpose="mcts_selection",
+        candidate_id=actions[0].action_id,
+    ) != strategy.decision_key(
+        node_id="node_fixture",
+        purpose="mcts_rollout",
+        candidate_id=actions[0].action_id,
+    )
 
 
 @pytest.mark.parametrize(
