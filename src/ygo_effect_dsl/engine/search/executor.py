@@ -9,6 +9,13 @@ from ygo_effect_dsl.engine.action import Action
 from ygo_effect_dsl.engine.canonical import stable_digest, to_canonical_data
 from ygo_effect_dsl.engine.failures import FailureRecord
 from ygo_effect_dsl.engine.search.parallel import build_search_node_id
+from ygo_effect_dsl.engine.search.strategy import (
+    RANDOM_SEARCH_STRATEGY_SCHEMA_VERSION,
+    RandomSearchStrategyV1,
+    SearchStrategy,
+    UnsupportedSearchStrategyError,
+    strategy_from_experiment,
+)
 from ygo_effect_dsl.engine.search.termination import SearchBudget, TerminationReason
 
 
@@ -18,11 +25,6 @@ SEARCH_RUN_RESULT_SCHEMA_VERSION = "search-run-result-v4"
 SEARCH_RUN_REPORT_SCHEMA_VERSION = "search-run-report-v1"
 SEARCH_RUN_FAILURE_SCHEMA_VERSION = "search-run-failure-v2"
 SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION = "search-artifact-commit-v1"
-RANDOM_SEARCH_STRATEGY_SCHEMA_VERSION = "random-search-strategy-v1"
-
-
-class UnsupportedSearchStrategyError(NotImplementedError):
-    pass
 
 
 @dataclass(frozen=True)
@@ -65,63 +67,6 @@ class FrontierAdapter(Protocol):
         experiment: Mapping[str, Any],
         action_prefix: Sequence[Action],
     ) -> SearchFrontier: ...
-
-
-class SearchStrategy(Protocol):
-    strategy_id: str
-    schema_version: str
-
-    def order_actions(
-        self, *, node_id: str, actions: Sequence[Action]
-    ) -> tuple[Action, ...]: ...
-
-
-@dataclass(frozen=True)
-class RandomSearchStrategyV1:
-    seed: int
-    strategy_id: str = "random_search_v1"
-    schema_version: str = RANDOM_SEARCH_STRATEGY_SCHEMA_VERSION
-
-    def __post_init__(self) -> None:
-        if not isinstance(self.seed, int) or isinstance(self.seed, bool) or self.seed < 0:
-            raise ValueError("Random Search seed must be an integer >= 0")
-
-    def order_actions(
-        self, *, node_id: str, actions: Sequence[Action]
-    ) -> tuple[Action, ...]:
-        return tuple(
-            sorted(
-                actions,
-                key=lambda action: (
-                    stable_digest(
-                        {
-                            "action_id": action.action_id,
-                            "node_id": node_id,
-                            "seed": self.seed,
-                            "strategy": self.schema_version,
-                        }
-                    ),
-                    action.action_id,
-                ),
-            )
-        )
-
-
-def strategy_from_experiment(experiment: Mapping[str, Any]) -> SearchStrategy:
-    search = experiment.get("search")
-    if not isinstance(search, Mapping):
-        raise ValueError("experiment.search must be a mapping")
-    strategy_id = search.get("strategy")
-    parameters = search.get("parameters", {})
-    if not isinstance(parameters, Mapping):
-        raise ValueError("experiment.search.parameters must be a mapping")
-    if strategy_id == "random_search_v1":
-        return RandomSearchStrategyV1(seed=parameters.get("seed", 0))
-    if strategy_id in {"beam_search_v1", "mcts_v1"}:
-        raise UnsupportedSearchStrategyError(
-            f"{strategy_id} uses the SearchStrategy interface but is not implemented in the MVP"
-        )
-    raise UnsupportedSearchStrategyError(f"unsupported search strategy {strategy_id!r}")
 
 
 @dataclass(frozen=True)
