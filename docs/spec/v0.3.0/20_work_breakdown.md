@@ -12,7 +12,7 @@ Parent stage: [#131 Complete real ocgcore / EDOPro Lua integration and calibrati
 
 | Order | Issue | Deliverable | Depends on | Evidence |
 |---|---|---|---|---|
-| 1 | [#135](https://github.com/Tao-pyth/ygo-effect-dsl/issues/135) | supported platform/toolchain matrix | current lock | doctor matrix、unsupported diagnostics |
+| 1 | [#135](https://github.com/Tao-pyth/ygo-effect-dsl/issues/135) | supported platform/toolchain matrix | current lock | `ocgcore-platform-contract-v1`、doctor v2、unsupported diagnostics |
 | 2 | [#136](https://github.com/Tao-pyth/ygo-effect-dsl/issues/136) | clean ocgcore bootstrap | #135 | `ocgcore-clean-bootstrap-qualification-v1`、5 build、idempotency、interrupt recovery、per-build hash |
 | 3 | [#137](https://github.com/Tao-pyth/ygo-effect-dsl/issues/137) | BabelCDB ref/commit判断とclean asset bootstrap | #135 | upstream ref record、empty-cache transcript、ADRまたはlock維持根拠 |
 | 4 | [#140](https://github.com/Tao-pyth/ygo-effect-dsl/issues/140) | EDOPro helper/card script load境界 | #137 | path/error/unsafe-library corpus |
@@ -24,7 +24,7 @@ Parent stage: [#131 Complete real ocgcore / EDOPro Lua integration and calibrati
 | 10 | [#128](https://github.com/Tao-pyth/ygo-effect-dsl/issues/128) | pool別実Replay throughput/worker RSS | #105, #142 | 480 fresh Replay、pool 1/2/4/8/16、disabled/index-only、default 4/max 8 policy |
 | 11 | [#110](https://github.com/Tao-pyth/ygo-effect-dsl/issues/110) | pruning multi-deck trace校正 | #139 | false prune/guardrail report |
 | 12 | [#108](https://github.com/Tao-pyth/ygo-effect-dsl/issues/108) | evaluator weight校正 | #139 | alternative Route ranking evidence |
-| 13 | [#138](https://github.com/Tao-pyth/ygo-effect-dsl/issues/138) | self-hosted real-core smoke | #136, #137, #142 | workflow run、asset非同梱監査 |
+| 13 | [#138](https://github.com/Tao-pyth/ygo-effect-dsl/issues/138) | self-hosted real-core smoke | #136, #137, #142 | manual Windows x64 workflow、sanitized summaryだけをartifact化、asset非同梱監査 |
 | 14 | [#143](https://github.com/Tao-pyth/ygo-effect-dsl/issues/143) | bootstrap-to-search-to-replay guide | #138 | clean-user walkthrough |
 | 15 | [#144](https://github.com/Tao-pyth/ygo-effect-dsl/issues/144) | contract/default policy release ADR | all above | compatibility表、version判断、release checklist |
 

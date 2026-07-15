@@ -31,7 +31,7 @@ python -m ygo_effect_dsl --version
 
 ## 2. Doctor and bootstrap
 
-`ocgcore-doctor`はinstallを行わず、OS/architecture、Git、MSVC、Premake cache、`Y:` drive、対象pathをJSONで報告する。`ok`がfalseならbootstrapへ進まない。
+`ocgcore-doctor-v2`はinstallを行わず、`ocgcore-platform-contract-v1`のOS/architecture/Python、Git、MSVC、Premake cache、`Y:` drive、対象pathをJSONで報告する。Windows x64、Python 3.10+以外はstable diagnosticでfail-closeする。`ok`がfalseならbootstrapへ進まない。
 
 ```powershell
 python -m ygo_effect_dsl ocgcore-doctor --external-root $ExternalRoot

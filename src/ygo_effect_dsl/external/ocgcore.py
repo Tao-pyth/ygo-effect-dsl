@@ -18,6 +18,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterator, Mapping, Sequence
 
+from ygo_effect_dsl.external.platform_contract import evaluate_ocgcore_platform
+
 
 LOCK_RESOURCE = "ocgcore-v11.0-win-x64.lock.json"
 ASSET_LOCK_RESOURCE = "ocgcore-assets-202504.lock.json"
@@ -722,8 +724,23 @@ def doctor_ocgcore(
     git = shutil.which("git")
     premake = layout.tools / f"premake-{lock.tool['version']}" / str(lock.tool["executable"])
     build_drive_available = not Path(f"{lock.build['virtual_build_drive']}/").exists()
+    support = evaluate_ocgcore_platform()
+    diagnostics = list(support["diagnostics"])
+    if not git:
+        diagnostics.append({"code": "git_not_found", "message": "Git is required"})
+    if support["supported"] and not visual_studio:
+        diagnostics.append(
+            {"code": "msvc_not_found", "message": "Visual Studio 2022 C++ Build Tools are required"}
+        )
+    if not build_drive_available:
+        diagnostics.append(
+            {"code": "virtual_build_drive_in_use", "message": "the locked virtual build drive is unavailable"}
+        )
     return {
-        "ok": bool(git and visual_studio and build_drive_available),
+        "ok": not diagnostics,
+        "schema_version": "ocgcore-doctor-v2",
+        "support": support,
+        "diagnostics": diagnostics,
         "lock_id": lock.lock_id,
         "platform": platform.platform(),
         "machine": platform.machine(),

@@ -134,6 +134,8 @@ def test_release_documents_match_the_current_version_baseline() -> None:
         "real-core-worker-policy-v1",
         "real-core-memory-preflight-v1",
         "resolver-index-policy-v1",
+        "ocgcore-platform-contract-v1",
+        "ocgcore-doctor-v2",
     )
 
     for path, document in documents.items():
