@@ -1,6 +1,6 @@
 # Package 0.4.0 Work Breakdown and Acceptance
 
-Status: Items 1-13 implemented; node-level pool/cache follow-up #231 tracked separately
+Status: Items 1-13 implemented and included in package 0.5.0; production node-level pool/cache #231 tracked in 1.0.0
 
 Last updated: 2026-07-15
 
@@ -27,7 +27,7 @@ Last updated: 2026-07-15
 - Random/Beam/MCTSが同じSearchExecutor/RealCoreFrontierAdapterを使う。
 - strategyごとのparameters/result/evidenceにversionがある。
 - 同一seed/node/replay/depth budgetでlogical expansionとbest Routeが再現する。
-- pool 1/2/4、cache on/off、retry injectionでsemantic digestが一致する。
+- single-process strategy matrixでsemantic digestが一致し、pool/cache/retryは独立したversion付きcontract regressionを通る。node-level SearchExecutor統合は#231の`1.0.0` gateとする。
 - Beam/MCTSの統計またはfrontierをfresh Replayから再構成できる。
 - unknown strategy/version/parameterを明示的に拒否する。
 

@@ -34,7 +34,7 @@ providerは利用前にCDBのSHA-256をsource manifestと照合し、SQLiteを`m
 - operator-declared locale
 - license status
 
-localeはカード名や効果文から推測しない。現行pinned BabelCDBはDB内に機械可読なlocale宣言を持たないため、`en`はoperator/source設定として記録する。非英語sourceとlabel-map driftの追加qualificationは[#247](https://github.com/Tao-pyth/ygo-effect-dsl/issues/247)でfail-close検証する。
+localeはカード名や効果文から推測しない。現行pinned BabelCDBはDB内に機械可読なlocale宣言を持たないため、`en`はoperator/source設定として記録する。非英語sourceとlabel-map driftの追加qualificationは[#247](https://github.com/Tao-pyth/ygo-effect-dsl/issues/247)の`1.0.0` gateでfail-close検証する。
 
 ## Presentation behavior
 
@@ -42,7 +42,7 @@ availabilityは`available`、`missing_text`、`missing_card`、`redacted`、`sou
 
 `texts.name`がない行は、`desc`やauxiliary textが存在しても`available`にしない。カード行自体がない場合はcodeを保持した`missing_card`を返す。推測した名前・効果文・翻訳を生成しない。
 
-metadataはraw type/race/attribute bitsを必ず保持し、既知bitの表示labelを併記する。CDBのpacked levelからlevel、Xyz rank、Link ratingを分離し、Link markerをDEFとして表示しない。Monster以外のATK/DEF/level、Pendulum以外のscaleは`null`とし、DB上の0を適用可能な値として誤表示しない。Pendulum scaleとsetcode slotは機械的に分解する。未知bitの診断と定数追随は[#247](https://github.com/Tao-pyth/ygo-effect-dsl/issues/247)のrelease gateである。
+metadataはraw type/race/attribute bitsを必ず保持し、既知bitの表示labelを併記する。CDBのpacked levelからlevel、Xyz rank、Link ratingを分離し、Link markerをDEFとして表示しない。Monster以外のATK/DEF/level、Pendulum以外のscaleは`null`とし、DB上の0を適用可能な値として誤表示しない。Pendulum scaleとsetcode slotは機械的に分解する。未知bitの診断と定数追随は[#247](https://github.com/Tao-pyth/ygo-effect-dsl/issues/247)の`1.0.0` stable release gateである。
 
 Unicodeと改行はそのまま保持する。providerは検索highlight用に本文を書き換えず、rendererが一時的なrangeとして表現する。画像は別contractであり、画像なしのtext-only表示を正常状態とする。
 

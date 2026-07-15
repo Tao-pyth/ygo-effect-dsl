@@ -1,6 +1,6 @@
 # Package 0.4.0 Search and PlayerView Contracts
 
-Status: Search and PlayerView safety implemented; scenario contracts in progress
+Status: Implemented and included in package 0.5.0
 
 Last updated: 2026-07-15
 

@@ -1,12 +1,12 @@
 # Release Stage Index: 0.3.0 to 1.0.0
 
-Status: Planned package milestones
+Status: Package 0.5.0 released; 0.5.1 active
 
-Last updated: 2026-07-15
+Last updated: 2026-07-16
 
 ## Purpose
 
-本書はpackage `0.3.0`から`1.0.0`までのstage、依存関係、責任境界、親Issueを一つの索引にする。現行packageは`0.3.0`であり、`0.4.0`以降は完了条件を満たすまで未releaseである。
+本書はpackage `0.3.0`から`1.0.0`までのstage、依存関係、責任境界、親Issueを一つの索引にする。現行packageは`0.5.0`である。`0.4.0`は実装stageとして完了し、独立tagを作らず累積`0.5.0`へ収録した。次のactive package milestoneは`0.5.1`である。
 
 ## Stage dependency
 

@@ -1,6 +1,6 @@
 # Package 0.5.0 Scope: Corpus Analytics and UI
 
-Status: Implementation complete; release gates remain; parent [#133](https://github.com/Tao-pyth/ygo-effect-dsl/issues/133)
+Status: Released source milestone; parent [#133](https://github.com/Tao-pyth/ygo-effect-dsl/issues/133)
 
 Last updated: 2026-07-14
 
@@ -66,4 +66,4 @@ package `0.5.0`は、version付きSearch/Replay evidenceを大規模corpusとし
 
 `0.5.0`完了時に許される主張は「qualified Search/Replay corpusをprovenance付きで再取込・再集計し、CLI/API/UIから同じ比較結果とRoute lineageを調査でき、測定済み規模でjobをcancel/retry/recoverできる」である。統計結果を勝率や因果推論として一般化しない。
 
-実装とlocal scale gateは2026-07-16に完了した。固定workloadは10万run、100万Event/Decision row、10万aggregation rowであり、詳細は[production scale calibration](23_production_scale_calibration.md)を正本とする。一般配布、署名、更新、production運用は#91/#134を完了するまで主張しない。
+実装、local scale gate、package metadata、source tagは2026-07-16に完了した。固定workloadは10万run、100万Event/Decision row、10万aggregation rowであり、詳細は[production scale calibration](23_production_scale_calibration.md)を正本とする。一般配布、署名、更新、production運用は#91/#134を完了するまで主張しない。

@@ -1,6 +1,6 @@
 {
   "contract_version": "analytics-export-contract-v1",
-  "evidence_id": "analyticsexportevidence_babc372ec0361585faeb2a36b4cb7e86f0d95519c5066fdd87d2c03e634b1966",
+  "evidence_id": "analyticsexportevidence_310ca4866aabcbdbed5cddd3dd4c7399ab5446b51fd9355bc505d009e67c51d0",
   "formats": {
     "csv": {
       "data": {
@@ -8,11 +8,11 @@
         "filename": "analytics.csv",
         "sha256": "b2b04e6de55ad3bfb933d6de3334bc9c70048c329790b6b1d02c420b11d50427"
       },
-      "export_id": "analyticsexport_fca0f10a5a99016b2f718f3b96cb12822fafce28be676e8c503e8e119cb3c8f4",
+      "export_id": "analyticsexport_f2f09ae9d3343d81f5ad481492e054685fe81b705c6d45c864e416f6df5c2f0e",
       "manifest": {
         "bytes": 1828,
         "filename": "manifest-csv.json",
-        "sha256": "8308f79d9941a8f876362790bac872c82fffc2940249c72f456cb2ed49d8e92b"
+        "sha256": "16211bfdca9dd8f8c6abd19919700fdc9c65803853821b489c5fbc110e594d42"
       },
       "row_count": 2,
       "semantic_digest": "exportsemantic_6deba779d67fbfe5ea772e05d532c313885098700915c855b6646a3effd770fd",
@@ -24,11 +24,11 @@
         "filename": "analytics.json",
         "sha256": "626f962830309f4dfc3f81122ae6ee4a03631e1550b3e826966216fecac563a3"
       },
-      "export_id": "analyticsexport_da1dd4448a39a41bfaa4e411f37cb7a09daa8a1ef6a8098a6899018c9b76d40c",
+      "export_id": "analyticsexport_1e3c1e714b28e55b502590a1cbad9eddc41b59f596f05f9a7263f1a586f73e14",
       "manifest": {
         "bytes": 1832,
         "filename": "manifest-json.json",
-        "sha256": "69f6abedb0c9fed8e6add076a2b50425761927832732758545d32980b733d3c2"
+        "sha256": "28e05b9d5d2ba2b057501cb35e21366ee839e92193f32502831bd634c35b077a"
       },
       "row_count": 2,
       "semantic_digest": "exportsemantic_6deba779d67fbfe5ea772e05d532c313885098700915c855b6646a3effd770fd",
@@ -40,18 +40,18 @@
         "filename": "analytics.parquet",
         "sha256": "06160ef9c0d37bde0bec9536b7dd91ff4e36d5b871a5ee28a0a45b769d735b7b"
       },
-      "export_id": "analyticsexport_6f2ad6e7d2882ca313b68fa421c842200593a252d77931ff2fa68c1015fd1483",
+      "export_id": "analyticsexport_69695b082b755e903ee7ce36d59213b82c6bcd01bfeeb18f209d35c9a92f5889",
       "manifest": {
         "bytes": 1845,
         "filename": "manifest-parquet.json",
-        "sha256": "7b87b6b47e436eaa4d3fa60527f104f1503c13afad38cc51e4e247504fe4d05b"
+        "sha256": "d22725a86c10219462ba6a2ed3a2b080f9aa1cc2eec2e00d07d37f803397b526"
       },
       "row_count": 2,
       "semantic_digest": "exportsemantic_6deba779d67fbfe5ea772e05d532c313885098700915c855b6646a3effd770fd",
       "surface_byte_parity": true
     }
   },
-  "package_version": "0.3.0",
+  "package_version": "0.5.0",
   "safety": {
     "csv_formula_leading_character_exposed": false,
     "desktop_renderer_authors_bytes": false,

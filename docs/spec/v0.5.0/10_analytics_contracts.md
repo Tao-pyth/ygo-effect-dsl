@@ -5,7 +5,7 @@ Storage authority and schema-evolution boundaries are fixed by
 single-host operational state, Parquet owns rebuildable corpus metrics, and UI
 caches are disposable projections rather than evidence.
 
-Status: Contract design backlog
+Status: Implemented and released in package 0.5.0
 
 Last updated: 2026-07-14
 
