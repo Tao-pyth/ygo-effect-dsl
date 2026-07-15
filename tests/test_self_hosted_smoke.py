@@ -68,13 +68,21 @@ def test_success_summary_rejects_replay_divergence() -> None:
         )
 
 
-def test_checked_local_smoke_evidence_is_content_addressed() -> None:
+@pytest.mark.parametrize(
+    "filename, workflow_run_id",
+    [
+        ("self_hosted_smoke_local.json", "local-20260715"),
+        ("self_hosted_smoke_workflow.json", "29380688844"),
+    ],
+)
+def test_checked_smoke_evidence_is_content_addressed(
+    filename: str, workflow_run_id: str
+) -> None:
     evidence = json.loads(
-        (
-            ROOT / "docs/ocgcore/evidence/self_hosted_smoke_local.json"
-        ).read_text(encoding="utf-8")
+        (ROOT / "docs/ocgcore/evidence" / filename).read_text(encoding="utf-8")
     )
     evidence_id = evidence.pop("evidence_id")
     assert evidence["schema_version"] == SELF_HOSTED_SMOKE_SCHEMA_VERSION
     assert evidence["status"] == "success"
+    assert evidence["workflow_run_id"] == workflow_run_id
     assert evidence_id == stable_digest(evidence, prefix="realcoresmoke_")
