@@ -1,0 +1,118 @@
+schema_version: "0.4"
+experiment_id: board_break_official_card_corpus
+objective: deterministic_board_break_from_public_snapshot
+deck:
+  id: board_break_official_card_corpus
+  source: inline
+  main:
+    - 12580477
+    - 5318639
+    - 24224830
+    - 10000
+    - 27551
+    - 41546
+    - 41777
+    - 44818
+    - 50755
+    - 56889
+    - 59080
+    - 62121
+    - 96540
+    - 98905
+    - 102380
+    - 111280
+    - 114932
+    - 122520
+    - 123709
+    - 126218
+    - 128454
+    - 131182
+    - 132308
+    - 135598
+    - 164710
+    - 168917
+    - 176392
+    - 191749
+    - 197042
+    - 209710
+    - 213326
+    - 218704
+    - 220414
+    - 242146
+    - 255998
+    - 259314
+    - 263926
+    - 269012
+    - 269510
+    - 276357
+  extra: []
+  side: []
+player:
+  starting_player: 0
+  perspective: 0
+turn_limit: 2
+information_mode: complete_information
+information_policy:
+  schema_version: information-policy-v1
+  policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+  deck_order: known
+  opening_hand: fixed
+  sampling_reference: null
+evaluate_at: legal_stop
+success_predicate:
+  id: real_core_board_break
+  version: "1"
+  config:
+    actor_player: 0
+    max_opponent_monsters: 0
+evaluator:
+  id: real_core_board_break
+  version: "1"
+  config:
+    actor_player: 0
+search:
+  strategy: random_search_v1
+  budget:
+    max_nodes: 24
+    max_replays: 24
+    max_depth: 20
+  parameters:
+    seed: 154
+    max_frontier_actions: 128
+    termination:
+      stop_on_success: true
+interruption:
+  mode: none
+  definitions: []
+replay:
+  strict_versions: true
+scenario:
+  schema_version: scenario-v1
+  opening_hand:
+    mode: fixed
+    cards: [12580477, 5318639, 24224830, 10000, 27551]
+  initial_state:
+    schema_version: board-break-initial-state-v1
+    turn_player: 0
+    public_cards:
+      - card_code: 14558127
+        owner: 1
+        controller: 1
+        location: monster_zone
+        sequence: 0
+        position: face_up_attack
+        visibility: public
+      - card_code: 72302403
+        owner: 1
+        controller: 1
+        location: spell_trap_zone
+        sequence: 0
+        position: face_up_attack
+        visibility: public
+      - card_code: 23434538
+        owner: 1
+        controller: 1
+        location: graveyard
+        sequence: 0
+        position: face_up_attack
+        visibility: public

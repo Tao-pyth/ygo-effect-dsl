@@ -172,6 +172,33 @@
               "then": {"required": ["conditions"]}
             }
           ]
+        },
+        "initial_state": {
+          "type": "object",
+          "required": ["schema_version", "turn_player", "public_cards"],
+          "properties": {
+            "schema_version": {"const": "board-break-initial-state-v1"},
+            "turn_player": {"const": 0},
+            "public_cards": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["card_code", "owner", "controller", "location", "sequence", "position", "visibility"],
+                "properties": {
+                  "card_code": {"type": "integer", "minimum": 1},
+                  "owner": {"type": "integer", "enum": [0, 1]},
+                  "controller": {"type": "integer", "enum": [0, 1]},
+                  "location": {"enum": ["monster_zone", "spell_trap_zone", "graveyard", "banished"]},
+                  "sequence": {"type": "integer", "minimum": 0},
+                  "position": {"enum": ["face_up_attack", "face_up_defense"]},
+                  "visibility": {"const": "public"}
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
         }
       }
     },

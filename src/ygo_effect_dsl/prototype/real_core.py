@@ -165,8 +165,12 @@ LOCATION_HAND = 0x02
 LOCATION_DECK = 0x01
 LOCATION_MZONE = 0x04
 LOCATION_SZONE = 0x08
+LOCATION_GRAVE = 0x10
+LOCATION_REMOVED = 0x20
 LOCATION_EXTRA = 0x40
 POSITION_FACEUP_ATTACK = 0x01
+POSITION_FACEDOWN_ATTACK = 0x02
+POSITION_FACEUP_DEFENSE = 0x04
 POSITION_FACEDOWN_DEFENSE = 0x08
 WORKER_TIMEOUT_SECONDS = 30.0
 WORKER_FAILURE_ENVELOPE_SCHEMA_VERSION = "real-core-worker-failure-v1"
@@ -2185,13 +2189,94 @@ def _evaluation(
             information_mode=str(experiment["information_mode"]),
         ),
     )
-    success_config = experiment["success_predicate"]["config"]
-    if success_config.get("player") != 0 or success_config.get("zone") != "monster_zone":
-        raise ValueError("real-core success predicate supports player 0 monster_zone")
-    min_count = success_config.get("min_count")
-    if not isinstance(min_count, int) or isinstance(min_count, bool) or min_count < 0:
-        raise ValueError("success predicate min_count must be a non-negative integer")
-    return result, int(result.vector["field_count"]) >= min_count
+    predicate = experiment["success_predicate"]
+    if predicate.get("id") == "real_core_min_monster_count" and predicate.get(
+        "version"
+    ) == "1":
+        success_config = predicate["config"]
+        if (
+            success_config.get("player") != 0
+            or success_config.get("zone") != "monster_zone"
+        ):
+            raise ValueError("real-core success predicate supports player 0 monster_zone")
+        min_count = success_config.get("min_count")
+        if (
+            not isinstance(min_count, int)
+            or isinstance(min_count, bool)
+            or min_count < 0
+        ):
+            raise ValueError("success predicate min_count must be a non-negative integer")
+        return result, int(result.vector["field_count"]) >= min_count
+    if predicate.get("id") == "real_core_board_break" and predicate.get(
+        "version"
+    ) == "1":
+        config = predicate.get("config")
+        if not isinstance(config, Mapping):
+            raise ValueError("board-break success config must be a mapping")
+        supported_config = {
+            "actor_player",
+            "max_opponent_graveyard",
+            "max_opponent_monsters",
+            "max_opponent_spell_traps",
+            "min_opponent_banished",
+        }
+        unknown_config = sorted(set(config) - supported_config)
+        if unknown_config:
+            raise ValueError(
+                f"board-break success has unknown config keys: {unknown_config}"
+            )
+        actor = config.get("actor_player", 0)
+        if (
+            not isinstance(actor, int)
+            or isinstance(actor, bool)
+            or actor not in (0, 1)
+        ):
+            raise ValueError("board-break success actor_player must be 0 or 1")
+        counts = board.get("zone_counts", {}).get(str(1 - actor))
+        if not isinstance(counts, Mapping):
+            raise ValueError("board-break success has no opponent zone counts")
+        limits = {
+            "max_opponent_monsters": "monster_zone",
+            "max_opponent_spell_traps": "spell_trap_zone",
+            "max_opponent_graveyard": "graveyard",
+        }
+        checks = []
+        for field, zone in limits.items():
+            if field not in config:
+                continue
+            limit = config[field]
+            if not isinstance(limit, int) or isinstance(limit, bool) or limit < 0:
+                raise ValueError(f"board-break success {field} must be an integer >= 0")
+            observed = counts.get(zone, 0)
+            if (
+                not isinstance(observed, int)
+                or isinstance(observed, bool)
+                or observed < 0
+            ):
+                raise ValueError(f"board-break success {zone} count is invalid")
+            checks.append(observed <= limit)
+        if "min_opponent_banished" in config:
+            minimum = config["min_opponent_banished"]
+            if (
+                not isinstance(minimum, int)
+                or isinstance(minimum, bool)
+                or minimum < 0
+            ):
+                raise ValueError(
+                    "board-break success min_opponent_banished must be an integer >= 0"
+                )
+            observed = counts.get("banished", 0)
+            if (
+                not isinstance(observed, int)
+                or isinstance(observed, bool)
+                or observed < 0
+            ):
+                raise ValueError("board-break success banished count is invalid")
+            checks.append(observed >= minimum)
+        if not checks:
+            raise ValueError("board-break success requires at least one threshold")
+        return result, all(checks)
+    raise ValueError("unsupported real-core success predicate")
 
 
 def _frontier_document(
@@ -2883,6 +2968,30 @@ def run_real_core_worker(
         )
     )
     initial_field = _fixture_initial_field(fixture_script_id)
+    if scenario_manifest is not None and scenario_manifest.initial_state is not None:
+        location_values = {
+            "monster_zone": LOCATION_MZONE,
+            "spell_trap_zone": LOCATION_SZONE,
+            "graveyard": LOCATION_GRAVE,
+            "banished": LOCATION_REMOVED,
+        }
+        position_values = {
+            "face_up_attack": POSITION_FACEUP_ATTACK,
+            "face_down_attack": POSITION_FACEDOWN_ATTACK,
+            "face_up_defense": POSITION_FACEUP_DEFENSE,
+            "face_down_defense": POSITION_FACEDOWN_DEFENSE,
+        }
+        for card in scenario_manifest.initial_state["public_cards"]:
+            initial_field.append(
+                {
+                    "code": int(card["card_code"]),
+                    "controller": int(card["controller"]),
+                    "location": location_values[str(card["location"])],
+                    "owner": int(card["owner"]),
+                    "position": position_values[str(card["position"])],
+                    "sequence": int(card["sequence"]),
+                }
+            )
     if prefix_mode:
         for definition in specified_definitions:
             if definition.get("source_zone", "hand") != "field":
@@ -3131,7 +3240,7 @@ def run_real_core_worker(
                 for card in initial_field:
                     duel.add_card(
                         NewCard(
-                            team=card["controller"],
+                            team=card.get("owner", card["controller"]),
                             duelist=0,
                             code=card["code"],
                             controller=card["controller"],
@@ -3705,11 +3814,17 @@ def run_real_core_worker(
         card_script_bytes=card_script_bytes,
         card_scripts_commit=asset_lock.repositories["card_scripts"]["commit"],
     )
+    terminal_evaluation = terminal_checkpoint["evaluation"]
+    persistent_metrics = (
+        ("field_count",)
+        if "field_count" in terminal_evaluation
+        else tuple(sorted(terminal_evaluation))
+    )
     value_components = [
         EvaluationValueComponent(
-            component_id="field_count:observed_after_turn_boundary",
-            metric="field_count",
-            value=terminal_checkpoint["evaluation"]["field_count"],
+            component_id=f"{metric}:observed_after_turn_boundary",
+            metric=metric,
+            value=terminal_evaluation[metric],
             permanence=ValuePermanence.PERSISTENT,
             source_ref={
                 "checkpoint_step": terminal_step,
@@ -3717,6 +3832,7 @@ def run_real_core_worker(
                 "state_hash": terminal_checkpoint["state_hash"],
             },
         )
+        for metric in persistent_metrics
     ]
     if temporary_modifier_observation is not None:
         value_components.append(

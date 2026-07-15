@@ -392,14 +392,28 @@ def _project_pending_request(snapshot: CompleteSnapshot, *, viewer: int) -> dict
     if not isinstance(request_type, str) or request_type not in _KNOWN_REQUEST_TYPES:
         _reject("unprojectable_shape", "pending_request.request_type", f"unsupported request type {request_type!r}")
     action_kinds = request["candidate_action_kinds"]
-    if not isinstance(action_kinds, (list, tuple)) or not all(
-        isinstance(kind, str) and kind for kind in action_kinds
-    ):
-        _reject("unprojectable_shape", "pending_request.candidate_action_kinds", "expected non-empty string values")
+    if not isinstance(action_kinds, (list, tuple)):
+        _reject(
+            "unprojectable_shape",
+            "pending_request.candidate_action_kinds",
+            "expected a sequence",
+        )
+    normalized_action_kinds = []
+    for index, kind in enumerate(action_kinds):
+        if kind is None:
+            normalized_action_kinds.append("UNSPECIFIED")
+            continue
+        if not isinstance(kind, str) or not kind:
+            _reject(
+                "unprojectable_shape",
+                f"pending_request.candidate_action_kinds[{index}]",
+                "expected a non-empty string or legacy null",
+            )
+        normalized_action_kinds.append(kind)
     if not isinstance(request["forced"], bool):
         _reject("unprojectable_shape", "pending_request.forced", "expected a boolean")
     return {
-        "action_categories": sorted(set(action_kinds)),
+        "action_categories": sorted(set(normalized_action_kinds)),
         "forced": request["forced"],
         "player": player,
         "request_type": request_type,

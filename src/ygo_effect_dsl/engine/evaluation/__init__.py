@@ -9,6 +9,11 @@ from ygo_effect_dsl.engine.evaluation.api import (
     EvaluatorSpec,
 )
 from ygo_effect_dsl.engine.evaluation.builtins import (
+    BOARD_BREAK_DEFAULT_WEIGHTS,
+    BOARD_BREAK_EVALUATION_SCHEMA_VERSION,
+    BOARD_BREAK_EVALUATOR_ID,
+    BOARD_BREAK_EVALUATOR_VERSION,
+    BoardBreakEvaluator,
     BoardCountEvaluator,
     build_default_evaluator_registry,
 )
@@ -45,12 +50,17 @@ from ygo_effect_dsl.engine.evaluation.resource import (
 )
 
 __all__ = [
+    "BOARD_BREAK_DEFAULT_WEIGHTS",
+    "BOARD_BREAK_EVALUATION_SCHEMA_VERSION",
+    "BOARD_BREAK_EVALUATOR_ID",
+    "BOARD_BREAK_EVALUATOR_VERSION",
     "EVALUATION_RESULT_SCHEMA_VERSION",
     "SCORE_BREAKDOWN_SCHEMA_VERSION",
     "SCORE_COMPARISON_SCHEMA_VERSION",
     "TEMPORARY_EFFECT_REPORT_SCHEMA_VERSION",
     "TEMPORARY_MODIFIER_OBSERVATION_SCHEMA_VERSION",
     "BoundaryEvidence",
+    "BoardBreakEvaluator",
     "BoardCountEvaluator",
     "EvaluationContext",
     "EvaluationInput",

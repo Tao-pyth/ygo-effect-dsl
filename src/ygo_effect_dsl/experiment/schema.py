@@ -33,7 +33,22 @@ INTERRUPTION_MODES = {"none", "scripted", "sampled", "specified"}
 INTERRUPTION_SAMPLING_SCHEMA_VERSION = "interruption-sampling-v1"
 INTERRUPTION_SAMPLER_IDS = {"stable-digest-mod-v1"}
 SCENARIO_SCHEMA_VERSION = "scenario-v1"
+BOARD_BREAK_INITIAL_STATE_SCHEMA_VERSION = "board-break-initial-state-v1"
 OPENING_HAND_MODES = {"fixed", "random", "conditional"}
+PUBLIC_INITIAL_LOCATIONS = {
+    "monster_zone",
+    "spell_trap_zone",
+    "graveyard",
+    "banished",
+}
+PUBLIC_INITIAL_POSITIONS = {
+    "face_up_attack",
+    "face_up_defense",
+}
+PUBLIC_INITIAL_SEQUENCE_MAX = {
+    "monster_zone": 6,
+    "spell_trap_zone": 7,
+}
 
 
 @dataclass(frozen=True)
@@ -319,6 +334,134 @@ def _scenario_contract(
                                 "must be an integer >= 0",
                             )
                         )
+
+    initial_state = scenario.get("initial_state")
+    if initial_state is None:
+        return
+    if not isinstance(initial_state, Mapping):
+        issues.append(
+            ExperimentValidationIssue(
+                "$.scenario.initial_state",
+                "expected_mapping",
+                "must be a mapping",
+            )
+        )
+        return
+    if initial_state.get("schema_version") != BOARD_BREAK_INITIAL_STATE_SCHEMA_VERSION:
+        issues.append(
+            ExperimentValidationIssue(
+                "$.scenario.initial_state.schema_version",
+                "unsupported_initial_state_schema",
+                f"must be {BOARD_BREAK_INITIAL_STATE_SCHEMA_VERSION!r}",
+            )
+        )
+    if initial_state.get("turn_player") != 0:
+        issues.append(
+            ExperimentValidationIssue(
+                "$.scenario.initial_state.turn_player",
+                "unsupported_initial_turn_player",
+                "must be 0 for the current native board-break snapshot adapter",
+            )
+        )
+    cards = initial_state.get("public_cards")
+    if not isinstance(cards, list):
+        issues.append(
+            ExperimentValidationIssue(
+                "$.scenario.initial_state.public_cards",
+                "expected_list",
+                "must be a list",
+            )
+        )
+        return
+    if not cards:
+        issues.append(
+            ExperimentValidationIssue(
+                "$.scenario.initial_state.public_cards",
+                "expected_non_empty_list",
+                "must contain at least one public card",
+            )
+        )
+    for index, card in enumerate(cards):
+        path = f"$.scenario.initial_state.public_cards[{index}]"
+        if not isinstance(card, Mapping):
+            issues.append(
+                ExperimentValidationIssue(path, "expected_mapping", "must be a mapping")
+            )
+            continue
+        code = card.get("card_code")
+        if not isinstance(code, int) or isinstance(code, bool) or code <= 0:
+            issues.append(
+                ExperimentValidationIssue(
+                    f"{path}.card_code",
+                    "invalid_card_code",
+                    "must be a positive integer card code",
+                )
+            )
+        for field in ("owner", "controller"):
+            value = card.get(field)
+            if (
+                not isinstance(value, int)
+                or isinstance(value, bool)
+                or value not in (0, 1)
+            ):
+                issues.append(
+                    ExperimentValidationIssue(
+                        f"{path}.{field}",
+                        "invalid_player",
+                        "must be 0 or 1",
+                    )
+                )
+        if card.get("location") not in PUBLIC_INITIAL_LOCATIONS:
+            issues.append(
+                ExperimentValidationIssue(
+                    f"{path}.location",
+                    "unsupported_initial_location",
+                    f"must be one of {sorted(PUBLIC_INITIAL_LOCATIONS)}",
+                )
+            )
+        sequence = card.get("sequence")
+        if (
+            not isinstance(sequence, int)
+            or isinstance(sequence, bool)
+            or sequence < 0
+        ):
+            issues.append(
+                ExperimentValidationIssue(
+                    f"{path}.sequence",
+                    "invalid_non_negative_integer",
+                    "must be an integer >= 0",
+                )
+            )
+        location = card.get("location")
+        if (
+            isinstance(sequence, int)
+            and not isinstance(sequence, bool)
+            and location in PUBLIC_INITIAL_SEQUENCE_MAX
+            and sequence > PUBLIC_INITIAL_SEQUENCE_MAX[location]
+        ):
+            issues.append(
+                ExperimentValidationIssue(
+                    f"{path}.sequence",
+                    "initial_sequence_out_of_range",
+                    f"must be <= {PUBLIC_INITIAL_SEQUENCE_MAX[location]} for {location}",
+                )
+            )
+        if card.get("position") not in PUBLIC_INITIAL_POSITIONS:
+            issues.append(
+                ExperimentValidationIssue(
+                    f"{path}.position",
+                    "unsupported_initial_position",
+                    f"must be one of {sorted(PUBLIC_INITIAL_POSITIONS)}",
+                )
+            )
+        if card.get("visibility") != "public":
+            issues.append(
+                ExperimentValidationIssue(
+                    f"{path}.visibility",
+                    "private_initial_card_not_allowed",
+                    "must be 'public'; hidden opponent card identities are not accepted",
+                )
+            )
 
 
 def validate_experiment(value: Any) -> tuple[ExperimentValidationIssue, ...]:
