@@ -7,7 +7,9 @@ from pathlib import Path
 import struct
 
 from ygo_effect_dsl.desktop import (
+    DESKTOP_BRIDGE_CONTRACT_VERSION,
     DESKTOP_WORKFLOW_CONTRACT_VERSION,
+    desktop_bridge_contract_document,
     desktop_frontend_entrypoint,
     desktop_frontend_root,
     desktop_workflow_contract_document,
@@ -21,7 +23,6 @@ from ygo_effect_dsl.engine.search.strategy import (
 from ygo_effect_dsl.spikes.desktop_frontend_evidence import (
     DESKTOP_FRONTEND_EVIDENCE_SCHEMA_VERSION,
 )
-
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_ROOT = REPO_ROOT / "docs" / "ui" / "evidence"
@@ -44,11 +45,11 @@ class _FrontendParser(HTMLParser):
             self.ids.add(identifier)
 
 
-def _assets() -> tuple[str, str, str]:
+def _assets() -> tuple[str, str, str, str]:
     root = desktop_frontend_root()
     return tuple(
         (root / name).read_text(encoding="utf-8")
-        for name in ("index.html", "app.css", "app.js")
+        for name in ("index.html", "app.css", "bridge.js", "app.js")
     )
 
 
@@ -80,7 +81,7 @@ def test_packaged_frontend_and_machine_contract_are_versioned() -> None:
 
 
 def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
-    html, _, _ = _assets()
+    html, _, _, _ = _assets()
     parser = _FrontendParser()
     parser.feed(html)
 
@@ -96,8 +97,7 @@ def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
     assert "unsafe-eval" not in csp
     assert all("style" not in attrs for _, attrs in parser.attrs)
     assert all(
-        not any(name.startswith("on") for name in attrs)
-        for _, attrs in parser.attrs
+        not any(name.startswith("on") for name in attrs) for _, attrs in parser.attrs
     )
 
     required_ids = {
@@ -119,12 +119,13 @@ def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
     assert required_ids <= parser.ids
     assert html.count("<dialog") == 5
     assert '<script src="app.js" defer></script>' in html
+    assert '<script src="bridge.js" defer></script>' in html
     assert '<link rel="stylesheet" href="app.css">' in html
 
 
 def test_frontend_has_no_network_or_direct_python_bridge_path() -> None:
-    html, css, javascript = _assets()
-    combined = "\n".join((html, css, javascript)).lower()
+    html, css, bridge, javascript = _assets()
+    combined = "\n".join((html, css, bridge, javascript)).lower()
 
     assert "http://" not in combined
     assert "https://" not in combined
@@ -132,17 +133,20 @@ def test_frontend_has_no_network_or_direct_python_bridge_path() -> None:
     assert "xmlhttprequest" not in javascript.lower()
     assert "websocket" not in javascript.lower()
     assert "window.pywebview" not in javascript
+    assert "window.pywebview.api.invoke" in bridge
+    assert DESKTOP_BRIDGE_CONTRACT_VERSION in bridge
+    assert desktop_bridge_contract_document()["security"]["local_rest_api"] is False
     assert "innerHTML" not in javascript
     assert "eval(" not in javascript
     assert "No real worker has started" in javascript
     assert "No worker started" in javascript
     assert desktop_workflow_contract_document()["integration"]["preview_adapter"] == (
-        "synthetic_fixture_only"
+        "synthetic_search_browser_only"
     )
 
 
 def test_visual_css_preserves_dense_layout_and_accessibility_states() -> None:
-    _, css, _ = _assets()
+    _, css, _, _ = _assets()
 
     assert "[hidden]" in css
     assert "prefers-reduced-motion: reduce" in css

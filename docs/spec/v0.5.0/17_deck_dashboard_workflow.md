@@ -6,7 +6,7 @@ Last updated: 2026-07-16
 
 ## Product boundary
 
-`desktop-workflow-v1`は、Windows desktop applicationのdeck-first navigation、visual tokens、control statesを固定する。packaged frontendは`src/ygo_effect_dsl/desktop/static/index.html`、`app.css`、`app.js`の3 assetであり、browser harnessとpywebview/WebView2 shellが同じartifactを読み込む。
+`desktop-workflow-v1`は、Windows desktop applicationのdeck-first navigation、visual tokens、control statesを固定する。packaged frontendは`src/ygo_effect_dsl/desktop/static/index.html`、`app.css`、`bridge.js`、`app.js`の4 assetであり、browser harnessとpywebview/WebView2 shellが同じartifactを読み込む。
 
 現段階のfrontend adapterはsynthetic fixture専用で、real workerを起動しない。YDK/inline import、preflight、job、analytics、card presentationを実APIへ接続するversioned bridgeは[#244](https://github.com/Tao-pyth/ygo-effect-dsl/issues/244)が所有する。rendererはExperiment、Search、Replay、State、Decision、Evaluationの権威を持たない。
 
@@ -56,11 +56,11 @@ stale asset lock、1から100,000外のnode budget、妨害有効時のcard code
 
 ## Security and distribution
 
-HTMLはdefault-deny CSPを持ち、remote content、network request、inline script/style、`eval`、direct `window.pywebview` accessを使わない。#244はallowlist bridge facadeだけを注入し、frontend内のfixture adapterを置換する。CDB、card text/image、ocgcore binary、CardScriptsはstatic artifactとWindows executableへ同梱しない。
+HTMLはdefault-deny CSPを持ち、remote content、network request、inline script/style、`eval`を使わない。`app.js`はdirect `window.pywebview` accessを持たず、`bridge.js`だけが`desktop-bridge-v1` allowlist facadeを公開する。Windows shellでは実deck catalogとnative YDK importを接続し、browser harnessではfixture search adapterを維持する。CDB、card text/image、ocgcore binary、CardScriptsはstatic artifactとWindows executableへ同梱しない。
 
 ## Evidence
 
-`docs/ui/evidence/desktop_frontend.json`はEdgeで実行後DOMに4 deck rowとworkflow versionが存在すること、2 viewport PNGのdimension/hash、security/limitationを保存する。evidence IDは`desktopfrontendevidence_e55ee6cbe767164a02ad398c4a8bdb9dee5f19718c4ed88fb3dc9253e15792f3`である。
+`docs/ui/evidence/desktop_frontend.json`はEdgeで実行後DOMに4 deck rowとworkflow versionが存在すること、2 viewport PNGのdimension/hash、security/limitationを保存する。evidence IDは`desktopfrontendevidence_4df75aa6ab31c365d77b590b7d2507ef51fbfeda5166d63bb63b801466827580`である。
 
 - [1440×900 deck dashboard](../../ui/evidence/deck_dashboard_1440x900.png)
 - [960×700 search form](../../ui/evidence/deck_search_960x700.png)

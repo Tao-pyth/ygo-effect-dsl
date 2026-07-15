@@ -281,6 +281,10 @@ code {
   overflow: hidden;
 }
 
+.workspace.catalog-only {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .catalog-pane,
 .detail-pane {
   min-width: 0;

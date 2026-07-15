@@ -2,7 +2,7 @@
 
 const WORKFLOW_VERSION = "desktop-workflow-v1";
 
-const decks = [
+let decks = [
   {
     id: "short-route",
     name: "Short route fixture",
@@ -182,12 +182,99 @@ const elements = {
   cancelJob: document.querySelector("#cancel-job"),
   viewResult: document.querySelector("#view-result"),
   toast: document.querySelector("#toast"),
+  workspace: document.querySelector("#workspace"),
+  catalogMetrics: document.querySelector("#catalog-metrics"),
+  catalogSourceLabel: document.querySelector("#catalog-source-label"),
+  detailPane: document.querySelector("#detail-pane"),
+  environmentLabel: document.querySelector("#environment-label"),
+  environmentCode: document.querySelector("#environment-code"),
 };
 
 let selectedDeck = decks[0];
 let preflightValid = false;
 let jobTimer = null;
 let toastTimer = null;
+
+function desktopBridgeAvailable() {
+  return Boolean(window.routeLabBridge && window.routeLabBridge.available());
+}
+
+function markDesktopEnvironment() {
+  elements.environmentLabel.textContent = "Desktop bridge ready";
+  elements.environmentCode.textContent = "preflight per run";
+  elements.catalogSourceLabel.textContent = "Showing the local desktop deck catalog";
+}
+
+function bridgeDeck(record) {
+  return {
+    id: record.deck_id,
+    name: record.name,
+    hash: record.deck_sha256.slice(0, 8),
+    tags: [record.source, record.status],
+    main: record.main_count,
+    extra: record.extra_count,
+    side: record.side_count,
+    source: record.source,
+    status: "review",
+    statusLabel: "Registered",
+    runs: 0,
+    success: 0,
+    best: 0,
+    terminal: 0,
+    updated: "Local catalog",
+    updatedOrder: 5,
+    chart: [["Random", 0], ["Beam", 0], ["MCTS", 0]],
+    cards: record.card_counts.slice(0, 30).map((item) => ({
+      code: item.card_code,
+      name: `Card ${item.card_code}`,
+      count: item.count,
+      type: "Presentation unavailable",
+      attribute: "-",
+      stats: "-",
+    })),
+    recentRuns: [],
+  };
+}
+
+async function refreshDesktopCatalog() {
+  if (!desktopBridgeAvailable()) return;
+  markDesktopEnvironment();
+  const response = await window.routeLabBridge.invoke("deck.catalog", {});
+  if (!response.ok) {
+    showToast(response.diagnostics[0]?.message || "Desktop deck catalog failed.");
+    return;
+  }
+  decks = response.result.decks.map(bridgeDeck);
+  if (decks.length === 0) {
+    selectedDeck = null;
+    elements.catalogMetrics.hidden = true;
+    elements.detailPane.hidden = true;
+    elements.workspace.classList.add("catalog-only");
+    renderDecks();
+    return;
+  }
+  selectedDeck = decks[0];
+  elements.catalogMetrics.hidden = false;
+  elements.detailPane.hidden = false;
+  elements.workspace.classList.remove("catalog-only");
+  renderDecks();
+  updateDetail(selectedDeck);
+}
+
+async function importDesktopYdk() {
+  if (!desktopBridgeAvailable()) {
+    showToast("Native YDK file selection is available in the Windows desktop shell.");
+    return;
+  }
+  const response = await window.routeLabBridge.invoke("deck.import_ydk", {});
+  if (!response.ok) {
+    showToast(response.diagnostics[0]?.message || "YDK import failed.");
+    return;
+  }
+  if (response.result.cancelled) return;
+  await refreshDesktopCatalog();
+  showToast("YDK registered in the local desktop catalog.");
+}
 
 function textElement(tag, text, className = "") {
   const element = document.createElement(tag);
@@ -223,7 +310,7 @@ function renderDecks() {
   for (const deck of visible) {
     const row = document.createElement("tr");
     row.dataset.deckId = deck.id;
-    if (deck.id === selectedDeck.id) row.classList.add("is-selected");
+    if (selectedDeck && deck.id === selectedDeck.id) row.classList.add("is-selected");
 
     const nameCell = document.createElement("td");
     const nameButton = document.createElement("button");
@@ -590,8 +677,14 @@ document.querySelector("#close-result").addEventListener("click", () => {
   replaceHash(`deck=${encodeURIComponent(selectedDeck.id)}`);
 });
 
-document.querySelector("#import-deck").addEventListener("click", () => showToast("Native YDK file selection is connected by issue #244."));
+document.querySelector("#import-deck").addEventListener("click", () => {
+  importDesktopYdk().catch(() => showToast("Desktop YDK import failed closed."));
+});
 document.querySelector("#new-inline").addEventListener("click", () => showToast("Inline deck registration is connected by issue #244."));
 
 document.documentElement.dataset.workflowVersion = WORKFLOW_VERSION;
 initializeFromHash();
+window.addEventListener("routelabbridgeready", () => {
+  refreshDesktopCatalog().catch(() => showToast("Desktop catalog failed closed."));
+});
+refreshDesktopCatalog().catch(() => showToast("Desktop catalog failed closed."));

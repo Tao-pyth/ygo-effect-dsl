@@ -128,8 +128,9 @@ def collect_desktop_frontend_evidence(
                 ),
             },
             "limitations": [
-                "synthetic_fixture_adapter_only",
-                "real_bridge_and_worker_execution_deferred_to_issue_244",
+                "synthetic_search_browser_adapter_only",
+                "desktop_bridge_is_verified_separately_from_browser_capture",
+                "continuous_search_worker_execution_not_exercised_by_browser_capture",
                 "screen_reader_and_webview2_lifecycle_deferred_to_issue_245",
                 "catalog_virtualization_deferred_to_issue_165",
                 "single_windows_host_headless_edge_capture",
