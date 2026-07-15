@@ -14,6 +14,10 @@ from ygo_effect_dsl.experiment.qualification import (
     QUALIFICATION_PROFILE_IDS,
     run_external_real_deck_qualification,
 )
+from ygo_effect_dsl.experiment.cross_validation import (
+    run_strategy_interruption_cross_validation,
+    write_strategy_interruption_cross_validation,
+)
 
 
 def _profile_inputs(values: list[str]) -> dict[str, str]:
@@ -46,6 +50,23 @@ def cmd_real_deck_qualify(args: argparse.Namespace) -> int:
         "real-deck-qualify: ok "
         f"qualification_id={index['qualification_id']} "
         f"profiles={len(index['profiles'])} index={args.index_out}"
+    )
+    return 0
+
+
+def cmd_strategy_interruption_qualify(args: argparse.Namespace) -> int:
+    experiments = _profile_inputs(args.experiment)
+    report = run_strategy_interruption_cross_validation(
+        experiments,
+        external_root=args.external_root,
+        worker_timeout=args.worker_timeout,
+        max_retries=args.max_retries,
+    )
+    write_strategy_interruption_cross_validation(args.out, report)
+    print(
+        "strategy-interruption-qualify: ok "
+        f"qualification_id={report['qualification_id']} "
+        f"cells={report['coverage']['matrix_cell_count']} out={args.out}"
     )
     return 0
 
@@ -88,4 +109,5 @@ __all__ = [
     "cmd_clean_bootstrap_qualify",
     "cmd_lua_load_qualify",
     "cmd_real_deck_qualify",
+    "cmd_strategy_interruption_qualify",
 ]

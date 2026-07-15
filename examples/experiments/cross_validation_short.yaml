@@ -1,0 +1,92 @@
+schema_version: "0.4"
+experiment_id: cross_validation_short
+objective: strategy_interruption_recovery_cross_validation
+deck:
+  id: cross_validation_short
+  source: inline
+  main:
+    - 2511
+    - 10000
+    - 27551
+    - 35699
+    - 39015
+    - 41546
+    - 41777
+    - 44818
+    - 50755
+    - 56889
+    - 59080
+    - 62121
+    - 96540
+    - 98905
+    - 102380
+    - 111280
+    - 114932
+    - 122520
+    - 123709
+    - 126218
+    - 128454
+    - 131182
+    - 132308
+    - 135598
+    - 164710
+    - 168917
+    - 176392
+    - 191749
+    - 197042
+    - 209710
+    - 213326
+    - 218704
+    - 220414
+    - 242146
+    - 255998
+    - 259314
+    - 263926
+    - 269012
+    - 269510
+    - 276357
+  extra: []
+  side: []
+player: {starting_player: 0, perspective: 0}
+turn_limit: 2
+information_mode: complete_information
+information_policy:
+  schema_version: information-policy-v1
+  policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+  deck_order: known
+  opening_hand: fixed
+  sampling_reference: null
+evaluate_at: legal_stop
+success_predicate:
+  id: real_core_min_monster_count
+  version: "1"
+  config: {player: 0, zone: monster_zone, min_count: 1}
+evaluator:
+  id: real_core_board_count
+  version: "1"
+  config:
+    hand_weight: 1
+    monster_weight: 10
+    missing_value_policy: error
+    temporary_value_policy: exclude_expired_or_unverified_v1
+search:
+  strategy: random_search_v1
+  budget: {max_nodes: 12, max_replays: 12, max_depth: 8}
+  parameters:
+    seed: 0
+    max_frontier_actions: 128
+    termination: {}
+interruption:
+  mode: specified
+  definitions:
+    - id: opening_source
+      source_card_code: 2511
+      source_player: 0
+      source_zone: hand
+      response_roles: []
+replay: {strict_versions: true}
+scenario:
+  schema_version: scenario-v1
+  opening_hand:
+    mode: fixed
+    cards: [2511, 10000, 27551, 35699, 39015]

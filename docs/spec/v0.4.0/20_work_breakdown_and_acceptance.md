@@ -1,6 +1,6 @@
 # Package 0.4.0 Work Breakdown and Acceptance
 
-Status: Items 1-11 implemented; cross-validation item 12 pending
+Status: Items 1-12 implemented; runtime follow-ups #229 and #231 tracked separately
 
 Last updated: 2026-07-15
 

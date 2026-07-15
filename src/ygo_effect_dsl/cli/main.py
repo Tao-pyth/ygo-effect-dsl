@@ -38,6 +38,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_clean_bootstrap_qualify,
     cmd_lua_load_qualify,
     cmd_real_deck_qualify,
+    cmd_strategy_interruption_qualify,
 )
 from ygo_effect_dsl.cli.cmd_transform import cmd_transform
 from ygo_effect_dsl.cli.cmd_validate import cmd_validate
@@ -304,6 +305,33 @@ def main() -> int:
     real_deck_qualify.add_argument("--worker-timeout", type=float, default=30.0)
     real_deck_qualify.add_argument("--max-retries", type=int, default=1)
     real_deck_qualify.set_defaults(func=cmd_real_deck_qualify)
+
+    strategy_interruption_qualify = sub.add_parser(
+        "strategy-interruption-qualify",
+        help="cross-validate three real decks across Random, Beam, and MCTS",
+    )
+    strategy_interruption_qualify.add_argument(
+        "--experiment",
+        action="append",
+        default=[],
+        metavar="PROFILE=PATH",
+        help="repeat exactly for short, long, and grave_banish",
+    )
+    strategy_interruption_qualify.add_argument(
+        "--out",
+        required=True,
+        help="sanitized cross-validation evidence JSON path",
+    )
+    strategy_interruption_qualify.add_argument("--external-root")
+    strategy_interruption_qualify.add_argument(
+        "--worker-timeout", type=float, default=30.0
+    )
+    strategy_interruption_qualify.add_argument(
+        "--max-retries", type=int, default=1
+    )
+    strategy_interruption_qualify.set_defaults(
+        func=cmd_strategy_interruption_qualify
+    )
 
     lua_load_qualify = sub.add_parser(
         "ocgcore-lua-qualify",
