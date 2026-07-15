@@ -1,8 +1,10 @@
 # Multi-turn Lifecycle and Budget Ownership Contract
 
-Status: Implemented for legal-stop 1/2/3-turn traversal; core duel-end runtime decoding remains [#229](https://github.com/Tao-pyth/ygo-effect-dsl/issues/229)
+Status: Implemented for legal-stop 1/2/3-turn traversal and core terminal frontier decoding; see [#229](https://github.com/Tao-pyth/ygo-effect-dsl/issues/229)
 
 Last updated: 2026-07-15
+
+Terminal runtime note: pinned ocgcore API 11.0の実測では、勝敗時も`OCG_DuelProcess=AWAITING`となり得るため、winner/reasonを持つ`MSG_WIN`をterminal authorityとする。Actionなしの`terminal_observation`、Replay lineage、fail-close規則の詳細は[Core Terminal Frontier Runtime](21_core_terminal_frontier.md)で定義する。本文中の#229未実装という記述は、この実装済みnoteが置き換える。
 
 ## Scope
 

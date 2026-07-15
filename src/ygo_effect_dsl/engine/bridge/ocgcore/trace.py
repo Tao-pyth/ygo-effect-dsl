@@ -26,6 +26,7 @@ from ygo_effect_dsl.engine.canonical import stable_digest, to_canonical_data
 CORE_OUTPUT_TRACE_SCHEMA_VERSION = "ocgcore-output-trace-v2"
 RANDOM_EVENT_TRACE_SCHEMA_VERSION = "ocgcore-random-event-v2"
 PROGRESS_EVENT_TRACE_SCHEMA_VERSION = "ocgcore-progress-event-v1"
+TERMINAL_EVENT_TRACE_SCHEMA_VERSION = "ocgcore-terminal-event-v1"
 CROSS_CHANNEL_ORDERING_SCHEMA_VERSION = "ocgcore-cross-channel-ordering-v1"
 
 
@@ -42,6 +43,10 @@ class RandomMessageType(IntEnum):
 class ProgressMessageType(IntEnum):
     NEW_TURN = 40
     NEW_PHASE = 41
+
+
+class TerminalMessageType(IntEnum):
+    WIN = 5
 
 
 PHASE_NAMES = {
@@ -277,6 +282,26 @@ def _progress_outcome(frame: MessageFrame) -> tuple[str, dict[str, Any]]:
     return "new_phase", {"phase": phase, "phase_name": phase_name}
 
 
+def _terminal_outcome(frame: MessageFrame) -> dict[str, Any]:
+    reader = _TraceReader(frame)
+    winner = reader.u8("winner")
+    reason_code = reader.u8("reason")
+    reader.finish()
+    if winner not in (0, 1, 2):
+        raise InvalidBridgeMessageError(
+            f"trace message {frame.message_type}.winner must be 0, 1, or 2"
+        )
+    return {
+        "outcome": "draw" if winner == 2 else "win",
+        "reason_category": {
+            1: "life_points_zero",
+            2: "deck_out",
+        }.get(reason_code, "core_defined"),
+        "reason_code": reason_code,
+        "winner_player": None if winner == 2 else winner,
+    }
+
+
 def build_core_output_trace(
     batch: DecodedMessageBatch,
     *,
@@ -306,8 +331,10 @@ def build_core_output_trace(
     ]
     random_events: list[dict[str, Any]] = []
     progress_events: list[dict[str, Any]] = []
+    terminal_events: list[dict[str, Any]] = []
     random_types = {int(value) for value in RandomMessageType}
     progress_types = {int(value) for value in ProgressMessageType}
+    terminal_types = {int(value) for value in TerminalMessageType}
     legacy_direct_draws = extract_direct_random_draws(batch.frames)
     if legacy_direct_draws:
         raise InvalidBridgeMessageError(
@@ -363,6 +390,21 @@ def build_core_output_trace(
                     "progress_event_id": stable_digest(identity, prefix="prog_"),
                 }
             )
+        if frame.message_type in terminal_types:
+            outcome = _terminal_outcome(frame)
+            identity = {
+                "frame_index": frame_index,
+                "message_type": frame.message_type,
+                **outcome,
+                "resulting_state_hash": state_hash,
+                "schema_version": TERMINAL_EVENT_TRACE_SCHEMA_VERSION,
+            }
+            terminal_events.append(
+                {
+                    **to_canonical_data(identity),
+                    "terminal_event_id": stable_digest(identity, prefix="terminal_"),
+                }
+            )
     identity = {
         "frames": frames,
         "logs": logs,
@@ -374,4 +416,6 @@ def build_core_output_trace(
         "resulting_state_hash": state_hash,
         "schema_version": CORE_OUTPUT_TRACE_SCHEMA_VERSION,
     }
+    if terminal_events:
+        identity["terminal_events"] = terminal_events
     return {**to_canonical_data(identity), "batch_id": stable_digest(identity, prefix="batch_")}

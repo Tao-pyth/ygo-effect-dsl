@@ -34,6 +34,7 @@ from ygo_effect_dsl.engine.bridge.ocgcore import (
     DIRECT_RANDOM_TRACE_LUA_SOURCE,
     DIRECT_RANDOM_TRACE_SCRIPT_NAME,
     DuelConfig,
+    DuelProcessStatus,
     NewCard,
     OcgcoreLibrary,
     OcgcoreMessageDecoder,
@@ -191,6 +192,12 @@ INTERRUPTION_EFFECT_NEGATION_FIXTURE_ID = "interruption_effect_negation_v1"
 INTERRUPTION_SEQUENCE_FIXTURE_ID = "interruption_sequence_v1"
 INTERRUPTION_TIMING_FIXTURE_ID = "interruption_missed_timing_v1"
 TARGET_LOSS_FIXTURE_ID = "action_aggregation_target_loss_v1"
+TERMINAL_FIXTURE_CARD_CODE = 2511
+TERMINAL_LP_ZERO_FIXTURE_ID = "terminal_lp_zero_v1"
+TERMINAL_DECK_OUT_FIXTURE_ID = "terminal_deck_out_v1"
+TERMINAL_FIXTURE_IDS = frozenset(
+    {TERMINAL_LP_ZERO_FIXTURE_ID, TERMINAL_DECK_OUT_FIXTURE_ID}
+)
 GENERIC_INTERRUPTION_FIXTURE_IDS = frozenset(
     {
         INTERRUPTION_MATRIX_FIXTURE_ID,
@@ -212,9 +219,37 @@ REAL_CORE_DOCUMENT_KINDS = frozenset(
 )
 REAL_CORE_FRONTIER_SCHEMA_VERSION = "real-core-frontier-v2"
 REAL_CORE_PLAYER_VIEW_RESULT_SCHEMA_VERSION = "real-core-player-view-result-v2"
+CORE_TERMINAL_OBSERVATION_SCHEMA_VERSION = "core-terminal-observation-v1"
+CORE_TERMINAL_OUTCOME_SCHEMA_VERSION = "core-terminal-outcome-v1"
 PLAYER_VIEW_LINEAGE_SCHEMA_VERSION = "player-view-lineage-v1"
 PLAYER_VIEW_VERIFICATION_SCHEMA_VERSION = "player-view-verification-v1"
 STATUS_DISABLED = 0x0001
+TERMINAL_LP_ZERO_FIXTURE_SCRIPT = """local s,id=GetID()
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_QUICK_O)
+    e1:SetCode(EVENT_FREE_CHAIN)
+    e1:SetRange(LOCATION_HAND)
+    e1:SetOperation(s.operation)
+    c:RegisterEffect(e1)
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    Duel.SetLP(1-tp,0)
+end
+"""
+TERMINAL_DECK_OUT_FIXTURE_SCRIPT = """local s,id=GetID()
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_QUICK_O)
+    e1:SetCode(EVENT_FREE_CHAIN)
+    e1:SetRange(LOCATION_HAND)
+    e1:SetOperation(s.operation)
+    c:RegisterEffect(e1)
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Draw(1-tp,1,REASON_EFFECT)
+end
+"""
 TEMPORARY_ATK_FIXTURE_SCRIPT = """local s,id=GetID()
 function s.initial_effect(c)
     local e1=Effect.CreateEffect(c)
@@ -1071,6 +1106,7 @@ def _fixture_script_id(experiment: Mapping[str, Any]) -> str | None:
         INTERRUPTION_SEQUENCE_FIXTURE_ID,
         INTERRUPTION_TIMING_FIXTURE_ID,
         TARGET_LOSS_FIXTURE_ID,
+        *TERMINAL_FIXTURE_IDS,
     }:
         raise ValueError(f"unsupported runner.fixture_script_id {value!r}")
     return str(value)
@@ -1143,6 +1179,14 @@ def _fixture_scripts(fixture_script_id: str | None) -> dict[int, bytes]:
             INTERRUPTION_FIELD_CODE: TARGET_LOSS_FIELD_FIXTURE_SCRIPT,
             INTERRUPTION_SUPPORT_CODE: INTERRUPTION_BLANK_FIXTURE_SCRIPT,
         }
+    elif fixture_script_id == TERMINAL_LP_ZERO_FIXTURE_ID:
+        source_by_code = {
+            TERMINAL_FIXTURE_CARD_CODE: TERMINAL_LP_ZERO_FIXTURE_SCRIPT
+        }
+    elif fixture_script_id == TERMINAL_DECK_OUT_FIXTURE_ID:
+        source_by_code = {
+            TERMINAL_FIXTURE_CARD_CODE: TERMINAL_DECK_OUT_FIXTURE_SCRIPT
+        }
     return {code: source.encode("utf-8") for code, source in source_by_code.items()}
 
 
@@ -1183,6 +1227,12 @@ def _fixture_script_metadata(
             ACTIVATION_ROLLBACK_FIXTURE_ID: (
                 "native_activation_setup_cancellation_probe"
             ),
+        }[fixture_script_id]
+    elif fixture_script_id in TERMINAL_FIXTURE_IDS:
+        metadata["name"] = f"c{TERMINAL_FIXTURE_CARD_CODE}.lua"
+        metadata["purpose"] = {
+            TERMINAL_LP_ZERO_FIXTURE_ID: "core_terminal_life_points_zero",
+            TERMINAL_DECK_OUT_FIXTURE_ID: "core_terminal_deck_out",
         }[fixture_script_id]
     elif fixture_script_id == RECOVERY_ATTRIBUTION_FIXTURE_ID:
         scripts = _fixture_scripts(fixture_script_id)
@@ -2151,27 +2201,45 @@ def _decode_batch(
         request_id=f"{scenario_id}:{step}",
         logs=batch.logs,
     )
-    if decoded.request is None:
+    win_frames = [frame for frame in decoded.frames if frame.message_type == 5]
+    terminal = bool(win_frames)
+    if len({frame.payload for frame in win_frames}) > 1:
+        raise ValueError("ocgcore terminal batch contains conflicting MSG_WIN frames")
+    if batch.status == DuelProcessStatus.END and not terminal:
+        raise ValueError(
+            "ocgcore native END omitted MSG_WIN winner/reason evidence"
+        )
+    if terminal:
+        decoded = replace(decoded, request=None)
+    elif decoded.request is None:
         raise ValueError("ocgcore reached an awaiting state without a supported request")
     if card_instance_tracker is not None:
         if card_instance_duel is None:
             raise ValueError("card instance v2 requires the active duel")
-        scan_label = f"request_{step}"
-        scan_logs = card_instance_duel.capture_card_instance_scan(
-            scan_nonce=scan_label
-        )
-        combined_logs = (*batch.logs, *scan_logs)
-        request = card_instance_tracker.synchronize_request(
-            combined_logs,
-            decoded.request,
-            expected_scan_label=scan_label,
-            message_types=[frame.message_type for frame in decoded.frames],
-        )
-        decoded = replace(
-            decoded,
-            request=request,
-            logs=filter_card_instance_trace_logs(combined_logs),
-        )
+        if terminal:
+            card_instance_tracker.consume(batch.logs)
+            decoded = replace(
+                decoded,
+                logs=filter_card_instance_trace_logs(batch.logs),
+            )
+        else:
+            scan_label = f"request_{step}"
+            scan_logs = card_instance_duel.capture_card_instance_scan(
+                scan_nonce=scan_label
+            )
+            combined_logs = (*batch.logs, *scan_logs)
+            assert decoded.request is not None
+            request = card_instance_tracker.synchronize_request(
+                combined_logs,
+                decoded.request,
+                expected_scan_label=scan_label,
+                message_types=[frame.message_type for frame in decoded.frames],
+            )
+            decoded = replace(
+                decoded,
+                request=request,
+                logs=filter_card_instance_trace_logs(combined_logs),
+            )
     return decoded
 
 
@@ -2285,7 +2353,7 @@ def _evaluation(
 
 def _frontier_document(
     *,
-    request: Any,
+    request: Any | None,
     actions: Sequence[Action],
     snapshot: Any,
     checkpoint_snapshots: Sequence[tuple[Any, int, str]],
@@ -2295,7 +2363,17 @@ def _frontier_document(
     legal_stop: Any,
     route_document: Mapping[str, Any] | None,
     action_prefix: Sequence[Mapping[str, Any]],
+    terminal_outcome: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
+    is_terminal = snapshot.process_state == "ended"
+    if is_terminal != (request is None):
+        raise ValueError(
+            "terminal snapshot and pending DecisionRequest state are inconsistent"
+        )
+    if is_terminal != (terminal_outcome is not None):
+        raise ValueError("terminal snapshot and core terminal outcome are inconsistent")
+    if is_terminal and actions:
+        raise ValueError("terminal frontier cannot expose Actions")
     board = build_board_summary(snapshot, viewer=0).to_dict()
     evaluation, success = _evaluation(
         board,
@@ -2324,7 +2402,8 @@ def _frontier_document(
         composition = build_multi_interruption_composition(interruption)
         interruption_composition = composition.to_dict()
     if (
-        interruption.get("mode") == "specified"
+        request is not None
+        and interruption.get("mode") == "specified"
         and request.request_type == "select_chain"
     ):
         assert composition is not None
@@ -2369,7 +2448,7 @@ def _frontier_document(
                 )
         actions = runtime_frontier.actions
         interruption_opportunities = runtime_frontier.to_dict()
-    elif interruption.get("mode") == "specified":
+    elif request is not None and interruption.get("mode") == "specified":
         assert composition is not None
         active_definition = None
         activation_index = None
@@ -2427,12 +2506,28 @@ def _frontier_document(
         turn=turn,
         phase=phase,
         turn_limit=int(experiment["turn_limit"]),
-        request_type=request.request_type,
+        request_type=request.request_type if request is not None else "duel_end",
         process_state=snapshot.process_state,
         chain_count=int(snapshot.field_state["chain_count"]),
         legal_stop=bool(legal_stop.can_stop),
-        forced_response=request.context.extra.get("forced") is True,
+        forced_response=(
+            request.context.extra.get("forced") is True
+            if request is not None
+            else False
+        ),
     )
+    terminal_observation = None
+    if terminal_outcome is not None:
+        terminal_observation = {
+            "final_action_id": (
+                action_prefix[-1].get("action_id") if action_prefix else None
+            ),
+            "outcome": to_canonical_data(terminal_outcome),
+            "pending_request": None,
+            "process_state": snapshot.process_state,
+            "schema_version": CORE_TERMINAL_OBSERVATION_SCHEMA_VERSION,
+            "state_id": snapshot.state_hash,
+        }
     return {
         "actions": [action.to_dict() for action in actions],
         "interruption_composition": interruption_composition,
@@ -2441,13 +2536,14 @@ def _frontier_document(
         "interruption_taxonomy": interruption_taxonomy,
         "peak_score": peak_score,
         "replay_count": 1,
-        "request": request.to_dict(),
+        "request": request.to_dict() if request is not None else None,
         "route_document": to_canonical_data(route_document),
         "schema_version": REAL_CORE_FRONTIER_SCHEMA_VERSION,
         "score": evaluation.total_score,
         "state_completeness": snapshot.identity_completeness,
         "state_id": snapshot.state_hash,
         "success": success,
+        "terminal_observation": terminal_observation,
         "turn_lifecycle": turn_lifecycle.to_dict(),
     }
 
@@ -2790,6 +2886,7 @@ def _build_real_core_temporary_observation(
 ) -> dict[str, Any] | None:
     if fixture_script_id in {
         *ACTION_AGGREGATION_FIXTURE_IDS,
+        *TERMINAL_FIXTURE_IDS,
         RECOVERY_ATTRIBUTION_FIXTURE_ID,
         INTERRUPTION_MATRIX_FIXTURE_ID,
         INTERRUPTION_EFFECT_NEGATION_FIXTURE_ID,
@@ -3279,7 +3376,33 @@ def run_real_core_worker(
                     card_instance_duel=duel,
                 )
                 request = initial_batch.request
-                assert request is not None
+                if request is None:
+                    terminal_snapshot = duel.capture_snapshot(
+                        pending_request=None,
+                        environment=environment,
+                        information_mode=information_policy.information_mode,
+                        sampling_reference=information_policy.sampling_reference,
+                    )
+                    terminal_snapshot = replace(
+                        terminal_snapshot,
+                        process_state="ended",
+                        pending_request=None,
+                    )
+                    terminal_output = build_core_output_trace(
+                        initial_batch,
+                        snapshot=terminal_snapshot.to_dict(),
+                    )
+                    raise MultiTurnLifecycleError(
+                        "initial_duel_end_without_action",
+                        "ocgcore ended before any replayable Action was submitted",
+                        path_failure=False,
+                        context={
+                            "process_state": terminal_snapshot.process_state,
+                            "terminal_events": terminal_output.get(
+                                "terminal_events", []
+                            ),
+                        },
+                    )
                 current_snapshot = duel.capture_snapshot(
                     pending_request=request,
                     environment=environment,
@@ -3377,6 +3500,7 @@ def run_real_core_worker(
                 turn_action_index = 0
                 frontier_actions_at_stop: tuple[Action, ...] = ()
                 frontier_legal_stop = None
+                terminal_outcome: Mapping[str, Any] | None = None
                 frontier_limit = int(
                     experiment["search"].get("parameters", {}).get(
                         "max_frontier_actions", 256
@@ -3563,13 +3687,18 @@ def run_real_core_worker(
                         card_instance_duel=duel,
                     )
                     next_request = next_batch.request
-                    assert next_request is not None
                     next_snapshot = duel.capture_snapshot(
                         pending_request=next_request,
                         environment=environment,
                         information_mode=information_policy.information_mode,
                         sampling_reference=information_policy.sampling_reference,
                     )
+                    if next_request is None:
+                        next_snapshot = replace(
+                            next_snapshot,
+                            process_state="ended",
+                            pending_request=None,
+                        )
                     if card_instance_tracker is not None:
                         next_snapshot = card_instance_tracker.enrich_snapshot(
                             next_snapshot
@@ -3606,6 +3735,68 @@ def run_real_core_worker(
                         (next_snapshot, next_turn, next_phase)
                     )
                     request_signatures.append(request.request_signature)
+                    if next_request is None:
+                        raw_terminal_events = core_output.get("terminal_events")
+                        if (
+                            not isinstance(raw_terminal_events, list)
+                            or not raw_terminal_events
+                            or any(
+                                not isinstance(item, Mapping)
+                                for item in raw_terminal_events
+                            )
+                        ):
+                            raise ValueError(
+                                "terminal core output requires terminal event evidence"
+                            )
+                        outcome_fields = (
+                            "outcome",
+                            "reason_category",
+                            "reason_code",
+                            "winner_player",
+                        )
+                        first_terminal_event = raw_terminal_events[0]
+                        assert isinstance(first_terminal_event, Mapping)
+                        if any(
+                            any(
+                                item.get(field) != first_terminal_event.get(field)
+                                for field in outcome_fields
+                            )
+                            for item in raw_terminal_events[1:]
+                        ):
+                            raise ValueError(
+                                "terminal core output contains conflicting outcomes"
+                            )
+                        terminal_outcome = {
+                            field: first_terminal_event.get(field)
+                            for field in outcome_fields
+                        }
+                        terminal_outcome.update(
+                            {
+                                "message_count": len(raw_terminal_events),
+                                "schema_version": (
+                                    CORE_TERMINAL_OUTCOME_SCHEMA_VERSION
+                                ),
+                                "terminal_event_ids": [
+                                    item["terminal_event_id"]
+                                    for item in raw_terminal_events
+                                ],
+                            }
+                        )
+                        terminal_stop = evaluate_legal_stop(next_snapshot)
+                        if not terminal_stop.can_stop or terminal_stop.reason != "terminal":
+                            raise ValueError(
+                                "ended core state did not produce a terminal legal stop"
+                            )
+                        temporary_checkpoint_step = step
+                        final_request_signature = None
+                        if frontier_mode:
+                            frontier_actions_at_stop = ()
+                            frontier_legal_stop = terminal_stop
+                        request = None
+                        current_snapshot = next_snapshot
+                        current_turn = next_turn
+                        current_phase = next_phase
+                        break
                     if is_activation_rollback_cancel:
                         diagnostics = [
                             {
@@ -4005,7 +4196,11 @@ def run_real_core_worker(
         "result": {
             "success": bool(checkpoints[peak_step]["success"]),
             "final_request_signature": final_request_signature,
-            "request_signatures": [*request_signatures, final_request_signature],
+            "request_signatures": (
+                [*request_signatures, final_request_signature]
+                if final_request_signature is not None
+                else list(request_signatures)
+            ),
             **(
                 {"lua_script_resolution": lua_script_resolution}
                 if persist_script_resolution
@@ -4023,6 +4218,10 @@ def run_real_core_worker(
         "interruptions": interruption_records,
         "lineage": lineage,
     }
+    if terminal_outcome is not None:
+        document["result"]["terminal_outcome"] = to_canonical_data(
+            terminal_outcome
+        )
     if durability is not None:
         document["result"]["durability"] = durability
     if temporary_modifier_observation is not None:
@@ -4117,6 +4316,7 @@ def run_real_core_worker(
             legal_stop=frontier_legal_stop,
             route_document=document,
             action_prefix=action_prefix,
+            terminal_outcome=terminal_outcome,
         )
     return document
 

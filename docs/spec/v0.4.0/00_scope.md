@@ -1,6 +1,6 @@
 # Package 0.4.0 Scope: General Strategies and PlayerView
 
-Status: Planned items 1-12 implemented; core terminal runtime follow-up [#229](https://github.com/Tao-pyth/ygo-effect-dsl/issues/229) remains open; parent [#132](https://github.com/Tao-pyth/ygo-effect-dsl/issues/132)
+Status: Planned items 1-13 implemented; node-level pool/cache follow-up [#231](https://github.com/Tao-pyth/ygo-effect-dsl/issues/231) remains open; parent [#132](https://github.com/Tao-pyth/ygo-effect-dsl/issues/132)
 
 Last updated: 2026-07-15
 

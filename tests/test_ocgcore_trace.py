@@ -268,6 +268,50 @@ def test_core_output_trace_records_turn_and_phase_progress_in_order() -> None:
     ) == 3
 
 
+@pytest.mark.parametrize(
+    ("winner", "reason", "expected"),
+    [
+        (0, 1, ("win", "life_points_zero", 0)),
+        (1, 2, ("win", "deck_out", 1)),
+        (2, 7, ("draw", "core_defined", None)),
+    ],
+)
+def test_core_output_trace_records_terminal_winner_and_reason(
+    winner: int,
+    reason: int,
+    expected: tuple[str, str, int | None],
+) -> None:
+    trace = build_core_output_trace(
+        DecodedMessageBatch(
+            frames=(MessageFrame(5, bytes((winner, reason))),),
+            request=None,
+        ),
+        snapshot=_snapshot(),
+    )
+
+    terminal = trace["terminal_events"]
+    assert len(terminal) == 1
+    assert (
+        terminal[0]["outcome"],
+        terminal[0]["reason_category"],
+        terminal[0]["winner_player"],
+    ) == expected
+    assert terminal[0]["reason_code"] == reason
+    assert terminal[0]["terminal_event_id"].startswith("terminal_")
+
+
+@pytest.mark.parametrize("payload", [b"\x00", b"\x03\x01", b"\x00\x01\x00"])
+def test_core_output_trace_rejects_malformed_terminal_message(payload: bytes) -> None:
+    with pytest.raises(InvalidBridgeMessageError):
+        build_core_output_trace(
+            DecodedMessageBatch(
+                frames=(MessageFrame(5, payload),),
+                request=None,
+            ),
+            snapshot=_snapshot(),
+        )
+
+
 def test_core_output_trace_rejects_unknown_phase() -> None:
     with pytest.raises(InvalidBridgeMessageError, match="unknown phase"):
         build_core_output_trace(
