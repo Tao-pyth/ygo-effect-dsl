@@ -25,6 +25,20 @@ raw evidenceをschema migrationでin-place再解釈しない。migrationはnew s
 
 ## Corpus manifest
 
+The implemented baseline is `corpus-manifest-v1`, validated by
+`corpus-manifest-validation-v1` and indexed in `corpus-catalog-v1`.
+`corpus_item_id` identifies exact content plus its provenance identity, while
+`corpussemantic_` identifies the reaggregation unit independently of source
+path, ingest time, and byte serialization. Exact duplicates are idempotent;
+semantic duplicates retain every raw item and record the first matching item.
+
+Only `complete` items can enter aggregation. `incomplete`, `corrupt`, and
+`quarantined` items remain inspectable but ineligible. Invalid schema, missing
+provenance, ID mismatch, and embedded third-party assets are stored in an
+idempotent quarantine ledger with machine-readable diagnostics. Manifests store
+asset lock, database hash, and source commit references only; they never embed
+third-party CDB, Lua, image, or card-text assets.
+
 各corpus itemは最低限次を持つ。
 
 - corpus/item ID、content SHA-256、ingest timestamp、source URIまたはlocal provenance
