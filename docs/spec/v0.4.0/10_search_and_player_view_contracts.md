@@ -120,6 +120,8 @@ PlayerView artifactはcomplete Replayと別schema/identityを持ち、complete h
 
 scenarioは指定card code、source制約、最大発動回数、必要ならpriorityを入力する。探索はcoreが提示した各発動機会でPASS/activateへ分岐し、activation/cost/target/option responseをDecisionRequest constraintから生成する。
 
+composition、priority、branch、response ownership、lineage、failure分類の正本は[Multi-interruption Scenario Composition Contract](16_multi_interruption_composition_contract.md)とする。
+
 - 同一chain/別chain、source移動、候補消失、once-per-turn相当の可否はcore結果を使う。
 - Pythonがcard textから「最適timing」を推測しない。
 - 相手の全合法手を一般探索しない。

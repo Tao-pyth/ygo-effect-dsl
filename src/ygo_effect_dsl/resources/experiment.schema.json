@@ -91,7 +91,38 @@
             "seed": {"type": "integer", "minimum": 0}
           }
         },
-        "definitions": {"type": "array", "items": {"type": "object", "required": ["id"]}}
+        "composition": {
+          "type": "object",
+          "properties": {
+            "schema_version": {"const": "multi-interruption-composition-v1"},
+            "opportunity_policy": {"const": "all_core_offered"},
+            "branching_policy": {"const": "pass_or_one_activation_per_core_request"},
+            "priority_policy": {"const": "ascending_priority_then_definition_id"},
+            "opponent_action_scope": {"const": "specified_sources_only"}
+          },
+          "additionalProperties": false
+        },
+        "definitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "priority": {"type": "integer", "minimum": 0},
+              "max_activations": {"type": "integer", "minimum": 1},
+              "source_card_code": {"type": "integer", "minimum": 1},
+              "source_player": {"enum": [0, 1]},
+              "source_zone": {"enum": ["hand", "field"]},
+              "core_location": {"enum": [4, 8]},
+              "sequence": {"type": "integer", "minimum": 0},
+              "response_roles": {
+                "type": "array",
+                "items": {"enum": ["cost", "target", "option"]}
+              }
+            }
+          }
+        }
       }
     },
     "replay": {
