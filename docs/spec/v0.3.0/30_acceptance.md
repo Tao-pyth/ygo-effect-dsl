@@ -63,6 +63,8 @@ Last updated: 2026-07-15
 
 CIは縮小smokeを使い、10万nodeはmanualまたはself-hosted workflowとする。logical scheduler benchmarkだけで実core throughput/RSS gateを通してはならない。
 
+2026-07-15のlocal Windows校正では、外部qualification 3 Routeをbase v2へ固定して10万logical nodeを再実行し、さらにpool 1/2/4/8/16、persistence disabled/index-only、各16 taskの計480 fresh Replayを完走した。全profileでsemantic digestとbest Routeがpool/mode非依存である。pool 16はmainとactive process treeの合計peak約2.16 GiBで旧logical上限を超え、long/graveではpool 8よりthroughputが低下したため、local policyはdefault 4、max 8、memory preflight 1.5 GiBとする。証跡は`docs/adr/evidence/0105_*`と`0128_real_core_replay_pool.*`に保存する。
+
 ## Gate G: compatibility and release
 
 - Experiment `0.3a/0.3b/0.4`の既存fixtureを定義済みcompatibility modeで扱う。

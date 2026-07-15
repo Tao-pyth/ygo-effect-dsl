@@ -458,6 +458,7 @@ def verify_general_search_route(
     *,
     external_root: str | Path | None = None,
     experiment_path: str | Path | None = None,
+    timeout_seconds: float = 30.0,
 ) -> RealCoreVerificationResult:
     experiment = route_document.get("experiment")
     replay = route_document.get("replay")
@@ -474,6 +475,7 @@ def verify_general_search_route(
     frontier = RealCoreFrontierAdapter(
         external_root=external_root,
         experiment_path=experiment_path,
+        timeout_seconds=timeout_seconds,
     ).replay(experiment, actions)
     if not frontier.legal_stop or frontier.route_document is None:
         raise ValueError("fresh Replay did not reach the recorded legal stop")

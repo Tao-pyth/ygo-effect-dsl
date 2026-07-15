@@ -4,6 +4,7 @@ import hashlib
 import os
 import sqlite3
 import stat
+import time
 from dataclasses import dataclass, replace
 from pathlib import Path, PurePosixPath
 from typing import Any, Mapping, Protocol
@@ -175,6 +176,9 @@ class FilesystemScriptProvider:
             Path,
             tuple[tuple[int, int, int], dict[str, tuple[Path, ...]]],
         ] = {}
+        self._directory_index_builds = 0
+        self._directory_index_hits = 0
+        self._directory_index_build_seconds = 0.0
 
     def get_script(self, name: str) -> bytes:
         return self.resolve_script(name).content
@@ -340,7 +344,9 @@ class FilesystemScriptProvider:
         signature = self._directory_identity(before)
         cached = self._directory_index.get(directory)
         if cached is not None and cached[0] == signature:
+            self._directory_index_hits += 1
             return cached[1]
+        started = time.perf_counter()
         try:
             entries = tuple(directory.iterdir())
         except OSError as exc:
@@ -358,7 +364,34 @@ class FilesystemScriptProvider:
                 f"Lua script directory changed while resolving {requested_name!r}"
             )
         self._directory_index[directory] = (signature, result)
+        self._directory_index_builds += 1
+        self._directory_index_build_seconds += time.perf_counter() - started
         return result
+
+    def directory_index_telemetry(self) -> dict[str, int | float | str]:
+        """Return process-local index measurements without exposing asset paths."""
+
+        entry_count = 0
+        key_count = 0
+        estimated_bytes = 0
+        for _signature, index in self._directory_index.values():
+            key_count += len(index)
+            for folded, entries in index.items():
+                estimated_bytes += len(folded.encode("utf-8"))
+                entry_count += len(entries)
+                estimated_bytes += sum(
+                    len(entry.name.encode("utf-8")) for entry in entries
+                )
+        return {
+            "build_seconds": self._directory_index_build_seconds,
+            "builds": self._directory_index_builds,
+            "directories": len(self._directory_index),
+            "entries": entry_count,
+            "estimated_name_bytes": estimated_bytes,
+            "hits": self._directory_index_hits,
+            "keys": key_count,
+            "persistence": "process_local_only",
+        }
 
 
 class CardScriptsProvider(FilesystemScriptProvider):

@@ -218,6 +218,7 @@ def main() -> int:
     experiment_replay.add_argument("route_file", help="Route DSL path")
     experiment_replay.add_argument("--external-root")
     experiment_replay.add_argument("--run-id")
+    experiment_replay.add_argument("--worker-timeout", type=float, default=30.0)
     experiment_replay.add_argument(
         "--verification-report",
         help="optional canonical JSON report written only after fresh Replay succeeds",
