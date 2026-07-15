@@ -1,0 +1,62 @@
+{
+  "availability": [
+    "available",
+    "missing_text",
+    "missing_card",
+    "redacted",
+    "source_unavailable",
+    "stale_source",
+    "version_mismatch"
+  ],
+  "authority": {
+    "effect_interpretation": "forbidden",
+    "legality_or_timing": "ocgcore_only",
+    "provider": "read_only_presentation",
+    "search_input": false
+  },
+  "audit": {
+    "presentation_identity": "source_and_content_digest",
+    "render_timestamp_owner": "caller_audit_envelope"
+  },
+  "locale_status": [
+    "exact",
+    "fallback",
+    "unavailable",
+    "redacted"
+  ],
+  "metadata_fields": [
+    "alias",
+    "setcodes",
+    "type_bits",
+    "type_labels",
+    "attack",
+    "defense",
+    "level",
+    "rank",
+    "link_rating",
+    "link_markers",
+    "left_scale",
+    "right_scale",
+    "race_bits",
+    "race_labels",
+    "attribute_bits",
+    "attribute_labels"
+  ],
+  "provider_version": "sqlite-card-presentation-provider-v1",
+  "schema_version": "card-presentation-v1",
+  "source_requirements": [
+    "locale",
+    "database_sha256",
+    "asset_lock_id",
+    "source_commit",
+    "source_tree",
+    "license_status",
+    "repository"
+  ],
+  "text_policy": {
+    "empty_to_null": true,
+    "generated_or_inferred_text": false,
+    "preserve_newlines_and_unicode": true,
+    "regions": "database_desc_and_nonempty_str1_through_str16"
+  }
+}

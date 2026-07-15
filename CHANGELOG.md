@@ -18,6 +18,7 @@ All notable package changes are documented here. Package versions follow Semanti
 - [v0.5.0] `analytics-comparison-contract-v1` with validated baseline/interrupted/recovery lineage pairing, fail-closed version and budget compatibility, explicit censored/missing states, paired deltas, provisional confidence metadata, and visible pruning bias.
 - [v0.5.0] `parquet-lifecycle-contract-v1` with measured layout policy, manifest-bound immutable snapshots, disk preflight, semantic parity, small-file compaction, explicit migration/backfill, crash-safe pointer activation, and rollback.
 - [v0.5.0] Windows desktop shell ADR and same-host evidence selecting pywebview/WebView2, a versioned allowlist bridge, existing isolated search workers, and separate browser/desktop verification boundaries.
+- [v0.5.0] `card-presentation-v1` and a verified local BabelCDB read-only provider with explicit locale fallback, PlayerView redaction, structured missing/stale/version diagnostics, metadata projection, and a strict no-Search/Replay dependency boundary.
 
 ### Changed
 

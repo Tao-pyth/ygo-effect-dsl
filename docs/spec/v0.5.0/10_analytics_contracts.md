@@ -166,7 +166,7 @@ primary flowは`deck catalog -> deck detail/statistics -> search form -> preflig
 
 ## Card presentation contract
 
-card detailはcode、name、type、attribute/race、level/rank/link、ATK/DEF、setcode等のmetadataとeffect textを表示する。ただし現行`SQLiteCardDataProvider`はocgcore callback用に`datas`表だけを読むため、presentation用metadata/text providerを別interfaceとして追加する。
+card detailはcode、name、type、attribute/race、level/rank/link、ATK/DEF、setcode等のmetadataとeffect textを表示する。`card-presentation-v1`と`LocalizedCardPresentationProvider`は、ocgcore callback用`SQLiteCardDataProvider`から分離したread-only interfaceとして実装済みである。詳細は[card presentation contract](16_card_presentation_contract.md)に固定する。
 
 - verified local CDB等をread-only sourceにする。
 - locale、source lock、CDB commit/hash、field completenessをpayloadへ含める。
