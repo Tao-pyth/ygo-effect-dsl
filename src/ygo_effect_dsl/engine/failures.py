@@ -242,6 +242,20 @@ def classify_failure(
             recovery=RecoveryAction.ABORT_EXPERIMENT,
             retryable=False,
         )
+    if category == "multi_turn_lifecycle":
+        if getattr(error, "path_failure", False):
+            return FailureRecord(
+                **shared,
+                disposition=FailureDisposition.PATH_FAILURE,
+                recovery=RecoveryAction.STOP_PATH,
+                retryable=False,
+            )
+        return FailureRecord(
+            **shared,
+            disposition=FailureDisposition.EXPERIMENT_FAILURE,
+            recovery=RecoveryAction.ABORT_EXPERIMENT,
+            retryable=False,
+        )
     if isinstance(
         error,
         (

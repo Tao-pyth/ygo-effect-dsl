@@ -125,6 +125,10 @@ from ygo_effect_dsl.engine.replay import (
     build_player_view_replay,
 )
 from ygo_effect_dsl.engine.replay.manifest import RANDOM_TRACE_POLICY
+from ygo_effect_dsl.engine.search.lifecycle import (
+    MultiTurnLifecycleError,
+    apply_turn_lifecycle,
+)
 from ygo_effect_dsl.external.ocgcore import (
     load_ocgcore_asset_lock,
     load_ocgcore_lock,
@@ -2418,6 +2422,17 @@ def _frontier_document(
                             "taxonomy": outcome.to_dict(),
                         },
                     )
+    actions, turn_lifecycle = apply_turn_lifecycle(
+        actions,
+        turn=turn,
+        phase=phase,
+        turn_limit=int(experiment["turn_limit"]),
+        request_type=request.request_type,
+        process_state=snapshot.process_state,
+        chain_count=int(snapshot.field_state["chain_count"]),
+        legal_stop=bool(legal_stop.can_stop),
+        forced_response=request.context.extra.get("forced") is True,
+    )
     return {
         "actions": [action.to_dict() for action in actions],
         "interruption_composition": interruption_composition,
@@ -2433,6 +2448,7 @@ def _frontier_document(
         "state_completeness": snapshot.identity_completeness,
         "state_id": snapshot.state_hash,
         "success": success,
+        "turn_lifecycle": turn_lifecycle.to_dict(),
     }
 
 
@@ -3062,7 +3078,11 @@ def run_real_core_worker(
         owner=None,
         purpose="capture and evaluate replay checkpoints",
     )
-    response_budget = int(experiment["search"]["budget"].get("max_nodes", 32))
+    response_budget = (
+        max(32, len(action_prefix) + 1)
+        if prefix_mode
+        else int(experiment["search"]["budget"].get("max_nodes", 32))
+    )
     core_lock = load_ocgcore_lock()
     asset_lock = load_ocgcore_asset_lock()
     core_verification = verify_ocgcore(external_root=external_root)
@@ -3363,6 +3383,16 @@ def run_real_core_worker(
                     )
                 )
                 while True:
+                    if prefix_mode and current_turn > int(experiment["turn_limit"]):
+                        raise MultiTurnLifecycleError(
+                            "turn_limit_exceeded",
+                            "Action prefix advanced beyond the Experiment turn_limit",
+                            path_failure=True,
+                            context={
+                                "turn": current_turn,
+                                "turn_limit": int(experiment["turn_limit"]),
+                            },
+                        )
                     if len(events) >= response_budget:
                         raise ValueError(
                             "fixed real-core scenario exceeded its response budget"
@@ -3413,6 +3443,19 @@ def run_real_core_worker(
                         expected_action = action_prefix[len(events)]
                         if not isinstance(expected_action, Mapping):
                             raise ValueError("Action prefix entries must be mappings")
+                        if (
+                            current_turn >= int(experiment["turn_limit"])
+                            and expected_action.get("kind") == ActionKind.END_TURN.value
+                        ):
+                            raise MultiTurnLifecycleError(
+                                "turn_limit_exceeded",
+                                "END_TURN cannot advance beyond the Experiment turn_limit",
+                                path_failure=True,
+                                context={
+                                    "turn": current_turn,
+                                    "turn_limit": int(experiment["turn_limit"]),
+                                },
+                            )
                         candidates, selection_role = _prefix_candidates(
                             request,
                             expected_action,

@@ -19,6 +19,7 @@ from ygo_effect_dsl.engine.search import (
     SearchBudget,
     SearchExecutor,
     SearchFrontier,
+    apply_turn_lifecycle,
     strategy_from_experiment,
 )
 
@@ -54,6 +55,7 @@ def _frontier(
     peak: int | None = None,
     success: bool = False,
     legal: bool = False,
+    lifecycle: dict | None = None,
 ) -> SearchFrontier:
     route = (
         {
@@ -66,7 +68,10 @@ def _frontier(
     return SearchFrontier(
         state_id=state,
         state_completeness=state_completeness,
-        request={"request_signature": "req_fixture"},
+        request={
+            "request_signature": "req_fixture",
+            **({"turn_lifecycle": lifecycle} if lifecycle is not None else {}),
+        },
         actions=actions,
         score=score,
         peak_score=score if peak is None else peak,
@@ -197,6 +202,41 @@ def test_stop_line_is_terminal_and_end_turn_remains_a_core_action() -> None:
     assert ("summon",) in adapter.prefixes
     assert ("summon", "control:end_turn") in adapter.prefixes
     assert {route.action_count for route in result.routes} == {1, 2}
+
+
+def test_route_summary_reports_one_versioned_turn_budget_boundary() -> None:
+    stop = _action("stop")
+    _, lifecycle = apply_turn_lifecycle(
+        (),
+        turn=3,
+        phase="main1",
+        turn_limit=3,
+        request_type="select_idle_command",
+        process_state="awaiting_response",
+        chain_count=0,
+        legal_stop=True,
+        forced_response=False,
+    )
+    adapter = FakeFrontierAdapter(
+        {
+            (): _frontier("root", actions=(stop,)),
+            ("stop",): _frontier(
+                "terminal", legal=True, lifecycle=lifecycle.to_dict()
+            ),
+        }
+    )
+
+    result = SearchExecutor(
+        adapter,
+        RandomSearchStrategyV1(1),
+        SearchBudget(max_nodes=2),
+        clock=lambda: 0.0,
+    ).run(_experiment())
+
+    assert result.best_route is not None
+    boundary = result.best_route.to_dict()["lifecycle_boundary"]
+    assert boundary["boundary_reason"] == "turn_limit"
+    assert boundary["lifecycle_id"] == lifecycle.lifecycle_id
 
 
 def test_exact_state_identity_deduplicates_only_after_recording_routes() -> None:

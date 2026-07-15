@@ -5,6 +5,7 @@ import subprocess
 
 import pytest
 
+from ygo_effect_dsl.engine.search import apply_turn_lifecycle
 from ygo_effect_dsl.prototype.frontier import (
     REAL_CORE_FRONTIER_ATTEMPT_SCHEMA_VERSION,
     REAL_CORE_FRONTIER_FAILURE_SCHEMA_VERSION,
@@ -72,6 +73,17 @@ def _failure_envelope(
 
 
 def _frontier_document(**overrides):
+    _, lifecycle = apply_turn_lifecycle(
+        (),
+        turn=1,
+        phase="draw",
+        turn_limit=1,
+        request_type="select_idle_command",
+        process_state="awaiting_response",
+        chain_count=0,
+        legal_stop=False,
+        forced_response=False,
+    )
     document = {
         "actions": [],
         "legal_stop": {"can_stop": False, "reason": "pending_request"},
@@ -83,6 +95,7 @@ def _frontier_document(**overrides):
         "state_completeness": "query_api_projection",
         "state_id": "state_fixture",
         "success": False,
+        "turn_lifecycle": lifecycle.to_dict(),
     }
     document.update(overrides)
     return document
@@ -234,6 +247,17 @@ def test_frontier_adapter_exposes_projection_completeness(monkeypatch) -> None:
     frontier = adapter.replay({}, ())
 
     assert frontier.state_completeness == "query_api_projection"
+    assert frontier.request["turn_lifecycle"]["turn_limit_reached"] is True
+
+
+def test_frontier_adapter_rejects_tampered_turn_lifecycle(monkeypatch) -> None:
+    adapter = RealCoreFrontierAdapter()
+    document = _frontier_document()
+    document["turn_lifecycle"]["turn"] = 2
+    monkeypatch.setattr(adapter, "_invoke", lambda *_args: document)
+
+    with pytest.raises(ValueError, match="turn cannot exceed turn_limit"):
+        adapter.replay({}, ())
 
 
 @pytest.mark.parametrize(
