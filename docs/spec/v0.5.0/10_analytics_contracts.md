@@ -53,14 +53,39 @@ exact duplicateはcontent identityでidempotentに扱う。semantic duplicateの
 
 ## Job state machine
 
-最低状態は`queued`、`running`、`cancelling`、`cancelled`、`succeeded`、`failed`、`retrying`、`quarantined`とする。不正遷移を拒否し、state changeはattempt、actor、timestamp、reasonを持つ。
+The implemented baseline is `job-state-machine-v1`, persisted in a dedicated
+`job-catalog-v1` SQLite catalog. The public states are `queued`, `running`,
+`cancelling`, `cancelled`, `succeeded`, `failed`, `retrying`, and
+`quarantined`. Every transition stores the attempt, actor, UTC timestamp, and
+reason. Invalid transitions fail closed.
 
-- lease/heartbeatでorphan workerを検出する。
-- idempotency keyで同一jobの二重commitを防ぐ。
-- search budgetとjob deadlineを別fieldにする。
-- checkpointはschema/version/input hashに一致する場合だけresumeする。
-- success stateとartifact manifest commitをatomicに対応付ける。
-- cancellation後のpartial artifactはquarantineまたは明示的partial状態にする。
+| From | Allowed targets |
+|---|---|
+| queued | running, cancelling, quarantined |
+| running | cancelling, succeeded, failed, retrying, quarantined |
+| cancelling | cancelled, failed, quarantined |
+| failed | retrying, quarantined |
+| retrying | running, cancelling, failed, quarantined |
+| cancelled, succeeded, quarantined | none |
+
+`JobSpec` provides common idempotency, input digest, priority, maximum attempt,
+and dependency fields. It validates exact payloads for search, replay, import,
+aggregate, and export jobs. A dependency must already exist and must reach
+`succeeded` before its child can be claimed. Selection is deterministic by
+priority, creation time, and job ID.
+
+Running work is owned by an attempt-scoped lease token. Heartbeats extend the
+lease, stale tokens cannot mutate a newer attempt, and expired jobs return to
+`retrying` until `max_attempts` is exhausted. Expired cancelling jobs become
+`cancelled`. `succeeded` and its non-empty artifact set are committed in one
+SQLite transaction; constraint failure leaves the job running and publishes no
+artifact.
+
+Checkpoint serialization, cancellation checkpoints, retry backoff policy,
+partial-artifact quarantine, and worker process control remain the scope of
+[#160](https://github.com/Tao-pyth/ygo-effect-dsl/issues/160). Search budgets and
+semantic stop conditions remain inside the referenced search Experiment. #160
+will add a separate generic job deadline for execution control.
 
 ## Query API
 
