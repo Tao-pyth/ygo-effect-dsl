@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 import json
+import math
 from pathlib import Path
 import sqlite3
 from typing import Any
@@ -17,12 +18,16 @@ from ygo_effect_dsl.engine.canonical import (
 )
 
 
-JOB_CATALOG_SCHEMA_VERSION = "job-catalog-v1"
-JOB_SPEC_SCHEMA_VERSION = "job-spec-v1"
-JOB_RECORD_SCHEMA_VERSION = "job-record-v1"
+JOB_CATALOG_SCHEMA_VERSION = "job-catalog-v2"
+JOB_SPEC_SCHEMA_VERSION = "job-spec-v2"
+JOB_RECORD_SCHEMA_VERSION = "job-record-v2"
 JOB_TRANSITION_SCHEMA_VERSION = "job-transition-v1"
 JOB_ARTIFACT_SCHEMA_VERSION = "job-artifact-v1"
 JOB_STATE_MACHINE_SCHEMA_VERSION = "job-state-machine-v1"
+JOB_RETRY_POLICY_SCHEMA_VERSION = "job-retry-policy-v1"
+JOB_CHECKPOINT_SCHEMA_VERSION = "job-checkpoint-v1"
+JOB_CHECKPOINT_MAX_BYTES = 1_048_576
+JOB_CONTROL_SCHEMA_VERSION = "job-control-v1"
 
 
 class JobKind(str, Enum):
@@ -56,9 +61,18 @@ class JobIdempotencyConflict(ValueError):
     pass
 
 
+class JobCheckpointConflict(ValueError):
+    pass
+
+
 _ALLOWED_TRANSITIONS: Mapping[JobState, frozenset[JobState]] = {
     JobState.QUEUED: frozenset(
-        {JobState.RUNNING, JobState.CANCELLING, JobState.QUARANTINED}
+        {
+            JobState.RUNNING,
+            JobState.CANCELLING,
+            JobState.FAILED,
+            JobState.QUARANTINED,
+        }
     ),
     JobState.RUNNING: frozenset(
         {
@@ -157,6 +171,20 @@ def _plus_seconds(value: str, seconds: float) -> str:
     return parsed.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+def _non_negative_number(value: Any, name: str, *, positive: bool = False) -> float:
+    if (
+        not isinstance(value, (int, float))
+        or isinstance(value, bool)
+        or not math.isfinite(float(value))
+    ):
+        raise ValueError(f"{name} must be a finite number")
+    observed = float(value)
+    if observed < 0 or (positive and observed == 0):
+        comparison = "> 0" if positive else ">= 0"
+        raise ValueError(f"{name} must be {comparison}")
+    return observed
+
+
 def _exact_payload(
     payload: Mapping[str, Any],
     expected: set[str],
@@ -239,6 +267,118 @@ def _validate_payload(kind: JobKind, value: Any) -> dict[str, Any]:
 
 
 @dataclass(frozen=True)
+class JobRetryPolicy:
+    attempt_timeout_seconds: float = 300.0
+    initial_backoff_seconds: float = 1.0
+    backoff_multiplier: float = 2.0
+    max_backoff_seconds: float = 60.0
+    retryable_error_codes: tuple[str, ...] = (
+        "disk_full",
+        "hard_timeout",
+        "lease_expired",
+        "transient_io",
+        "worker_crash",
+    )
+    schema_version: str = JOB_RETRY_POLICY_SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        if self.schema_version != JOB_RETRY_POLICY_SCHEMA_VERSION:
+            raise ValueError("unsupported JobRetryPolicy schema")
+        object.__setattr__(
+            self,
+            "attempt_timeout_seconds",
+            _non_negative_number(
+                self.attempt_timeout_seconds,
+                "attempt_timeout_seconds",
+                positive=True,
+            ),
+        )
+        object.__setattr__(
+            self,
+            "initial_backoff_seconds",
+            _non_negative_number(
+                self.initial_backoff_seconds,
+                "initial_backoff_seconds",
+            ),
+        )
+        multiplier = _non_negative_number(
+            self.backoff_multiplier,
+            "backoff_multiplier",
+            positive=True,
+        )
+        if multiplier < 1:
+            raise ValueError("backoff_multiplier must be >= 1")
+        object.__setattr__(self, "backoff_multiplier", multiplier)
+        maximum = _non_negative_number(
+            self.max_backoff_seconds,
+            "max_backoff_seconds",
+        )
+        if maximum < self.initial_backoff_seconds:
+            raise ValueError(
+                "max_backoff_seconds must be >= initial_backoff_seconds"
+            )
+        object.__setattr__(self, "max_backoff_seconds", maximum)
+        codes = tuple(
+            sorted(
+                _string(item, "retryable_error_codes[]")
+                for item in self.retryable_error_codes
+            )
+        )
+        if len(codes) != len(set(codes)):
+            raise ValueError("retryable_error_codes must be unique")
+        object.__setattr__(self, "retryable_error_codes", codes)
+
+    def backoff_after(self, attempt: int) -> float:
+        if not isinstance(attempt, int) or isinstance(attempt, bool) or attempt < 1:
+            raise ValueError("attempt must be an integer >= 1")
+        if self.initial_backoff_seconds == 0:
+            return 0.0
+        try:
+            value = self.initial_backoff_seconds * (
+                self.backoff_multiplier ** (attempt - 1)
+            )
+        except OverflowError:
+            return self.max_backoff_seconds
+        return min(value, self.max_backoff_seconds)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "attempt_timeout_seconds": self.attempt_timeout_seconds,
+            "backoff_multiplier": self.backoff_multiplier,
+            "initial_backoff_seconds": self.initial_backoff_seconds,
+            "max_backoff_seconds": self.max_backoff_seconds,
+            "retryable_error_codes": list(self.retryable_error_codes),
+            "schema_version": self.schema_version,
+        }
+
+    @classmethod
+    def from_dict(cls, value: Mapping[str, Any]) -> JobRetryPolicy:
+        expected = {
+            "attempt_timeout_seconds",
+            "backoff_multiplier",
+            "initial_backoff_seconds",
+            "max_backoff_seconds",
+            "retryable_error_codes",
+            "schema_version",
+        }
+        if not isinstance(value, Mapping) or set(value) != expected:
+            raise ValueError(
+                f"JobRetryPolicy fields must be exactly {sorted(expected)}"
+            )
+        codes = value["retryable_error_codes"]
+        if not isinstance(codes, list):
+            raise ValueError("retryable_error_codes must be a list")
+        return cls(
+            attempt_timeout_seconds=value["attempt_timeout_seconds"],
+            initial_backoff_seconds=value["initial_backoff_seconds"],
+            backoff_multiplier=value["backoff_multiplier"],
+            max_backoff_seconds=value["max_backoff_seconds"],
+            retryable_error_codes=tuple(codes),
+            schema_version=value["schema_version"],
+        )
+
+
+@dataclass(frozen=True)
 class JobSpec:
     kind: JobKind
     idempotency_key: str
@@ -247,6 +387,8 @@ class JobSpec:
     priority: int = 0
     max_attempts: int = 3
     dependency_ids: tuple[str, ...] = ()
+    deadline_at: str | None = None
+    retry_policy: JobRetryPolicy = JobRetryPolicy()
     schema_version: str = JOB_SPEC_SCHEMA_VERSION
 
     def __post_init__(self) -> None:
@@ -254,6 +396,14 @@ class JobSpec:
             object.__setattr__(self, "kind", JobKind(self.kind))
         if self.schema_version != JOB_SPEC_SCHEMA_VERSION:
             raise ValueError("unsupported JobSpec schema")
+        if not isinstance(self.retry_policy, JobRetryPolicy):
+            object.__setattr__(
+                self,
+                "retry_policy",
+                JobRetryPolicy.from_dict(self.retry_policy),
+            )
+        if self.deadline_at is not None:
+            _timestamp(self.deadline_at, "deadline_at")
         _string(self.idempotency_key, "idempotency_key")
         _content_id(self.input_digest, "input_digest", "jobinput_")
         if (
@@ -282,10 +432,14 @@ class JobSpec:
         return stable_digest(
             {
                 "dependency_ids": list(self.dependency_ids),
+                "deadline_at": self.deadline_at,
                 "idempotency_key": self.idempotency_key,
                 "input_digest": self.input_digest,
                 "kind": self.kind.value,
+                "max_attempts": self.max_attempts,
                 "payload": self.payload,
+                "priority": self.priority,
+                "retry_policy": self.retry_policy.to_dict(),
                 "schema_version": self.schema_version,
             },
             prefix="job_",
@@ -295,6 +449,7 @@ class JobSpec:
         return to_canonical_data(
             {
                 "dependency_ids": list(self.dependency_ids),
+                "deadline_at": self.deadline_at,
                 "idempotency_key": self.idempotency_key,
                 "input_digest": self.input_digest,
                 "job_id": self.job_id,
@@ -302,6 +457,7 @@ class JobSpec:
                 "max_attempts": self.max_attempts,
                 "payload": self.payload,
                 "priority": self.priority,
+                "retry_policy": self.retry_policy.to_dict(),
                 "schema_version": self.schema_version,
             }
         )
@@ -310,6 +466,7 @@ class JobSpec:
     def from_dict(cls, value: Mapping[str, Any]) -> JobSpec:
         expected = {
             "dependency_ids",
+            "deadline_at",
             "idempotency_key",
             "input_digest",
             "job_id",
@@ -317,6 +474,7 @@ class JobSpec:
             "max_attempts",
             "payload",
             "priority",
+            "retry_policy",
             "schema_version",
         }
         if not isinstance(value, Mapping) or set(value) != expected:
@@ -336,6 +494,8 @@ class JobSpec:
             priority=value["priority"],
             max_attempts=value["max_attempts"],
             dependency_ids=tuple(dependency_ids),
+            deadline_at=value["deadline_at"],
+            retry_policy=JobRetryPolicy.from_dict(value["retry_policy"]),
             schema_version=value["schema_version"],
         )
         if value["job_id"] != spec.job_id:
@@ -387,6 +547,117 @@ class JobArtifact:
 
 
 @dataclass(frozen=True)
+class JobCheckpoint:
+    job_id: str
+    attempt: int
+    sequence: int
+    input_digest: str
+    recovery_position: str
+    completed_units: int
+    total_units: int | None
+    payload: Mapping[str, Any]
+    created_at: str
+    semantic_result_digest: str | None = None
+    schema_version: str = JOB_CHECKPOINT_SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        _content_id(self.job_id, "job_id", "job_")
+        _content_id(self.input_digest, "input_digest", "jobinput_")
+        _string(self.recovery_position, "recovery_position")
+        _timestamp(self.created_at, "created_at")
+        for name in ("attempt", "sequence", "completed_units"):
+            value = getattr(self, name)
+            minimum = 1 if name == "attempt" else 0
+            if (
+                not isinstance(value, int)
+                or isinstance(value, bool)
+                or value < minimum
+            ):
+                raise ValueError(f"{name} must be an integer >= {minimum}")
+        if self.total_units is not None and (
+            not isinstance(self.total_units, int)
+            or isinstance(self.total_units, bool)
+            or self.total_units < self.completed_units
+        ):
+            raise ValueError("total_units must be None or >= completed_units")
+        if not isinstance(self.payload, Mapping):
+            raise ValueError("checkpoint payload must be a mapping")
+        object.__setattr__(self, "payload", to_canonical_data(self.payload))
+        if self.semantic_result_digest is not None:
+            _content_id(
+                self.semantic_result_digest,
+                "semantic_result_digest",
+                "jobsemantic_",
+            )
+        if self.schema_version != JOB_CHECKPOINT_SCHEMA_VERSION:
+            raise ValueError("unsupported JobCheckpoint schema")
+
+    @property
+    def checkpoint_id(self) -> str:
+        return stable_digest(self.identity_dict(), prefix="jobcheckpoint_")
+
+    def identity_dict(self) -> dict[str, Any]:
+        return to_canonical_data(
+            {
+                "attempt": self.attempt,
+                "completed_units": self.completed_units,
+                "created_at": self.created_at,
+                "input_digest": self.input_digest,
+                "job_id": self.job_id,
+                "payload": self.payload,
+                "recovery_position": self.recovery_position,
+                "schema_version": self.schema_version,
+                "semantic_result_digest": self.semantic_result_digest,
+                "sequence": self.sequence,
+                "total_units": self.total_units,
+            }
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {**self.identity_dict(), "checkpoint_id": self.checkpoint_id}
+
+
+@dataclass(frozen=True)
+class JobControlSignal:
+    job_id: str
+    attempt: int
+    state: JobState
+    checked_at: str
+    cancel_requested: bool
+    lease_expired: bool
+    attempt_timeout_exceeded: bool
+    job_deadline_exceeded: bool
+    recovery_position: str | None
+    schema_version: str = JOB_CONTROL_SCHEMA_VERSION
+
+    @property
+    def should_stop(self) -> bool:
+        return any(
+            (
+                self.cancel_requested,
+                self.lease_expired,
+                self.attempt_timeout_exceeded,
+                self.job_deadline_exceeded,
+            )
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "attempt": self.attempt,
+            "attempt_timeout_exceeded": self.attempt_timeout_exceeded,
+            "cancel_requested": self.cancel_requested,
+            "checked_at": self.checked_at,
+            "job_deadline_exceeded": self.job_deadline_exceeded,
+            "job_id": self.job_id,
+            "lease_expired": self.lease_expired,
+            "recovery_position": self.recovery_position,
+            "schema_version": self.schema_version,
+            "should_stop": self.should_stop,
+            "state": self.state.value,
+        }
+
+
+@dataclass(frozen=True)
 class JobRecord:
     job_id: str
     kind: JobKind
@@ -402,6 +673,11 @@ class JobRecord:
     lease_acquired_at: str | None
     heartbeat_at: str | None
     lease_expires_at: str | None
+    deadline_at: str | None
+    attempt_deadline_at: str | None
+    retry_not_before_at: str | None
+    latest_checkpoint_id: str | None
+    recovery_position: str | None
     artifact_set_id: str | None
     error_code: str | None
     error_message: str | None
@@ -422,11 +698,16 @@ class JobRecord:
                 "lease_acquired_at": self.lease_acquired_at,
                 "lease_owner": self.lease_owner,
                 "lease_token": self.lease_token,
+                "latest_checkpoint_id": self.latest_checkpoint_id,
                 "max_attempts": self.max_attempts,
                 "priority": self.priority,
+                "recovery_position": self.recovery_position,
+                "retry_not_before_at": self.retry_not_before_at,
                 "schema_version": self.schema_version,
                 "spec": self.spec.to_dict(),
                 "state": self.state.value,
+                "attempt_deadline_at": self.attempt_deadline_at,
+                "deadline_at": self.deadline_at,
                 "updated_at": self.updated_at,
             }
         )
@@ -455,6 +736,26 @@ class JobTransitionRecord:
             "schema_version": self.schema_version,
             "sequence": self.sequence,
             "to_state": self.to_state.value,
+        }
+
+
+@dataclass(frozen=True)
+class JobStatusSnapshot:
+    job: JobRecord
+    latest_checkpoint: JobCheckpoint | None
+    transitions: tuple[JobTransitionRecord, ...]
+    artifacts: tuple[JobArtifact, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "artifacts": [item.to_dict() for item in self.artifacts],
+            "job": self.job.to_dict(),
+            "latest_checkpoint": (
+                self.latest_checkpoint.to_dict()
+                if self.latest_checkpoint is not None
+                else None
+            ),
+            "transitions": [item.to_dict() for item in self.transitions],
         }
 
 
@@ -507,6 +808,11 @@ class JobCatalog:
                     lease_acquired_at TEXT,
                     heartbeat_at TEXT,
                     lease_expires_at TEXT,
+                    deadline_at TEXT,
+                    attempt_deadline_at TEXT,
+                    retry_not_before_at TEXT,
+                    latest_checkpoint_id TEXT,
+                    recovery_position TEXT,
                     artifact_set_id TEXT,
                     error_code TEXT,
                     error_message TEXT
@@ -539,6 +845,22 @@ class JobCatalog:
                     schema_version TEXT NOT NULL,
                     row_count INTEGER,
                     UNIQUE(job_id, path)
+                );
+                CREATE TABLE IF NOT EXISTS job_checkpoints (
+                    checkpoint_id TEXT PRIMARY KEY,
+                    job_id TEXT NOT NULL REFERENCES jobs(job_id),
+                    attempt INTEGER NOT NULL CHECK(attempt >= 1),
+                    sequence INTEGER NOT NULL CHECK(sequence >= 0),
+                    input_digest TEXT NOT NULL,
+                    recovery_position TEXT NOT NULL,
+                    completed_units INTEGER NOT NULL CHECK(completed_units >= 0),
+                    total_units INTEGER,
+                    payload_json TEXT NOT NULL,
+                    semantic_result_digest TEXT,
+                    created_at TEXT NOT NULL,
+                    UNIQUE(job_id, sequence),
+                    UNIQUE(job_id, recovery_position),
+                    CHECK(total_units IS NULL OR total_units >= completed_units)
                 );
                 """
             )
@@ -581,10 +903,11 @@ class JobCatalog:
                     raise ValueError(f"dependency job {dependency_id!r} does not exist")
             connection.execute(
                 """
-                INSERT INTO jobs VALUES (
-                    ?, ?, ?, ?, ?, 'queued', ?, ?, 0, ?, ?,
-                    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-                )
+                INSERT INTO jobs (
+                    job_id, idempotency_key, kind, input_digest, spec_json,
+                    state, priority, max_attempts, attempt, created_at,
+                    updated_at, deadline_at
+                ) VALUES (?, ?, ?, ?, ?, 'queued', ?, ?, 0, ?, ?, ?)
                 """,
                 (
                     spec.job_id,
@@ -596,6 +919,7 @@ class JobCatalog:
                     spec.max_attempts,
                     at,
                     at,
+                    spec.deadline_at,
                 ),
             )
             connection.executemany(
@@ -637,6 +961,14 @@ class JobCatalog:
                 SELECT candidate.* FROM jobs AS candidate
                 WHERE candidate.state IN ('queued', 'retrying')
                   AND candidate.attempt < candidate.max_attempts
+                  AND (
+                    candidate.deadline_at IS NULL
+                    OR julianday(candidate.deadline_at) > julianday(?)
+                  )
+                  AND (
+                    candidate.retry_not_before_at IS NULL
+                    OR julianday(candidate.retry_not_before_at) <= julianday(?)
+                  )
                   AND NOT EXISTS (
                     SELECT 1 FROM job_dependencies AS dependency
                     JOIN jobs AS parent
@@ -645,16 +977,19 @@ class JobCatalog:
                       AND parent.state != 'succeeded'
                   )
                 ORDER BY candidate.priority DESC,
+                         julianday(candidate.created_at),
                          candidate.created_at,
                          candidate.job_id
                 LIMIT 1
-                """
+                """,
+                (at, at),
             ).fetchone()
             if row is None:
                 connection.commit()
                 return None
             previous = JobState(row["state"])
             attempt = int(row["attempt"]) + 1
+            spec = JobSpec.from_dict(json.loads(row["spec_json"]))
             lease_token = stable_digest(
                 {
                     "attempt": attempt,
@@ -665,12 +1000,21 @@ class JobCatalog:
                 prefix="lease_",
             )
             expires_at = _plus_seconds(at, float(lease_seconds))
+            attempt_deadline_at = _plus_seconds(
+                at,
+                spec.retry_policy.attempt_timeout_seconds,
+            )
+            if spec.deadline_at is not None and _parsed_timestamp(
+                spec.deadline_at
+            ) < _parsed_timestamp(attempt_deadline_at):
+                attempt_deadline_at = spec.deadline_at
             connection.execute(
                 """
                 UPDATE jobs
                 SET state='running', attempt=?, updated_at=?,
                     lease_owner=?, lease_token=?, lease_acquired_at=?,
                     heartbeat_at=?, lease_expires_at=?,
+                    attempt_deadline_at=?, retry_not_before_at=NULL,
                     error_code=NULL, error_message=NULL
                 WHERE job_id=?
                 """,
@@ -682,6 +1026,7 @@ class JobCatalog:
                     at,
                     at,
                     expires_at,
+                    attempt_deadline_at,
                     row["job_id"],
                 ),
             )
@@ -721,14 +1066,243 @@ class JobCatalog:
                 JobState.CANCELLING,
             }:
                 raise JobLeaseError("heartbeat requires a running or cancelling job")
+            attempt_deadline_at = row["attempt_deadline_at"]
+            if attempt_deadline_at is not None and _parsed_timestamp(
+                at
+            ) >= _parsed_timestamp(attempt_deadline_at):
+                raise JobLeaseError("job attempt deadline has expired")
+            lease_expires_at = _plus_seconds(at, float(lease_seconds))
+            if attempt_deadline_at is not None and _parsed_timestamp(
+                attempt_deadline_at
+            ) < _parsed_timestamp(lease_expires_at):
+                lease_expires_at = attempt_deadline_at
             connection.execute(
                 """
                 UPDATE jobs SET heartbeat_at=?, lease_expires_at=?, updated_at=?
                 WHERE job_id=?
                 """,
-                (at, _plus_seconds(at, float(lease_seconds)), at, job_id),
+                (at, lease_expires_at, at, job_id),
             )
             updated = self._job_row(connection, job_id)
+        return self._record(updated)
+
+    def control_signal(
+        self,
+        job_id: str,
+        *,
+        lease_token: str,
+        now: str,
+    ) -> JobControlSignal:
+        at = _timestamp(now, "now")
+        self.initialize()
+        with closing(self._connect()) as connection:
+            row = self._job_row(connection, job_id)
+        if row["lease_token"] != lease_token:
+            raise JobLeaseError("job lease token does not match the active attempt")
+        state = JobState(row["state"])
+        if state not in {JobState.RUNNING, JobState.CANCELLING}:
+            raise JobLeaseError("job no longer has an active attempt")
+        if row["lease_acquired_at"] is not None and _parsed_timestamp(
+            at
+        ) < _parsed_timestamp(row["lease_acquired_at"]):
+            raise JobLeaseError("control timestamp predates the active lease")
+
+        def reached(value: str | None) -> bool:
+            return value is not None and _parsed_timestamp(at) >= _parsed_timestamp(
+                value
+            )
+
+        return JobControlSignal(
+            job_id=job_id,
+            attempt=int(row["attempt"]),
+            state=state,
+            checked_at=at,
+            cancel_requested=state == JobState.CANCELLING,
+            lease_expired=reached(row["lease_expires_at"]),
+            attempt_timeout_exceeded=reached(row["attempt_deadline_at"]),
+            job_deadline_exceeded=reached(row["deadline_at"]),
+            recovery_position=row["recovery_position"],
+        )
+
+    def overdue_attempts(self, *, now: str) -> tuple[JobRecord, ...]:
+        at = _timestamp(now, "now")
+        self.initialize()
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT * FROM jobs
+                WHERE state IN ('running', 'cancelling')
+                ORDER BY job_id
+                """
+            ).fetchall()
+
+        def reached(value: str | None) -> bool:
+            return value is not None and _parsed_timestamp(at) >= _parsed_timestamp(
+                value
+            )
+
+        return tuple(
+            self._record(row)
+            for row in rows
+            if reached(row["attempt_deadline_at"]) or reached(row["deadline_at"])
+        )
+
+    def expire_pending_deadlines(
+        self,
+        *,
+        now: str,
+        actor: str = "scheduler",
+    ) -> tuple[JobRecord, ...]:
+        at = _timestamp(now, "now")
+        _string(actor, "actor")
+        self.initialize()
+        expired: list[JobRecord] = []
+        with closing(self._connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            rows = connection.execute(
+                """
+                SELECT * FROM jobs
+                WHERE state IN ('queued', 'retrying')
+                  AND deadline_at IS NOT NULL
+                ORDER BY job_id
+                """
+            ).fetchall()
+            for row in rows:
+                if _parsed_timestamp(at) < _parsed_timestamp(row["deadline_at"]):
+                    continue
+                previous = JobState(row["state"])
+                self._assert_transition(previous, JobState.FAILED)
+                connection.execute(
+                    """
+                    UPDATE jobs
+                    SET state='failed', updated_at=?, retry_not_before_at=NULL,
+                        error_code='deadline_exceeded',
+                        error_message='job deadline expired before execution'
+                    WHERE job_id=?
+                    """,
+                    (at, row["job_id"]),
+                )
+                self._insert_transition(
+                    connection,
+                    row["job_id"],
+                    from_state=previous,
+                    to_state=JobState.FAILED,
+                    attempt=int(row["attempt"]),
+                    actor=actor,
+                    occurred_at=at,
+                    reason="deadline_exceeded",
+                )
+                expired.append(
+                    self._record(self._job_row(connection, row["job_id"]))
+                )
+            connection.commit()
+        return tuple(expired)
+
+    def recover_timed_out_attempt(
+        self,
+        job_id: str,
+        *,
+        lease_token: str,
+        now: str,
+        actor: str = "scheduler",
+    ) -> JobRecord:
+        at = _timestamp(now, "now")
+        _string(actor, "actor")
+        self.initialize()
+        with closing(self._connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            row = self._job_row(connection, job_id)
+            if row["lease_token"] != lease_token:
+                raise JobLeaseError(
+                    "job lease token does not match the timed-out attempt"
+                )
+            previous = JobState(row["state"])
+            if previous not in {JobState.RUNNING, JobState.CANCELLING}:
+                raise JobStateTransitionError("job has no active attempt to recover")
+            deadline_exceeded = row["deadline_at"] is not None and (
+                _parsed_timestamp(at) >= _parsed_timestamp(row["deadline_at"])
+            )
+            attempt_timeout = row["attempt_deadline_at"] is not None and (
+                _parsed_timestamp(at)
+                >= _parsed_timestamp(row["attempt_deadline_at"])
+            )
+            if not deadline_exceeded and not attempt_timeout:
+                raise JobStateTransitionError("job attempt has not timed out")
+            spec = JobSpec.from_dict(json.loads(row["spec_json"]))
+            retry_not_before_at = None
+            if previous == JobState.CANCELLING:
+                target = JobState.CANCELLED
+                error_code = None
+                error_message = None
+                reason = "cancel_timeout"
+            elif deadline_exceeded:
+                target = JobState.FAILED
+                error_code = "deadline_exceeded"
+                error_message = "job deadline exceeded"
+                reason = error_code
+            elif (
+                int(row["attempt"]) < int(row["max_attempts"])
+                and "hard_timeout" in spec.retry_policy.retryable_error_codes
+            ):
+                candidate_retry = _plus_seconds(
+                    at,
+                    spec.retry_policy.backoff_after(int(row["attempt"])),
+                )
+                if spec.deadline_at is not None and _parsed_timestamp(
+                    candidate_retry
+                ) >= _parsed_timestamp(spec.deadline_at):
+                    target = JobState.FAILED
+                    error_code = "deadline_exceeded"
+                    error_message = "hard-timeout retry exceeds the job deadline"
+                    reason = error_code
+                else:
+                    target = JobState.RETRYING
+                    error_code = "hard_timeout"
+                    error_message = "attempt exceeded its hard timeout"
+                    retry_not_before_at = candidate_retry
+                    reason = error_code
+            else:
+                target = JobState.FAILED
+                error_code = (
+                    "attempts_exhausted"
+                    if int(row["attempt"]) >= int(row["max_attempts"])
+                    else "hard_timeout"
+                )
+                error_message = "hard timeout is not retryable"
+                if error_code == "attempts_exhausted":
+                    error_message = "hard timeout exhausted the final attempt"
+                reason = error_code
+            self._assert_transition(previous, target)
+            connection.execute(
+                """
+                UPDATE jobs
+                SET state=?, updated_at=?, lease_owner=NULL, lease_token=NULL,
+                    lease_acquired_at=NULL, heartbeat_at=NULL,
+                    lease_expires_at=NULL, attempt_deadline_at=NULL,
+                    retry_not_before_at=?, error_code=?, error_message=?
+                WHERE job_id=?
+                """,
+                (
+                    target.value,
+                    at,
+                    retry_not_before_at,
+                    error_code,
+                    error_message,
+                    job_id,
+                ),
+            )
+            self._insert_transition(
+                connection,
+                job_id,
+                from_state=previous,
+                to_state=target,
+                attempt=int(row["attempt"]),
+                actor=actor,
+                occurred_at=at,
+                reason=reason,
+            )
+            updated = self._job_row(connection, job_id)
+            connection.commit()
         return self._record(updated)
 
     def request_cancel(
@@ -796,6 +1370,7 @@ class JobCatalog:
         actor: str,
         now: str,
         reason: str,
+        error_code: str | None = None,
         lease_token: str | None = None,
     ) -> JobRecord:
         record = self.get_job(job_id)
@@ -803,6 +1378,20 @@ class JobCatalog:
             raise ValueError(f"job {job_id!r} does not exist")
         if record.attempt >= record.max_attempts:
             raise JobStateTransitionError("job has exhausted max_attempts")
+        self._assert_transition(record.state, JobState.RETRYING)
+        retry_code = _string(error_code or reason, "error_code")
+        if retry_code not in record.spec.retry_policy.retryable_error_codes:
+            raise JobStateTransitionError(
+                f"error code {retry_code!r} is not retryable by policy"
+            )
+        retry_not_before_at = _plus_seconds(
+            _timestamp(now, "now"),
+            record.spec.retry_policy.backoff_after(record.attempt),
+        )
+        if record.deadline_at is not None and _parsed_timestamp(
+            retry_not_before_at
+        ) >= _parsed_timestamp(record.deadline_at):
+            raise JobStateTransitionError("retry backoff exceeds the job deadline")
         return self._simple_transition(
             job_id,
             JobState.RETRYING,
@@ -811,6 +1400,9 @@ class JobCatalog:
             reason=reason,
             lease_token=lease_token,
             clear_lease=True,
+            error_code=retry_code,
+            error_message=reason,
+            retry_not_before_at=retry_not_before_at,
         )
 
     def quarantine_job(
@@ -885,6 +1477,7 @@ class JobCatalog:
                 SET state='succeeded', updated_at=?, artifact_set_id=?,
                     lease_owner=NULL, lease_token=NULL, lease_acquired_at=NULL,
                     heartbeat_at=NULL, lease_expires_at=NULL,
+                    attempt_deadline_at=NULL, retry_not_before_at=NULL,
                     error_code=NULL, error_message=NULL
                 WHERE job_id=?
                 """,
@@ -925,33 +1518,66 @@ class JobCatalog:
                 """
             ).fetchall()
             for row in rows:
-                if _parsed_timestamp(row["lease_expires_at"]) >= _parsed_timestamp(at):
+                if _parsed_timestamp(row["lease_expires_at"]) > _parsed_timestamp(at):
                     continue
                 previous = JobState(row["state"])
+                spec = JobSpec.from_dict(json.loads(row["spec_json"]))
+                retry_not_before_at = None
                 if previous == JobState.CANCELLING:
                     target = JobState.CANCELLED
                     error_code = None
                     error_message = None
-                elif int(row["attempt"]) < int(row["max_attempts"]):
-                    target = JobState.RETRYING
-                    error_code = "lease_expired"
-                    error_message = "worker lease expired; job is retryable"
+                elif spec.deadline_at is not None and _parsed_timestamp(
+                    at
+                ) >= _parsed_timestamp(spec.deadline_at):
+                    target = JobState.FAILED
+                    error_code = "deadline_exceeded"
+                    error_message = "job deadline expired while the worker was lost"
+                elif (
+                    int(row["attempt"]) < int(row["max_attempts"])
+                    and "lease_expired" in spec.retry_policy.retryable_error_codes
+                ):
+                    candidate_retry = _plus_seconds(
+                        at,
+                        spec.retry_policy.backoff_after(int(row["attempt"])),
+                    )
+                    if spec.deadline_at is not None and _parsed_timestamp(
+                        candidate_retry
+                    ) >= _parsed_timestamp(spec.deadline_at):
+                        target = JobState.FAILED
+                        error_code = "deadline_exceeded"
+                        error_message = "retry backoff exceeds the job deadline"
+                    else:
+                        target = JobState.RETRYING
+                        error_code = "lease_expired"
+                        error_message = "worker lease expired; job is retryable"
+                        retry_not_before_at = candidate_retry
                 else:
                     target = JobState.FAILED
-                    error_code = "attempts_exhausted"
-                    error_message = "worker lease expired after the final attempt"
+                    error_code = (
+                        "attempts_exhausted"
+                        if int(row["attempt"]) >= int(row["max_attempts"])
+                        else "lease_expired"
+                    )
+                    error_message = (
+                        "worker lease expired after the final attempt"
+                        if error_code == "attempts_exhausted"
+                        else "worker lease expiry is not retryable by policy"
+                    )
                 self._assert_transition(previous, target)
                 connection.execute(
                     """
                     UPDATE jobs SET state=?, updated_at=?,
                         lease_owner=NULL, lease_token=NULL,
                         lease_acquired_at=NULL, heartbeat_at=NULL,
-                        lease_expires_at=NULL, error_code=?, error_message=?
+                        lease_expires_at=NULL, attempt_deadline_at=NULL,
+                        retry_not_before_at=?, error_code=?, error_message=?
                     WHERE job_id=?
                     """,
                     (
                         target.value,
                         at,
+                        retry_not_before_at,
                         error_code,
                         error_message,
                         row["job_id"],
@@ -965,7 +1591,11 @@ class JobCatalog:
                     attempt=int(row["attempt"]),
                     actor=actor,
                     occurred_at=at,
-                    reason="lease_expired",
+                    reason=(
+                        "cancel_after_lease_expired"
+                        if target == JobState.CANCELLED
+                        else error_code or "lease_expired"
+                    ),
                 )
                 reclaimed.append(
                     self._record(self._job_row(connection, row["job_id"]))
@@ -981,6 +1611,47 @@ class JobCatalog:
             ).fetchone()
         return self._record(row) if row is not None else None
 
+    def status_snapshot(self, job_id: str) -> JobStatusSnapshot:
+        self.initialize()
+        with closing(self._connect()) as connection:
+            connection.execute("BEGIN")
+            job_row = self._job_row(connection, job_id)
+            checkpoint_row = connection.execute(
+                """
+                SELECT * FROM job_checkpoints
+                WHERE job_id=? ORDER BY sequence DESC LIMIT 1
+                """,
+                (job_id,),
+            ).fetchone()
+            transition_rows = connection.execute(
+                """
+                SELECT * FROM job_transitions
+                WHERE job_id=? ORDER BY sequence
+                """,
+                (job_id,),
+            ).fetchall()
+            artifact_rows = connection.execute(
+                """
+                SELECT kind, path, sha256, schema_version, row_count
+                FROM job_artifacts WHERE job_id=? ORDER BY artifact_id
+                """,
+                (job_id,),
+            ).fetchall()
+            snapshot = JobStatusSnapshot(
+                job=self._record(job_row),
+                latest_checkpoint=(
+                    self._checkpoint(checkpoint_row)
+                    if checkpoint_row is not None
+                    else None
+                ),
+                transitions=tuple(
+                    self._transition(row) for row in transition_rows
+                ),
+                artifacts=tuple(JobArtifact(*row) for row in artifact_rows),
+            )
+            connection.commit()
+        return snapshot
+
     def transitions(self, job_id: str) -> tuple[JobTransitionRecord, ...]:
         self.initialize()
         with closing(self._connect()) as connection:
@@ -991,23 +1662,7 @@ class JobCatalog:
                 """,
                 (job_id,),
             ).fetchall()
-        return tuple(
-            JobTransitionRecord(
-                job_id=row["job_id"],
-                sequence=int(row["sequence"]),
-                from_state=(
-                    JobState(row["from_state"])
-                    if row["from_state"] is not None
-                    else None
-                ),
-                to_state=JobState(row["to_state"]),
-                attempt=int(row["attempt"]),
-                actor=row["actor"],
-                occurred_at=row["occurred_at"],
-                reason=row["reason"],
-            )
-            for row in rows
-        )
+        return tuple(self._transition(row) for row in rows)
 
     def artifacts(self, job_id: str) -> tuple[JobArtifact, ...]:
         self.initialize()
@@ -1021,6 +1676,197 @@ class JobCatalog:
             ).fetchall()
         return tuple(JobArtifact(*row) for row in rows)
 
+    def artifact_references(self) -> tuple[tuple[str, JobArtifact], ...]:
+        self.initialize()
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT job_id, kind, path, sha256, schema_version, row_count
+                FROM job_artifacts ORDER BY job_id, artifact_id
+                """
+            ).fetchall()
+        return tuple(
+            (
+                row["job_id"],
+                JobArtifact(
+                    kind=row["kind"],
+                    path=row["path"],
+                    sha256=row["sha256"],
+                    schema_version=row["schema_version"],
+                    row_count=(
+                        int(row["row_count"])
+                        if row["row_count"] is not None
+                        else None
+                    ),
+                ),
+            )
+            for row in rows
+        )
+
+    def save_checkpoint(
+        self,
+        job_id: str,
+        *,
+        lease_token: str,
+        now: str,
+        recovery_position: str,
+        completed_units: int,
+        total_units: int | None,
+        payload: Mapping[str, Any],
+        semantic_result_digest: str | None = None,
+    ) -> JobCheckpoint:
+        at = _timestamp(now, "now")
+        position = _string(recovery_position, "recovery_position")
+        canonical_payload = to_canonical_data(payload)
+        payload_json = canonical_json(canonical_payload)
+        if len(payload_json.encode("utf-8")) > JOB_CHECKPOINT_MAX_BYTES:
+            raise ValueError("checkpoint payload exceeds the 1 MiB limit")
+        self.initialize()
+        with closing(self._connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            job = self._job_row(connection, job_id)
+            self._assert_lease(job, lease_token, at)
+            if JobState(job["state"]) not in {
+                JobState.RUNNING,
+                JobState.CANCELLING,
+            }:
+                raise JobStateTransitionError(
+                    "checkpoint requires a running or cancelling job"
+                )
+            existing_row = connection.execute(
+                """
+                SELECT * FROM job_checkpoints
+                WHERE job_id=? AND recovery_position=?
+                """,
+                (job_id, position),
+            ).fetchone()
+            if existing_row is not None:
+                existing = self._checkpoint(existing_row)
+                if (
+                    existing.completed_units != completed_units
+                    or existing.total_units != total_units
+                    or existing.payload != canonical_payload
+                    or existing.semantic_result_digest != semantic_result_digest
+                ):
+                    connection.rollback()
+                    raise JobCheckpointConflict(
+                        "recovery position already has different checkpoint content"
+                    )
+                connection.commit()
+                return existing
+            latest_row = connection.execute(
+                """
+                SELECT * FROM job_checkpoints
+                WHERE job_id=? ORDER BY sequence DESC LIMIT 1
+                """,
+                (job_id,),
+            ).fetchone()
+            latest = self._checkpoint(latest_row) if latest_row is not None else None
+            if latest is not None and completed_units < latest.completed_units:
+                connection.rollback()
+                raise JobCheckpointConflict("checkpoint progress cannot move backwards")
+            if (
+                latest is not None
+                and latest.total_units is not None
+                and total_units != latest.total_units
+            ):
+                connection.rollback()
+                raise JobCheckpointConflict(
+                    "known checkpoint total_units cannot change"
+                )
+            sequence = 0 if latest is None else latest.sequence + 1
+            checkpoint = JobCheckpoint(
+                job_id=job_id,
+                attempt=int(job["attempt"]),
+                sequence=sequence,
+                input_digest=job["input_digest"],
+                recovery_position=position,
+                completed_units=completed_units,
+                total_units=total_units,
+                payload=canonical_payload,
+                created_at=at,
+                semantic_result_digest=semantic_result_digest,
+            )
+            connection.execute(
+                """
+                INSERT INTO job_checkpoints VALUES (
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                )
+                """,
+                (
+                    checkpoint.checkpoint_id,
+                    checkpoint.job_id,
+                    checkpoint.attempt,
+                    checkpoint.sequence,
+                    checkpoint.input_digest,
+                    checkpoint.recovery_position,
+                    checkpoint.completed_units,
+                    checkpoint.total_units,
+                    payload_json,
+                    checkpoint.semantic_result_digest,
+                    checkpoint.created_at,
+                ),
+            )
+            connection.execute(
+                """
+                UPDATE jobs
+                SET latest_checkpoint_id=?, recovery_position=?, updated_at=?
+                WHERE job_id=?
+                """,
+                (checkpoint.checkpoint_id, position, at, job_id),
+            )
+            connection.commit()
+        return checkpoint
+
+    def checkpoints(self, job_id: str) -> tuple[JobCheckpoint, ...]:
+        self.initialize()
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT * FROM job_checkpoints
+                WHERE job_id=? ORDER BY sequence
+                """,
+                (job_id,),
+            ).fetchall()
+        return tuple(self._checkpoint(row) for row in rows)
+
+    def latest_checkpoint(self, job_id: str) -> JobCheckpoint | None:
+        self.initialize()
+        with closing(self._connect()) as connection:
+            row = connection.execute(
+                """
+                SELECT * FROM job_checkpoints
+                WHERE job_id=? ORDER BY sequence DESC LIMIT 1
+                """,
+                (job_id,),
+            ).fetchone()
+        return self._checkpoint(row) if row is not None else None
+
+    def resume_checkpoint(
+        self,
+        job_id: str,
+        *,
+        expected_input_digest: str,
+    ) -> JobCheckpoint | None:
+        expected = _content_id(
+            expected_input_digest,
+            "expected_input_digest",
+            "jobinput_",
+        )
+        job = self.get_job(job_id)
+        if job is None:
+            raise ValueError(f"job {job_id!r} does not exist")
+        if job.spec.input_digest != expected:
+            raise JobCheckpointConflict(
+                "resume input digest does not match the immutable JobSpec"
+            )
+        checkpoint = self.latest_checkpoint(job_id)
+        if checkpoint is not None and checkpoint.input_digest != expected:
+            raise JobCheckpointConflict(
+                "checkpoint input digest does not match the requested resume input"
+            )
+        return checkpoint
+
     def _simple_transition(
         self,
         job_id: str,
@@ -1033,6 +1879,7 @@ class JobCatalog:
         clear_lease: bool,
         error_code: str | None = None,
         error_message: str | None = None,
+        retry_not_before_at: str | None = None,
     ) -> JobRecord:
         at = _timestamp(now, "now")
         _string(actor, "actor")
@@ -1059,11 +1906,15 @@ class JobCatalog:
                     row["lease_expires_at"],
                 )
             )
+            attempt_deadline_at = (
+                None if clear_lease else row["attempt_deadline_at"]
+            )
             connection.execute(
                 """
                 UPDATE jobs SET state=?, updated_at=?,
                     lease_owner=?, lease_token=?, lease_acquired_at=?,
                     heartbeat_at=?, lease_expires_at=?,
+                    attempt_deadline_at=?, retry_not_before_at=?,
                     error_code=?, error_message=?
                 WHERE job_id=?
                 """,
@@ -1071,6 +1922,8 @@ class JobCatalog:
                     target.value,
                     at,
                     *lease_values,
+                    attempt_deadline_at,
+                    retry_not_before_at,
                     error_code,
                     error_message,
                     job_id,
@@ -1102,7 +1955,9 @@ class JobCatalog:
         if row["lease_token"] != lease_token:
             raise JobLeaseError("job lease token does not match the active attempt")
         expires_at = row["lease_expires_at"]
-        if expires_at is None or _parsed_timestamp(now) > _parsed_timestamp(expires_at):
+        if expires_at is None or _parsed_timestamp(now) >= _parsed_timestamp(
+            expires_at
+        ):
             raise JobLeaseError("job lease has expired")
 
     @staticmethod
@@ -1134,9 +1989,53 @@ class JobCatalog:
             lease_acquired_at=row["lease_acquired_at"],
             heartbeat_at=row["heartbeat_at"],
             lease_expires_at=row["lease_expires_at"],
+            deadline_at=row["deadline_at"],
+            attempt_deadline_at=row["attempt_deadline_at"],
+            retry_not_before_at=row["retry_not_before_at"],
+            latest_checkpoint_id=row["latest_checkpoint_id"],
+            recovery_position=row["recovery_position"],
             artifact_set_id=row["artifact_set_id"],
             error_code=row["error_code"],
             error_message=row["error_message"],
+        )
+
+    @staticmethod
+    def _checkpoint(row: sqlite3.Row) -> JobCheckpoint:
+        checkpoint = JobCheckpoint(
+            job_id=row["job_id"],
+            attempt=int(row["attempt"]),
+            sequence=int(row["sequence"]),
+            input_digest=row["input_digest"],
+            recovery_position=row["recovery_position"],
+            completed_units=int(row["completed_units"]),
+            total_units=(
+                int(row["total_units"])
+                if row["total_units"] is not None
+                else None
+            ),
+            payload=json.loads(row["payload_json"]),
+            created_at=row["created_at"],
+            semantic_result_digest=row["semantic_result_digest"],
+        )
+        if checkpoint.checkpoint_id != row["checkpoint_id"]:
+            raise ValueError("stored checkpoint ID does not match its content")
+        return checkpoint
+
+    @staticmethod
+    def _transition(row: sqlite3.Row) -> JobTransitionRecord:
+        return JobTransitionRecord(
+            job_id=row["job_id"],
+            sequence=int(row["sequence"]),
+            from_state=(
+                JobState(row["from_state"])
+                if row["from_state"] is not None
+                else None
+            ),
+            to_state=JobState(row["to_state"]),
+            attempt=int(row["attempt"]),
+            actor=row["actor"],
+            occurred_at=row["occurred_at"],
+            reason=row["reason"],
         )
 
     @staticmethod

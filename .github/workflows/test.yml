@@ -43,3 +43,4 @@ jobs:
           .release-venv/bin/python -m pip install dist/*.whl
           .release-venv/bin/python -m ygo_effect_dsl --version
           .release-venv/bin/python -m ygo_effect_dsl experiment-search --help
+          .release-venv/bin/python -m ygo_effect_dsl job-inspect --help
