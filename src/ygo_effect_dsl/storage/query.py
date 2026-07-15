@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import base64
-from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass, replace
 from datetime import date, datetime, time, timezone
 from enum import Enum
 from functools import cmp_to_key
@@ -19,7 +19,6 @@ from ygo_effect_dsl.engine.canonical import (
     to_canonical_data,
 )
 from ygo_effect_dsl.storage.parquet import AggregationRecord
-
 
 ANALYTICS_QUERY_CONTRACT_VERSION = "analytics-query-contract-v1"
 ANALYTICS_QUERY_REQUEST_SCHEMA_VERSION = "analytics-query-request-v1"
@@ -54,9 +53,7 @@ _FIELD_SPECS: dict[str, _FieldSpec] = {
     "deck": _FieldSpec("string", _SCALAR_OPERATORS),
     "card": _FieldSpec("string_list", _LIST_OPERATORS, sortable=False),
     "strategy": _FieldSpec("string", _SCALAR_OPERATORS),
-    "interruption": _FieldSpec(
-        "string_list", _LIST_OPERATORS, sortable=False
-    ),
+    "interruption": _FieldSpec("string_list", _LIST_OPERATORS, sortable=False),
     "success": _FieldSpec("boolean", _SCALAR_OPERATORS),
     "score": _FieldSpec("number", _RANGE_OPERATORS),
     "time": _FieldSpec("timestamp", _RANGE_OPERATORS),
@@ -88,9 +85,7 @@ def _exact_keys(value: Mapping[str, Any], expected: set[str], name: str) -> None
 
 
 def _sequence(value: Any, name: str) -> Sequence[Any]:
-    if not isinstance(value, Sequence) or isinstance(
-        value, (str, bytes, bytearray)
-    ):
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):
         raise ValueError(f"{name} must be a sequence")
     return value
 
@@ -120,9 +115,7 @@ def _validate_json_value(value: Any, name: str) -> Any:
         if isinstance(item, list):
             return tuple(freeze(child) for child in item)
         if isinstance(item, dict):
-            return MappingProxyType(
-                {key: freeze(child) for key, child in item.items()}
-            )
+            return MappingProxyType({key: freeze(child) for key, child in item.items()})
         return item
 
     return freeze(canonical)
@@ -130,10 +123,7 @@ def _validate_json_value(value: Any, name: str) -> Any:
 
 def _thaw_json_value(value: Any) -> Any:
     if isinstance(value, Mapping):
-        return {
-            key: _thaw_json_value(child)
-            for key, child in sorted(value.items())
-        }
+        return {key: _thaw_json_value(child) for key, child in sorted(value.items())}
     if isinstance(value, tuple):
         return [_thaw_json_value(child) for child in value]
     return value
@@ -167,15 +157,11 @@ class AnalyticsValue:
         if state == AnalyticsValueState.VALUE:
             if self.value is None:
                 raise ValueError("value state requires a non-null value")
-            object.__setattr__(
-                self, "value", _validate_json_value(self.value, "value")
-            )
+            object.__setattr__(self, "value", _validate_json_value(self.value, "value"))
         elif state == AnalyticsValueState.EMPTY:
             if self.value not in ("", [], (), {}):
                 raise ValueError("empty state requires '', [], or {}")
-            object.__setattr__(
-                self, "value", _validate_json_value(self.value, "value")
-            )
+            object.__setattr__(self, "value", _validate_json_value(self.value, "value"))
         elif self.value is not None:
             raise ValueError(f"{state.value} state must not carry a value")
 
@@ -339,8 +325,7 @@ class AnalyticsQueryRow:
         return cls(
             row_id=value.get("row_id"),
             values={
-                key: AnalyticsValue.from_mapping(item)
-                for key, item in values.items()
+                key: AnalyticsValue.from_mapping(item) for key, item in values.items()
             },
             schema_version=value.get("schema_version"),
         )
@@ -429,6 +414,38 @@ class AnalyticsSnapshot:
             },
             prefix="analyticssnapshot_",
         )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "rows": [row.to_dict() for row in self.rows],
+            "schema_version": self.schema_version,
+            "snapshot_id": self.snapshot_id,
+            "source_ids": list(self.source_ids),
+        }
+
+    @classmethod
+    def from_mapping(cls, value: Any) -> "AnalyticsSnapshot":
+        if not isinstance(value, Mapping):
+            raise ValueError("analytics snapshot must be a mapping")
+        _exact_keys(
+            value,
+            {"rows", "schema_version", "snapshot_id", "source_ids"},
+            "analytics snapshot",
+        )
+        snapshot = cls(
+            rows=tuple(
+                AnalyticsQueryRow.from_mapping(item)
+                for item in _sequence(value.get("rows"), "snapshot rows")
+            ),
+            source_ids=tuple(
+                _non_empty_string(item, "source_id")
+                for item in _sequence(value.get("source_ids"), "snapshot source_ids")
+            ),
+            schema_version=value.get("schema_version"),
+        )
+        if value.get("snapshot_id") != snapshot.snapshot_id:
+            raise ValueError("analytics snapshot_id does not match its content")
+        return snapshot
 
 
 class AnalyticsSnapshotStore:
@@ -730,9 +747,7 @@ def _encode_cursor(payload: Mapping[str, Any]) -> str:
 def _decode_cursor(value: str) -> Mapping[str, Any]:
     try:
         padding = "=" * (-len(value) % 4)
-        envelope = json.loads(
-            base64.urlsafe_b64decode(value + padding).decode("utf-8")
-        )
+        envelope = json.loads(base64.urlsafe_b64decode(value + padding).decode("utf-8"))
         if not isinstance(envelope, Mapping):
             raise ValueError
         _exact_keys(envelope, {"digest", "payload"}, "cursor envelope")
@@ -890,18 +905,7 @@ class AnalyticsQueryService:
                 "cursor_snapshot_mismatch",
                 "cursor and request refer to different snapshots",
             )
-        snapshot_id = request.snapshot_id or cursor_snapshot_id
-        snapshot = (
-            self.snapshots.get(snapshot_id)
-            if snapshot_id is not None
-            else self.snapshots.current()
-        )
-        if snapshot is None:
-            raise AnalyticsQueryError(
-                "snapshot_unavailable",
-                "requested analytics snapshot is not available",
-                details={"snapshot_id": snapshot_id},
-            )
+        snapshot = self._resolve_snapshot(request.snapshot_id or cursor_snapshot_id)
         snapshot_id = snapshot.snapshot_id
         if cursor and cursor["request_fingerprint"] != request.fingerprint:
             raise AnalyticsQueryError(
@@ -920,16 +924,7 @@ class AnalyticsQueryService:
                     "suggested_job_kind": "export",
                 },
             )
-        rows = [
-            row
-            for row in snapshot.rows
-            if all(_matches(row, item) for item in request.filters)
-        ]
-        rows.sort(
-            key=cmp_to_key(
-                lambda left, right: _compare_rows(left, right, request.sort)
-            )
-        )
+        rows = self._select_rows(snapshot, request)
         start = 0
         if cursor:
             start = self._cursor_start(rows, request, cursor)
@@ -957,6 +952,100 @@ class AnalyticsQueryService:
             scanned_rows=len(snapshot.rows),
             next_cursor=next_cursor,
         )
+
+    def bind_snapshot(self, request: AnalyticsQueryRequest) -> AnalyticsQueryRequest:
+        if not isinstance(request, AnalyticsQueryRequest):
+            raise TypeError("request must be an AnalyticsQueryRequest")
+        if request.cursor is not None:
+            raise AnalyticsQueryError(
+                "export_cursor_forbidden",
+                "an export request must start at the beginning of its snapshot",
+            )
+        snapshot = self._resolve_snapshot(request.snapshot_id)
+        return replace(request, snapshot_id=snapshot.snapshot_id)
+
+    def select_for_export(
+        self,
+        request: AnalyticsQueryRequest,
+        *,
+        max_scan_rows: int,
+        max_output_rows: int,
+        cancel_requested: Callable[[], bool] = lambda: False,
+    ) -> tuple[AnalyticsQueryRequest, AnalyticsSnapshot, tuple[dict[str, Any], ...]]:
+        if (
+            not isinstance(max_scan_rows, int)
+            or isinstance(max_scan_rows, bool)
+            or max_scan_rows < 1
+        ):
+            raise ValueError("max_scan_rows must be an integer >= 1")
+        if (
+            not isinstance(max_output_rows, int)
+            or isinstance(max_output_rows, bool)
+            or max_output_rows < 1
+        ):
+            raise ValueError("max_output_rows must be an integer >= 1")
+        bound = self.bind_snapshot(request)
+        snapshot = self._resolve_snapshot(bound.snapshot_id)
+        if len(snapshot.rows) > max_scan_rows:
+            raise AnalyticsQueryError(
+                "export_scan_limit_exceeded",
+                "export source exceeds the configured scan limit",
+                async_job_required=True,
+                details={
+                    "max_scan_rows": max_scan_rows,
+                    "query_snapshot_id": snapshot.snapshot_id,
+                    "scanned_rows": len(snapshot.rows),
+                },
+            )
+        rows = self._select_rows(snapshot, bound, cancel_requested=cancel_requested)
+        if len(rows) > max_output_rows:
+            raise AnalyticsQueryError(
+                "export_row_limit_exceeded",
+                "export result exceeds the configured row limit",
+                async_job_required=True,
+                details={
+                    "matched_rows": len(rows),
+                    "max_output_rows": max_output_rows,
+                    "query_snapshot_id": snapshot.snapshot_id,
+                },
+            )
+        return (
+            bound,
+            snapshot,
+            tuple(row.to_dict(bound.fields) for row in rows),
+        )
+
+    def _resolve_snapshot(self, snapshot_id: str | None) -> AnalyticsSnapshot:
+        snapshot = (
+            self.snapshots.get(snapshot_id)
+            if snapshot_id is not None
+            else self.snapshots.current()
+        )
+        if snapshot is None:
+            raise AnalyticsQueryError(
+                "snapshot_unavailable",
+                "requested analytics snapshot is not available",
+                details={"snapshot_id": snapshot_id},
+            )
+        return snapshot
+
+    @staticmethod
+    def _select_rows(
+        snapshot: AnalyticsSnapshot,
+        request: AnalyticsQueryRequest,
+        *,
+        cancel_requested: Callable[[], bool] = lambda: False,
+    ) -> list[AnalyticsQueryRow]:
+        rows: list[AnalyticsQueryRow] = []
+        for index, row in enumerate(snapshot.rows):
+            if index % 512 == 0 and cancel_requested():
+                raise InterruptedError("analytics export was cancelled")
+            if all(_matches(row, item) for item in request.filters):
+                rows.append(row)
+        rows.sort(
+            key=cmp_to_key(lambda left, right: _compare_rows(left, right, request.sort))
+        )
+        return rows
 
     @staticmethod
     def _cursor_start(

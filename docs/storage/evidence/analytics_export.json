@@ -1,0 +1,73 @@
+{
+  "contract_version": "analytics-export-contract-v1",
+  "evidence_id": "analyticsexportevidence_babc372ec0361585faeb2a36b4cb7e86f0d95519c5066fdd87d2c03e634b1966",
+  "formats": {
+    "csv": {
+      "data": {
+        "bytes": 331,
+        "filename": "analytics.csv",
+        "sha256": "b2b04e6de55ad3bfb933d6de3334bc9c70048c329790b6b1d02c420b11d50427"
+      },
+      "export_id": "analyticsexport_fca0f10a5a99016b2f718f3b96cb12822fafce28be676e8c503e8e119cb3c8f4",
+      "manifest": {
+        "bytes": 1828,
+        "filename": "manifest-csv.json",
+        "sha256": "8308f79d9941a8f876362790bac872c82fffc2940249c72f456cb2ed49d8e92b"
+      },
+      "row_count": 2,
+      "semantic_digest": "exportsemantic_6deba779d67fbfe5ea772e05d532c313885098700915c855b6646a3effd770fd",
+      "surface_byte_parity": true
+    },
+    "json": {
+      "data": {
+        "bytes": 1324,
+        "filename": "analytics.json",
+        "sha256": "626f962830309f4dfc3f81122ae6ee4a03631e1550b3e826966216fecac563a3"
+      },
+      "export_id": "analyticsexport_da1dd4448a39a41bfaa4e411f37cb7a09daa8a1ef6a8098a6899018c9b76d40c",
+      "manifest": {
+        "bytes": 1832,
+        "filename": "manifest-json.json",
+        "sha256": "69f6abedb0c9fed8e6add076a2b50425761927832732758545d32980b733d3c2"
+      },
+      "row_count": 2,
+      "semantic_digest": "exportsemantic_6deba779d67fbfe5ea772e05d532c313885098700915c855b6646a3effd770fd",
+      "surface_byte_parity": true
+    },
+    "parquet": {
+      "data": {
+        "bytes": 2590,
+        "filename": "analytics.parquet",
+        "sha256": "06160ef9c0d37bde0bec9536b7dd91ff4e36d5b871a5ee28a0a45b769d735b7b"
+      },
+      "export_id": "analyticsexport_6f2ad6e7d2882ca313b68fa421c842200593a252d77931ff2fa68c1015fd1483",
+      "manifest": {
+        "bytes": 1845,
+        "filename": "manifest-parquet.json",
+        "sha256": "7b87b6b47e436eaa4d3fa60527f104f1503c13afad38cc51e4e247504fe4d05b"
+      },
+      "row_count": 2,
+      "semantic_digest": "exportsemantic_6deba779d67fbfe5ea772e05d532c313885098700915c855b6646a3effd770fd",
+      "surface_byte_parity": true
+    }
+  },
+  "package_version": "0.3.0",
+  "safety": {
+    "csv_formula_leading_character_exposed": false,
+    "desktop_renderer_authors_bytes": false,
+    "desktop_renderer_path_input": false
+  },
+  "schema_version": "analytics-export-evidence-v1",
+  "source": {
+    "query_fingerprint": "analyticsquery_2217440eee66b5aec998c47eb6f8fdd5a4ece38d399144fcf43555fc29f964b4",
+    "snapshot_id": "analyticssnapshot_49db46720f31ca3e0d829ce32d5c393e19fa7910c0cbea4b29e0d5afdcaf4f83",
+    "source_ids": [
+      "corpusmanifest_export_fixture"
+    ]
+  },
+  "surfaces": [
+    "service",
+    "cli_subprocess",
+    "desktop_bridge_worker"
+  ]
+}

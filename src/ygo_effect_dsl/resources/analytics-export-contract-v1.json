@@ -1,0 +1,37 @@
+{
+  "formats": [
+    "json",
+    "csv",
+    "parquet"
+  ],
+  "limits": {
+    "max_bytes": 536870912,
+    "max_output_rows": 1000000,
+    "max_scan_rows": 1000000
+  },
+  "parity": {
+    "semantic_digest": "exportsemantic_ SHA-256 content identity",
+    "surfaces": [
+      "cli",
+      "desktop_bridge",
+      "desktop_ui"
+    ]
+  },
+  "safety": {
+    "csv_formula_injection": "canonical JSON cells plus apostrophe escape",
+    "output_paths": "caller-owned root with fixed filenames",
+    "renderer_path_input": false
+  },
+  "schema_version": "analytics-export-contract-v1",
+  "schemas": {
+    "data": "analytics-export-data-v1",
+    "manifest": "analytics-export-manifest-v1",
+    "request": "analytics-export-request-v1",
+    "result": "analytics-export-result-v1",
+    "worker": "analytics-export-worker-v1"
+  },
+  "source_kinds": [
+    "query",
+    "comparison"
+  ]
+}

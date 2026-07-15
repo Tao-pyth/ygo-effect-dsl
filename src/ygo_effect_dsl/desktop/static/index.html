@@ -261,6 +261,16 @@
                 <label><input type="checkbox" value="time" data-analytics-column checked>Observed</label>
               </fieldset>
             </details>
+            <label class="select-field analytics-export-format">
+              <span>Export</span>
+              <select id="analytics-export-format">
+                <option value="json">JSON</option>
+                <option value="csv">CSV</option>
+                <option value="parquet">Parquet</option>
+              </select>
+            </label>
+            <button class="button secondary" id="analytics-export-start" type="button">Export</button>
+            <button class="button danger" id="analytics-export-cancel" type="button" hidden>Cancel</button>
             <div class="segmented" aria-label="Run table density">
               <button type="button" class="is-selected" aria-pressed="true" data-density="compact">Compact</button>
               <button type="button" aria-pressed="false" data-density="comfortable">Comfortable</button>
@@ -283,6 +293,7 @@
 
           <div class="analytics-footer">
             <span id="analytics-status" role="status" aria-live="polite">Analytics query not started</span>
+            <span id="analytics-export-status" role="status" aria-live="polite">Export idle</span>
             <code id="analytics-snapshot">No snapshot</code>
             <button class="button secondary" id="analytics-load-more" type="button" hidden>Load next page</button>
           </div>

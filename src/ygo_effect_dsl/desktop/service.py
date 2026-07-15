@@ -21,6 +21,14 @@ from ygo_effect_dsl.engine.search import strategy_from_experiment
 from ygo_effect_dsl.experiment.schema import assert_valid_experiment
 from ygo_effect_dsl.experiment.scenario import parse_ydk, preflight_scenario
 from ygo_effect_dsl.presentation import CardPresentationQuery
+from ygo_effect_dsl.storage.export import (
+    AnalyticsExportFormat,
+    AnalyticsExportQueue,
+    AnalyticsExportRequest,
+    AnalyticsExportService,
+    AnalyticsExportSourceKind,
+    AnalyticsExportWorker,
+)
 from ygo_effect_dsl.storage.jobs import (
     JobCatalog,
     JobKind,
@@ -378,6 +386,7 @@ class DesktopApplicationService:
         preflight: Callable[..., Any] = preflight_scenario,
         worker_execution: str = "external_worker_required",
         worker_health: Callable[[], str] | None = None,
+        export_worker_health: Callable[[], str] | None = None,
     ) -> None:
         self.data_root = Path(data_root).expanduser().resolve()
         self.external_root = (
@@ -398,15 +407,26 @@ class DesktopApplicationService:
             raise ValueError("unsupported desktop worker execution mode")
         self.worker_execution = worker_execution
         self.worker_health = worker_health
+        self.export_worker_health = export_worker_health
         if analytics_service is None:
             snapshots = AnalyticsSnapshotStore()
             snapshots.register(AnalyticsSnapshot(rows=()))
             analytics_service = AnalyticsQueryService(snapshots)
         self.analytics_service = analytics_service
+        self.analytics_export_service = AnalyticsExportService(analytics_service)
+        self.analytics_export_queue = AnalyticsExportQueue(
+            self.data_root,
+            self.analytics_export_service,
+            catalog=self.job_catalog,
+        )
+        self.analytics_export_worker = AnalyticsExportWorker(
+            self.analytics_export_queue
+        )
 
     def handlers(self) -> dict[str, DesktopHandler]:
         return {
             "analytics.compare": self.analytics_compare,
+            "analytics.export.enqueue": self.analytics_export_enqueue,
             "analytics.query": self.analytics_query,
             "card.get": self.card_get,
             "deck.catalog": self.deck_catalog_list,
@@ -425,6 +445,10 @@ class DesktopApplicationService:
         return {
             "capabilities": {
                 "analytics_query": True,
+                "analytics_export": True,
+                "analytics_export_formats": [
+                    item.value for item in AnalyticsExportFormat
+                ],
                 "card_presentation": self.card_provider is not None,
                 "comparison": self.comparison_handler is not None,
                 "native_ydk_import": self.ydk_picker is not None,
@@ -433,6 +457,11 @@ class DesktopApplicationService:
                 "worker_health": (
                     self.worker_health()
                     if self.worker_health is not None
+                    else "unknown"
+                ),
+                "export_worker_health": (
+                    self.export_worker_health()
+                    if self.export_worker_health is not None
                     else "unknown"
                 ),
             },
@@ -794,6 +823,68 @@ class DesktopApplicationService:
         _exact(payload, {"request"}, "analytics.query")
         request = AnalyticsQueryRequest.from_mapping(payload["request"])
         return self.analytics_service.execute(request).to_dict()
+
+    def analytics_export_enqueue(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(
+            payload,
+            {"format", "idempotency_key", "priority", "source", "source_kind"},
+            "analytics.export.enqueue",
+        )
+        try:
+            export_format = AnalyticsExportFormat(payload["format"])
+            source_kind = AnalyticsExportSourceKind(payload["source_kind"])
+        except (TypeError, ValueError) as exc:
+            raise DesktopServiceError(
+                "invalid_export_request",
+                "analytics export format or source kind is unsupported",
+            ) from exc
+        source = payload["source"]
+        if not isinstance(source, Mapping):
+            raise DesktopServiceError(
+                "invalid_export_request",
+                "analytics export source must be an object",
+            )
+        if source_kind == AnalyticsExportSourceKind.QUERY:
+            request = AnalyticsExportRequest(
+                format=export_format,
+                source_kind=source_kind,
+                query=AnalyticsQueryRequest.from_mapping(source),
+            )
+        else:
+            if self.comparison_handler is None:
+                raise DesktopServiceError(
+                    "comparison_source_unavailable",
+                    "no validated comparison observation source is configured",
+                )
+            request = AnalyticsExportRequest(
+                format=export_format,
+                source_kind=source_kind,
+                comparison=self.comparison_handler(source),
+            )
+        idempotency_key = payload["idempotency_key"]
+        if idempotency_key is not None and (
+            not isinstance(idempotency_key, str) or not idempotency_key
+        ):
+            raise DesktopServiceError(
+                "invalid_export_request",
+                "idempotency_key must be null or a non-empty string",
+            )
+        priority = payload["priority"]
+        if not isinstance(priority, int) or isinstance(priority, bool):
+            raise DesktopServiceError(
+                "invalid_export_request", "priority must be an integer"
+            )
+        bound_request = self.analytics_export_service.bind_request(request)
+        job = self.analytics_export_queue.enqueue(
+            bound_request,
+            created_at=_now(),
+            idempotency_key=idempotency_key,
+            priority=priority,
+        )
+        return {
+            "export_request_id": bound_request.request_id,
+            "job": job.to_dict(),
+        }
 
     def analytics_compare(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         _exact(payload, {"request"}, "analytics.compare")

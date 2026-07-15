@@ -218,9 +218,31 @@ async function executeAnalyticsQuery(request) {
   return response.result;
 }
 
+const analyticsExportJobs = Object.freeze({
+  async enqueue(payload) {
+    if (!desktopBridgeAvailable()) {
+      throw new Error("Desktop bridge is required for versioned exports");
+    }
+    const response = await window.routeLabBridge.invoke("analytics.export.enqueue", payload);
+    if (!response.ok) throw new Error(response.diagnostics[0]?.message || "Export queue failed closed");
+    return response.result;
+  },
+  async status(jobId) {
+    const response = await window.routeLabBridge.invoke("job.status", { job_id: jobId });
+    if (!response.ok) throw new Error(response.diagnostics[0]?.message || "Export status failed closed");
+    return response.result;
+  },
+  async cancel(jobId) {
+    const response = await window.routeLabBridge.invoke("job.cancel", { job_id: jobId });
+    if (!response.ok) throw new Error(response.diagnostics[0]?.message || "Export cancellation failed closed");
+    return response.result;
+  },
+});
+
 const analyticsController = window.routeLabAnalytics.createController(
   elements.analyticsPane,
   executeAnalyticsQuery,
+  analyticsExportJobs,
 );
 
 function markDesktopEnvironment() {

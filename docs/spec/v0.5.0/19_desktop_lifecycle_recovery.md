@@ -42,7 +42,7 @@ The bridge remains a single public `invoke` method with a machine-readable allow
 
 ## Evidence
 
-The committed lifecycle evidence is [`desktop_lifecycle.json`](../../ui/evidence/desktop_lifecycle.json), ID `desktoplifecycleevidence_e294d061ecb793951cf7933b186dda6ec6031293637c27302b296316dcc3bfd9`. On the measured Windows 11 host it records:
+The committed lifecycle evidence is [`desktop_lifecycle.json`](../../ui/evidence/desktop_lifecycle.json), ID `desktoplifecycleevidence_307c69c72f1d922287711955e0b8f788fbe83ac9c3df99cd0da33e63af5cafbe`. On the measured Windows 11 host it records:
 
 - Windows Job Object parent-plus-child process count `2` before termination and active count `0` after termination.
 - host-crash recovery at attempt `2` with checkpoint `search:frontier:17` and immutable input digest parity.

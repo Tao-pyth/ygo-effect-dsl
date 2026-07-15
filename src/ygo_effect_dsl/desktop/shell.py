@@ -15,6 +15,7 @@ from ygo_effect_dsl.desktop import desktop_frontend_entrypoint
 from ygo_effect_dsl.desktop.bridge import DesktopBridge
 from ygo_effect_dsl.desktop.lifecycle import DesktopWorkerSupervisor
 from ygo_effect_dsl.desktop.service import DesktopApplicationService
+from ygo_effect_dsl.storage.export import AnalyticsExportSupervisor
 
 PYWEBVIEW_REQUIREMENT = "6.2.1"
 DESKTOP_STARTUP_DIAGNOSTIC_VERSION = "desktop-startup-diagnostic-v1"
@@ -225,6 +226,9 @@ def start_desktop(
     external_root: str | Path | None = None,
     webview_module: ModuleType | None = None,
     supervisor_factory: type[DesktopWorkerSupervisor] = DesktopWorkerSupervisor,
+    export_supervisor_factory: type[
+        AnalyticsExportSupervisor
+    ] = AnalyticsExportSupervisor,
 ) -> None:
     if webview_module is None:
         try:
@@ -240,6 +244,7 @@ def start_desktop(
         data_root,
         external_root=external_root,
     )
+    export_supervisor: AnalyticsExportSupervisor | None = None
     picker = NativeYdkPicker(webview)
     service = DesktopApplicationService(
         data_root,
@@ -247,7 +252,11 @@ def start_desktop(
         ydk_picker=picker,
         worker_execution="desktop-supervisor-v1",
         worker_health=lambda: supervisor.health,
+        export_worker_health=lambda: (
+            export_supervisor.health if export_supervisor is not None else "stopped"
+        ),
     )
+    export_supervisor = export_supervisor_factory(service.analytics_export_worker)
     bridge = DesktopBridge(service.handlers())
     window = webview.create_window(
         "RouteLab Deck Research",
@@ -265,6 +274,11 @@ def start_desktop(
     picker.window = window
     supervisor.start()
     try:
+        export_supervisor.start()
+    except BaseException:
+        supervisor.stop()
+        raise
+    try:
         webview.start(gui="edgechromium", debug=False, private_mode=True)
     except Exception as exc:
         raise DesktopStartupError(
@@ -273,13 +287,18 @@ def start_desktop(
             details={"error_type": type(exc).__name__},
         ) from exc
     finally:
-        try:
-            supervisor.stop()
-        except RuntimeError as exc:
+        shutdown_failures: list[RuntimeError] = []
+        for active_supervisor in (export_supervisor, supervisor):
+            try:
+                active_supervisor.stop()
+            except RuntimeError as exc:
+                shutdown_failures.append(exc)
+        if shutdown_failures:
             raise DesktopStartupError(
                 "desktop_worker_shutdown_failed",
                 "desktop worker process tree did not stop cleanly",
-            ) from exc
+                details={"failure_count": len(shutdown_failures)},
+            ) from shutdown_failures[0]
 
 
 def main(argv: list[str] | None = None) -> int:

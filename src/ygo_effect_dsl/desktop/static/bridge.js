@@ -4,6 +4,7 @@
   const VERSION = "desktop-bridge-v1";
   const methods = new Set([
     "analytics.compare",
+    "analytics.export.enqueue",
     "analytics.query",
     "card.get",
     "deck.catalog",

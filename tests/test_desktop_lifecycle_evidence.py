@@ -25,7 +25,7 @@ def test_committed_desktop_lifecycle_evidence_is_content_addressed() -> None:
         identity, prefix="desktoplifecycleevidence_"
     )
     assert evidence["bridge"] == {
-        "method_count": 12,
+        "method_count": 13,
         "method_drift": False,
         "path_input_diagnostic": "renderer_path_forbidden",
         "public_python_methods": ["invoke"],

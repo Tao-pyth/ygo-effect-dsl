@@ -4,7 +4,7 @@
     "aria_row_count": 100001,
     "comfortable_row_height": 48,
     "keyboard_focus_delta": -1,
-    "keyboard_response_seconds": 0.043408,
+    "keyboard_response_seconds": 0.045839,
     "named_grid": true,
     "roving_tabindex": true,
     "sticky_header_position": "sticky"
@@ -15,7 +15,12 @@
     "page_errors": [],
     "remote_requests": []
   },
-  "evidence_id": "desktopvirtualtableevidence_5983ee3c76a3ccd6febc3b4260c2e25fbce52015673c93b344730a1c298d9121",
+  "evidence_id": "desktopvirtualtableevidence_908bda8b3e78b6664f1855b8af4b902f3032920f6f6eb512d02338e77e594731",
+  "export": {
+    "backend_authority_required": true,
+    "renderer_generated_file": false,
+    "status": "Desktop bridge is required for versioned exports"
+  },
   "pagination": {
     "cursor_contract": "analytics-cursor-v1",
     "duplicate_fetch": {
@@ -24,7 +29,7 @@
       "query_delta": 1
     },
     "filter_matched_rows": 2500,
-    "filter_response_seconds": 0.162701,
+    "filter_response_seconds": 0.189626,
     "first_run_ascending": "searchrun_fixture_000000",
     "first_run_descending": "searchrun_fixture_099999",
     "max_concurrent_queries": 1,
@@ -33,7 +38,7 @@
   },
   "scale": {
     "dom_rows_after_end_scroll": 22,
-    "elapsed_seconds": 3.413729,
+    "elapsed_seconds": 3.807845,
     "header_height_after": 38,
     "header_height_before": 38,
     "heap_delta_bytes": 0,
@@ -53,17 +58,17 @@
   },
   "screenshots": [
     {
-      "bytes": 96313,
+      "bytes": 97861,
       "filename": "analytics_runs_1440x900.png",
       "height": 900,
-      "sha256": "710b44b3a50956a722c56e744fefdbbe77e54b4e56cbf4e6240bf7aaab3515e2",
+      "sha256": "3e3c7e3c2c8c0ab8e303609124908a041988e46bc977e0f0f42e0be8526a6b87",
       "width": 1440
     },
     {
-      "bytes": 66607,
+      "bytes": 67780,
       "filename": "analytics_runs_760x900.png",
       "height": 900,
-      "sha256": "3023e3e346202a77ba6d04320955d8726cdeabb889274bc25e268d3e56f6ad72",
+      "sha256": "e60d5e685e541afc11fe228d8ec9119c03dd248d771a180765e0a013a9d50968",
       "width": 760
     }
   ],
@@ -119,8 +124,8 @@
       "body_vertical_overflow": false,
       "boxes": {
         "#analytics-grid": {
-          "bottom": 840,
-          "height": 599.296875,
+          "bottom": 824,
+          "height": 583.296875,
           "left": 82,
           "right": 736,
           "top": 240.703125,
@@ -128,10 +133,10 @@
         },
         ".analytics-footer": {
           "bottom": 884,
-          "height": 44,
+          "height": 60,
           "left": 82,
           "right": 736,
-          "top": 840,
+          "top": 824,
           "width": 654
         },
         ".analytics-heading": {

@@ -1,20 +1,20 @@
 {
   "bridge": {
-    "method_count": 12,
+    "method_count": 13,
     "method_drift": false,
     "path_input_diagnostic": "renderer_path_forbidden",
     "public_python_methods": [
       "invoke"
     ]
   },
-  "evidence_id": "desktoplifecycleevidence_e294d061ecb793951cf7933b186dda6ec6031293637c27302b296316dcc3bfd9",
+  "evidence_id": "desktoplifecycleevidence_307c69c72f1d922287711955e0b8f788fbe83ac9c3df99cd0da33e63af5cafbe",
   "frontend": {
     "accessibility": {
       "dialog_count": 5,
-      "focusable_control_count": 36,
+      "focusable_control_count": 55,
       "forced_colors_rules": true,
       "icon_button_names_complete": true,
-      "label_count": 14,
+      "label_count": 26,
       "minimum_window": [
         960,
         700
@@ -70,14 +70,14 @@
         "active_processes": 0,
         "containment": "windows-job-object-kill-on-close-v1",
         "launch_mode": "breakaway",
-        "peak_job_memory_bytes": 8400896,
+        "peak_job_memory_bytes": 8704000,
         "total_processes": 2
       },
       "before": {
         "active_processes": 2,
         "containment": "windows-job-object-kill-on-close-v1",
         "launch_mode": "breakaway",
-        "peak_job_memory_bytes": 8400896,
+        "peak_job_memory_bytes": 8704000,
         "total_processes": 2
       }
     },
@@ -90,14 +90,14 @@
         "active_processes": 0,
         "containment": "windows-job-object-kill-on-close-v1",
         "launch_mode": "breakaway",
-        "peak_job_memory_bytes": 29163520,
+        "peak_job_memory_bytes": 29433856,
         "total_processes": 2
       },
       "process_tree_before_termination": {
         "active_processes": 2,
         "containment": "windows-job-object-kill-on-close-v1",
         "launch_mode": "breakaway",
-        "peak_job_memory_bytes": 29163520,
+        "peak_job_memory_bytes": 29433856,
         "total_processes": 2
       },
       "reclaimed_state": "retrying",
@@ -140,9 +140,9 @@
   "startup": {
     "cold": {
       "backend": "edgechromium",
-      "cold_start_seconds": 1.80358,
+      "cold_start_seconds": 2.289004,
       "family_process_count": 7,
-      "family_rss_bytes": 418287616,
+      "family_rss_bytes": 412233728,
       "loaded": true,
       "probe_site_packages_bytes": 299890077,
       "pywebview_version": "6.2.1"
@@ -153,9 +153,9 @@
     },
     "warm": {
       "backend": "edgechromium",
-      "cold_start_seconds": 1.567594,
+      "cold_start_seconds": 1.619012,
       "family_process_count": 7,
-      "family_rss_bytes": 420950016,
+      "family_rss_bytes": 418746368,
       "loaded": true,
       "probe_site_packages_bytes": 299890077,
       "pywebview_version": "6.2.1"

@@ -9,6 +9,7 @@ from typing import Any
 from ygo_effect_dsl import __version__
 from ygo_effect_dsl.cli.cmd_analyze import cmd_analyze
 from ygo_effect_dsl.cli.cmd_corpus import cmd_ocgcore_decision_corpus
+from ygo_effect_dsl.cli.cmd_export import cmd_analytics_export
 from ygo_effect_dsl.cli.cmd_experiment import (
     cmd_experiment_inspect,
     cmd_experiment_interrupt,
@@ -59,7 +60,10 @@ def _default_dict_dir() -> str:
 
 
 def _add_dataset_arguments(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--dataset", help="dataset directory that contains manifest.json and cards.jsonl")
+    parser.add_argument(
+        "--dataset",
+        help="dataset directory that contains manifest.json and cards.jsonl",
+    )
     parser.add_argument("--manifest", help="path to manifest.json")
     parser.add_argument("--jsonl", help="path to cards.jsonl")
 
@@ -96,7 +100,11 @@ def cmd_normalize(args: argparse.Namespace) -> int:
         return 2
 
     dictionary = load_dictionary(args.dict_dir)
-    cards = load_inputs(args.in_path, glob_pattern=getattr(args, "glob", None), limit=getattr(args, "limit", None))
+    cards = load_inputs(
+        args.in_path,
+        glob_pattern=getattr(args, "glob", None),
+        limit=getattr(args, "limit", None),
+    )
     out_rows: list[dict[str, Any]] = []
     from ygo_effect_dsl.io_input import extract_card_fields
 
@@ -107,7 +115,9 @@ def cmd_normalize(args: argparse.Namespace) -> int:
 
     out_path = Path(args.out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(out_rows, ensure_ascii=False, indent=2), encoding="utf-8")
+    out_path.write_text(
+        json.dumps(out_rows, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     print(f"normalize: wrote={len(out_rows)} to {out_path}")
     return 0
 
@@ -139,7 +149,9 @@ def main() -> int:
     )
     sub = ap.add_subparsers(dest="cmd", required=True)
 
-    pr = sub.add_parser("validate-route", help="validate a Route DSL YAML or JSON document")
+    pr = sub.add_parser(
+        "validate-route", help="validate a Route DSL YAML or JSON document"
+    )
     pr.add_argument("route_file", help="path to a Route DSL document")
     pr.set_defaults(func=cmd_validate_route)
 
@@ -157,6 +169,26 @@ def main() -> int:
         help="job catalog SQLite path",
     )
     job_inspect.set_defaults(func=cmd_job_inspect)
+
+    analytics_export = sub.add_parser(
+        "analytics-export",
+        help="write a versioned JSON, CSV, or Parquet analytics export",
+    )
+    analytics_export.add_argument(
+        "--format", choices=["json", "csv", "parquet"], required=True
+    )
+    analytics_export.add_argument(
+        "--out", required=True, help="caller-owned export output directory"
+    )
+    export_source = analytics_export.add_mutually_exclusive_group(required=True)
+    export_source.add_argument("--query", help="analytics query request JSON path")
+    export_source.add_argument(
+        "--comparison", help="validated analytics comparison response JSON path"
+    )
+    analytics_export.add_argument(
+        "--snapshot", help="immutable analytics snapshot JSON path for --query"
+    )
+    analytics_export.set_defaults(func=cmd_analytics_export)
 
     experiment_validate = sub.add_parser(
         "validate-experiment",
@@ -188,7 +220,9 @@ def main() -> int:
     experiment_migrate.set_defaults(func=cmd_migrate_experiment)
 
     def add_experiment_source(parser: argparse.ArgumentParser) -> None:
-        parser.add_argument("experiment_file", help="path to an Experiment YAML document")
+        parser.add_argument(
+            "experiment_file", help="path to an Experiment YAML document"
+        )
 
     def add_experiment_overrides(parser: argparse.ArgumentParser) -> None:
         parser.add_argument("--max-nodes", type=int)
@@ -249,16 +283,24 @@ def main() -> int:
     )
     add_experiment_source(experiment_player_view)
     experiment_player_view.add_argument("route_file", help="complete Route DSL path")
-    experiment_player_view.add_argument("--viewer", type=int, choices=[0, 1], required=True)
-    experiment_player_view.add_argument("--out", required=True, help="public PlayerView JSON path")
+    experiment_player_view.add_argument(
+        "--viewer", type=int, choices=[0, 1], required=True
+    )
+    experiment_player_view.add_argument(
+        "--out", required=True, help="public PlayerView JSON path"
+    )
     experiment_player_view.add_argument(
         "--audit-report", required=True, help="public information-audit JSON path"
     )
     experiment_player_view.add_argument(
-        "--verification-report", required=True, help="public fresh-Replay verification JSON path"
+        "--verification-report",
+        required=True,
+        help="public fresh-Replay verification JSON path",
     )
     experiment_player_view.add_argument(
-        "--private-lineage", required=True, help="private source-Route lineage JSON path"
+        "--private-lineage",
+        required=True,
+        help="private source-Route lineage JSON path",
     )
     experiment_player_view.add_argument("--external-root")
     experiment_player_view.add_argument("--worker-timeout", type=float, default=30.0)
@@ -342,12 +384,8 @@ def main() -> int:
     strategy_interruption_qualify.add_argument(
         "--worker-timeout", type=float, default=30.0
     )
-    strategy_interruption_qualify.add_argument(
-        "--max-retries", type=int, default=1
-    )
-    strategy_interruption_qualify.set_defaults(
-        func=cmd_strategy_interruption_qualify
-    )
+    strategy_interruption_qualify.add_argument("--max-retries", type=int, default=1)
+    strategy_interruption_qualify.set_defaults(func=cmd_strategy_interruption_qualify)
 
     lua_load_qualify = sub.add_parser(
         "ocgcore-lua-qualify",
@@ -402,7 +440,9 @@ def main() -> int:
         help="run a scripted fixed-hand prototype and write Route DSL",
     )
     prototype_run.add_argument("scenario", help="path to a prototype scenario YAML")
-    prototype_run.add_argument("--out", required=True, help="output Route DSL YAML or JSON path")
+    prototype_run.add_argument(
+        "--out", required=True, help="output Route DSL YAML or JSON path"
+    )
     prototype_run.set_defaults(func=cmd_prototype_run)
 
     prototype_verify = sub.add_parser(
@@ -410,7 +450,9 @@ def main() -> int:
         help="re-run a scripted scenario and verify an existing Route DSL document",
     )
     prototype_verify.add_argument("scenario", help="path to a prototype scenario YAML")
-    prototype_verify.add_argument("route_file", help="path to the generated Route DSL document")
+    prototype_verify.add_argument(
+        "route_file", help="path to the generated Route DSL document"
+    )
     prototype_verify.set_defaults(func=cmd_prototype_verify)
 
     prototype_real_run = sub.add_parser(
@@ -466,7 +508,9 @@ def main() -> int:
         "ocgcore-bootstrap",
         help="explicitly acquire and build the pinned Windows x64 ocgcore runtime",
     )
-    ocgcore_bootstrap.add_argument("--external-root", help="override the external dependency root")
+    ocgcore_bootstrap.add_argument(
+        "--external-root", help="override the external dependency root"
+    )
     ocgcore_bootstrap.add_argument(
         "--offline",
         action="store_true",
@@ -483,14 +527,18 @@ def main() -> int:
         "ocgcore-verify",
         help="verify cached source, lock manifest, runtime hash, and C API version",
     )
-    ocgcore_verify.add_argument("--external-root", help="override the external dependency root")
+    ocgcore_verify.add_argument(
+        "--external-root", help="override the external dependency root"
+    )
     ocgcore_verify.set_defaults(func=cmd_ocgcore_verify)
 
     ocgcore_doctor = sub.add_parser(
         "ocgcore-doctor",
         help="fail-close the Windows x64 platform and pinned build prerequisites",
     )
-    ocgcore_doctor.add_argument("--external-root", help="override the external dependency root")
+    ocgcore_doctor.add_argument(
+        "--external-root", help="override the external dependency root"
+    )
     ocgcore_doctor.set_defaults(func=cmd_ocgcore_doctor)
 
     ocgcore_assets_bootstrap = sub.add_parser(
@@ -516,30 +564,66 @@ def main() -> int:
     )
     ocgcore_assets_verify.set_defaults(func=cmd_ocgcore_assets_verify)
 
-    p0 = sub.add_parser("ingest", help="legacy: validate card-text dataset manifest + cards.jsonl")
+    p0 = sub.add_parser(
+        "ingest", help="legacy: validate card-text dataset manifest + cards.jsonl"
+    )
     _add_dataset_arguments(p0)
     p0.set_defaults(func=cmd_ingest)
 
-    p1 = sub.add_parser("transform", help="legacy: ETL JSON/JSONL -> v0.0 card-text artifact")
+    p1 = sub.add_parser(
+        "transform", help="legacy: ETL JSON/JSONL -> v0.0 card-text artifact"
+    )
     p1.add_argument("--in", dest="in_path", help="input file or directory")
     p1.add_argument("--glob", help="glob pattern when --in is directory")
-    p1.add_argument("--dict", dest="dict_dir", default=_default_dict_dir(), help="dictionary directory")
-    p1.add_argument("--out", dest="out_dir", default="data/export", help="output root directory")
+    p1.add_argument(
+        "--dict",
+        dest="dict_dir",
+        default=_default_dict_dir(),
+        help="dictionary directory",
+    )
+    p1.add_argument(
+        "--out", dest="out_dir", default="data/export", help="output root directory"
+    )
     p1.add_argument("--limit", type=int, help="limit number of cards")
-    p1.add_argument("--fail-fast", action="store_true", help="stop at first card failure")
-    p1.add_argument("--log-level", default="INFO", choices=["INFO", "DEBUG"], help="log verbosity")
-    p1.add_argument("--report", action=argparse.BooleanOptionalAction, default=True, help="write summary and unmatched reports")
+    p1.add_argument(
+        "--fail-fast", action="store_true", help="stop at first card failure"
+    )
+    p1.add_argument(
+        "--log-level", default="INFO", choices=["INFO", "DEBUG"], help="log verbosity"
+    )
+    p1.add_argument(
+        "--report",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="write summary and unmatched reports",
+    )
     _add_dataset_arguments(p1)
     p1.set_defaults(func=cmd_transform)
 
-    pvd = sub.add_parser("validate-dict", help="legacy: validate card-text conversion dictionary")
-    pvd.add_argument("--dict", dest="dict_dir", default=_default_dict_dir(), help="dictionary directory")
+    pvd = sub.add_parser(
+        "validate-dict", help="legacy: validate card-text conversion dictionary"
+    )
+    pvd.add_argument(
+        "--dict",
+        dest="dict_dir",
+        default=_default_dict_dir(),
+        help="dictionary directory",
+    )
     pvd.set_defaults(func=cmd_validate_dict)
 
-    pn = sub.add_parser("normalize", help="legacy: normalize ETL card text and dump JSON")
-    pn.add_argument("--in", dest="in_path", required=True, help="input file or directory")
+    pn = sub.add_parser(
+        "normalize", help="legacy: normalize ETL card text and dump JSON"
+    )
+    pn.add_argument(
+        "--in", dest="in_path", required=True, help="input file or directory"
+    )
     pn.add_argument("--glob", help="glob pattern when --in is directory")
-    pn.add_argument("--dict", dest="dict_dir", default=_default_dict_dir(), help="dictionary directory")
+    pn.add_argument(
+        "--dict",
+        dest="dict_dir",
+        default=_default_dict_dir(),
+        help="dictionary directory",
+    )
     pn.add_argument("--out", dest="out_path", required=True, help="output JSON path")
     pn.add_argument("--limit", type=int, help="limit number of cards")
     pn.set_defaults(func=cmd_normalize)
@@ -550,7 +634,9 @@ def main() -> int:
 
     p3 = sub.add_parser("analyze", help="legacy: analyze v0.0 card-text artifacts")
     p3.add_argument("cards_dir", help="directory that contains YAML cards")
-    p3.add_argument("--out", dest="out_dir", required=True, help="report output directory")
+    p3.add_argument(
+        "--out", dest="out_dir", required=True, help="report output directory"
+    )
     p3.set_defaults(func=cmd_analyze)
 
     args = ap.parse_args()

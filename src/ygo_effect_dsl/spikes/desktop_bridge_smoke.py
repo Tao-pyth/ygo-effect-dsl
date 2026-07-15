@@ -54,9 +54,13 @@ def collect_desktop_bridge_smoke() -> dict[str, Any]:
                 "window.routeLabBridge.invoke('analytics.query', {request: {"
                 "cursor: null, fields: ['run', 'success'], filters: [], limit: 20, "
                 "schema_version: 'analytics-query-request-v1', snapshot_id: null, "
-                "sort: []}})"
-                "]).then(([response, analytics_response]) => ({"
-                "response, analytics_response, workflow_version: "
+                "sort: []}}),"
+                "window.routeLabBridge.invoke('analytics.export.enqueue', {"
+                "format: 'json', idempotency_key: null, priority: 0, source_kind: 'query', "
+                "source: {cursor: null, fields: ['run', 'success'], filters: [], limit: 20, "
+                "schema_version: 'analytics-query-request-v1', snapshot_id: null, sort: []}})"
+                "]).then(([response, analytics_response, export_response]) => ({"
+                "response, analytics_response, export_response, workflow_version: "
                 "document.documentElement.dataset.workflowVersion}))",
                 callback=finish,
             )
@@ -68,6 +72,22 @@ def collect_desktop_bridge_smoke() -> dict[str, Any]:
             webview.start(gui="edgechromium", debug=False, private_mode=True)
         finally:
             watchdog.cancel()
+        export_response = result.get("export_response")
+        if (
+            not isinstance(export_response, dict)
+            or export_response.get("ok") is not True
+        ):
+            raise RuntimeError("desktop bridge smoke did not enqueue analytics export")
+        export_outcome = service.analytics_export_worker.run_once()
+        export_job_id = export_response["result"]["job"]["job_id"]
+        export_status = service.job_catalog.status_snapshot(export_job_id)
+        result["export_worker"] = {
+            "artifact_kinds": sorted(
+                artifact.kind for artifact in export_status.artifacts
+            ),
+            "state": export_status.job.state.value,
+            "status": export_outcome.status,
+        }
     response = result.get("response")
     if not isinstance(response, dict) or response.get("ok") is not True:
         raise RuntimeError("desktop bridge smoke did not return a successful response")
@@ -81,6 +101,15 @@ def collect_desktop_bridge_smoke() -> dict[str, Any]:
         raise RuntimeError("desktop bridge smoke did not complete analytics.query")
     if result.get("workflow_version") != "desktop-workflow-v1":
         raise RuntimeError("desktop bridge smoke loaded the wrong frontend contract")
+    if result.get("export_worker") != {
+        "artifact_kinds": [
+            "analytics_export_data",
+            "analytics_export_manifest",
+        ],
+        "state": "succeeded",
+        "status": "succeeded",
+    }:
+        raise RuntimeError("desktop bridge smoke did not publish analytics export")
     identity = to_canonical_data(
         {
             "analytics_response": analytics_response,
@@ -92,11 +121,13 @@ def collect_desktop_bridge_smoke() -> dict[str, Any]:
             },
             "limitations": [
                 "hidden_same_host_window",
-                "system_describe_and_analytics_query_round_trip_only",
+                "empty_snapshot_query_and_export_smoke_only",
                 "worker_lifecycle_and_accessibility_verified_by_desktop_lifecycle_evidence",
             ],
             "pywebview_version": importlib.metadata.version("pywebview"),
             "response": response,
+            "export_response": result["export_response"],
+            "export_worker": result["export_worker"],
             "schema_version": DESKTOP_BRIDGE_SMOKE_VERSION,
             "webview2_version": runtime.version,
         }
