@@ -105,6 +105,8 @@ from ygo_effect_dsl.engine.state import (
     StateCoordinate,
 )
 from ygo_effect_dsl.engine.replay import (
+    PLAYER_VIEW_PROJECTOR_ID,
+    PlayerViewProjectionInput,
     ReplayEventV03a,
     ReplayHistoryV03a,
     ReplayManifestIncompleteError,
@@ -112,6 +114,8 @@ from ygo_effect_dsl.engine.replay import (
     assert_complete_io_trace,
     assert_replay_request_signatures,
     assert_manifest_matches,
+    assert_valid_player_view_replay,
+    build_player_view_replay,
 )
 from ygo_effect_dsl.engine.replay.manifest import RANDOM_TRACE_POLICY
 from ygo_effect_dsl.external.ocgcore import (
@@ -189,9 +193,12 @@ ACTION_AGGREGATION_FIXTURE_IDS = frozenset(
     }
 )
 REAL_CORE_DOCUMENT_KINDS = frozenset(
-    {"route", "activation_rollback_probe", "search_frontier"}
+    {"route", "activation_rollback_probe", "player_view", "search_frontier"}
 )
 REAL_CORE_FRONTIER_SCHEMA_VERSION = "real-core-frontier-v2"
+REAL_CORE_PLAYER_VIEW_RESULT_SCHEMA_VERSION = "real-core-player-view-result-v1"
+PLAYER_VIEW_LINEAGE_SCHEMA_VERSION = "player-view-lineage-v1"
+PLAYER_VIEW_VERIFICATION_SCHEMA_VERSION = "player-view-verification-v1"
 STATUS_DISABLED = 0x0001
 TEMPORARY_ATK_FIXTURE_SCRIPT = """local s,id=GetID()
 function s.initial_effect(c)
@@ -2735,6 +2742,8 @@ def run_real_core_worker(
     experiment: Mapping[str, Any] | None = None,
     experiment_path: str | Path | None = None,
     action_prefix: Sequence[Mapping[str, Any]] = (),
+    source_route: Mapping[str, Any] | None = None,
+    viewer: int = 0,
     stress_failure: str | None = None,
     document_kind: str = "route",
 ) -> dict[str, Any]:
@@ -2743,10 +2752,19 @@ def run_real_core_worker(
     if stress_failure not in {None, "callback_error"}:
         raise ValueError(f"unsupported real-core stress failure {stress_failure!r}")
     frontier_mode = document_kind == "search_frontier"
+    player_view_mode = document_kind == "player_view"
+    prefix_mode = frontier_mode or player_view_mode
+    if player_view_mode:
+        if viewer not in (0, 1):
+            raise ValueError("PlayerView viewer must be 0 or 1")
+        if not isinstance(source_route, Mapping):
+            raise ValueError("PlayerView requires a complete source Route")
+    elif source_route is not None:
+        raise ValueError("source_route is only valid for PlayerView generation")
     scenario_manifest = None
-    if frontier_mode:
+    if prefix_mode:
         if experiment is None:
-            raise ValueError("search frontier requires an Experiment 0.4 document")
+            raise ValueError("prefix replay requires an Experiment 0.4 document")
         experiment = deepcopy(dict(experiment))
         assert_current_experiment(experiment)
         preflight = preflight_scenario(
@@ -2762,8 +2780,7 @@ def run_real_core_worker(
         scenario_manifest = preflight.manifest
         if experiment["information_mode"] != "complete_information":
             raise ValueError(
-                "General Search MVP supports complete_information only; "
-                "PlayerView Replay is deferred"
+                "fresh complete-information Replay is required before PlayerView projection"
             )
         if experiment["interruption"].get("mode") not in {"none", "specified"}:
             raise ValueError(
@@ -2794,7 +2811,7 @@ def run_real_core_worker(
     recovery_card_present = _recovery_card_present(experiment)
     specified_definitions = (
         list(experiment["interruption"]["definitions"])
-        if frontier_mode and experiment["interruption"].get("mode") == "specified"
+        if prefix_mode and experiment["interruption"].get("mode") == "specified"
         else []
     )
     specified_hand_cards = [
@@ -2812,7 +2829,7 @@ def run_real_core_worker(
         )
     )
     initial_field = _fixture_initial_field(fixture_script_id)
-    if frontier_mode:
+    if prefix_mode:
         for definition in specified_definitions:
             if definition.get("source_zone", "hand") != "field":
                 continue
@@ -2834,10 +2851,10 @@ def run_real_core_worker(
             )
     scenario_id = (
         f"general_search:{experiment['experiment_id']}"
-        if frontier_mode
+        if prefix_mode
         else _scenario_id(fixture_script_id)
     )
-    interruption_plans = [] if frontier_mode else _resolve_interruption_plans(experiment)
+    interruption_plans = [] if prefix_mode else _resolve_interruption_plans(experiment)
     interruption_executions = [
         _InterruptionExecution(plan=plan) for plan in interruption_plans
     ]
@@ -3099,8 +3116,10 @@ def run_real_core_worker(
                 current_turn, current_phase = _apply_progress_events(
                     initial_core_output, 0, "pre_duel"
                 )
+                initial_turn = current_turn
+                initial_phase = current_phase
                 if (
-                    not frontier_mode
+                    not prefix_mode
                     and (current_turn != 1 or current_phase != "main1")
                 ):
                     raise ValueError(
@@ -3191,13 +3210,18 @@ def run_real_core_worker(
                         if frontier_mode
                         else ()
                     )
-                    if frontier_mode and len(events) == len(action_prefix):
+                    if prefix_mode and len(events) == len(action_prefix):
                         if legal_stop.can_stop and events:
                             final_request_signature = request.request_signature
                             temporary_checkpoint_step = len(events) - 1
-                            frontier_actions_at_stop = available_frontier_actions
-                            frontier_legal_stop = legal_stop
+                            if frontier_mode:
+                                frontier_actions_at_stop = available_frontier_actions
+                                frontier_legal_stop = legal_stop
                             break
+                        if player_view_mode:
+                            raise ValueError(
+                                "source Route Action prefix did not reach a legal stop"
+                            )
                         return _frontier_document(
                             request=request,
                             actions=available_frontier_actions,
@@ -3220,12 +3244,12 @@ def run_real_core_worker(
                         elif current_turn >= 2 and current_phase == "main1":
                             final_request_signature = request.request_signature
                             break
-                    if frontier_mode:
+                    if prefix_mode:
                         if len(events) >= len(action_prefix):
-                            raise ValueError("search prefix replay advanced past its target")
+                            raise ValueError("Action prefix Replay advanced past its target")
                         expected_action = action_prefix[len(events)]
                         if not isinstance(expected_action, Mapping):
-                            raise ValueError("search prefix actions must be mappings")
+                            raise ValueError("Action prefix entries must be mappings")
                         candidates, selection_role = _prefix_candidates(
                             request, expected_action
                         )
@@ -3312,11 +3336,11 @@ def run_real_core_worker(
                             else None
                         ),
                     )
-                    if frontier_mode and action.action_id != expected_action.get(
+                    if prefix_mode and action.action_id != expected_action.get(
                         "action_id"
                     ):
                         raise ValueError(
-                            "search prefix Action identity changed during fresh Replay"
+                            "Action prefix identity changed during fresh Replay"
                         )
                     encoded = duel.respond_action(request, action)
                     next_batch = _decode_batch(
@@ -3603,7 +3627,7 @@ def run_real_core_worker(
     terminal_step = len(checkpoints) - 1
     durability = (
         None
-        if frontier_mode
+        if prefix_mode
         else build_durability_report(
             checkpoints[temporary_checkpoint_step], checkpoints[terminal_step]
         )
@@ -3790,6 +3814,60 @@ def run_real_core_worker(
     if card_instance_v2_enabled:
         assert_public_card_instance_document(document)
     assert_valid_route_document(document)
+    if player_view_mode:
+        assert source_route is not None
+        if canonical_json(document) != canonical_json(source_route):
+            raise ValueError(
+                "source Route differs from the complete Route regenerated by fresh Replay"
+            )
+        player_view = build_player_view_replay(
+            PlayerViewProjectionInput(
+                source_route=document,
+                initial_snapshot=initial_snapshot_object,
+                initial_turn=initial_turn,
+                initial_phase=initial_phase,
+                checkpoint_snapshots=checkpoint_snapshots,
+                events=events,
+                viewer=viewer,
+            )
+        )
+        assert_valid_player_view_replay(player_view)
+        verification_identity = {
+            "event_count": len(events),
+            "player_view_id": player_view["player_view_id"],
+            "schema_version": PLAYER_VIEW_VERIFICATION_SCHEMA_VERSION,
+            "status": "verified",
+            "viewer": viewer,
+        }
+        verification = {
+            "verification_id": stable_digest(
+                verification_identity, prefix="playerviewverification_"
+            ),
+            **verification_identity,
+        }
+        lineage_identity = {
+            "player_view_id": player_view["player_view_id"],
+            "projector_id": PLAYER_VIEW_PROJECTOR_ID,
+            "schema_version": PLAYER_VIEW_LINEAGE_SCHEMA_VERSION,
+            "source_replay_digest": stable_digest(
+                document["replay"], prefix="replay_"
+            ),
+            "source_route_id": document["route_id"],
+            "verification_id": verification["verification_id"],
+            "viewer": viewer,
+        }
+        private_lineage = {
+            "lineage_id": stable_digest(
+                lineage_identity, prefix="playerviewlineage_"
+            ),
+            **lineage_identity,
+        }
+        return {
+            "player_view": player_view,
+            "private_lineage": private_lineage,
+            "schema_version": REAL_CORE_PLAYER_VIEW_RESULT_SCHEMA_VERSION,
+            "verification": verification,
+        }
     if frontier_mode:
         if frontier_legal_stop is None:
             raise ValueError("search frontier stopped without a legal-stop decision")
@@ -3830,7 +3908,7 @@ def invoke_real_core_worker_process(
     document_kind: str = "route",
     timeout_seconds: float = WORKER_TIMEOUT_SECONDS,
 ) -> RealCoreWorkerProcessResult:
-    if document_kind not in REAL_CORE_DOCUMENT_KINDS:
+    if document_kind not in REAL_CORE_DOCUMENT_KINDS - {"player_view"}:
         raise ValueError(f"unsupported real-core document kind {document_kind!r}")
     if stress_failure not in {None, "worker_crash", "worker_timeout", "callback_error"}:
         raise ValueError(f"unsupported real-core stress failure {stress_failure!r}")

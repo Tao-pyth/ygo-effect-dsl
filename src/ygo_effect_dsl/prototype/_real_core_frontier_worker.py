@@ -24,12 +24,19 @@ def main() -> int:
     action_prefix = envelope.get("action_prefix", [])
     if not isinstance(experiment, dict) or not isinstance(action_prefix, list):
         raise ValueError("frontier worker requires experiment and action_prefix")
+    document_kind = envelope.get("document_kind", "search_frontier")
+    if document_kind not in {"player_view", "search_frontier"}:
+        raise ValueError("frontier worker document_kind is unsupported")
+    source_route = envelope.get("source_route")
+    viewer = envelope.get("viewer", 0)
     result = run_real_core_worker(
         external_root=args.external_root,
         experiment=experiment,
         experiment_path=args.experiment_path,
         action_prefix=action_prefix,
-        document_kind="search_frontier",
+        source_route=source_route,
+        viewer=viewer,
+        document_kind=document_kind,
     )
     print(canonical_json(result))
     return 0

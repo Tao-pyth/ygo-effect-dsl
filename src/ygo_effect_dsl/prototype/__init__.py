@@ -32,6 +32,11 @@ from ygo_effect_dsl.prototype.frontier import (
     RealCoreFrontierWorkerError,
     verify_general_search_route,
 )
+from ygo_effect_dsl.prototype.player_view import (
+    RealCorePlayerViewAdapter,
+    RealCorePlayerViewResult,
+    RealCorePlayerViewWorkerError,
+)
 
 __all__ = [
     "PrototypeVerificationResult",
@@ -40,6 +45,9 @@ __all__ = [
     "REAL_CORE_STRESS_SCHEMA_VERSION",
     "RealCoreFrontierAdapter",
     "RealCoreFrontierWorkerError",
+    "RealCorePlayerViewAdapter",
+    "RealCorePlayerViewResult",
+    "RealCorePlayerViewWorkerError",
     "RealCoreVerificationResult",
     "RealCoreWorkerProcessResult",
     "build_prototype_route",
