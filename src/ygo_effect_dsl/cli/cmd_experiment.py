@@ -356,6 +356,7 @@ def cmd_experiment_replay(args: argparse.Namespace) -> int:
             route,
             external_root=args.external_root,
             experiment_path=args.experiment_file,
+            timeout_seconds=getattr(args, "worker_timeout", 30.0),
         )
     else:
         result = verify_real_core_route(route, external_root=args.external_root)

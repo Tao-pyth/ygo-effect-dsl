@@ -127,8 +127,12 @@ def test_release_documents_match_the_current_version_baseline() -> None:
         "interruption-support-taxonomy-v1",
         "aggregation-v1",
         "general-search-benchmark-v1",
+        "real-core-benchmark-base-routes-v2",
         "cache-worker-policy-v2",
         "memory-preflight-v2",
+        "real-core-replay-benchmark-v1",
+        "real-core-worker-policy-v1",
+        "real-core-memory-preflight-v1",
     )
 
     for path, document in documents.items():

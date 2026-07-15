@@ -330,6 +330,44 @@ def test_cli_replay_failure_does_not_write_a_success_report(
     assert not destination.exists()
 
 
+def test_cli_replay_passes_worker_timeout_to_general_search(monkeypatch) -> None:
+    route = _route()
+    observed: dict[str, object] = {}
+
+    monkeypatch.setattr(
+        experiment_commands,
+        "_resolved_experiment",
+        lambda _args: route["experiment"],
+    )
+    monkeypatch.setattr(
+        experiment_commands, "load_route_document", lambda _path: route
+    )
+    monkeypatch.setattr(
+        experiment_commands, "assert_experiment_matches_route", lambda *_args: None
+    )
+
+    def _verify(_route_document, **kwargs):
+        observed.update(kwargs)
+        return argparse.Namespace(
+            route_id=ROUTE_ID,
+            event_count=2,
+            final_state_hash=STATE_ID,
+        )
+
+    monkeypatch.setattr(experiment_commands, "verify_general_search_route", _verify)
+    args = argparse.Namespace(
+        experiment_file=Path("experiment.yaml"),
+        route_file=Path("route.yaml"),
+        external_root=None,
+        run_id="run_timeout_fixture",
+        verification_report=None,
+        worker_timeout=90.0,
+    )
+
+    assert experiment_commands.cmd_experiment_replay(args) == 0
+    assert observed["timeout_seconds"] == 90.0
+
+
 def _install_fresh_route(monkeypatch, fresh) -> None:
     class _FreshRouteAdapter:
         def __init__(self, **_kwargs) -> None:

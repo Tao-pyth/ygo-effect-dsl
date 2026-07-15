@@ -20,7 +20,7 @@ from ygo_effect_dsl.runtime_imports import current_checkout_environment
 
 
 GENERAL_SEARCH_BENCHMARK_SCHEMA_VERSION = "general-search-benchmark-v1"
-REAL_CORE_BASE_EVIDENCE_SCHEMA_VERSION = "real-core-benchmark-base-routes-v1"
+REAL_CORE_BASE_EVIDENCE_SCHEMA_VERSION = "real-core-benchmark-base-routes-v2"
 CACHE_WORKER_POLICY_SCHEMA_VERSION = "cache-worker-policy-v2"
 MEMORY_PREFLIGHT_SCHEMA_VERSION = "memory-preflight-v2"
 DEFAULT_POOLS = (1, 2, 4, 8, 16)
@@ -178,15 +178,22 @@ def build_base_route_evidence(
         route_path = Path(profile_routes[profile.profile_id])
         route = load_route_document(route_path)
         assert_valid_route_document(route)
+        if route["result"]["success"] is not True:
+            raise ValueError(
+                f"benchmark base Route {profile.profile_id!r} must be successful"
+            )
         route_digest = stable_digest(route, prefix="basedoc_")
         records.append(
             {
                 "event_count": len(route["replay"]["events"]),
+                "experiment_document_digest": stable_digest(
+                    route["experiment"], prefix="experimentdoc_"
+                ),
                 "experiment_id": route["experiment"]["experiment_id"],
                 "profile_id": profile.profile_id,
                 "route_document_digest": route_digest,
                 "route_id": route["route_id"],
-                "source_path": profile.source_path,
+                "source_reference": "external_qualified_route",
                 "success": route["result"]["success"],
                 "terminal_state_hash": route["result"]["terminal_board"]["state_hash"],
                 "workload_kind": profile.workload_kind,
@@ -397,7 +404,9 @@ def run_calibration(
                 "base_digest": base_digest,
                 **base_identity,
                 "profile_id": profile.profile_id,
-                "source_path": profile.source_path,
+                "source_reference": base_identity.get(
+                    "source_reference", profile.source_path
+                ),
                 "workload_kind": profile.workload_kind,
             }
         )

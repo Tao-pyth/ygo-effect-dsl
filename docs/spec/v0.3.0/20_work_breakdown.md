@@ -20,8 +20,8 @@ Parent stage: [#131 Complete real ocgcore / EDOPro Lua integration and calibrati
 | 6 | [#141](https://github.com/Tao-pyth/ygo-effect-dsl/issues/141) | unknown Message/Decision shape corpus | #139 | supported/unsupported registry、raw payload hash |
 | 7 | [#123](https://github.com/Tao-pyth/ygo-effect-dsl/issues/123) | negation/timing production policy | #139 | standardのfixed-fixture範囲、damage step/simultaneous trigger/mandatory trigger/SEGOCのfail-close、#207-#210への昇格条件 |
 | 8 | [#142](https://github.com/Tao-pyth/ygo-effect-dsl/issues/142) | worker crash/timeout/retry/quarantine acceptance | #136, #139 | fault injection report、process cleanup、atomicity |
-| 9 | [#105](https://github.com/Tao-pyth/ygo-effect-dsl/issues/105) | multi-deck cache/memory再校正 | #139 | prefix/entry/hit/eviction/main RSS evidence |
-| 10 | [#128](https://github.com/Tao-pyth/ygo-effect-dsl/issues/128) | pool別実Replay throughput/worker RSS | #105, #142 | 100k node、pool 1/2/4/8/16、crash recovery |
+| 9 | [#105](https://github.com/Tao-pyth/ygo-effect-dsl/issues/105) | multi-deck cache/memory再校正 | #139 | 外部3 Route base v2、10万logical node、prefix/entry/hit/eviction/main RSS evidence。persistent index/常駐worker境界は#212で継続 |
+| 10 | [#128](https://github.com/Tao-pyth/ygo-effect-dsl/issues/128) | pool別実Replay throughput/worker RSS | #105, #142 | 480 fresh Replay、pool 1/2/4/8/16、disabled/index-only、default 4/max 8 policy |
 | 11 | [#110](https://github.com/Tao-pyth/ygo-effect-dsl/issues/110) | pruning multi-deck trace校正 | #139 | false prune/guardrail report |
 | 12 | [#108](https://github.com/Tao-pyth/ygo-effect-dsl/issues/108) | evaluator weight校正 | #139 | alternative Route ranking evidence |
 | 13 | [#138](https://github.com/Tao-pyth/ygo-effect-dsl/issues/138) | self-hosted real-core smoke | #136, #137, #142 | workflow run、asset非同梱監査 |
