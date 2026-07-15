@@ -29,6 +29,12 @@ def test_desktop_shell_keeps_rules_and_authority_out_of_renderer() -> None:
     )
     assert decision["security"]["local_rest_api"] is False
     assert decision["security"]["remote_content"] is False
+    assert decision["desktop_integration"]["single_instance"] == (
+        "required_for_single_writer_catalog"
+    )
+    assert decision["desktop_integration"]["file_picker"] == (
+        "native_select_then_python_path_validation"
+    )
     assert decision["distribution"]["third_party_card_assets"] == (
         "never_bundle_before_license_review"
     )

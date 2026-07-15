@@ -84,6 +84,13 @@ def desktop_shell_decision() -> dict[str, Any]:
             "desktop": "pywebview_bridge_and_webview2_smoke",
             "restriction": "browser_success_does_not_replace_desktop_smoke",
         },
+        "desktop_integration": {
+            "auto_update": "deferred_to_distribution_gate",
+            "deep_links": "deferred",
+            "file_picker": "native_select_then_python_path_validation",
+            "single_instance": "required_for_single_writer_catalog",
+            "ydk_file_association": "deferred",
+        },
         "distribution": {
             "desktop_dependency_group": "optional_until_ui_release_gate",
             "installer": "deferred_to_distribution_gate",
@@ -386,6 +393,7 @@ def main() -> int:
     args.out.write_text(
         json.dumps(evidence, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
     print(f"windows-desktop-shell-evidence: wrote {args.out}")
     print(f"evidence_id={evidence['evidence_id']}")

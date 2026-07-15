@@ -14,7 +14,7 @@
       "host_gate": "python_compatible",
       "package_download": {
         "download_bytes": 248167599,
-        "download_seconds": 2.188034,
+        "download_seconds": 2.005873,
         "files": [
           {
             "bytes": 578377,
@@ -45,16 +45,16 @@
       "host_gate": "passed",
       "live_probe": {
         "backend": "edgechromium",
-        "cold_start_seconds": 1.2268,
+        "cold_start_seconds": 1.113193,
         "family_process_count": 7,
-        "family_rss_bytes": 410259456,
+        "family_rss_bytes": 418738176,
         "loaded": true,
         "probe_site_packages_bytes": 39882969,
         "pywebview_version": "6.2.1"
       },
       "package_download": {
         "download_bytes": 2612336,
-        "download_seconds": 4.682711,
+        "download_seconds": 4.664715,
         "files": [
           {
             "bytes": 103807,
@@ -110,6 +110,13 @@
       "desktop": "pywebview_bridge_and_webview2_smoke",
       "restriction": "browser_success_does_not_replace_desktop_smoke"
     },
+    "desktop_integration": {
+      "auto_update": "deferred_to_distribution_gate",
+      "deep_links": "deferred",
+      "file_picker": "native_select_then_python_path_validation",
+      "single_instance": "required_for_single_writer_catalog",
+      "ydk_file_association": "deferred"
+    },
     "distribution": {
       "desktop_dependency_group": "optional_until_ui_release_gate",
       "installer": "deferred_to_distribution_gate",
@@ -139,7 +146,7 @@
     "selected_shell": "pywebview_webview2",
     "selection_scope": "windows_developer_mvp_v0.5"
   },
-  "evidence_id": "desktopshellevidence_8a91c04cb3f317dc46501823e7330660a2003d6d6398692b071f4b97b7e7954e",
+  "evidence_id": "desktopshellevidence_71b856278ca119e209599132913e1be28c5747290eb06e57ac4d910eccdf0960",
   "host": {
     "machine": "AMD64",
     "operating_system": "Windows-11-10.0.26200-SP0",
