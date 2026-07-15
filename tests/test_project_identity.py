@@ -133,6 +133,7 @@ def test_release_documents_match_the_current_version_baseline() -> None:
         "real-core-replay-benchmark-v1",
         "real-core-worker-policy-v1",
         "real-core-memory-preflight-v1",
+        "resolver-index-policy-v1",
     )
 
     for path, document in documents.items():
