@@ -1,6 +1,6 @@
 # Package 0.4.0 Search and PlayerView Contracts
 
-Status: Search contracts accepted; PlayerView/scenario contracts in progress
+Status: Search and PlayerView contracts accepted; scenario contracts in progress
 
 Last updated: 2026-07-15
 
@@ -90,6 +90,8 @@ reward、未訪問UCT、平均値、invalid/resume parameterの実行可能vecto
 同じAction prefixをrollout後にtree expansionで再訪した場合、prefix cacheは検証済みReplay hintとして利用できる。ただしexact State identityだけを枝の停止根拠とし、`query_api_projection`一致では停止しない。再訪prefixのRouteをartifactへ重複追加せず、別prefixから得たRouteはRoute IDが同じでも個別に保持する。best Routeはvisit数ではなくstrategy共通Route順位で決定する。
 
 ## PlayerView Replay
+
+永続化、identifier、field matrix、fail-close、side-channel、leak testの正本は[PlayerView Replay Persistence and Redaction Contract](15_player_view_redaction_contract.md)とする。
 
 PlayerViewはactorごとのinformation boundaryを永続成果物に適用する。最低限、次を分類する。
 

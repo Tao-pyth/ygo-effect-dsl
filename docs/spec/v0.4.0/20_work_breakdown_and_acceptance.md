@@ -38,6 +38,8 @@ Last updated: 2026-07-14
 - exception、log、Parquet、exportも同じauditを通る。
 - actor switch、shuffle、draw、search、set、random selection、worker crashのfixtureを通す。
 - redaction不能または未知shapeではartifactをpublishしない。
+- public `player-view-replay-v1`とprivate `player-view-lineage-v1`を分離し、source Route IDとcomplete hashをpublic artifactへ含めない。
+- fresh Replay verificationはprivate lineageでsourceへjoinし、再生成したpublic `player_view_id`だけを公開結果として比較する。
 
 ## Gate C: scenario breadth
 
