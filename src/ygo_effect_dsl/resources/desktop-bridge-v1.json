@@ -51,6 +51,11 @@
       "payload_fields": ["job_id"],
       "worker_start_allowed": false
     },
+    "scenario.compose_search": {
+      "payload_fields": ["configuration", "deck_id"],
+      "renderer_rule_inference": false,
+      "worker_start_allowed": false
+    },
     "scenario.preflight": {
       "payload_fields": ["deck_id", "experiment"],
       "worker_start_allowed": false

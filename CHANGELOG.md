@@ -21,11 +21,13 @@ All notable package changes are documented here. Package versions follow Semanti
 - [v0.5.0] `card-presentation-v1` and a verified local BabelCDB read-only provider with explicit locale fallback, PlayerView redaction, structured missing/stale/version diagnostics, metadata projection, and a strict no-Search/Replay dependency boundary.
 - [v0.5.0] `desktop-workflow-v1` and a packaged, interactive deck-first research dashboard prototype covering catalog statistics, card detail, search preflight, synthetic job/result flow, comparison, responsive states, and default-deny frontend security.
 - [v0.5.0] `desktop-bridge-v1`, an optional pywebview 6.2.1/WebView2 shell, single-instance catalog ownership, native YDK import, typed application-service allowlist, strict payload/path limits, and existing SQLite job/analytics/card-presentation adapters.
+- [v0.5.0] `desktop-search-worker-v1` and Windows Job Object containment with real-core Search execution, lease heartbeat, cooperative cancellation, retry/checkpoint restart, atomic Route/SearchRun publication, cold/warm WebView2 evidence, and accessibility/security audits.
 
 ### Changed
 
 - [v0.4.0] Search output now uses `search-run-result-v5`, `search-executor-v5`, `search-frontier-v2`, and content-addressed `search-strategy-evidence-v1`.
 - [v0.4.0] Interruption execution supports ordered multiple opportunities and explicit turn/phase budgets without changing Python into a rules engine.
+- [v0.5.0] The packaged desktop search form now composes Experiment 0.4 in the Python service and uses real preflight, SQLite job status/cancel, and the background worker; only the browser fixture retains synthetic progress.
 
 ### Fixed
 

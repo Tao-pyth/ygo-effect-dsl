@@ -1,0 +1,32 @@
+{
+  "artifact_count": 2,
+  "artifacts": [
+    {
+      "kind": "search-run-report",
+      "schema_version": "search-run-report-v1",
+      "sha256": "553d000280923756009a96506b6efbad34012cebb3596e4a5f35eb291961d756"
+    },
+    {
+      "kind": "route-dsl",
+      "schema_version": "route-dsl-v0.3a",
+      "sha256": "7be8fed7c18f3f4496d22e3f03bef925e2af8d0ca74b1c6deeeef8ccb614db5a"
+    }
+  ],
+  "asset_lock_id": "ocgcore-assets-202504-v1",
+  "card_database_commit": "f89c9a4be9a5f193e29b788e3cf880563f4f79b4",
+  "card_scripts_commit": "c8e9c0bcd026a5ccc303bbc73881b8f86f818657",
+  "checkpoint": {
+    "completed_units": 5,
+    "position": "search:attempt:1:complete",
+    "semantic_result_digest": "jobsemantic_2a281db8222b8fa204114d79f8363398ff41a4c029efadc0263c1425a4c88d2d",
+    "total_units": 10
+  },
+  "deck_sha256": "7f5e9c3257547b88942d66afca56466bd56090b741e309958e34e4678762b563",
+  "elapsed_seconds": 33.728181,
+  "job_id": "job_4db62da44ef38be7b13eef5bca18a5ebf70e7345dca7253cac145c92ccd7451c",
+  "probe_id": "desktoprealcoreprobe_2c1224172be3bfbdb9890f72781c5c732623bc1b3e38aa4212451c81c81e1f44",
+  "process_count_before_cleanup": 0,
+  "return_code": 0,
+  "schema_version": "desktop-real-core-search-probe-v1",
+  "state": "succeeded"
+}

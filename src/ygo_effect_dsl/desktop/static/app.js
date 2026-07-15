@@ -171,6 +171,8 @@ const elements = {
   interruptionField: document.querySelector("#interruption-card-field"),
   interruptionCode: document.querySelector("#interruption-code"),
   maxNodes: document.querySelector("#max-nodes"),
+  maxDepth: document.querySelector("#max-depth"),
+  maxSeconds: document.querySelector("#max-seconds"),
   seed: document.querySelector("#seed"),
   progress: document.querySelector("#job-progress"),
   jobTitle: document.querySelector("#job-title"),
@@ -194,6 +196,9 @@ let selectedDeck = decks[0];
 let preflightValid = false;
 let jobTimer = null;
 let toastTimer = null;
+let currentExperiment = null;
+let currentJobId = null;
+let currentJobState = null;
 
 function desktopBridgeAvailable() {
   return Boolean(window.routeLabBridge && window.routeLabBridge.available());
@@ -215,7 +220,7 @@ function bridgeDeck(record) {
     extra: record.extra_count,
     side: record.side_count,
     source: record.source,
-    status: "review",
+    status: "registered",
     statusLabel: "Registered",
     runs: 0,
     success: 0,
@@ -395,6 +400,10 @@ function updateDetail(deck) {
     summary.className = "diagnostic success";
     title.textContent = "Preflight passed";
     description.textContent = "DB, Lua scripts, asset lock, and deck shape verified.";
+  } else if (deck.status === "registered") {
+    summary.className = "diagnostic warning";
+    title.textContent = "Preflight required";
+    description.textContent = "DB, Lua scripts, asset lock, and deck shape are checked for each search.";
   } else {
     summary.className = "diagnostic warning";
     title.textContent = "Asset lock is stale";
@@ -439,6 +448,7 @@ function showToast(message) {
 
 function invalidatePreflight() {
   preflightValid = false;
+  currentExperiment = null;
   elements.queueSearch.disabled = true;
   elements.preflightBox.className = "preflight-box";
   elements.preflightBox.querySelector("strong").textContent = "Ready for preflight";
@@ -453,10 +463,21 @@ function updateExperimentSummary() {
   elements.experimentSummary.textContent = `${selectedStrategy()} · seed ${elements.seed.value || "-"} · ${Number(elements.maxNodes.value || 0).toLocaleString("en-US")} nodes`;
 }
 
-function runPreflight() {
+function searchConfiguration() {
+  return {
+    interruption_card_code: elements.interruptionToggle.checked ? Number(elements.interruptionCode.value) : null,
+    max_depth: Number(elements.maxDepth.value),
+    max_nodes: Number(elements.maxNodes.value),
+    max_seconds: Number(elements.maxSeconds.value),
+    seed: Number(elements.seed.value),
+    strategy: selectedStrategy(),
+  };
+}
+
+async function runPreflight() {
   const title = elements.preflightBox.querySelector("strong");
   const detail = elements.preflightBox.querySelector("span");
-  if (selectedDeck.status !== "ready") {
+  if (!desktopBridgeAvailable() && selectedDeck.status !== "ready") {
     elements.preflightBox.className = "preflight-box is-invalid";
     title.textContent = "Configuration failure";
     detail.textContent = "Expected asset lock does not match this deck manifest. No worker started.";
@@ -476,6 +497,35 @@ function runPreflight() {
     detail.textContent = "Specify a positive card code. No effect or timing is inferred.";
     elements.queueSearch.disabled = true;
     return;
+  }
+  if (desktopBridgeAvailable()) {
+    elements.queueSearch.disabled = true;
+    title.textContent = "Running preflight";
+    detail.textContent = "The Python service is validating Experiment 0.4 and pinned local assets.";
+    const composed = await window.routeLabBridge.invoke("scenario.compose_search", {
+      configuration: searchConfiguration(),
+      deck_id: selectedDeck.id,
+    });
+    if (!composed.ok) {
+      elements.preflightBox.className = "preflight-box is-invalid";
+      title.textContent = "Configuration failure";
+      detail.textContent = composed.diagnostics[0]?.message || "Experiment composition failed.";
+      return;
+    }
+    currentExperiment = composed.result.experiment;
+    const checked = await window.routeLabBridge.invoke("scenario.preflight", {
+      deck_id: selectedDeck.id,
+      experiment: currentExperiment,
+    });
+    if (!checked.ok || !checked.result.preflight.ok) {
+      elements.preflightBox.className = "preflight-box is-invalid";
+      title.textContent = "Preflight failed";
+      detail.textContent = checked.diagnostics[0]?.message
+        || checked.result?.preflight?.diagnostics?.[0]?.message
+        || "Local asset validation failed closed.";
+      currentExperiment = null;
+      return;
+    }
   }
   preflightValid = true;
   elements.preflightBox.className = "preflight-box is-valid";
@@ -499,7 +549,10 @@ function closeSearch() {
 
 function resetJob() {
   window.clearInterval(jobTimer);
+  window.clearTimeout(jobTimer);
   jobTimer = null;
+  currentJobId = null;
+  currentJobState = "queued";
   elements.progress.value = 0;
   elements.progress.textContent = "0%";
   elements.jobTitle.textContent = "Replaying frontier nodes";
@@ -507,9 +560,85 @@ function resetJob() {
   elements.jobReplays.textContent = "0";
   elements.jobScore.textContent = "0.0";
   elements.jobElapsed.textContent = "0.0s";
-  elements.jobLog.textContent = "Queued through synthetic preview adapter. No real worker has started.";
+  elements.jobLog.textContent = desktopBridgeAvailable()
+    ? "Queued in the local SQLite catalog. Waiting for the desktop worker lease."
+    : "Queued through synthetic preview adapter. No real worker has started.";
   elements.cancelJob.hidden = false;
+  elements.cancelJob.disabled = false;
   elements.viewResult.hidden = true;
+}
+
+function finishDesktopJob(snapshot) {
+  const state = snapshot.job.state;
+  currentJobState = state;
+  const checkpoint = snapshot.latest_checkpoint;
+  const completed = checkpoint?.completed_units || 0;
+  const total = checkpoint?.total_units || Number(elements.maxNodes.value);
+  elements.jobNodes.textContent = `${completed.toLocaleString("en-US")} / ${total.toLocaleString("en-US")}`;
+  elements.jobReplays.textContent = String(snapshot.job.attempt);
+  elements.jobElapsed.textContent = `attempt ${snapshot.job.attempt}/${snapshot.job.max_attempts}`;
+  if (checkpoint && total > 0) {
+    const percent = Math.min(100, Math.round((completed * 100) / total));
+    elements.progress.value = percent;
+    elements.progress.textContent = `${percent}%`;
+  } else if (state === "running") {
+    elements.progress.removeAttribute("value");
+  }
+  elements.jobTitle.textContent = state === "running" ? "Replaying frontier nodes" : `Search ${state}`;
+  elements.jobLog.textContent = snapshot.job.error_message
+    || (checkpoint ? `Checkpoint: ${checkpoint.recovery_position}` : `Job state: ${state}`);
+  if (state === "succeeded") {
+    elements.progress.value = 100;
+    elements.progress.textContent = "100%";
+    elements.cancelJob.hidden = true;
+    elements.viewResult.hidden = false;
+    elements.viewResult.focus();
+    return true;
+  }
+  if (["cancelled", "failed", "quarantined"].includes(state)) {
+    elements.cancelJob.hidden = true;
+    return true;
+  }
+  return false;
+}
+
+async function pollDesktopJob() {
+  if (!currentJobId) return;
+  const response = await window.routeLabBridge.invoke("job.status", { job_id: currentJobId });
+  if (!response.ok) {
+    elements.jobLog.textContent = response.diagnostics[0]?.message || "Job status failed closed.";
+    return;
+  }
+  if (!finishDesktopJob(response.result)) {
+    jobTimer = window.setTimeout(() => {
+      pollDesktopJob().catch(() => {
+        elements.jobLog.textContent = "Job status polling failed closed.";
+      });
+    }, 500);
+  }
+}
+
+async function startDesktopJob() {
+  if (!preflightValid || !currentExperiment) return;
+  closeSearch();
+  resetJob();
+  elements.jobDialog.showModal();
+  replaceHash(`view=job&deck=${encodeURIComponent(selectedDeck.id)}`);
+  const response = await window.routeLabBridge.invoke("job.enqueue_search", {
+    deck_id: selectedDeck.id,
+    experiment: currentExperiment,
+    idempotency_key: `desktop-${currentExperiment.experiment_id}-${Date.now()}`,
+    priority: 0,
+  });
+  if (!response.ok) {
+    elements.jobTitle.textContent = "Search rejected";
+    elements.jobLog.textContent = response.diagnostics[0]?.message || "Search queue failed closed.";
+    elements.cancelJob.hidden = true;
+    return;
+  }
+  currentJobId = response.result.job.job_id;
+  elements.jobLog.textContent = `Queued ${currentJobId}. Waiting for the desktop worker lease.`;
+  await pollDesktopJob();
 }
 
 function startSyntheticJob() {
@@ -544,9 +673,38 @@ function startSyntheticJob() {
   }, 360);
 }
 
-function cancelJob() {
+async function cancelJob() {
   window.clearInterval(jobTimer);
+  window.clearTimeout(jobTimer);
   jobTimer = null;
+  if (desktopBridgeAvailable() && currentJobId) {
+    if (["succeeded", "cancelled", "failed", "quarantined"].includes(currentJobState)) {
+      elements.jobDialog.close();
+      return;
+    }
+    const response = await window.routeLabBridge.invoke("job.cancel", { job_id: currentJobId });
+    if (!response.ok) {
+      elements.jobLog.textContent = response.diagnostics[0]?.message || "Cancellation failed closed.";
+      return;
+    }
+    const terminal = finishDesktopJob({ ...response.result, latest_checkpoint: null });
+    if (!terminal) {
+      elements.cancelJob.disabled = true;
+      elements.jobLog.textContent = "Cancellation requested. Waiting for the active worker to stop.";
+      jobTimer = window.setTimeout(() => {
+        pollDesktopJob().catch(() => {
+          elements.jobLog.textContent = "Cancellation status polling failed closed.";
+        });
+      }, 250);
+    }
+    showToast("Cancellation requested from the active desktop worker.");
+    return;
+  }
+  if (desktopBridgeAvailable()) {
+    elements.jobDialog.close();
+    replaceHash(`deck=${encodeURIComponent(selectedDeck.id)}`);
+    return;
+  }
   elements.jobDialog.close();
   replaceHash(`deck=${encodeURIComponent(selectedDeck.id)}`);
   showToast("Synthetic job canceled. No artifact was committed.");
@@ -634,7 +792,12 @@ document.querySelectorAll(".rail-item").forEach((button) => {
 document.querySelector("#open-search").addEventListener("click", openSearch);
 document.querySelector("#close-search").addEventListener("click", closeSearch);
 document.querySelector("#cancel-search").addEventListener("click", closeSearch);
-document.querySelector("#run-preflight").addEventListener("click", runPreflight);
+document.querySelector("#run-preflight").addEventListener("click", () => {
+  runPreflight().catch(() => {
+    invalidatePreflight();
+    showToast("Scenario preflight failed closed.");
+  });
+});
 elements.searchForm.addEventListener("input", () => {
   invalidatePreflight();
   updateExperimentSummary();
@@ -645,18 +808,27 @@ elements.searchForm.addEventListener("change", () => {
 });
 elements.searchForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  startSyntheticJob();
+  if (desktopBridgeAvailable()) {
+    startDesktopJob().catch(() => {
+      elements.jobTitle.textContent = "Search failed";
+      elements.jobLog.textContent = "Desktop search dispatch failed closed.";
+    });
+  } else {
+    startSyntheticJob();
+  }
 });
 elements.interruptionToggle.addEventListener("change", () => {
   elements.interruptionField.hidden = !elements.interruptionToggle.checked;
   if (elements.interruptionToggle.checked) elements.interruptionCode.focus();
 });
 
-elements.cancelJob.addEventListener("click", cancelJob);
+elements.cancelJob.addEventListener("click", () => {
+  cancelJob().catch(() => showToast("Cancellation failed closed."));
+});
 elements.viewResult.addEventListener("click", openResult);
 elements.jobDialog.addEventListener("cancel", (event) => {
   event.preventDefault();
-  cancelJob();
+  cancelJob().catch(() => showToast("Cancellation failed closed."));
 });
 elements.searchDialog.addEventListener("close", () => {
   if (!elements.jobDialog.open) replaceHash(`deck=${encodeURIComponent(selectedDeck.id)}`);
