@@ -1,0 +1,143 @@
+{
+  "decision": {
+    "analytical_data": {
+      "authority": "derived_rebuildable",
+      "backend": "parquet_pyarrow",
+      "mutation": "immutable_partition_publish"
+    },
+    "distributed_execution": {
+      "decision": "out_of_scope_for_v0.5",
+      "revisit_when": "multiple_hosts_or_multiple_catalog_writers_are_required"
+    },
+    "operational_catalog": {
+      "authority": "run_job_and_artifact_references",
+      "backend": "sqlite",
+      "writer_model": "single_host_single_writer"
+    },
+    "query_accelerator": {
+      "backend": "duckdb",
+      "decision": "deferred_optional_reader",
+      "restriction": "must_not_own_job_state_or_the_only_copy_of_evidence"
+    },
+    "raw_evidence": {
+      "authority": "immutable_source",
+      "backend": "jsonl_and_versioned_route_artifacts",
+      "mutation": "append_then_seal"
+    },
+    "ui_cache": {
+      "authority": "none",
+      "backend": "separate_disposable_sqlite",
+      "recovery": "drop_and_rebuild_from_catalog_and_parquet"
+    }
+  },
+  "evidence_id": "storageevidence_646790e29a24ea07b53fc3ae8c2060f69c2a61eb32742367a5f8079bef5e1950",
+  "failure_modes": {
+    "duckdb_transaction_rollback": true,
+    "parquet_truncation_rejected": true,
+    "sqlite_schema_mismatch_rejected_without_mutation": true,
+    "sqlite_transaction_rollback": true
+  },
+  "limitations": [
+    "single_windows_host_only",
+    "synthetic_uniform_workload_not_release_calibration",
+    "timings_are_directional_not_acceptance_thresholds",
+    "distributed_writer_and_network_filesystem_not_tested"
+  ],
+  "runtime": {
+    "duckdb": "1.5.4",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "pyarrow": "25.0.0",
+    "python": "3.13.7",
+    "sqlite": "3.50.4"
+  },
+  "schema_version": "aggregation-catalog-selection-evidence-v1",
+  "selected_schema_versions": {
+    "aggregation": "aggregation-v1",
+    "run_catalog": "run-catalog-v2"
+  },
+  "workload": {
+    "analytical_rows": 100000,
+    "catalog_rows": 10000,
+    "duckdb": {
+      "analytics": {
+        "artifact_bytes": 536576,
+        "elapsed_ms": {
+          "median": 61.105,
+          "samples": [
+            65.704,
+            61.105,
+            58.95
+          ]
+        },
+        "group_count": 8,
+        "result_sha256": "2e5fbd6139de2ceed8eeee7f1a42597f8cb7af4654dd8a29a68d61807943a67b",
+        "row_count": 100000
+      },
+      "catalog": {
+        "artifact_bytes": 1060864,
+        "elapsed_ms": {
+          "median": 56.794,
+          "samples": [
+            56.794,
+            53.532,
+            58.633
+          ]
+        },
+        "result": {
+          "queued": 6666,
+          "succeeded": 3334
+        },
+        "row_count": 10000
+      }
+    },
+    "parquet": {
+      "analytics": {
+        "artifact_bytes": 7425,
+        "elapsed_ms": {
+          "median": 24.012,
+          "samples": [
+            339.105,
+            24.012,
+            23.549
+          ]
+        },
+        "group_count": 8,
+        "result_sha256": "2e5fbd6139de2ceed8eeee7f1a42597f8cb7af4654dd8a29a68d61807943a67b",
+        "row_count": 100000
+      }
+    },
+    "samples": 3,
+    "sqlite": {
+      "analytics": {
+        "artifact_bytes": 2940928,
+        "elapsed_ms": {
+          "median": 249.647,
+          "samples": [
+            250.568,
+            249.647,
+            235.372
+          ]
+        },
+        "group_count": 8,
+        "result_sha256": "2e5fbd6139de2ceed8eeee7f1a42597f8cb7af4654dd8a29a68d61807943a67b",
+        "row_count": 100000
+      },
+      "catalog": {
+        "artifact_bytes": 614400,
+        "elapsed_ms": {
+          "median": 45.335,
+          "samples": [
+            45.335,
+            43.659,
+            46.35
+          ]
+        },
+        "result": {
+          "queued": 6666,
+          "succeeded": 3334
+        },
+        "row_count": 10000
+      }
+    }
+  }
+}
