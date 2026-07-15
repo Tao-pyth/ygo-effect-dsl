@@ -6,14 +6,32 @@ All notable package changes are documented here. Package versions follow Semanti
 
 ### Added
 
-- `beam-search-strategy-v1` execution through the shared real-core frontier adapter and `experiment-search` CLI/API path.
-- `mcts-strategy-v1` selection, expansion, deterministic rollout, reward normalization, and single backpropagation through the shared executor.
-- `search-run-result-v5` and `search-strategy-evidence-v1` with content-addressed strategy parameters and logical updates.
+- [v0.4.0] `beam-search-strategy-v1` execution through the shared real-core frontier adapter and `experiment-search` CLI/API path.
+- [v0.4.0] `mcts-strategy-v1` selection, expansion, deterministic rollout, reward normalization, and single backpropagation through the shared executor.
+- [v0.4.0] PlayerView Route/Replay artifacts with private lineage separation and `information-access-audit-v2` leak detection.
+- [v0.4.0] Core-driven multi-interruption timing, going-second board-break, multi-turn lifecycle, and strategy/interruption/recovery cross-validation contracts.
+- [v0.5.0] Reproducible SQLite, DuckDB, and Parquet storage-boundary evidence selecting SQLite for operational state and Parquet for derived analytics.
+- [v0.5.0] `corpus-manifest-v1` provenance, exact and semantic duplicate identities, idempotent ingest, aggregation eligibility, and structured quarantine diagnostics.
+
+### Changed
+
+- [v0.4.0] Search output now uses `search-run-result-v5`, `search-executor-v5`, `search-frontier-v2`, and content-addressed `search-strategy-evidence-v1`.
+- [v0.4.0] Interruption execution supports ordered multiple opportunities and explicit turn/phase budgets without changing Python into a rules engine.
+
+### Fixed
+
+- [v0.4.0] Treat native `MSG_WIN` as the authoritative duel terminal event even when ocgcore API 11.0 continues to report `AWAITING`; conflicting outcomes fail closed.
+
+### Governance
+
+- [v0.5.0] Added mandatory CHANGELOG maintenance, one-version-label/one-milestone Issue rules, a release work-item form, PR checklist, and a repeatable GitHub governance audit.
+- [v0.5.1] Added milestone and Issue scope for reducing verification wall time and agent log/token volume without deleting unique regression coverage.
 
 ### Compatibility
 
 - Historical `search-run-result-v4` qualification indexes remain readable.
 - Random Search keeps its depth-first expansion and common best-Route ranking semantics.
+- Existing Experiment `0.3a`/`0.3b` and Route DSL `0.1` compatibility remains unchanged; package and contract versions continue to advance independently.
 
 ## 0.3.0 - 2026-07-15
 

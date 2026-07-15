@@ -14,7 +14,8 @@ Last updated: 2026-07-15
 0.3.0 real-core and EDOPro Lua qualified baseline
   -> 0.4.0 search breadth and private-view safety
       -> 0.5.0 corpus analytics and UI
-          -> 1.0.0 stable distribution and operations
+          -> 0.5.1 verification efficiency and compatible maintenance
+              -> 1.0.0 stable distribution and operations
 ```
 
 | Stage | Parent | 入力 | 主成果 | 次stageへ渡す不変条件 |
@@ -22,6 +23,7 @@ Last updated: 2026-07-15
 | `0.3.0` | [#131](https://github.com/Tao-pyth/ygo-effect-dsl/issues/131) | 現行Random Search、real-core frontier、asset lock | clean bootstrap、3 deck qualification、10万node evidence | core由来合法性、fresh Replay、exact identity、fail-close |
 | `0.4.0` | [#132](https://github.com/Tao-pyth/ygo-effect-dsl/issues/132) | `0.3.0`の実core基準線 | Beam/MCTS、PlayerView、複数妨害、複数turn | strategy決定性、hidden情報非漏洩、Route lineage |
 | `0.5.0` | [#133](https://github.com/Tao-pyth/ygo-effect-dsl/issues/133) | `0.4.0`のversion付きevidence | corpus/job/query/comparison/UI | provenance、idempotency、CLI/API/UI semantic一致 |
+| `0.5.1` | [#236](https://github.com/Tao-pyth/ygo-effect-dsl/issues/236) | release済み`0.5.0`検証profile | test分類、fixture統合、quiet evidence | semantic coverage維持、wall time・出力byte測定削減 |
 | `1.0.0` | [#134](https://github.com/Tao-pyth/ygo-effect-dsl/issues/134) | qualification済みruntimeとanalytics | stable compatibility、license、release、ops | support期間内の互換性と監査可能な配布 |
 
 ## Version allocation rules
@@ -56,6 +58,7 @@ Last updated: 2026-07-15
 - [0.5.0 analytics contracts](v0.5.0/10_analytics_contracts.md)
 - [0.5.0 desktop UI requirements](v0.5.0/15_desktop_ui_requirements.md)
 - [0.5.0 work breakdown and acceptance](v0.5.0/20_work_breakdown_and_acceptance.md)
+- [0.5.1 verification efficiency scope](v0.5.1/00_scope.md)
 - [1.0.0 scope](v1.0.0/00_scope.md)
 - [1.0.0 production contracts](v1.0.0/10_production_distribution_contracts.md)
 - [1.0.0 work breakdown and acceptance](v1.0.0/20_work_breakdown_and_acceptance.md)

@@ -1,0 +1,64 @@
+name: Release work item
+description: Create a versioned implementation, validation, documentation, or research issue.
+title: "[vX.Y.Z][area] "
+labels:
+  - codex
+body:
+  - type: dropdown
+    id: target_release
+    attributes:
+      label: Target release
+      description: Maintainers must apply the matching version label and milestone after creation.
+      options:
+        - v0.4.0
+        - v0.5.0
+        - v0.5.1
+        - v1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: work_type
+    attributes:
+      label: Work type
+      options:
+        - architecture / ADR
+        - specification
+        - implementation
+        - validation / benchmark
+        - documentation
+        - research
+    validations:
+      required: true
+  - type: input
+    id: parent
+    attributes:
+      label: Parent issue
+      description: Use an issue reference such as #133. Split cross-version work into children.
+      placeholder: "#133"
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Required outcome
+      description: State observable behavior, not only implementation activity.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance evidence
+      description: List tests, artifacts, measurements, compatibility checks, and failure vectors.
+    validations:
+      required: true
+  - type: checkboxes
+    id: governance
+    attributes:
+      label: Governance confirmation
+      options:
+        - label: I will apply exactly one `version:X.Y.Z` label matching the selected release.
+          required: true
+        - label: I will assign the matching `vX.Y.Z` milestone.
+          required: true
+        - label: User-visible completion will update `CHANGELOG.md` or record an explicit exemption.
+          required: true

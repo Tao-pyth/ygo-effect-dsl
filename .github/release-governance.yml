@@ -1,0 +1,46 @@
+schema_version: release-governance-v1
+repository: Tao-pyth/ygo-effect-dsl
+managed_issue_minimum: 84
+version_labels:
+  - version: 0.3.0
+    label: version:0.3.0
+    milestone: v0.3.0
+    release_state: released
+  - version: 0.4.0
+    label: version:0.4.0
+    milestone: v0.4.0
+    release_state: active
+  - version: 0.5.0
+    label: version:0.5.0
+    milestone: v0.5.0
+    release_state: planned
+  - version: 0.5.1
+    label: version:0.5.1
+    milestone: v0.5.1
+    release_state: planned
+  - version: 1.0.0
+    label: version:1.0.0
+    milestone: v1.0.0
+    release_state: planned
+legacy_ranges:
+  - first: 84
+    last: 124
+    version: 0.3.0
+  - first: 125
+    last: 125
+    version: 0.4.0
+  - first: 126
+    last: 126
+    version: 0.5.0
+  - first: 127
+    last: 127
+    version: 1.0.0
+  - first: 128
+    last: 128
+    version: 0.3.0
+overrides:
+  "91": 1.0.0
+  "108": 0.5.1
+  "110": 0.5.1
+  "117": 1.0.0
+  "212": 0.3.0
