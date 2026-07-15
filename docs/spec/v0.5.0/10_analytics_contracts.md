@@ -1,5 +1,10 @@
 # Package 0.5.0 Analytics Contracts
 
+Storage authority and schema-evolution boundaries are fixed by
+[`ADR 0015`](../../adr/0015_v05_aggregation_catalog_boundary.md). SQLite owns
+single-host operational state, Parquet owns rebuildable corpus metrics, and UI
+caches are disposable projections rather than evidence.
+
 Status: Contract design backlog
 
 Last updated: 2026-07-14
