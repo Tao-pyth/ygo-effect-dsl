@@ -18,8 +18,8 @@ Until the project declares a stable public contract, releases stay in the
 - reserve `v1.0.0` for the first release where the project is ready to treat
   its documented DSL and tool behavior as stable
 
-The current package and CLI version is `0.2.0`, published from the reviewed
-`v0.2.0` tag. The single source of truth is
+The current package and CLI version is `0.3.0`, published from the reviewed
+`v0.3.0` tag. The single source of truth is
 `ygo_effect_dsl.version.__version__`; setuptools reads that value as dynamic
 project metadata and the CLI exposes it through `--version`.
 
@@ -105,7 +105,7 @@ Package and functional contract version lines are intentionally independent:
   inputs; they are not package versions.
 
 A package release can include multiple contract versions for compatibility.
-For example, package `0.2.0` writes Experiment `0.4`, executes `0.3b`, reads
+For example, package `0.3.0` writes Experiment `0.4`, executes `0.3b`, reads
 legacy `0.3a`, and writes Route DSL `0.1`. A package version bump does not
 automatically bump these contracts. A contract version changes only when its
 shape or semantics cross the documented compatibility boundary.

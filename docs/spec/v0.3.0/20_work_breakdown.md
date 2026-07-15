@@ -22,11 +22,11 @@ Parent stage: [#131 Complete real ocgcore / EDOPro Lua integration and calibrati
 | 8 | [#142](https://github.com/Tao-pyth/ygo-effect-dsl/issues/142) | worker crash/timeout/retry/quarantine acceptance | #136, #139 | fault injection report、process cleanup、atomicity |
 | 9 | [#105](https://github.com/Tao-pyth/ygo-effect-dsl/issues/105) | multi-deck cache/memory再校正 | #139 | 外部3 Route base v2、10万logical node、prefix/entry/hit/eviction/main RSS evidence。#212でpersistent/resident候補を測定済み棄却 |
 | 10 | [#128](https://github.com/Tao-pyth/ygo-effect-dsl/issues/128) | pool別実Replay throughput/worker RSS | #105, #142 | 480 fresh Replay、pool 1/2/4/8/16、disabled/index-only、default 4/max 8 policy |
-| 11 | [#110](https://github.com/Tao-pyth/ygo-effect-dsl/issues/110) | pruning multi-deck trace校正 | #139 | false prune/guardrail report |
-| 12 | [#108](https://github.com/Tao-pyth/ygo-effect-dsl/issues/108) | evaluator weight校正 | #139 | alternative Route ranking evidence |
-| 13 | [#138](https://github.com/Tao-pyth/ygo-effect-dsl/issues/138) | self-hosted real-core smoke | #136, #137, #142 | manual Windows x64 workflow、sanitized summaryだけをartifact化、asset非同梱監査 |
-| 14 | [#143](https://github.com/Tao-pyth/ygo-effect-dsl/issues/143) | bootstrap-to-search-to-replay guide | #138 | clean-user walkthrough |
-| 15 | [#144](https://github.com/Tao-pyth/ygo-effect-dsl/issues/144) | contract/default policy release ADR | all above | compatibility表、version判断、release checklist |
+| 11 | [#138](https://github.com/Tao-pyth/ygo-effect-dsl/issues/138) | self-hosted real-core smoke | #136, #137, #142 | manual Windows x64 workflow、sanitized summaryだけをartifact化、asset非同梱監査 |
+| 12 | [#143](https://github.com/Tao-pyth/ygo-effect-dsl/issues/143) | bootstrap-to-search-to-replay guide | #138 | clean-user walkthrough |
+| 13 | [#144](https://github.com/Tao-pyth/ygo-effect-dsl/issues/144) | contract/default policy release ADR | blocking validationと#108/#110のnon-adoption判断 | compatibility表、version判断、release checklist |
+| P1 | [#110](https://github.com/Tao-pyth/ygo-effect-dsl/issues/110) | pruning multi-deck trace校正 | #139 | post-release品質課題。完了までproduction default無効 |
+| P2 | [#108](https://github.com/Tao-pyth/ygo-effect-dsl/issues/108) | evaluator weight校正 | #139 | post-release品質課題。完了まで一般deck品質claim禁止 |
 
 ## Parallelization
 
