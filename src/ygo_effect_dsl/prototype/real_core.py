@@ -96,9 +96,14 @@ from ygo_effect_dsl.engine.interruption import (
     CoreInterruptionCandidatePolicy,
     InterruptionCandidatePolicyError,
     InterruptionTarget,
+    MultiInterruptionRuntimeError,
+    build_interruption_opportunity_id,
+    build_multi_interruption_composition,
+    build_multi_interruption_frontier,
     derive_ocgcore_interruption_validation,
     InterruptionValidationPolicy,
     classify_interruption_candidates,
+    resolve_multi_interruption_definition,
 )
 from ygo_effect_dsl.engine.state import (
     ConstraintExpiration,
@@ -2086,7 +2091,10 @@ def _frontier_actions(request: Any, *, limit: int) -> tuple[Action, ...]:
 
 
 def _prefix_candidates(
-    request: Any, expected_action: Mapping[str, Any]
+    request: Any,
+    expected_action: Mapping[str, Any],
+    *,
+    specified_interruption: bool = False,
 ) -> tuple[tuple[Any, ...], None]:
     if expected_action.get("request_signature") != request.request_signature:
         raise ValueError("search prefix request signature changed during fresh Replay")
@@ -2101,6 +2109,16 @@ def _prefix_candidates(
         candidate_id = raw_selection.get("candidate_id")
         candidate = by_id.get(candidate_id)
         if candidate is None:
+            if specified_interruption:
+                raise MultiInterruptionRuntimeError(
+                    "candidate_disappeared",
+                    "recorded core candidate disappeared during fresh Replay",
+                    path_failure=True,
+                    context={
+                        "candidate_id": candidate_id,
+                        "request_signature": request.request_signature,
+                    },
+                )
             raise ValueError(
                 f"search prefix candidate {candidate_id!r} disappeared during fresh Replay"
             )
@@ -2209,19 +2227,30 @@ def _frontier_document(
         )
         peak_score = max(peak_score, checkpoint_evaluation.total_score)
     interruption_taxonomy = []
+    interruption_composition = None
+    interruption_opportunities = None
+    interruption = experiment.get("interruption", {})
+    composition = None
+    if interruption.get("mode") == "specified":
+        composition = build_multi_interruption_composition(interruption)
+        interruption_composition = composition.to_dict()
     if (
-        experiment.get("interruption", {}).get("mode") == "specified"
+        interruption.get("mode") == "specified"
         and request.request_type == "select_chain"
     ):
-        for definition in experiment["interruption"]["definitions"]:
+        assert composition is not None
+        runtime_frontier = build_multi_interruption_frontier(
+            composition=composition,
+            request_signature=request.request_signature,
+            actions=actions,
+            action_prefix=action_prefix,
+        )
+        for definition in interruption["definitions"]:
             source_code = int(definition["source_card_code"])
             matching_ids = tuple(
-                candidate.candidate_id
-                for candidate in request.candidates
-                if isinstance(candidate.card_ref, Mapping)
-                and candidate.card_ref.get("public_card_id") == source_code
-                and candidate.card_ref.get("controller")
-                == definition["source_player"]
+                opportunity.candidate_id
+                for opportunity in runtime_frontier.opportunities
+                if opportunity.definition_id == definition["id"]
             )
             if not matching_ids:
                 continue
@@ -2233,62 +2262,81 @@ def _frontier_document(
                 source_player=int(definition["source_player"]),
                 source_zone=definition.get("source_zone", "hand"),
                 policy=policy,
-                validation_categories=definition.get("validation_categories"),
-            )
-            interruption_taxonomy.append(
-                {"definition_id": definition["id"], **outcome.to_dict()}
-            )
-    elif experiment.get("interruption", {}).get("mode") == "specified":
-        for definition in experiment["interruption"]["definitions"]:
-            source_code = int(definition["source_card_code"])
-            activation_index = None
-            for index in range(len(action_prefix) - 1, -1, -1):
-                action = action_prefix[index]
-                if action.get("kind") != ActionKind.ACTIVATE_EFFECT.value:
-                    continue
-                selections = action.get("selections", [])
-                if any(
-                    isinstance(selection, Mapping)
-                    and isinstance(selection.get("card_ref"), Mapping)
-                    and selection["card_ref"].get("public_card_id") == source_code
-                    for selection in selections
-                ):
-                    activation_index = index
-                    break
-            if activation_index is None:
-                continue
-            response_index = len(action_prefix) - activation_index - 1
-            roles = definition.get("response_roles", [])
-            if response_index >= len(roles):
-                continue
-            request_document = request.to_dict()
-            extra = request_document["context"].setdefault("extra", {})
-            extra["interruption_role"] = roles[response_index]
-            extra["interruption_source"] = {
-                "card_code": source_code,
-                "player": definition["source_player"],
-                "zone": definition.get("source_zone", "hand"),
-            }
-            verified = definition.get("verified_fixture_categories", [])
-            policy = InterruptionValidationPolicy().register_verified(*verified)
-            outcome = classify_interruption_candidates(
-                request_document,
-                source_card_code=source_code,
-                source_player=int(definition["source_player"]),
-                source_zone=definition.get("source_zone", "hand"),
-                policy=policy,
+                expected_candidate_ids=matching_ids,
                 validation_categories=definition.get("validation_categories"),
             )
             interruption_taxonomy.append(
                 {"definition_id": definition["id"], **outcome.to_dict()}
             )
             if not outcome.supported:
-                raise ValueError(
-                    "specified interruption response failed taxonomy: "
-                    + canonical_json(outcome.to_dict())
+                raise MultiInterruptionRuntimeError(
+                    "unsupported_activation_taxonomy",
+                    "specified interruption activation failed taxonomy",
+                    path_failure=outcome.status == "path_failure",
+                    context={
+                        "definition_id": definition["id"],
+                        "taxonomy": outcome.to_dict(),
+                    },
                 )
+        actions = runtime_frontier.actions
+        interruption_opportunities = runtime_frontier.to_dict()
+    elif interruption.get("mode") == "specified":
+        assert composition is not None
+        active_definition = None
+        activation_index = None
+        for index in range(len(action_prefix) - 1, -1, -1):
+            resolved = resolve_multi_interruption_definition(
+                composition, action_prefix[index]
+            )
+            if resolved is not None:
+                active_definition = resolved
+                activation_index = index
+                break
+        if active_definition is not None and activation_index is not None:
+            definition = next(
+                item
+                for item in interruption["definitions"]
+                if item["id"] == active_definition.definition_id
+            )
+            source_code = active_definition.source_card_code
+            response_index = len(action_prefix) - activation_index - 1
+            roles = definition.get("response_roles", [])
+            if response_index < len(roles):
+                request_document = request.to_dict()
+                extra = request_document["context"].setdefault("extra", {})
+                extra["interruption_role"] = roles[response_index]
+                extra["interruption_source"] = {
+                    "card_code": source_code,
+                    "player": active_definition.source_player,
+                    "zone": active_definition.source_zone,
+                }
+                verified = definition.get("verified_fixture_categories", [])
+                policy = InterruptionValidationPolicy().register_verified(*verified)
+                outcome = classify_interruption_candidates(
+                    request_document,
+                    source_card_code=source_code,
+                    source_player=active_definition.source_player,
+                    source_zone=active_definition.source_zone,
+                    policy=policy,
+                    validation_categories=definition.get("validation_categories"),
+                )
+                interruption_taxonomy.append(
+                    {"definition_id": definition["id"], **outcome.to_dict()}
+                )
+                if not outcome.supported:
+                    raise MultiInterruptionRuntimeError(
+                        "unsupported_response_taxonomy",
+                        "specified interruption response failed taxonomy",
+                        path_failure=outcome.status == "path_failure",
+                        context={
+                            "definition_id": definition["id"],
+                            "taxonomy": outcome.to_dict(),
+                        },
+                    )
     return {
         "actions": [action.to_dict() for action in actions],
+        "interruption_composition": interruption_composition,
+        "interruption_opportunities": interruption_opportunities,
         "legal_stop": legal_stop.to_dict(),
         "interruption_taxonomy": interruption_taxonomy,
         "peak_score": peak_score,
@@ -2323,42 +2371,32 @@ def _specified_interruption_trace(
         normalized_events.append((step, event["action"]))
 
     trace: list[dict[str, Any]] = []
-    definitions = experiment["interruption"]["definitions"]
+    interruption = experiment["interruption"]
+    composition = build_multi_interruption_composition(interruption)
+    composition_definitions = {
+        definition.definition_id: definition
+        for definition in composition.definitions
+    }
+    definitions = interruption["definitions"]
     for definition in definitions:
         source_code = int(definition["source_card_code"])
         roles = tuple(definition.get("response_roles", ()))
+        occurrence_index = 0
         for event_index, (step, action) in enumerate(normalized_events):
             if action.get("kind") != ActionKind.ACTIVATE_EFFECT.value:
                 continue
             selections = action.get("selections")
             if not isinstance(selections, list):
                 raise ValueError("specified activation Action has no selections")
-            selected_source = any(
-                isinstance(selection, Mapping)
-                and isinstance(selection.get("card_ref"), Mapping)
-                and selection["card_ref"].get("public_card_id") == source_code
-                and selection["card_ref"].get("controller")
-                == definition["source_player"]
-                and (
-                    (
-                        definition.get("source_zone", "hand") == "hand"
-                        and selection["card_ref"].get("location") == "hand"
-                    )
-                    or (
-                        definition.get("source_zone", "hand") == "field"
-                        and selection["card_ref"].get("location")
-                        in {
-                            "monster_zone",
-                            "spell_trap_zone",
-                            "core_location_4",
-                            "core_location_8",
-                        }
-                    )
-                )
-                for selection in selections
+            resolved_definition = resolve_multi_interruption_definition(
+                composition, action
             )
-            if not selected_source:
+            if (
+                resolved_definition is None
+                or resolved_definition.definition_id != definition["id"]
+            ):
                 continue
+            occurrence_index += 1
             response_steps = []
             for response_index, role in enumerate(roles):
                 next_index = event_index + response_index + 1
@@ -2393,6 +2431,15 @@ def _specified_interruption_trace(
                 prefix_action.get("action_id")
                 for _prefix_step, prefix_action in normalized_events[:event_index]
             ]
+            composition_definition = composition_definitions[str(definition["id"])]
+            opportunity_id = build_interruption_opportunity_id(
+                composition_id=composition.composition_id,
+                definition_id=composition_definition.definition_id,
+                occurrence_index=occurrence_index,
+                request_signature=str(action.get("request_signature")),
+                candidate_id=str(activation_candidate_ids[0]),
+                prefix_action_ids=prefix_action_ids,
+            )
             record = {
                 "activation": {
                     "action_id": action.get("action_id"),
@@ -2400,8 +2447,13 @@ def _specified_interruption_trace(
                     "candidate_ids": activation_candidate_ids,
                     "request_signature": action.get("request_signature"),
                 },
+                "composition_id": composition.composition_id,
                 "definition_id": definition["id"],
+                "max_activations": composition_definition.max_activations,
+                "occurrence_index": occurrence_index,
+                "opportunity_id": opportunity_id,
                 "prefix_action_ids": prefix_action_ids,
+                "priority": composition_definition.priority,
                 "response_steps": response_steps,
                 "source_card_code": source_code,
                 "source_player": definition["source_player"],
@@ -3253,7 +3305,12 @@ def run_real_core_worker(
                         if not isinstance(expected_action, Mapping):
                             raise ValueError("Action prefix entries must be mappings")
                         candidates, selection_role = _prefix_candidates(
-                            request, expected_action
+                            request,
+                            expected_action,
+                            specified_interruption=(
+                                experiment.get("interruption", {}).get("mode")
+                                == "specified"
+                            ),
                         )
                     else:
                         candidates, selection_role = _selected_candidate(

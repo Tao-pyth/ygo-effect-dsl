@@ -1,6 +1,6 @@
 # Package 0.4.0 Work Breakdown and Acceptance
 
-Status: Items 1-8 implemented; scenario runtime items 9-12 pending
+Status: Items 1-9 implemented; scenario runtime items 10-12 pending
 
 Last updated: 2026-07-15
 

@@ -177,6 +177,26 @@ def test_candidate_disappearance_is_a_path_failure() -> None:
     assert outcome.diagnostics[0].candidate_ids == ("chain:missing",)
 
 
+def test_expected_candidate_ids_scope_same_code_instances() -> None:
+    request = _activation_request().to_dict()
+    duplicate = dict(request["candidates"][0])
+    duplicate["candidate_id"] = "chain:other-instance"
+    duplicate["card_ref"] = dict(duplicate["card_ref"])
+    duplicate["card_ref"]["sequence"] = 1
+    request["candidates"].insert(1, duplicate)
+
+    outcome = classify_interruption_candidates(
+        request,
+        source_card_code=SOURCE_CARD_CODE,
+        expected_candidate_ids=("chain:other-instance",),
+    )
+
+    assert outcome.status == "supported"
+    assert [candidate.candidate_id for candidate in outcome.candidates] == [
+        "chain:other-instance"
+    ]
+
+
 def test_unknown_and_ambiguous_candidate_shapes_fail_configuration() -> None:
     unknown = _activation_request().to_dict()
     unknown["candidates"][0]["card_ref"] = None

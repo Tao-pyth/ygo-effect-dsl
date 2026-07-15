@@ -34,6 +34,7 @@ from ygo_effect_dsl.engine.interruption import (
     CoreInterruptionStep,
     CandidateSelector,
     InterruptionCandidatePolicyError,
+    MultiInterruptionRuntimeError,
 )
 from ygo_effect_dsl.engine.replay import (
     ReplayEnvironmentMismatchError,
@@ -260,6 +261,45 @@ def test_invalid_interruption_policy_config_aborts_experiment() -> None:
     assert failure.disposition == FailureDisposition.EXPERIMENT_FAILURE
     assert failure.recovery == RecoveryAction.ABORT_EXPERIMENT
     assert failure.retryable is False
+
+
+@pytest.mark.parametrize(
+    ("path_failure", "disposition", "recovery"),
+    [
+        (
+            True,
+            FailureDisposition.PATH_FAILURE,
+            RecoveryAction.STOP_PATH,
+        ),
+        (
+            False,
+            FailureDisposition.EXPERIMENT_FAILURE,
+            RecoveryAction.ABORT_EXPERIMENT,
+        ),
+    ],
+)
+def test_multi_interruption_runtime_failure_preserves_failure_scope(
+    path_failure: bool,
+    disposition: FailureDisposition,
+    recovery: RecoveryAction,
+) -> None:
+    error = MultiInterruptionRuntimeError(
+        "candidate_disappeared",
+        "the recorded core candidate is no longer offered",
+        path_failure=path_failure,
+        context={"opportunity_id": "interruptionopportunity_test"},
+    )
+
+    failure = classify_failure(error)
+
+    assert failure.category == "multi_interruption_runtime"
+    assert failure.disposition == disposition
+    assert failure.recovery == recovery
+    assert failure.retryable is False
+    assert failure.context == {
+        "code": "candidate_disappeared",
+        "opportunity_id": "interruptionopportunity_test",
+    }
 
 
 def test_empty_optional_request_is_legal_dead_end_not_search_failure() -> None:
