@@ -187,7 +187,9 @@ const elements = {
   workspace: document.querySelector("#workspace"),
   catalogMetrics: document.querySelector("#catalog-metrics"),
   catalogSourceLabel: document.querySelector("#catalog-source-label"),
+  catalogPane: document.querySelector(".catalog-pane"),
   detailPane: document.querySelector("#detail-pane"),
+  analyticsPane: document.querySelector("#analytics-pane"),
   environmentLabel: document.querySelector("#environment-label"),
   environmentCode: document.querySelector("#environment-code"),
 };
@@ -203,6 +205,23 @@ let currentJobState = null;
 function desktopBridgeAvailable() {
   return Boolean(window.routeLabBridge && window.routeLabBridge.available());
 }
+
+async function executeAnalyticsQuery(request) {
+  if (!desktopBridgeAvailable()) {
+    return window.routeLabAnalytics.syntheticAnalyticsQuery(request);
+  }
+  const response = await window.routeLabBridge.invoke("analytics.query", { request });
+  if (!response.ok) {
+    const diagnostic = response.diagnostics[0];
+    throw new Error(diagnostic?.message || "Analytics query failed closed");
+  }
+  return response.result;
+}
+
+const analyticsController = window.routeLabAnalytics.createController(
+  elements.analyticsPane,
+  executeAnalyticsQuery,
+);
 
 function markDesktopEnvironment() {
   elements.environmentLabel.textContent = "Desktop bridge ready";
@@ -738,8 +757,35 @@ function initializeFromHash() {
   renderDecks();
   updateDetail(selectedDeck);
   const view = params.get("view");
+  showWorkspaceView(view === "runs" ? "runs" : "decks", false);
   if (view === "search") openSearch();
   if (view === "compare") elements.compareDialog.showModal();
+}
+
+function setRailCurrent(view) {
+  document.querySelectorAll(".rail-item").forEach((button) => {
+    const selected = button.dataset.view === view;
+    button.classList.toggle("is-active", selected);
+    if (selected) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
+  });
+}
+
+function showWorkspaceView(view, updateHash = true) {
+  const analyticsActive = view === "runs";
+  elements.catalogPane.hidden = analyticsActive;
+  elements.detailPane.hidden = analyticsActive;
+  elements.analyticsPane.hidden = !analyticsActive;
+  elements.workspace.classList.toggle("analytics-active", analyticsActive);
+  setRailCurrent(analyticsActive ? "runs" : "decks");
+  if (analyticsActive && analyticsController.metrics().query_count === 0) {
+    analyticsController.refresh();
+  }
+  if (updateHash) {
+    replaceHash(
+      analyticsActive ? "view=runs" : `deck=${encodeURIComponent(selectedDeck?.id || "")}`,
+    );
+  }
 }
 
 elements.filter.addEventListener("input", renderDecks);
@@ -747,11 +793,12 @@ elements.sort.addEventListener("change", renderDecks);
 document.querySelectorAll("[data-density]").forEach((button) => {
   button.addEventListener("click", () => {
     document.querySelectorAll("[data-density]").forEach((candidate) => {
-      const selected = candidate === button;
+      const selected = candidate.dataset.density === button.dataset.density;
       candidate.classList.toggle("is-selected", selected);
       candidate.setAttribute("aria-pressed", selected ? "true" : "false");
     });
     document.body.classList.toggle("comfortable", button.dataset.density === "comfortable");
+    analyticsController.render();
   });
 });
 
@@ -776,11 +823,11 @@ document.querySelectorAll(".rail-item").forEach((button) => {
       return;
     }
     if (view === "runs") {
-      activateTab("runs");
-      showToast("Recent runs opened for the selected deck.");
+      showWorkspaceView("runs");
       return;
     }
     if (view === "decks") {
+      showWorkspaceView("decks");
       activateTab("overview");
       document.querySelector("#workspace").focus({ preventScroll: true });
       return;
@@ -858,5 +905,6 @@ document.documentElement.dataset.workflowVersion = WORKFLOW_VERSION;
 initializeFromHash();
 window.addEventListener("routelabbridgeready", () => {
   refreshDesktopCatalog().catch(() => showToast("Desktop catalog failed closed."));
+  if (!elements.analyticsPane.hidden) analyticsController.refresh();
 });
 refreshDesktopCatalog().catch(() => showToast("Desktop catalog failed closed."));

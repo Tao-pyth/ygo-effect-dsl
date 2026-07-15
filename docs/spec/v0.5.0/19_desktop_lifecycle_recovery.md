@@ -2,7 +2,7 @@
 
 ## Status
 
-`desktop-search-worker-v1` is the v0.5 Windows developer-MVP process contract implemented by Issue #245. It connects the packaged deck-first frontend to the existing SQLite job catalog and real ocgcore Search without making the renderer authoritative. This contract verifies local lifecycle and recovery behavior; installer signing, update compatibility, distribution approval, and 100,000-row virtualization remain #134, #91, and #165 gates.
+`desktop-search-worker-v1` is the v0.5 Windows developer-MVP process contract implemented by Issue #245. It connects the packaged deck-first frontend to the existing SQLite job catalog and real ocgcore Search without making the renderer authoritative. This contract verifies local lifecycle and recovery behavior. The 100,000-row-equivalent virtualization gate is verified separately by Issue #165; installer signing, update compatibility, and distribution approval remain #134 and #91 gates.
 
 ## Process ownership
 
@@ -64,6 +64,6 @@ The real-core probe and aggregate evidence are deliberately separate commands. T
 
 ## Residual gates
 
-- #165: server-side query and virtualized accessibility evidence at 100,000 rows.
+- #167: real persistent-storage calibration at 100,000 runs / 1,000,000 rows.
 - #134: packaged executable compatibility, signing, update, rollback, and runtime support matrix.
 - #91: license and third-party asset distribution approval.

@@ -23,6 +23,11 @@ def test_committed_pywebview_bridge_smoke_is_content_addressed() -> None:
     )
     assert evidence["pywebview_version"] == "6.2.1"
     assert evidence["response"]["ok"] is True
+    assert evidence["analytics_response"]["ok"] is True
+    assert evidence["analytics_response"]["result"]["schema_version"] == (
+        "analytics-query-response-v1"
+    )
+    assert evidence["analytics_response"]["result"]["rows"] == []
     assert evidence["response"]["method"] == "system.describe"
     assert evidence["response"]["result"]["schema_version"] == (
         "desktop-application-service-v1"

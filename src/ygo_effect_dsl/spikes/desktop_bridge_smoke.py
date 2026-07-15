@@ -49,8 +49,14 @@ def collect_desktop_bridge_smoke() -> dict[str, Any]:
 
         def loaded() -> None:
             window.evaluate_js(
-                "window.routeLabBridge.invoke('system.describe', {}).then("
-                "response => ({response, workflow_version: "
+                "Promise.all(["
+                "window.routeLabBridge.invoke('system.describe', {}),"
+                "window.routeLabBridge.invoke('analytics.query', {request: {"
+                "cursor: null, fields: ['run', 'success'], filters: [], limit: 20, "
+                "schema_version: 'analytics-query-request-v1', snapshot_id: null, "
+                "sort: []}})"
+                "]).then(([response, analytics_response]) => ({"
+                "response, analytics_response, workflow_version: "
                 "document.documentElement.dataset.workflowVersion}))",
                 callback=finish,
             )
@@ -65,10 +71,19 @@ def collect_desktop_bridge_smoke() -> dict[str, Any]:
     response = result.get("response")
     if not isinstance(response, dict) or response.get("ok") is not True:
         raise RuntimeError("desktop bridge smoke did not return a successful response")
+    analytics_response = result.get("analytics_response")
+    if (
+        not isinstance(analytics_response, dict)
+        or analytics_response.get("ok") is not True
+        or analytics_response.get("result", {}).get("schema_version")
+        != "analytics-query-response-v1"
+    ):
+        raise RuntimeError("desktop bridge smoke did not complete analytics.query")
     if result.get("workflow_version") != "desktop-workflow-v1":
         raise RuntimeError("desktop bridge smoke loaded the wrong frontend contract")
     identity = to_canonical_data(
         {
+            "analytics_response": analytics_response,
             "elapsed_seconds": round(time.perf_counter() - started, 6),
             "frontend": {
                 "entrypoint": entrypoint.name,
@@ -77,7 +92,7 @@ def collect_desktop_bridge_smoke() -> dict[str, Any]:
             },
             "limitations": [
                 "hidden_same_host_window",
-                "system_describe_round_trip_only",
+                "system_describe_and_analytics_query_round_trip_only",
                 "worker_lifecycle_and_accessibility_verified_by_desktop_lifecycle_evidence",
             ],
             "pywebview_version": importlib.metadata.version("pywebview"),

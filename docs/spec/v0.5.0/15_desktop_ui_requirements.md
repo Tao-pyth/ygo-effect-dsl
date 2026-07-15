@@ -96,11 +96,11 @@ installer、signing、auto-update、YDK file association、deep linkはdistribut
 
 ## Window and performance requirements
 
-実装済みfrontendのnavigation、form、visual token、viewport evidenceは[deck dashboard workflow](17_deck_dashboard_workflow.md)を正本とする。v0.5 shell minimumは960×700、主要検証viewportは1440×900とする。実bridgeとdesktop lifecycle/a11yは#244/#245で検証済み、100k virtualizationは#165へ分離する。
+実装済みfrontendのnavigation、form、visual token、viewport evidenceは[deck dashboard workflow](17_deck_dashboard_workflow.md)を正本とする。v0.5 shell minimumは960×700、主要検証viewportは1440×900とする。実bridgeとdesktop lifecycle/a11yは#244/#245、100k相当のrun table virtualizationは#165で検証済みである。760×900は狭幅時の内部table scrollとcontrol折返しを追加検証するviewportであり、shell minimumを変更しない。
 
 主要desktop解像度と最小window sizeを実装Issueで確定し、text、toolbar、table、dialog、detail panelのoverlap/truncationを禁止する。deck/card/run tableはserver-side queryとvirtualizationを使い、dynamic contentでrow/tool dimensionsを変動させない。
 
-10万deck/run相当のworkloadでinput-to-result、sort/filter、selection、detail open、memoryを測定する。測定前に無制限queryや全row client loadを既定にしない。
+10万run相当の決定論的browser workloadでは、500行page、同時query 1、DOM 40行以下、stable header、sort/filter、keyboard focus、2 viewportの非overlapを測定する。通常操作は最初の500行だけを読み、追加pageは明示commandで取得する。実SQLite/Parquetの10万run・100万row、RSS、p50/p95/p99は#167で校正し、無制限queryや全row client loadを既定にしない。
 
 ## Acceptance scenarios
 

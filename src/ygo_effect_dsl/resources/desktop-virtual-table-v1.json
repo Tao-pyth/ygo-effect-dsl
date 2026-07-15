@@ -1,0 +1,58 @@
+{
+  "accessibility": {
+    "grid_has_accessible_name": true,
+    "keyboard_commands": [
+      "ArrowDown",
+      "ArrowUp",
+      "End",
+      "Home",
+      "PageDown",
+      "PageUp"
+    ],
+    "roving_tabindex": true,
+    "screen_reader_counts": [
+      "aria-colcount",
+      "aria-rowcount",
+      "aria-rowindex"
+    ],
+    "supports_forced_colors": true
+  },
+  "authority": {
+    "query_owner": "python_application_service",
+    "renderer_may_infer_missing_rows": false,
+    "renderer_may_mutate_snapshot": false
+  },
+  "failure_policy": {
+    "concurrent_page_query": "suppress_duplicate",
+    "duplicate_row_id": "fail_closed",
+    "snapshot_change": "fail_closed",
+    "unknown_response_version": "fail_closed"
+  },
+  "pagination": {
+    "cursor_contract": "analytics-cursor-v1",
+    "immutable_snapshot": true,
+    "page_size": 500,
+    "query_contract": "analytics-query-contract-v1",
+    "request_schema": "analytics-query-request-v1",
+    "response_schema": "analytics-query-response-v1"
+  },
+  "rendering": {
+    "compact_row_height": 40,
+    "comfortable_row_height": 48,
+    "mode": "viewport_row_window",
+    "overscan_rows": 6,
+    "stable_row_height": true,
+    "target_rows": 100000
+  },
+  "schema_version": "desktop-virtual-table-v1",
+  "supported_viewports": [
+    {
+      "height": 900,
+      "width": 1440
+    },
+    {
+      "height": 900,
+      "width": 760
+    }
+  ]
+}
