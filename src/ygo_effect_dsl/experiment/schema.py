@@ -13,6 +13,7 @@ from ygo_effect_dsl.engine.information import (
     InformationAccessPolicy,
     OpeningHandPolicy,
 )
+from ygo_effect_dsl.engine.interruption import validate_multi_interruption_composition
 
 
 LEGACY_EXPERIMENT_SCHEMA_VERSION = "0.3a"
@@ -614,6 +615,17 @@ def validate_experiment(value: Any) -> tuple[ExperimentValidationIssue, ...]:
                                 "must be a list containing cost, target, or option",
                             )
                         )
+            if mode == "specified":
+                issues.extend(
+                    ExperimentValidationIssue(
+                        diagnostic.path,
+                        diagnostic.code,
+                        diagnostic.message,
+                    )
+                    for diagnostic in validate_multi_interruption_composition(
+                        interruption
+                    )
+                )
 
     replay = _required_mapping(value, "replay", issues)
     if replay is not None and not isinstance(replay.get("strict_versions"), bool):
