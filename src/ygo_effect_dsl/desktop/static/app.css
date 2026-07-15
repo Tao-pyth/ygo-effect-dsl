@@ -640,6 +640,10 @@ h3 {
   width: min(280px, 24vw);
 }
 
+.analytics-export-format {
+  margin-left: auto;
+}
+
 .icon-button {
   display: inline-grid;
   width: 36px;
@@ -808,7 +812,7 @@ h3 {
 
 .analytics-footer {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(240px, auto) auto;
+  grid-template-columns: minmax(160px, 1fr) minmax(120px, auto) minmax(220px, auto) auto;
   align-items: center;
   gap: 12px;
   min-height: 44px;

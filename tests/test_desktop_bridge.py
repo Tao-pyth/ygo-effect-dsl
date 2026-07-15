@@ -333,8 +333,56 @@ def test_analytics_and_card_capabilities_fail_closed_or_use_typed_contracts(
     )
 
     assert description["result"]["capabilities"]["card_presentation"] is False
+    assert description["result"]["capabilities"]["analytics_export"] is True
+    assert description["result"]["capabilities"]["analytics_export_formats"] == [
+        "json",
+        "csv",
+        "parquet",
+    ]
+    assert description["result"]["capabilities"]["export_worker_health"] == "unknown"
     assert description["result"]["capabilities"]["worker_health"] == "unknown"
     assert query["ok"] is True
     assert query["result"]["rows"] == []
     assert card["ok"] is False
     assert card["diagnostics"][0]["code"] == "card_presentation_source_unavailable"
+
+
+def test_export_bridge_queues_a_path_free_background_job(tmp_path: Path) -> None:
+    service = DesktopApplicationService(tmp_path)
+    bridge = DesktopBridge(service.handlers())
+
+    response = bridge.invoke(
+        _request(
+            "analytics.export.enqueue",
+            {
+                "format": "csv",
+                "idempotency_key": None,
+                "priority": 0,
+                "source": {
+                    "cursor": None,
+                    "fields": ["run"],
+                    "filters": [],
+                    "limit": 20,
+                    "schema_version": ANALYTICS_QUERY_REQUEST_SCHEMA_VERSION,
+                    "snapshot_id": None,
+                    "sort": [],
+                },
+                "source_kind": "query",
+            },
+        )
+    )
+
+    assert response["ok"] is True
+    assert response["result"]["job"]["spec"]["kind"] == "export"
+    assert service.analytics_export_worker.run_once().status == "succeeded"
+    status = bridge.invoke(
+        _request(
+            "job.status",
+            {"job_id": response["result"]["job"]["job_id"]},
+        )
+    )
+    assert status["result"]["job"]["state"] == "succeeded"
+    assert {item["kind"] for item in status["result"]["artifacts"]} == {
+        "analytics_export_data",
+        "analytics_export_manifest",
+    }

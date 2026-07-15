@@ -17,7 +17,6 @@ from ygo_effect_dsl.engine.canonical import (
     to_canonical_data,
 )
 
-
 JOB_CATALOG_SCHEMA_VERSION = "job-catalog-v2"
 JOB_SPEC_SCHEMA_VERSION = "job-spec-v2"
 JOB_RECORD_SCHEMA_VERSION = "job-record-v2"
@@ -258,11 +257,21 @@ def _validate_payload(kind: JobKind, value: Any) -> dict[str, Any]:
         )
         if payload["format"] not in {"csv", "json", "parquet"}:
             raise ValueError("payload.format must be csv, json, or parquet")
-        _content_id(
-            payload["query_snapshot_id"],
-            "payload.query_snapshot_id",
-            "querysnapshot_",
-        )
+        snapshot_id = payload["query_snapshot_id"]
+        try:
+            _content_id(
+                snapshot_id,
+                "payload.query_snapshot_id",
+                "analyticssnapshot_",
+            )
+        except ValueError:
+            # Read compatibility for export jobs created before the analytics
+            # snapshot contract standardized its content-ID prefix.
+            _content_id(
+                snapshot_id,
+                "payload.query_snapshot_id",
+                "querysnapshot_",
+            )
     return payload
 
 
@@ -314,9 +323,7 @@ class JobRetryPolicy:
             "max_backoff_seconds",
         )
         if maximum < self.initial_backoff_seconds:
-            raise ValueError(
-                "max_backoff_seconds must be >= initial_backoff_seconds"
-            )
+            raise ValueError("max_backoff_seconds must be >= initial_backoff_seconds")
         object.__setattr__(self, "max_backoff_seconds", maximum)
         codes = tuple(
             sorted(
@@ -568,11 +575,7 @@ class JobCheckpoint:
         for name in ("attempt", "sequence", "completed_units"):
             value = getattr(self, name)
             minimum = 1 if name == "attempt" else 0
-            if (
-                not isinstance(value, int)
-                or isinstance(value, bool)
-                or value < minimum
-            ):
+            if not isinstance(value, int) or isinstance(value, bool) or value < minimum:
                 raise ValueError(f"{name} must be an integer >= {minimum}")
         if self.total_units is not None and (
             not isinstance(self.total_units, int)
@@ -772,9 +775,12 @@ class JobCatalog:
     def initialize(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with closing(self._connect()) as connection, connection:
-            has_meta = connection.execute(
-                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='schema_meta'"
-            ).fetchone() is not None
+            has_meta = (
+                connection.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name='schema_meta'"
+                ).fetchone()
+                is not None
+            )
             if has_meta:
                 row = connection.execute(
                     "SELECT value FROM schema_meta WHERE key='schema_version'"
@@ -785,8 +791,7 @@ class JobCatalog:
                         f"job catalog schema {observed!r} requires explicit migration "
                         f"to {JOB_CATALOG_SCHEMA_VERSION!r}"
                     )
-            connection.executescript(
-                """
+            connection.executescript("""
                 CREATE TABLE IF NOT EXISTS schema_meta (
                     key TEXT PRIMARY KEY,
                     value TEXT NOT NULL
@@ -862,8 +867,7 @@ class JobCatalog:
                     UNIQUE(job_id, recovery_position),
                     CHECK(total_units IS NULL OR total_units >= completed_units)
                 );
-                """
-            )
+                """)
             if not has_meta:
                 connection.execute(
                     "INSERT INTO schema_meta VALUES ('schema_version', ?)",
@@ -896,9 +900,12 @@ class JobCatalog:
                 connection.commit()
                 return self._record(existing)
             for dependency_id in spec.dependency_ids:
-                if connection.execute(
-                    "SELECT 1 FROM jobs WHERE job_id = ?", (dependency_id,)
-                ).fetchone() is None:
+                if (
+                    connection.execute(
+                        "SELECT 1 FROM jobs WHERE job_id = ?", (dependency_id,)
+                    ).fetchone()
+                    is None
+                ):
                     connection.rollback()
                     raise ValueError(f"dependency job {dependency_id!r} does not exist")
             connection.execute(
@@ -948,11 +955,22 @@ class JobCatalog:
         worker_id: str,
         now: str,
         lease_seconds: float,
+        kinds: Sequence[JobKind | str] | None = None,
     ) -> JobRecord | None:
         owner = _string(worker_id, "worker_id")
         at = _timestamp(now, "now")
         if not isinstance(lease_seconds, (int, float)) or lease_seconds <= 0:
             raise ValueError("lease_seconds must be > 0")
+        accepted_kinds = (
+            tuple(JobKind(item) for item in kinds)
+            if kinds is not None
+            else tuple(JobKind)
+        )
+        if not accepted_kinds:
+            raise ValueError("kinds must contain at least one JobKind")
+        if len(accepted_kinds) != len(set(accepted_kinds)):
+            raise ValueError("kinds must not contain duplicates")
+        kind_placeholders = ", ".join("?" for _ in accepted_kinds)
         self.initialize()
         with closing(self._connect()) as connection:
             connection.execute("BEGIN IMMEDIATE")
@@ -960,6 +978,9 @@ class JobCatalog:
                 """
                 SELECT candidate.* FROM jobs AS candidate
                 WHERE candidate.state IN ('queued', 'retrying')
+                  AND candidate.kind IN ("""
+                + kind_placeholders
+                + """)
                   AND candidate.attempt < candidate.max_attempts
                   AND (
                     candidate.deadline_at IS NULL
@@ -982,7 +1003,7 @@ class JobCatalog:
                          candidate.job_id
                 LIMIT 1
                 """,
-                (at, at),
+                (*[item.value for item in accepted_kinds], at, at),
             ).fetchone()
             if row is None:
                 connection.commit()
@@ -1128,13 +1149,11 @@ class JobCatalog:
         at = _timestamp(now, "now")
         self.initialize()
         with closing(self._connect()) as connection:
-            rows = connection.execute(
-                """
+            rows = connection.execute("""
                 SELECT * FROM jobs
                 WHERE state IN ('running', 'cancelling')
                 ORDER BY job_id
-                """
-            ).fetchall()
+                """).fetchall()
 
         def reached(value: str | None) -> bool:
             return value is not None and _parsed_timestamp(at) >= _parsed_timestamp(
@@ -1159,14 +1178,12 @@ class JobCatalog:
         expired: list[JobRecord] = []
         with closing(self._connect()) as connection:
             connection.execute("BEGIN IMMEDIATE")
-            rows = connection.execute(
-                """
+            rows = connection.execute("""
                 SELECT * FROM jobs
                 WHERE state IN ('queued', 'retrying')
                   AND deadline_at IS NOT NULL
                 ORDER BY job_id
-                """
-            ).fetchall()
+                """).fetchall()
             for row in rows:
                 if _parsed_timestamp(at) < _parsed_timestamp(row["deadline_at"]):
                     continue
@@ -1192,9 +1209,7 @@ class JobCatalog:
                     occurred_at=at,
                     reason="deadline_exceeded",
                 )
-                expired.append(
-                    self._record(self._job_row(connection, row["job_id"]))
-                )
+                expired.append(self._record(self._job_row(connection, row["job_id"])))
             connection.commit()
         return tuple(expired)
 
@@ -1223,8 +1238,7 @@ class JobCatalog:
                 _parsed_timestamp(at) >= _parsed_timestamp(row["deadline_at"])
             )
             attempt_timeout = row["attempt_deadline_at"] is not None and (
-                _parsed_timestamp(at)
-                >= _parsed_timestamp(row["attempt_deadline_at"])
+                _parsed_timestamp(at) >= _parsed_timestamp(row["attempt_deadline_at"])
             )
             if not deadline_exceeded and not attempt_timeout:
                 raise JobStateTransitionError("job attempt has not timed out")
@@ -1509,14 +1523,12 @@ class JobCatalog:
         reclaimed: list[JobRecord] = []
         with closing(self._connect()) as connection:
             connection.execute("BEGIN IMMEDIATE")
-            rows = connection.execute(
-                """
+            rows = connection.execute("""
                 SELECT * FROM jobs
                 WHERE state IN ('running', 'cancelling')
                   AND lease_expires_at IS NOT NULL
                 ORDER BY job_id
-                """
-            ).fetchall()
+                """).fetchall()
             for row in rows:
                 if _parsed_timestamp(row["lease_expires_at"]) > _parsed_timestamp(at):
                     continue
@@ -1597,9 +1609,7 @@ class JobCatalog:
                         else error_code or "lease_expired"
                     ),
                 )
-                reclaimed.append(
-                    self._record(self._job_row(connection, row["job_id"]))
-                )
+                reclaimed.append(self._record(self._job_row(connection, row["job_id"])))
             connection.commit()
         return tuple(reclaimed)
 
@@ -1644,9 +1654,7 @@ class JobCatalog:
                     if checkpoint_row is not None
                     else None
                 ),
-                transitions=tuple(
-                    self._transition(row) for row in transition_rows
-                ),
+                transitions=tuple(self._transition(row) for row in transition_rows),
                 artifacts=tuple(JobArtifact(*row) for row in artifact_rows),
             )
             connection.commit()
@@ -1679,12 +1687,10 @@ class JobCatalog:
     def artifact_references(self) -> tuple[tuple[str, JobArtifact], ...]:
         self.initialize()
         with closing(self._connect()) as connection:
-            rows = connection.execute(
-                """
+            rows = connection.execute("""
                 SELECT job_id, kind, path, sha256, schema_version, row_count
                 FROM job_artifacts ORDER BY job_id, artifact_id
-                """
-            ).fetchall()
+                """).fetchall()
         return tuple(
             (
                 row["job_id"],
@@ -1694,9 +1700,7 @@ class JobCatalog:
                     sha256=row["sha256"],
                     schema_version=row["schema_version"],
                     row_count=(
-                        int(row["row_count"])
-                        if row["row_count"] is not None
-                        else None
+                        int(row["row_count"]) if row["row_count"] is not None else None
                     ),
                 ),
             )
@@ -1906,9 +1910,7 @@ class JobCatalog:
                     row["lease_expires_at"],
                 )
             )
-            attempt_deadline_at = (
-                None if clear_lease else row["attempt_deadline_at"]
-            )
+            attempt_deadline_at = None if clear_lease else row["attempt_deadline_at"]
             connection.execute(
                 """
                 UPDATE jobs SET state=?, updated_at=?,
@@ -2009,9 +2011,7 @@ class JobCatalog:
             recovery_position=row["recovery_position"],
             completed_units=int(row["completed_units"]),
             total_units=(
-                int(row["total_units"])
-                if row["total_units"] is not None
-                else None
+                int(row["total_units"]) if row["total_units"] is not None else None
             ),
             payload=json.loads(row["payload_json"]),
             created_at=row["created_at"],
@@ -2027,9 +2027,7 @@ class JobCatalog:
             job_id=row["job_id"],
             sequence=int(row["sequence"]),
             from_state=(
-                JobState(row["from_state"])
-                if row["from_state"] is not None
-                else None
+                JobState(row["from_state"]) if row["from_state"] is not None else None
             ),
             to_state=JobState(row["to_state"]),
             attempt=int(row["attempt"]),

@@ -26,6 +26,7 @@ from ygo_effect_dsl.route_dsl import (
 from ygo_effect_dsl.storage import (
     JobArtifactPublisher,
     JobCatalog,
+    JobKind,
     JobLeaseError,
     JobRecord,
     JobStateTransitionError,
@@ -545,6 +546,7 @@ class DesktopSearchWorker:
             worker_id=self.worker_id,
             now=self.now(),
             lease_seconds=self.lease_seconds,
+            kinds=(JobKind.SEARCH,),
         )
         if job is None:
             return DesktopWorkerOutcome("idle", None, None)

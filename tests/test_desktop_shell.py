@@ -125,10 +125,26 @@ def test_start_desktop_uses_packaged_frontend_and_single_bridge_method(
         create_window=create_window,
         start=start,
     )
+
+    class ExportSupervisor:
+        health = "stopped"
+
+        def __init__(self, worker: Any) -> None:
+            captured["export_worker"] = worker
+
+        def start(self) -> None:
+            self.health = "running"
+            captured["export_supervisor_started"] = True
+
+        def stop(self) -> None:
+            self.health = "stopped"
+            captured["export_supervisor_stopped"] = True
+
     start_desktop(
         data_root=tmp_path,
         webview_module=webview,
         supervisor_factory=Supervisor,  # type: ignore[arg-type]
+        export_supervisor_factory=ExportSupervisor,  # type: ignore[arg-type]
     )
 
     assert captured["url"].startswith("file:")
@@ -143,6 +159,8 @@ def test_start_desktop_uses_packaged_frontend_and_single_bridge_method(
     }
     assert captured["supervisor_started"] is True
     assert captured["supervisor_stopped"] is True
+    assert captured["export_supervisor_started"] is True
+    assert captured["export_supervisor_stopped"] is True
 
 
 def test_start_desktop_wraps_edgechromium_startup_failure(tmp_path: Path) -> None:

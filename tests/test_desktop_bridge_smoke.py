@@ -28,6 +28,16 @@ def test_committed_pywebview_bridge_smoke_is_content_addressed() -> None:
         "analytics-query-response-v1"
     )
     assert evidence["analytics_response"]["result"]["rows"] == []
+    assert evidence["export_response"]["ok"] is True
+    assert evidence["export_response"]["method"] == "analytics.export.enqueue"
+    assert evidence["export_worker"] == {
+        "artifact_kinds": [
+            "analytics_export_data",
+            "analytics_export_manifest",
+        ],
+        "state": "succeeded",
+        "status": "succeeded",
+    }
     assert evidence["response"]["method"] == "system.describe"
     assert evidence["response"]["result"]["schema_version"] == (
         "desktop-application-service-v1"

@@ -365,6 +365,17 @@ def collect_desktop_virtual_table_evidence(
         ).first.evaluate("element => element.getBoundingClientRect().height")
         page.locator('#analytics-pane [data-density="compact"]').click()
 
+        page.locator("#analytics-export-start").click()
+        page.wait_for_function(
+            "() => document.querySelector('#analytics-export-status').textContent === "
+            "'Desktop bridge is required for versioned exports'"
+        )
+        browser_export = {
+            "backend_authority_required": True,
+            "renderer_generated_file": False,
+            "status": page.locator("#analytics-export-status").inner_text(),
+        }
+
         browser.close()
 
     identity = to_canonical_data(
@@ -385,6 +396,7 @@ def collect_desktop_virtual_table_evidence(
                 "page_errors": page_errors,
                 "remote_requests": remote_requests,
             },
+            "export": browser_export,
             "pagination": {
                 "cursor_contract": "analytics-cursor-v1",
                 "duplicate_fetch": duplicate_fetch,

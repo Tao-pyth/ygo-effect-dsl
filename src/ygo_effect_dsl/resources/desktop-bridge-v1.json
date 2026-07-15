@@ -16,6 +16,11 @@
       "payload_fields": ["request"],
       "worker_start_allowed": false
     },
+    "analytics.export.enqueue": {
+      "payload_fields": ["format", "idempotency_key", "priority", "source", "source_kind"],
+      "renderer_path_input": false,
+      "worker_start_allowed": false
+    },
     "analytics.query": {
       "payload_fields": ["request"],
       "worker_start_allowed": false

@@ -104,9 +104,10 @@
   }
 
   class AnalyticsVirtualGrid {
-    constructor(root, query) {
+    constructor(root, query, exportJobs) {
       this.root = root;
       this.query = query;
+      this.exportJobs = exportJobs;
       this.grid = root.querySelector("#analytics-grid");
       this.viewport = root.querySelector("#analytics-viewport");
       this.header = root.querySelector("#analytics-grid-header");
@@ -119,6 +120,10 @@
       this.matched = root.querySelector("#analytics-matched");
       this.snapshot = root.querySelector("#analytics-snapshot");
       this.loadMore = root.querySelector("#analytics-load-more");
+      this.exportFormat = root.querySelector("#analytics-export-format");
+      this.exportStart = root.querySelector("#analytics-export-start");
+      this.exportCancel = root.querySelector("#analytics-export-cancel");
+      this.exportStatus = root.querySelector("#analytics-export-status");
       this.filterField = root.querySelector("#analytics-filter-field");
       this.filterValue = root.querySelector("#analytics-filter-value");
       this.applyFilter = root.querySelector("#analytics-apply-filter");
@@ -138,6 +143,8 @@
       this.concurrentQueries = 0;
       this.preventedDuplicateFetches = 0;
       this.renderFrame = null;
+      this.exportJobId = null;
+      this.exportPollTimer = null;
       this.bind();
       this.renderHeader();
       this.render();
@@ -169,6 +176,8 @@
         this.refresh();
       });
       this.loadMore.addEventListener("click", () => this.loadNext());
+      this.exportStart.addEventListener("click", () => this.enqueueExport());
+      this.exportCancel.addEventListener("click", () => this.cancelExport());
       for (const input of this.columnInputs) {
         input.addEventListener("change", () => {
           if (this.visibleColumns().length === 0) {
@@ -217,6 +226,66 @@
         snapshot_id: this.snapshotId,
         sort: [{ direction: this.sortDirection.dataset.direction, field: this.sortField.value }],
       };
+    }
+
+    async enqueueExport() {
+      if (this.exportJobId) return;
+      this.exportStart.disabled = true;
+      this.exportStatus.textContent = "Queueing export";
+      try {
+        const result = await this.exportJobs.enqueue({
+          format: this.exportFormat.value,
+          idempotency_key: null,
+          priority: 0,
+          source: this.request(null),
+          source_kind: "query",
+        });
+        this.exportJobId = result.job.job_id;
+        this.exportCancel.hidden = false;
+        this.exportStatus.textContent = `Export ${result.job.state}`;
+        this.scheduleExportPoll();
+      } catch (error) {
+        this.exportStart.disabled = false;
+        this.exportStatus.textContent = error instanceof Error ? error.message : "Export failed closed";
+      }
+    }
+
+    scheduleExportPoll() {
+      window.clearTimeout(this.exportPollTimer);
+      this.exportPollTimer = window.setTimeout(() => this.pollExport(), 350);
+    }
+
+    async pollExport() {
+      if (!this.exportJobId) return;
+      try {
+        const result = await this.exportJobs.status(this.exportJobId);
+        const state = result.job.state;
+        this.exportStatus.textContent = `Export ${state}`;
+        if (["succeeded", "failed", "cancelled", "quarantined"].includes(state)) {
+          this.exportJobId = null;
+          this.exportStart.disabled = false;
+          this.exportCancel.hidden = true;
+          return;
+        }
+        this.scheduleExportPoll();
+      } catch (error) {
+        this.exportStatus.textContent = error instanceof Error ? error.message : "Export status failed closed";
+        this.scheduleExportPoll();
+      }
+    }
+
+    async cancelExport() {
+      if (!this.exportJobId) return;
+      this.exportCancel.disabled = true;
+      try {
+        const result = await this.exportJobs.cancel(this.exportJobId);
+        this.exportStatus.textContent = `Export ${result.job.state}`;
+        this.scheduleExportPoll();
+      } catch (error) {
+        this.exportStatus.textContent = error instanceof Error ? error.message : "Export cancellation failed closed";
+      } finally {
+        this.exportCancel.disabled = false;
+      }
     }
 
     async refresh() {
@@ -396,8 +465,8 @@
     }
   }
 
-  function createController(root, query) {
-    return new AnalyticsVirtualGrid(root, query);
+  function createController(root, query, exportJobs) {
+    return new AnalyticsVirtualGrid(root, query, exportJobs);
   }
 
   Object.defineProperty(window, "routeLabAnalytics", {

@@ -77,6 +77,26 @@ def test_virtual_table_keyboard_and_accessibility_contract_is_explicit() -> None
     assert "forced-colors: active" in css
 
 
+def test_virtual_table_export_is_backend_owned_and_job_controlled() -> None:
+    root = desktop_frontend_root()
+    analytics = (root / "analytics.js").read_text(encoding="utf-8")
+    app = (root / "app.js").read_text(encoding="utf-8")
+    bridge = (root / "bridge.js").read_text(encoding="utf-8")
+    html = (root / "index.html").read_text(encoding="utf-8")
+
+    assert 'id="analytics-export-format"' in html
+    assert 'id="analytics-export-start"' in html
+    assert 'id="analytics-export-cancel"' in html
+    assert "this.request(null)" in analytics
+    assert 'source_kind: "query"' in analytics
+    assert 'window.routeLabBridge.invoke("analytics.export.enqueue"' in app
+    assert 'window.routeLabBridge.invoke("job.status"' in app
+    assert 'window.routeLabBridge.invoke("job.cancel"' in app
+    assert '"analytics.export.enqueue"' in bridge
+    assert "new Blob" not in app
+    assert "URL.createObjectURL" not in app
+
+
 def test_committed_100k_virtual_table_evidence_is_content_addressed() -> None:
     evidence = json.loads(
         (EVIDENCE_ROOT / "desktop_virtual_table.json").read_text(encoding="utf-8")
@@ -120,6 +140,11 @@ def test_committed_100k_virtual_table_evidence_is_content_addressed() -> None:
     assert evidence["browser"]["console_errors"] == []
     assert evidence["browser"]["page_errors"] == []
     assert evidence["browser"]["remote_requests"] == []
+    assert evidence["export"] == {
+        "backend_authority_required": True,
+        "renderer_generated_file": False,
+        "status": "Desktop bridge is required for versioned exports",
+    }
 
     for screenshot in evidence["screenshots"]:
         payload = (EVIDENCE_ROOT / screenshot["filename"]).read_bytes()

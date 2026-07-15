@@ -16,16 +16,88 @@
     },
     "schema_version": "desktop-bridge-response-v1"
   },
-  "elapsed_seconds": 1.74829,
-  "evidence_id": "desktopbridgesmoke_5062c060595d1aa112c0db06810d170df0adb6a73f1e67734f51778a0ae7f4dc",
+  "elapsed_seconds": 2.160333,
+  "evidence_id": "desktopbridgesmoke_000fd8c6e9b6af620d6cf6cd9cf0e2df80affeb1098a5870af275eea6ee3f333",
+  "export_response": {
+    "details": {},
+    "diagnostics": [],
+    "method": "analytics.export.enqueue",
+    "ok": true,
+    "request_id": "renderer-4",
+    "result": {
+      "export_request_id": "analyticsexportrequest_6318864689d53c57b8922e894363a16cb296efffb3bb24aca2be01d7d94e2dfa",
+      "job": {
+        "artifact_set_id": null,
+        "attempt": 0,
+        "attempt_deadline_at": null,
+        "created_at": "2026-07-15T20:26:32.427981Z",
+        "deadline_at": null,
+        "error_code": null,
+        "error_message": null,
+        "heartbeat_at": null,
+        "job_id": "job_463c48873d78b532cd8ef78326aeaa607859a2ac82c24b3e902175c825d84427",
+        "kind": "export",
+        "latest_checkpoint_id": null,
+        "lease_acquired_at": null,
+        "lease_expires_at": null,
+        "lease_owner": null,
+        "lease_token": null,
+        "max_attempts": 3,
+        "priority": 0,
+        "recovery_position": null,
+        "retry_not_before_at": null,
+        "schema_version": "job-record-v2",
+        "spec": {
+          "deadline_at": null,
+          "dependency_ids": [],
+          "idempotency_key": "analytics-export-json-analyticsexportrequest_6318864689d53c57b8922e894363a16cb296efffb3bb24aca2be01d7d94e2dfa",
+          "input_digest": "jobinput_6318864689d53c57b8922e894363a16cb296efffb3bb24aca2be01d7d94e2dfa",
+          "job_id": "job_463c48873d78b532cd8ef78326aeaa607859a2ac82c24b3e902175c825d84427",
+          "kind": "export",
+          "max_attempts": 3,
+          "payload": {
+            "format": "json",
+            "query_snapshot_id": "analyticssnapshot_85fb4d48ce538695c399e06563b8e2c09f9b415e3dc6d434c65addcfdad14b65"
+          },
+          "priority": 0,
+          "retry_policy": {
+            "attempt_timeout_seconds": 600,
+            "backoff_multiplier": 2,
+            "initial_backoff_seconds": 0,
+            "max_backoff_seconds": 60,
+            "retryable_error_codes": [
+              "disk_full",
+              "hard_timeout",
+              "lease_expired",
+              "transient_io",
+              "worker_crash"
+            ],
+            "schema_version": "job-retry-policy-v1"
+          },
+          "schema_version": "job-spec-v2"
+        },
+        "state": "queued",
+        "updated_at": "2026-07-15T20:26:32.427981Z"
+      }
+    },
+    "schema_version": "desktop-bridge-response-v1"
+  },
+  "export_worker": {
+    "artifact_kinds": [
+      "analytics_export_data",
+      "analytics_export_manifest"
+    ],
+    "state": "succeeded",
+    "status": "succeeded"
+  },
   "frontend": {
     "entrypoint": "index.html",
-    "sha256": "0d7021d2581b44b06d66c83789f37445aad53f145a7e73c82bcbe32424fcfd07",
+    "sha256": "f936880d8b638cff32492e5e69eef26b55b2b41bf91ed29c19d88173b35314f7",
     "workflow_version": "desktop-workflow-v1"
   },
   "limitations": [
     "hidden_same_host_window",
-    "system_describe_and_analytics_query_round_trip_only",
+    "empty_snapshot_query_and_export_smoke_only",
     "worker_lifecycle_and_accessibility_verified_by_desktop_lifecycle_evidence"
   ],
   "pywebview_version": "6.2.1",
@@ -37,9 +109,16 @@
     "request_id": "renderer-2",
     "result": {
       "capabilities": {
+        "analytics_export": true,
+        "analytics_export_formats": [
+          "json",
+          "csv",
+          "parquet"
+        ],
         "analytics_query": true,
         "card_presentation": false,
         "comparison": false,
+        "export_worker_health": "unknown",
         "native_ydk_import": false,
         "search_job_queue": true,
         "worker_execution": "external_worker_required",

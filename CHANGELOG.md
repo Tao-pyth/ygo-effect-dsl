@@ -23,6 +23,7 @@ All notable package changes are documented here. Package versions follow Semanti
 - [v0.5.0] `desktop-bridge-v1`, an optional pywebview 6.2.1/WebView2 shell, single-instance catalog ownership, native YDK import, typed application-service allowlist, strict payload/path limits, and existing SQLite job/analytics/card-presentation adapters.
 - [v0.5.0] `desktop-search-worker-v1` and Windows Job Object containment with real-core Search execution, lease heartbeat, cooperative cancellation, retry/checkpoint restart, atomic Route/SearchRun publication, cold/warm WebView2 evidence, and accessibility/security audits.
 - [v0.5.0] `desktop-virtual-table-v1` with immutable 500-row cursor pages, server-side sort/filter integration, bounded viewport DOM rendering, keyboard/ARIA support, column and density controls, and 100,000-row-equivalent Edge evidence.
+- [v0.5.0] `analytics-export-contract-v1` with snapshot-bound JSON/CSV/Parquet semantic parity, manifests and checksums, CLI/desktop background-job byte parity, cancel/retry/atomic publication, and formula/path/row/byte/disk safeguards.
 
 ### Changed
 

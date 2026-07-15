@@ -1,0 +1,3 @@
+row_id_json,run__state,run__value_json,deck__state,deck__value_json,score__state,score__value_json,status__state,status__value_json
+"""row_high""",value,"""run_high""",value,"""deck_export_fixture""",value,9.0,value,"""complete"""
+"""=formula-row""",value,"""=formula-fixture""",value,"""deck_export_fixture""",value,3.5,redacted,
