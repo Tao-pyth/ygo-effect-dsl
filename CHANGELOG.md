@@ -4,7 +4,9 @@ All notable package changes are documented here. Package versions follow Semanti
 
 ## Unreleased
 
-No changes yet.
+### Governance
+
+- [v0.6.0] Added the planned deterministic node-level parallel-search milestone, detailed implementation work items, and a measured search-latency release gate. No runtime default or package version changes in this planning update.
 
 ## 0.5.0 - 2026-07-16
 

@@ -1,12 +1,12 @@
 # Release Stage Index: 0.3.0 to 1.0.0
 
-Status: Package 0.5.0 released; 0.5.1 active
+Status: Package 0.5.0 released; 0.5.1 active; 0.6.0 planned
 
 Last updated: 2026-07-16
 
 ## Purpose
 
-本書はpackage `0.3.0`から`1.0.0`までのstage、依存関係、責任境界、親Issueを一つの索引にする。現行packageは`0.5.0`である。`0.4.0`は実装stageとして完了し、独立tagを作らず累積`0.5.0`へ収録した。次のactive package milestoneは`0.5.1`である。
+本書はpackage `0.3.0`から`1.0.0`までのstage、依存関係、責任境界、親Issueを一つの索引にする。現行packageは`0.5.0`である。`0.4.0`は実装stageとして完了し、独立tagを作らず累積`0.5.0`へ収録した。次のactive package milestoneは`0.5.1`、後続のplanned milestoneは`0.6.0`である。
 
 ## Stage dependency
 
@@ -15,7 +15,8 @@ Last updated: 2026-07-16
   -> 0.4.0 search breadth and private-view safety
       -> 0.5.0 corpus analytics and UI
           -> 0.5.1 verification efficiency and compatible maintenance
-              -> 1.0.0 stable distribution and operations
+              -> 0.6.0 deterministic parallel search and measured latency reduction
+                  -> 1.0.0 stable distribution and operations
 ```
 
 | Stage | Parent | 入力 | 主成果 | 次stageへ渡す不変条件 |
@@ -24,6 +25,7 @@ Last updated: 2026-07-16
 | `0.4.0` | [#132](https://github.com/Tao-pyth/ygo-effect-dsl/issues/132) | `0.3.0`の実core基準線 | Beam/MCTS、PlayerView、複数妨害、複数turn | strategy決定性、hidden情報非漏洩、Route lineage |
 | `0.5.0` | [#133](https://github.com/Tao-pyth/ygo-effect-dsl/issues/133) | `0.4.0`のversion付きevidence | corpus/job/query/comparison/UI | provenance、idempotency、CLI/API/UI semantic一致 |
 | `0.5.1` | [#236](https://github.com/Tao-pyth/ygo-effect-dsl/issues/236) | release済み`0.5.0`検証profile | test分類、fixture統合、quiet evidence | semantic coverage維持、wall time・出力byte測定削減 |
+| `0.6.0` | [#258](https://github.com/Tao-pyth/ygo-effect-dsl/issues/258) | serial SearchExecutor、独立parallel contract、`0.5.1`検証profile | node-level process pool、strategy並列化、desktop、100k speedup evidence | fresh Replay、semantic commit、pool determinism、bounded resource |
 | `1.0.0` | [#134](https://github.com/Tao-pyth/ygo-effect-dsl/issues/134) | qualification済みruntimeとanalytics | stable compatibility、license、release、ops | support期間内の互換性と監査可能な配布 |
 
 ## Version allocation rules
@@ -40,7 +42,7 @@ Last updated: 2026-07-16
 - Pythonはルールを所有しない。
 - runtime resolverはnetwork accessやinstallを行わない。
 - asset/core mismatchは実行前に停止する。
-- worker retry、pool size、完了順でsemantic結果を変えない。
+- node/replay/depth budgetではworker retry、pool size、完了順でsemantic結果を変えない。wall-clock deadlineはtiming-censoredとして分離する。
 - private情報を保存・表示・exportするsurfaceはPlayerView policyに従う。
 - third-party assetは審査なしに配布物へ含めない。
 - evidenceにはpackage、schema、lock、deck、seed、budget、hardware/workload manifestを必要範囲で保存する。
@@ -59,6 +61,9 @@ Last updated: 2026-07-16
 - [0.5.0 desktop UI requirements](v0.5.0/15_desktop_ui_requirements.md)
 - [0.5.0 work breakdown and acceptance](v0.5.0/20_work_breakdown_and_acceptance.md)
 - [0.5.1 verification efficiency scope](v0.5.1/00_scope.md)
+- [0.6.0 deterministic parallel search scope](v0.6.0/00_scope.md)
+- [0.6.0 parallel execution contracts](v0.6.0/10_parallel_execution_contracts.md)
+- [0.6.0 work breakdown and acceptance](v0.6.0/20_work_breakdown_and_acceptance.md)
 - [1.0.0 scope](v1.0.0/00_scope.md)
 - [1.0.0 production contracts](v1.0.0/10_production_distribution_contracts.md)
 - [1.0.0 work breakdown and acceptance](v1.0.0/20_work_breakdown_and_acceptance.md)

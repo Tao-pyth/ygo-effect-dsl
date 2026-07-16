@@ -12,7 +12,7 @@ repository/distribution名 `ygo-effect-dsl`、Python import `ygo_effect_dsl`、C
 
 ## Versionと互換性
 
-現在のpackage/CLI releaseは **`0.5.0`**、Git tagは **`v0.5.0`** です。これはPythonエンジニア向けのWindows desktop analytics source milestoneであり、production対応や第三者assetの再配布を保証する一般公開distributionではありません。`0.4.0`の機能段階は独立tagを作らず、この累積releaseへ収録しました。
+現在のpackage/CLI releaseは **`0.5.0`**、Git tagは **`v0.5.0`** です。これはPythonエンジニア向けのWindows desktop analytics source milestoneであり、production対応や第三者assetの再配布を保証する一般公開distributionではありません。`0.4.0`の機能段階は独立tagを作らず、この累積releaseへ収録しました。`0.5.1`は検証効率化のactive maintenance、`0.6.0`は決定論的node-level並列探索と探索時間短縮のplanned release、`1.0.0`はproduction/distribution gateです。
 
 package versionと機能契約のschema versionは独立して管理します。package versionは配布物全体の変更をSemVerで表し、schema versionは保存データまたはAPIの互換境界を表します。したがって、Experiment `0.4`をpackage `0.4.0`へ揃える運用は行いません。
 
@@ -27,7 +27,7 @@ package versionと機能契約のschema versionは独立して管理します。
 | Information boundary | `information-policy-v1` / `information-audit-v1` | 探索・評価が参照できる情報とaccess証跡 |
 | State identity | `ygo-state-id-v1` / `ygo-rule-state-v1` / `ygo-visibility-state-v1` | exact dedup、ルール状態、可視性状態 |
 | Evaluation | `evaluation-result-v1` / `score-breakdown-v1` / `route-resource-consumption-v1` | 成功、盤面score、資源消費 |
-| Search executor | `search-executor-v5` / `search-frontier-v2` / `search-run-result-v5` / `search-strategy-evidence-v1` / `search-run-report-v1` / `search-run-failure-v2` / `search-artifact-commit-v1` / `random-search-strategy-v1` / `beam-search-strategy-v1` / `mcts-strategy-v1` | Random、層単位Beam、直列semantic update MCTSを同一executorで実行し、strategy version・parameter・logical update evidenceを保存する |
+| Search executor | `search-executor-v5` / `search-frontier-v2` / `search-run-result-v5` / `search-strategy-evidence-v1` / `search-run-report-v1` / `search-run-failure-v2` / `search-artifact-commit-v1` / `random-search-strategy-v1` / `beam-search-strategy-v1` / `mcts-strategy-v1` | Random、層単位Beam、直列semantic update MCTSを同一executorで実行する。node-level worker poolは`0.6.0`計画であり現行runtimeには未接続 |
 | Search support | `search-termination-v1` / `prefix-cache-policy-v1` / `parallel-search-result-v2` / `pruning-guardrail-policy-v2` | 予算、cache、並列結果、枝刈りguardrail |
 | Real-core frontier | `real-core-frontier-v2` / `real-core-worker-failure-v1` / `real-core-frontier-worker-attempt-v1` / `real-core-frontier-worker-failure-v1` | fresh worker Replay、state completeness、retry/quarantine evidence |
 | Core bootstrap qualification | `ocgcore-clean-bootstrap-qualification-v1` | 空root、再実行、build/download中断復旧とper-build runtime hashのlocal証跡 |
@@ -128,18 +128,23 @@ package `0.5.0`は、package `0.3.0`で固定したreal-core qualificationを回
 production前または後続Issue:
 
 - damage step、simultaneous trigger、mandatory trigger、SEGOCのreal-core qualification（#207-#210）。未検証categoryはfail-closeする
-- node-level worker poolとpersistent prefix cacheのSearchExecutor統合（#231）
 - 非英語card presentation sourceとlabel-map drift qualification（#247）
 - #110の統計的枝刈り校正と#108の評価weight校正
 - cross-host再現buildと複数hostでのcapacity校正（#171/#127）。現行pool/RSS policyは単一Windows hostの実測基準線である
 - production運用、互換性、一般公開配布（#127/#134）
 - #91のライセンス・第三者成果物審査。完了までは第三者assetを同梱・公開配布しない
 
-次の`0.5.1`は全回帰範囲を弱めず、検証profile、fixture重複、CI wall time、成功時log量を減らすmaintenance releaseです。#110の枝刈り統計と#108の評価weightは品質向上課題として継続し、完了までは既定有効化や一般deck品質の根拠に使いません。`1.0.0`は`#91/#134`のライセンス、互換性、配布、運用gateを満たした場合だけ候補にします。既存schemaの意味や保存形式を変更する場合はpackage番号に追従させず、その機能契約自体を別versionへ上げます。
+次の`0.5.1`は全回帰範囲を弱めず、検証profile、fixture重複、CI wall time、成功時log量を減らすmaintenance releaseです。続く`0.6.0`は[#258](https://github.com/Tao-pyth/ygo-effect-dsl/issues/258)を親に、現行の独立parallel contractを実SearchExecutorへ接続し、Random/Beam/MCTS、CLI/API/desktopをbounded process poolで動かします。#110の枝刈り統計と#108の評価weightは品質向上課題として継続し、完了までは既定有効化や一般deck品質の根拠に使いません。`1.0.0`は`#91/#134`のライセンス、互換性、配布、運用gateを満たした場合だけ候補にします。既存schemaの意味や保存形式を変更する場合はpackage番号に追従させず、その機能契約自体を別versionへ上げます。
 
 実core MVPは`#119 → #124 → #121 → #120 → #122/#123 → #105`の依存順で実装し、その後にBeam/MCTS、PlayerView、desktop analyticsを接続しました。10万nodeと10万run/100万row evidenceは手動またはself-hosted workflow、CIは縮小smoke corpusを使用します。
 
 `examples/route_dsl/minimal_route.yaml`は契約確認用です。現行source milestoneは任意YDK/inlineを事前検査し、pin済みocgcoreが提示するcandidateだけでRandom/Beam/MCTS Searchを行います。ただし、任意のカード効果・発動無効・効果無効・タイミング処理をPython側で推測せず、未検証taxonomyはfail-closeします。複数hostのproduction校正、一般配布、全timing category対応は未完了です。
+
+## Planned 0.6.0: deterministic parallel search
+
+`0.6.0`ではfresh Replay隔離を維持したsingle-host process poolを追加し、pool 1を現行serial互換経路として残します。node/replay/depth budgetではpool 1/2/4のsemantic digest、best Route、lineage一致を必須とします。wall-clock deadlineはhost負荷に依存するため`timing_censored`として別扱いにし、完全一致の根拠には使いません。
+
+性能gateは、同一Windows host・同一workloadのwarm runでpool 4がpool 1に対し、3代表fixture中2件以上でmedian wall timeを25%以上短縮し、どのfixtureも10%を超えて悪化させないことです。未達ならparallel modeを既定化せず、`0.6.0`を探索時間短縮済みとして完了扱いにしません。詳細は[0.6.0 scope](docs/spec/v0.6.0/00_scope.md)と[work breakdown](docs/spec/v0.6.0/20_work_breakdown_and_acceptance.md)を参照してください。
 
 ## セットアップ
 

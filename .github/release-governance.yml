@@ -18,6 +18,10 @@ version_labels:
     label: version:0.5.1
     milestone: v0.5.1
     release_state: active
+  - version: 0.6.0
+    label: version:0.6.0
+    milestone: v0.6.0
+    release_state: planned
   - version: 1.0.0
     label: version:1.0.0
     milestone: v1.0.0
