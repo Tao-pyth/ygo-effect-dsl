@@ -40,6 +40,7 @@ package `0.5.0`にはdeck catalog、YDK import、card detail、analytics、実pr
 - 結果はcoverage証明がない限り`best observed`と表示する。
 - gameplay randomness不明は`unknown`であり、非randomとして優遇しない。
 - node上限なしmodeは提供せず、長時間探索にもhard resource limitを課す。
+- 代表カードをcard variant全体の代替にせず、効果を封殺するcost-card modeを利用者へ提供しない。具体カードとocgcoreの合法Actionを正本とする。
 
 ## Out of scope
 
@@ -47,6 +48,7 @@ package `0.5.0`にはdeck catalog、YDK import、card detail、analytics、実pr
 - 複数turnリレー、対局完走、勝率予測、online duel client。
 - native ocgcore duel handle/Lua state snapshot、process間共有、distributed worker。
 - Pythonによるカード効果、合法性、timing、random probabilityの推測。
+- symbolic/dummy card、代表カードによる探索完了判定、resource-only/full-potentialの利用者向けmode。
 - 非公式Neuron scraping、credential収集、third-party asset同梱。
 - public distribution、stable compatibility、security/operations support。これらは`1.0.0`に残す。
 
@@ -75,4 +77,4 @@ result truthfulnessの[#289](https://github.com/Tao-pyth/ygo-effect-dsl/issues/2
 
 ## Release boundary
 
-`0.7.0`はresearch source milestoneであり、一般利用者向けoptimizer、最適性証明、公開配布を意味しない。parent #276と30 child Issue、[work breakdown](20_work_breakdown_and_acceptance.md)、[ADR-0017](../../adr/0017_v07_research_dashboard_evaluation_and_reliability.md)を正本とし、全childとevidenceが完了するまでpackage versionやtagを先行変更しない。
+`0.7.0`はresearch source milestoneであり、一般利用者向けoptimizer、最適性証明、公開配布を意味しない。parent #276と30 child Issue、[work breakdown](20_work_breakdown_and_acceptance.md)、[ADR-0017](../../adr/0017_v07_research_dashboard_evaluation_and_reliability.md)、[ADR-0018](../../adr/0018_reject_representative_and_cost_card_modes.md)を正本とし、全childとevidenceが完了するまでpackage versionやtagを先行変更しない。

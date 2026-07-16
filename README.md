@@ -153,7 +153,7 @@ production前または後続Issue:
 
 Route内のcoin、dice、random selection、shuffle/draw依存はgameplay randomness eventとして保存し、opening-hand sampling、Search RNG、worker完了順と分離します。同一seedでReplayできることと実戦上の確率非依存を混同せず、既定rankingはsuccessとterminal composite scoreを優先した上で非random Routeを優先します。確率Routeの絶対除外は明示的なstrict policyだけで行います。
 
-UIは先攻初期盤面構築presetを維持し、後攻盤面、相手AI、複数turnリレーを直近scopeに含めません。frontier exhaustion、checkpoint/resume、adaptive budgetにもhard resource limitとcoverage証跡を要求し、node無制限modeは提供しません。詳細は[ADR-0017](docs/adr/0017_v07_research_dashboard_evaluation_and_reliability.md)、[0.7.0 scope](docs/spec/v0.7.0/00_scope.md)、[research dashboard workflow](docs/spec/v0.7.0/15_research_dashboard_workflow.md)、[work breakdown](docs/spec/v0.7.0/20_work_breakdown_and_acceptance.md)を参照してください。
+UIは先攻初期盤面構築presetを維持し、後攻盤面、相手AI、複数turnリレーを直近scopeに含めません。frontier exhaustion、checkpoint/resume、adaptive budgetにもhard resource limitとcoverage証跡を要求し、node無制限modeは提供しません。代表カードを他card variantの代替とする機能や、効果を封殺するcost-card modeは採用せず、具体カードとocgcoreの合法Actionを正本とします。詳細は[ADR-0017](docs/adr/0017_v07_research_dashboard_evaluation_and_reliability.md)、[ADR-0018](docs/adr/0018_reject_representative_and_cost_card_modes.md)、[0.7.0 scope](docs/spec/v0.7.0/00_scope.md)、[research dashboard workflow](docs/spec/v0.7.0/15_research_dashboard_workflow.md)、[work breakdown](docs/spec/v0.7.0/20_work_breakdown_and_acceptance.md)を参照してください。
 
 ## セットアップ
 
@@ -226,6 +226,7 @@ python -m pytest
 - [ADR-0004: Route Information DSL](docs/adr/0004_route_information_dsl.md)
 - [ADR-0008: Project name and boundary](docs/adr/0008_project_name_and_boundary.md)
 - [ADR-0017: Research Dashboard Evaluation and Route Reliability](docs/adr/0017_v07_research_dashboard_evaluation_and_reliability.md)
+- [ADR-0018: Reject Representative and Cost Card Modes](docs/adr/0018_reject_representative_and_cost_card_modes.md)
 - [0.7.0 Research Dashboard Specifications](docs/spec/v0.7.0/00_scope.md)
 - [Bridge DecisionRequest](docs/spec/v0.3a/10_bridge_decision_request.md)
 - [Action](docs/spec/v0.3a/20_action.md)
