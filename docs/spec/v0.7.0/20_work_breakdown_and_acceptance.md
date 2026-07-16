@@ -104,4 +104,6 @@ all paths -> #304 conformance + #305 real-core qualification -> #306 release
 - profile編集が既存Experiment/SearchRunのscoreを変更する。
 - scoreに関係なく全stochastic Routeをdefaultで無条件に下位へ落とす。
 - resource-censored runをfrontier exhaustedまたはoptimalと表示する。
+- 代表カードのRoute再現を他card variantの探索完了、最良性、exact State同値性として表示する。
+- card効果を封殺するcost-card/resource-only modeを主要workflowへ追加する。
 - Neuron非公式scraping、third-party asset同梱、一般distributionをrelease条件にする。
