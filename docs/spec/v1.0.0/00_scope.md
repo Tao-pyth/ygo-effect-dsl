@@ -6,11 +6,11 @@ Last updated: 2026-07-14
 
 ## Objective
 
-package `1.0.0`は、`0.3.0`から`0.6.0`でqualificationした機能を、明示的な互換性、license、build provenance、security、運用、support契約の下でstable releaseにするstageである。機能数ではなく、利用者がinstall、upgrade、rollback、監査、障害対応できることを完了条件にする。
+package `1.0.0`は、`0.3.0`から`0.7.0`でqualificationした機能を、明示的な互換性、license、build provenance、security、運用、support契約の下でstable releaseにするstageである。機能数ではなく、利用者がinstall、upgrade、rollback、監査、障害対応できることを完了条件にする。
 
 ## Entry criteria
 
-- `0.5.1`の検証効率化と`0.6.0`のparallel-search performance gateを含む、core/search/PlayerView/analytics gateが完了している。
+- `0.5.1`の検証効率化、`0.6.0`のparallel-search performance gate、`0.7.0`のartifact truth、terminal preference、Route randomness、fresh Replay gateを含む、core/search/PlayerView/analytics/dashboard gateが完了している。
 - package、schema、strategy、evaluator、asset/core lockのidentityをartifactから追跡できる。
 - root project licenseとthird-party componentの審査を開始できるinventoryがある。
 - clean install候補artifactとproduction-like benchmark corpusがある。

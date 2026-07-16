@@ -61,4 +61,4 @@ package `0.5.0`には`parallel-search-policy-v1`等の独立contract、pool 1/2/
 
 ## Release boundary
 
-`0.5.1`の検証profile再編を先行させる。`0.6.0`完了後も、license/distribution/production gateの[#91](https://github.com/Tao-pyth/ygo-effect-dsl/issues/91)、[#127](https://github.com/Tao-pyth/ygo-effect-dsl/issues/127)、[#134](https://github.com/Tao-pyth/ygo-effect-dsl/issues/134)は閉じない。
+`0.5.1`の検証profile再編を先行させる。`0.6.0`完了後は[#276](https://github.com/Tao-pyth/ygo-effect-dsl/issues/276)の`0.7.0`研究dashboardが実artifact、terminal preference、Route randomness、独立Replayを接続する。license/distribution/production gateの[#91](https://github.com/Tao-pyth/ygo-effect-dsl/issues/91)、[#127](https://github.com/Tao-pyth/ygo-effect-dsl/issues/127)、[#134](https://github.com/Tao-pyth/ygo-effect-dsl/issues/134)は閉じない。

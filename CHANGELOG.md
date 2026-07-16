@@ -6,6 +6,7 @@ All notable package changes are documented here. Package versions follow Semanti
 
 ### Governance
 
+- [v0.7.0] Added the planned evidence-driven research-dashboard milestone, ADR, evaluation/randomness/result contracts, and 30 fine-grained implementation and qualification work items. This planning update does not change runtime behavior, package version, Route ranking, or desktop defaults.
 - [v0.6.0] Added the planned deterministic node-level parallel-search milestone, detailed implementation work items, and a measured search-latency release gate. No runtime default or package version changes in this planning update.
 
 ## 0.5.0 - 2026-07-16

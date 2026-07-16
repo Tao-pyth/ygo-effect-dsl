@@ -27,6 +27,9 @@ project metadata and the CLI exposes it through `--version`.
 The active compatible maintenance target is `0.5.1`. The planned `0.6.0`
 minor release adds deterministic node-level parallel search and requires
 measured latency reduction without changing old Experiment semantics. The
+planned `0.7.0` release adds an evidence-driven research dashboard with
+truthful real artifacts, immutable location-aware terminal preferences,
+Route gameplay-randomness provenance, and independent fresh Replay. The
 `1.0.0` target remains the separate stable compatibility, licensing,
 distribution, security, and operations gate.
 
