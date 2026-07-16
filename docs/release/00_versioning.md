@@ -24,6 +24,12 @@ its cumulative changes are included in 0.5.0. The single source of truth is
 `ygo_effect_dsl.version.__version__`; setuptools reads that value as dynamic
 project metadata and the CLI exposes it through `--version`.
 
+The active compatible maintenance target is `0.5.1`. The planned `0.6.0`
+minor release adds deterministic node-level parallel search and requires
+measured latency reduction without changing old Experiment semantics. The
+`1.0.0` target remains the separate stable compatibility, licensing,
+distribution, security, and operations gate.
+
 ## Tags And Distribution
 
 A pushed Git tag is the official source milestone signal for the package
