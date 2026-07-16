@@ -12,7 +12,7 @@ repository/distribution名 `ygo-effect-dsl`、Python import `ygo_effect_dsl`、C
 
 ## Versionと互換性
 
-現在のpackage/CLI releaseは **`0.5.0`**、Git tagは **`v0.5.0`** です。これはPythonエンジニア向けのWindows desktop analytics source milestoneであり、production対応や第三者assetの再配布を保証する一般公開distributionではありません。`0.4.0`の機能段階は独立tagを作らず、この累積releaseへ収録しました。`0.5.1`は検証効率化のactive maintenance、`0.6.0`は決定論的node-level並列探索と探索時間短縮のplanned release、`1.0.0`はproduction/distribution gateです。
+現在のpackage/CLI releaseは **`0.5.0`**、Git tagは **`v0.5.0`** です。これはPythonエンジニア向けのWindows desktop analytics source milestoneであり、production対応や第三者assetの再配布を保証する一般公開distributionではありません。`0.4.0`の機能段階は独立tagを作らず、この累積releaseへ収録しました。`0.5.1`は検証効率化のactive maintenance、`0.6.0`は決定論的node-level並列探索と探索時間短縮、`0.7.0`は実成果物、位置別terminal preference、Route randomness、独立fresh Replayを扱う研究dashboardのplanned release、`1.0.0`はproduction/distribution gateです。
 
 package versionと機能契約のschema versionは独立して管理します。package versionは配布物全体の変更をSemVerで表し、schema versionは保存データまたはAPIの互換境界を表します。したがって、Experiment `0.4`をpackage `0.4.0`へ揃える運用は行いません。
 
@@ -26,7 +26,7 @@ package versionと機能契約のschema versionは独立して管理します。
 | Route DSL | `0.1` | 最良Routeの交換形式。正規化出力は`route-normalization-v2` |
 | Information boundary | `information-policy-v1` / `information-audit-v1` | 探索・評価が参照できる情報とaccess証跡 |
 | State identity | `ygo-state-id-v1` / `ygo-rule-state-v1` / `ygo-visibility-state-v1` | exact dedup、ルール状態、可視性状態 |
-| Evaluation | `evaluation-result-v1` / `score-breakdown-v1` / `route-resource-consumption-v1` | 成功、盤面score、資源消費 |
+| Evaluation | `evaluation-result-v1` / `score-breakdown-v1` / `route-resource-consumption-v1` | 成功、盤面score、資源消費。位置別terminal preference profileは`0.7.0`計画でありschema未予約 |
 | Search executor | `search-executor-v5` / `search-frontier-v2` / `search-run-result-v5` / `search-strategy-evidence-v1` / `search-run-report-v1` / `search-run-failure-v2` / `search-artifact-commit-v1` / `random-search-strategy-v1` / `beam-search-strategy-v1` / `mcts-strategy-v1` | Random、層単位Beam、直列semantic update MCTSを同一executorで実行する。node-level worker poolは`0.6.0`計画であり現行runtimeには未接続 |
 | Search support | `search-termination-v1` / `prefix-cache-policy-v1` / `parallel-search-result-v2` / `pruning-guardrail-policy-v2` | 予算、cache、並列結果、枝刈りguardrail |
 | Real-core frontier | `real-core-frontier-v2` / `real-core-worker-failure-v1` / `real-core-frontier-worker-attempt-v1` / `real-core-frontier-worker-failure-v1` | fresh worker Replay、state completeness、retry/quarantine evidence |
@@ -38,7 +38,8 @@ package versionと機能契約のschema versionは独立して管理します。
 | Storage / aggregation | `raw-event-log-v1` / `run-catalog-v2` / `aggregation-v1` | JSONL、run catalog、optional Parquet集計 |
 | Corpus / job | `corpus-manifest-v1` / `job-state-machine-v1` / `job-catalog-v2` | provenance、dedup、quarantine、lease、cancel、retry、checkpoint、atomic artifact commit |
 | Analytics | `analytics-query-contract-v1` / `analytics-comparison-contract-v1` / `parquet-lifecycle-contract-v1` / `analytics-export-contract-v1` | snapshot query、比較、compaction/migration、JSON/CSV/Parquet parity |
-| Windows desktop | `desktop-workflow-v1` / `desktop-bridge-v1` / `desktop-search-worker-v1` / `desktop-virtual-table-v1` | deck-first dashboard、real-core job、card detail、500行cursor virtualization |
+| Windows desktop | `desktop-workflow-v1` / `desktop-bridge-v1` / `desktop-search-worker-v1` / `desktop-virtual-table-v1` | deck-first dashboard、real-core job、card detail、500行cursor virtualization。実result hydrationと研究workbench化は`0.7.0`計画 |
+| Research dashboard | package `0.7.0` planned、contract version未予約 | commit済み実artifact、terminal preference、gameplay randomness、fresh Replay、Top-K/coverageを統合する後続stage |
 | Analytics scale | `analytics-scale-calibration-v1` | 10万run、100万Event/Decision row、10万aggregation rowのlocal evidence |
 | Benchmark / policy | `general-search-benchmark-v1` / `real-core-benchmark-base-routes-v2` / `cache-worker-policy-v2` / `memory-preflight-v2` | 外部qualification 3 Routeによる10万logical node校正 |
 | Real Replay policy | `real-core-replay-benchmark-v1` / `real-core-worker-policy-v1` / `real-core-memory-preflight-v1` | 480 fresh Replayのpool別throughput/RSS。既定pool 4、最大8、memory上限1.5 GiB |
@@ -134,7 +135,7 @@ production前または後続Issue:
 - production運用、互換性、一般公開配布（#127/#134）
 - #91のライセンス・第三者成果物審査。完了までは第三者assetを同梱・公開配布しない
 
-次の`0.5.1`は全回帰範囲を弱めず、検証profile、fixture重複、CI wall time、成功時log量を減らすmaintenance releaseです。続く`0.6.0`は[#258](https://github.com/Tao-pyth/ygo-effect-dsl/issues/258)を親に、現行の独立parallel contractを実SearchExecutorへ接続し、Random/Beam/MCTS、CLI/API/desktopをbounded process poolで動かします。#110の枝刈り統計と#108の評価weightは品質向上課題として継続し、完了までは既定有効化や一般deck品質の根拠に使いません。`1.0.0`は`#91/#134`のライセンス、互換性、配布、運用gateを満たした場合だけ候補にします。既存schemaの意味や保存形式を変更する場合はpackage番号に追従させず、その機能契約自体を別versionへ上げます。
+次の`0.5.1`は全回帰範囲を弱めず、検証profile、fixture重複、CI wall time、成功時log量を減らすmaintenance releaseです。続く`0.6.0`は[#258](https://github.com/Tao-pyth/ygo-effect-dsl/issues/258)を親に、現行の独立parallel contractを実SearchExecutorへ接続し、Random/Beam/MCTS、CLI/API/desktopをbounded process poolで動かします。その後の`0.7.0`は[#276](https://github.com/Tao-pyth/ygo-effect-dsl/issues/276)を親に、固定synthetic resultを実artifactへ置換し、カードの手札・表側場・set・墓地等に対するimmutable評価profile、Route gameplay randomness、独立fresh Replay、Top-K/coverageを研究dashboardへ統合します。#110の枝刈り統計と#108の既存評価weightは品質向上課題として継続し、完了までは既定有効化や一般deck品質の根拠に使いません。`1.0.0`は`#91/#134`のライセンス、互換性、配布、運用gateを満たした場合だけ候補にします。既存schemaの意味や保存形式を変更する場合はpackage番号に追従させず、その機能契約自体を別versionへ上げます。
 
 実core MVPは`#119 → #124 → #121 → #120 → #122/#123 → #105`の依存順で実装し、その後にBeam/MCTS、PlayerView、desktop analyticsを接続しました。10万nodeと10万run/100万row evidenceは手動またはself-hosted workflow、CIは縮小smoke corpusを使用します。
 
@@ -145,6 +146,14 @@ production前または後続Issue:
 `0.6.0`ではfresh Replay隔離を維持したsingle-host process poolを追加し、pool 1を現行serial互換経路として残します。node/replay/depth budgetではpool 1/2/4のsemantic digest、best Route、lineage一致を必須とします。wall-clock deadlineはhost負荷に依存するため`timing_censored`として別扱いにし、完全一致の根拠には使いません。
 
 性能gateは、同一Windows host・同一workloadのwarm runでpool 4がpool 1に対し、3代表fixture中2件以上でmedian wall timeを25%以上短縮し、どのfixtureも10%を超えて悪化させないことです。未達ならparallel modeを既定化せず、`0.6.0`を探索時間短縮済みとして完了扱いにしません。詳細は[0.6.0 scope](docs/spec/v0.6.0/00_scope.md)と[work breakdown](docs/spec/v0.6.0/20_work_breakdown_and_acceptance.md)を参照してください。
+
+## Planned 0.7.0: evidence-driven research dashboard
+
+`0.7.0`では、実desktop jobのcommit済み`best-route.yaml`と`search-report.json`だけを結果画面の正本とし、固定synthetic Route、score、Action、verified表示をreal jobから除去します。最終盤面はcard code、controller、location、position、枚数条件で評価し、ユーザーのsigned integer bonus/penaltyをimmutable profileとしてExperimentとRouteへ結びます。
+
+Route内のcoin、dice、random selection、shuffle/draw依存はgameplay randomness eventとして保存し、opening-hand sampling、Search RNG、worker完了順と分離します。同一seedでReplayできることと実戦上の確率非依存を混同せず、既定rankingはsuccessとterminal composite scoreを優先した上で非random Routeを優先します。確率Routeの絶対除外は明示的なstrict policyだけで行います。
+
+UIは先攻初期盤面構築presetを維持し、後攻盤面、相手AI、複数turnリレーを直近scopeに含めません。frontier exhaustion、checkpoint/resume、adaptive budgetにもhard resource limitとcoverage証跡を要求し、node無制限modeは提供しません。詳細は[ADR-0017](docs/adr/0017_v07_research_dashboard_evaluation_and_reliability.md)、[0.7.0 scope](docs/spec/v0.7.0/00_scope.md)、[research dashboard workflow](docs/spec/v0.7.0/15_research_dashboard_workflow.md)、[work breakdown](docs/spec/v0.7.0/20_work_breakdown_and_acceptance.md)を参照してください。
 
 ## セットアップ
 
@@ -216,6 +225,8 @@ python -m pytest
 - [Route DSL Schema 0.1](docs/route_dsl/10_schema.md)
 - [ADR-0004: Route Information DSL](docs/adr/0004_route_information_dsl.md)
 - [ADR-0008: Project name and boundary](docs/adr/0008_project_name_and_boundary.md)
+- [ADR-0017: Research Dashboard Evaluation and Route Reliability](docs/adr/0017_v07_research_dashboard_evaluation_and_reliability.md)
+- [0.7.0 Research Dashboard Specifications](docs/spec/v0.7.0/00_scope.md)
 - [Bridge DecisionRequest](docs/spec/v0.3a/10_bridge_decision_request.md)
 - [Action](docs/spec/v0.3a/20_action.md)
 - [Replay Determinism](docs/spec/v0.3a/30_replay_determinism.md)

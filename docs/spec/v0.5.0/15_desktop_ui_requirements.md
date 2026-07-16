@@ -4,6 +4,8 @@ Status: Implemented and locally verified; parent [#164](https://github.com/Tao-p
 
 Last updated: 2026-07-16
 
+Follow-up: package `0.5.0` qualified the deck-first shell and real background job path, but the result dialog remains a fixed synthetic presentation. Real artifact hydration, terminal preference, Route randomness, and independent Replay UI are package `0.7.0` work under [#276](https://github.com/Tao-pyth/ygo-effect-dsl/issues/276); see [the research dashboard workflow](../v0.7.0/15_research_dashboard_workflow.md).
+
 ## Product definition
 
 UIは、実ocgcore/EDOPro Luaによる探索を実行し、deck単位の結果を比較・検証するWindows desktop applicationである。主対象はPythonエンジニアと研究・検証利用者であり、game clientやmarketing siteではない。

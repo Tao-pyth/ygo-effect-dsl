@@ -1,12 +1,12 @@
 # Release Stage Index: 0.3.0 to 1.0.0
 
-Status: Package 0.5.0 released; 0.5.1 active; 0.6.0 planned
+Status: Package 0.5.0 released; 0.5.1 active; 0.6.0 and 0.7.0 planned
 
 Last updated: 2026-07-16
 
 ## Purpose
 
-本書はpackage `0.3.0`から`1.0.0`までのstage、依存関係、責任境界、親Issueを一つの索引にする。現行packageは`0.5.0`である。`0.4.0`は実装stageとして完了し、独立tagを作らず累積`0.5.0`へ収録した。次のactive package milestoneは`0.5.1`、後続のplanned milestoneは`0.6.0`である。
+本書はpackage `0.3.0`から`1.0.0`までのstage、依存関係、責任境界、親Issueを一つの索引にする。現行packageは`0.5.0`である。`0.4.0`は実装stageとして完了し、独立tagを作らず累積`0.5.0`へ収録した。次のactive package milestoneは`0.5.1`、後続のplanned milestoneは`0.6.0`と`0.7.0`である。
 
 ## Stage dependency
 
@@ -16,7 +16,8 @@ Last updated: 2026-07-16
       -> 0.5.0 corpus analytics and UI
           -> 0.5.1 verification efficiency and compatible maintenance
               -> 0.6.0 deterministic parallel search and measured latency reduction
-                  -> 1.0.0 stable distribution and operations
+                  -> 0.7.0 evidence-driven research dashboard and preference-aware results
+                      -> 1.0.0 stable distribution and operations
 ```
 
 | Stage | Parent | 入力 | 主成果 | 次stageへ渡す不変条件 |
@@ -26,6 +27,7 @@ Last updated: 2026-07-16
 | `0.5.0` | [#133](https://github.com/Tao-pyth/ygo-effect-dsl/issues/133) | `0.4.0`のversion付きevidence | corpus/job/query/comparison/UI | provenance、idempotency、CLI/API/UI semantic一致 |
 | `0.5.1` | [#236](https://github.com/Tao-pyth/ygo-effect-dsl/issues/236) | release済み`0.5.0`検証profile | test分類、fixture統合、quiet evidence | semantic coverage維持、wall time・出力byte測定削減 |
 | `0.6.0` | [#258](https://github.com/Tao-pyth/ygo-effect-dsl/issues/258) | serial SearchExecutor、独立parallel contract、`0.5.1`検証profile | node-level process pool、strategy並列化、desktop、100k speedup evidence | fresh Replay、semantic commit、pool determinism、bounded resource |
+| `0.7.0` | [#276](https://github.com/Tao-pyth/ygo-effect-dsl/issues/276) | `0.6.0` bounded Search、desktop artifact publication、analytics | real result、terminal preference、Route randomness、Replay verification、Top-K/coverage | artifact truth、immutable evaluation、reliability provenance、best-observed honesty |
 | `1.0.0` | [#134](https://github.com/Tao-pyth/ygo-effect-dsl/issues/134) | qualification済みruntimeとanalytics | stable compatibility、license、release、ops | support期間内の互換性と監査可能な配布 |
 
 ## Version allocation rules
@@ -46,6 +48,8 @@ Last updated: 2026-07-16
 - private情報を保存・表示・exportするsurfaceはPlayerView policyに従う。
 - third-party assetは審査なしに配布物へ含めない。
 - evidenceにはpackage、schema、lock、deck、seed、budget、hardware/workload manifestを必要範囲で保存する。
+- real job resultはcommit済みartifactへ結び、synthetic、unverified、censored、unknownを成功・verified・optimalへ読み替えない。
+- terminal preference、gameplay randomness、ranking、coverageは独立version identityを持ち、legacy artifactの欠落を既定値で再解釈しない。
 
 ## Detailed specifications
 
@@ -64,6 +68,10 @@ Last updated: 2026-07-16
 - [0.6.0 deterministic parallel search scope](v0.6.0/00_scope.md)
 - [0.6.0 parallel execution contracts](v0.6.0/10_parallel_execution_contracts.md)
 - [0.6.0 work breakdown and acceptance](v0.6.0/20_work_breakdown_and_acceptance.md)
+- [0.7.0 evidence-driven research dashboard scope](v0.7.0/00_scope.md)
+- [0.7.0 evaluation, randomness, and result contracts](v0.7.0/10_evaluation_randomness_and_result_contracts.md)
+- [0.7.0 research dashboard workflow](v0.7.0/15_research_dashboard_workflow.md)
+- [0.7.0 work breakdown and acceptance](v0.7.0/20_work_breakdown_and_acceptance.md)
 - [1.0.0 scope](v1.0.0/00_scope.md)
 - [1.0.0 production contracts](v1.0.0/10_production_distribution_contracts.md)
 - [1.0.0 work breakdown and acceptance](v1.0.0/20_work_breakdown_and_acceptance.md)

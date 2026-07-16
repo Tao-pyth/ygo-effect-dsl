@@ -4,6 +4,8 @@
 
 `desktop-bridge-v1` is the v0.5 Windows developer-MVP boundary between the packaged renderer and the Python application service. It implements ADR 0016 and Issue #244. Issue #245 adds the worker lifecycle and evidence described in [desktop lifecycle contract](19_desktop_lifecycle_recovery.md). Signing/update and distribution approval remain #134/#91 gates.
 
+`job.status` exposes committed artifact metadata, but `desktop-bridge-v1` has no typed verified result-artifact reader or independent Replay job. These are planned for package `0.7.0` in [#289](https://github.com/Tao-pyth/ygo-effect-dsl/issues/289) and [#290](https://github.com/Tao-pyth/ygo-effect-dsl/issues/290).
+
 ## Process and authority
 
 | Boundary | Authority |

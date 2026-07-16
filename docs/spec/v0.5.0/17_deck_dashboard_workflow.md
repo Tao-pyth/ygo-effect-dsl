@@ -4,6 +4,8 @@ Status: Interactive static prototype verified in Microsoft Edge; parents [#182](
 
 Last updated: 2026-07-16
 
+Follow-up boundary: the desktop bridge runs real Search jobs and publishes real Route/SearchRun artifacts, but this v0.5 workflow did not hydrate those artifacts into the result dialog. Package `0.7.0` replaces the fixed synthetic result and adds preference/reliability evidence; see [#276](https://github.com/Tao-pyth/ygo-effect-dsl/issues/276).
+
 ## Product boundary
 
 `desktop-workflow-v1`は、Windows desktop applicationのdeck-first navigation、visual tokens、control statesを固定する。packaged frontendは`src/ygo_effect_dsl/desktop/static/index.html`、`app.css`、`bridge.js`、`analytics.js`、`app.js`の5 assetであり、browser harnessとpywebview/WebView2 shellが同じartifactを読み込む。
