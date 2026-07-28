@@ -24,14 +24,16 @@ its cumulative changes are included in 0.5.0. The single source of truth is
 `ygo_effect_dsl.version.__version__`; setuptools reads that value as dynamic
 project metadata and the CLI exposes it through `--version`.
 
-The active compatible maintenance target is `0.5.1`. The planned `0.6.0`
-minor release adds deterministic node-level parallel search and requires
-measured latency reduction without changing old Experiment semantics. The
-planned `0.7.0` release adds an evidence-driven research dashboard with
-truthful real artifacts, immutable location-aware terminal preferences,
-Route gameplay-randomness provenance, and independent fresh Replay. The
-`1.0.0` target remains the separate stable compatibility, licensing,
-distribution, security, and operations gate.
+The active compatible maintenance target is `0.5.1`. Source release evidence
+for `0.5.1`, `0.6.0`, and `0.7.0` is ready, while the current package and CLI
+version remains `0.5.0` until a reviewed source tag is published. The planned
+`0.8.0` minor release is the Japanese-centered desktop UI and localization
+quality stage: visible UI copy defaults to Japanese, the desktop document
+declares `lang="ja"`, mojibake is removed from UI fixtures and release-facing
+documentation, and Japanese strings are centralized so later locale switching
+can be added without changing desktop behavior. The `1.0.0` target remains the
+separate stable compatibility, licensing, distribution, security, and
+operations gate.
 
 ## Tags And Distribution
 

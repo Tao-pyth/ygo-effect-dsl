@@ -62,4 +62,4 @@ analyticsはseeded random、conditional、fixedを別cohortとして扱う。pro
 
 ## 8. Deferred workflow
 
-後攻はopponent board snapshot、public/private information、固定妨害、opponent policyを先に定義する必要があるため、本stageのtoggleにはしない。複数turnリレーは継続評価と相手行動modelを必要とするため、初期盤面構築の強みを薄めない。Neuron取込は[#303](https://github.com/Tao-pyth/ygo-effect-dsl/issues/303)の公式access decision後にだけ実装Issueを切る。category条件の自動展開と処理量削減は[ADR-0018](../../adr/0018_reject_representative_and_cost_card_modes.md)の再評価条件を満たすまで実装scopeへ追加しない。
+後攻はopponent board snapshot、public/private information、固定妨害、opponent policyを先に定義する必要があるため、本stageのtoggleにはしない。複数turnリレーは継続評価と相手行動modelを必要とするため、初期盤面構築の強みを薄めない。Neuron direct importは[ADR-0019](../../adr/0019_reject_neuron_direct_import_without_official_api.md)に従い、公式third-party APIが確認できるまで実装しない。category条件の自動展開と処理量削減は[ADR-0018](../../adr/0018_reject_representative_and_cost_card_modes.md)の再評価条件を満たすまで実装scopeへ追加しない。

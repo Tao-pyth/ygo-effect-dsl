@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
   <head>
     <meta charset="utf-8">
     <meta
@@ -9,51 +9,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <meta name="desktop-workflow-contract" content="desktop-workflow-v1">
-    <title>RouteLab Deck Research</title>
+    <title>RouteLab デッキ研究</title>
     <link rel="stylesheet" href="app.css">
     <script src="bridge.js" defer></script>
     <script src="analytics.js" defer></script>
     <script src="app.js" defer></script>
   </head>
   <body>
-    <a class="skip-link" href="#workspace">Skip to workspace</a>
+    <a class="skip-link" href="#workspace">作業領域へ移動</a>
     <div class="app-shell">
       <header class="topbar">
-        <div class="brand-block" aria-label="Application identity">
+        <div class="brand-block" aria-label="アプリケーション情報">
           <span class="brand-mark" aria-hidden="true">RL</span>
           <div>
             <strong>RouteLab</strong>
-            <span>Deck research workspace</span>
+            <span>デッキ研究ワークスペース</span>
           </div>
         </div>
         <div class="environment-status" role="status">
           <span class="status-dot status-ready" aria-hidden="true"></span>
-          <span id="environment-label">Local assets verified</span>
+          <span id="environment-label">ローカル資産を検証済み</span>
           <code id="environment-code">ocgcore 11.0</code>
         </div>
         <div class="topbar-actions">
-          <button class="button secondary" id="import-deck" type="button">Import YDK</button>
-          <button class="button primary" id="new-inline" type="button">New inline deck</button>
+          <button class="button secondary" id="import-deck" type="button">YDKを読み込む</button>
+          <button class="button primary" id="new-inline" type="button">インラインデッキを作成</button>
         </div>
       </header>
 
-      <nav class="rail" aria-label="Primary navigation">
+      <nav class="rail" aria-label="主ナビゲーション">
         <button class="rail-item is-active" type="button" data-view="decks" aria-current="page">
           <span class="rail-glyph" aria-hidden="true">D</span>
-          <span>Decks</span>
+          <span>デッキ</span>
         </button>
         <button class="rail-item" type="button" data-view="runs">
           <span class="rail-glyph" aria-hidden="true">R</span>
-          <span>Runs</span>
+          <span>実行</span>
         </button>
         <button class="rail-item" type="button" data-view="compare">
           <span class="rail-glyph" aria-hidden="true">C</span>
-          <span>Compare</span>
+          <span>比較</span>
         </button>
         <div class="rail-spacer"></div>
         <button class="rail-item" type="button" data-view="settings">
           <span class="rail-glyph" aria-hidden="true">S</span>
-          <span>Settings</span>
+          <span>設定</span>
         </button>
       </nav>
 
@@ -61,148 +61,148 @@
         <section class="catalog-pane" aria-labelledby="catalog-title">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">Corpus / registered decks</p>
-              <h1 id="catalog-title">Deck catalog</h1>
+              <p class="eyebrow">コーパス / 登録済みデッキ</p>
+              <h1 id="catalog-title">デッキカタログ</h1>
             </div>
-            <div class="catalog-count"><strong id="visible-count">4</strong><span>decks</span></div>
+            <div class="catalog-count"><strong id="visible-count">4</strong><span>件</span></div>
           </div>
 
-          <div class="metric-strip" id="catalog-metrics" aria-label="Catalog summary">
+          <div class="metric-strip" id="catalog-metrics" aria-label="カタログ概要">
             <div class="metric">
-              <span>Search runs</span>
+              <span>探索実行</span>
               <strong>12,480</strong>
-              <small>3 fixtures qualified</small>
+              <small>3 fixture 検証済み</small>
             </div>
             <div class="metric">
-              <span>Success rate</span>
+              <span>成功率</span>
               <strong>73.4%</strong>
-              <small class="positive">+2.8 points</small>
+              <small class="positive">+2.8 ポイント</small>
             </div>
             <div class="metric">
-              <span>Median nodes</span>
+              <span>中央値ノード</span>
               <strong>42.6k</strong>
               <small>p95 96.2k</small>
             </div>
             <div class="metric">
-              <span>Needs review</span>
+              <span>要確認</span>
               <strong>1</strong>
-              <small class="warning-text">stale asset lock</small>
+              <small class="warning-text">資産ロックが古い</small>
             </div>
           </div>
 
           <div class="catalog-toolbar" role="search">
             <label class="search-field">
-              <span class="visually-hidden">Filter decks</span>
+              <span class="visually-hidden">デッキを絞り込む</span>
               <span aria-hidden="true">/</span>
-              <input id="deck-filter" type="search" placeholder="Filter by deck name, hash, or tag" autocomplete="off">
+              <input id="deck-filter" type="search" placeholder="デッキ名、ハッシュ、タグで絞り込み" autocomplete="off">
             </label>
             <label class="select-field">
-              <span>Sort</span>
+              <span>並び順</span>
               <select id="deck-sort">
-                <option value="updated">Recently updated</option>
-                <option value="runs">Most runs</option>
-                <option value="success">Highest success</option>
-                <option value="name">Name</option>
+                <option value="updated">更新が新しい順</option>
+                <option value="runs">実行数が多い順</option>
+                <option value="success">成功率が高い順</option>
+                <option value="name">名前順</option>
               </select>
             </label>
-            <div class="segmented" aria-label="Catalog density">
-              <button type="button" class="is-selected" aria-pressed="true" data-density="compact">Compact</button>
-              <button type="button" aria-pressed="false" data-density="comfortable">Comfortable</button>
+            <div class="segmented" aria-label="カタログ密度">
+              <button type="button" class="is-selected" aria-pressed="true" data-density="compact">密</button>
+              <button type="button" aria-pressed="false" data-density="comfortable">標準</button>
             </div>
           </div>
 
-          <div class="table-frame" tabindex="0" aria-label="Deck catalog table region">
+          <div class="table-frame" tabindex="0" aria-label="デッキカタログ表領域">
             <table class="deck-table">
               <thead>
                 <tr>
-                  <th scope="col">Deck</th>
-                  <th scope="col">Cards</th>
-                  <th scope="col">Preflight</th>
-                  <th scope="col">Runs</th>
-                  <th scope="col">Success</th>
-                  <th scope="col">Best score</th>
-                  <th scope="col">Updated</th>
+                  <th scope="col">デッキ</th>
+                  <th scope="col">カード</th>
+                  <th scope="col">事前検証</th>
+                  <th scope="col">実行</th>
+                  <th scope="col">成功</th>
+                  <th scope="col">最高スコア</th>
+                  <th scope="col">更新</th>
                 </tr>
               </thead>
               <tbody id="deck-table-body"></tbody>
             </table>
             <div class="empty-state" id="empty-state" hidden>
-              <strong>No matching decks</strong>
-              <span>Adjust the filter or import a YDK file.</span>
+              <strong>一致するデッキがありません</strong>
+              <span>絞り込みを変えるか、YDKファイルを読み込んでください。</span>
             </div>
           </div>
 
           <div class="table-footer">
-            <span id="catalog-source-label">Showing a deterministic fixture window</span>
-            <span>Content-addressed deck identities</span>
+            <span id="catalog-source-label">決定論的 fixture の一覧を表示中</span>
+            <span>内容アドレス付きデッキID</span>
           </div>
         </section>
 
         <aside class="detail-pane" id="detail-pane" aria-labelledby="detail-title">
           <div class="detail-heading">
             <div>
-              <span class="status-chip success" id="detail-status">Ready</span>
-              <h2 id="detail-title">Short route fixture</h2>
+              <span class="status-chip success" id="detail-status">準備完了</span>
+              <h2 id="detail-title">短経路 fixture</h2>
               <code id="detail-hash">a72f91c8</code>
             </div>
-            <button class="button primary run-search" id="open-search" type="button">Run search</button>
+            <button class="button primary run-search" id="open-search" type="button">探索を実行</button>
           </div>
 
-          <div class="detail-tabs" role="tablist" aria-label="Deck detail sections">
-            <button id="tab-overview" role="tab" aria-selected="true" aria-controls="panel-overview" type="button">Overview</button>
-            <button id="tab-cards" role="tab" aria-selected="false" aria-controls="panel-cards" type="button">Cards</button>
-            <button id="tab-runs" role="tab" aria-selected="false" aria-controls="panel-runs" type="button">Runs</button>
+          <div class="detail-tabs" role="tablist" aria-label="デッキ詳細セクション">
+            <button id="tab-overview" role="tab" aria-selected="true" aria-controls="panel-overview" type="button">概要</button>
+            <button id="tab-cards" role="tab" aria-selected="false" aria-controls="panel-cards" type="button">カード</button>
+            <button id="tab-runs" role="tab" aria-selected="false" aria-controls="panel-runs" type="button">実行</button>
           </div>
 
           <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview">
             <dl class="deck-facts">
-              <div><dt>Main</dt><dd id="main-count">40</dd></div>
-              <div><dt>Extra</dt><dd id="extra-count">15</dd></div>
-              <div><dt>Side</dt><dd id="side-count">0</dd></div>
-              <div><dt>Source</dt><dd id="source-kind">inline</dd></div>
+              <div><dt>メイン</dt><dd id="main-count">40</dd></div>
+              <div><dt>エクストラ</dt><dd id="extra-count">15</dd></div>
+              <div><dt>サイド</dt><dd id="side-count">0</dd></div>
+              <div><dt>ソース</dt><dd id="source-kind">inline</dd></div>
             </dl>
 
             <section class="detail-section" aria-labelledby="performance-title">
               <div class="subheading">
-                <h3 id="performance-title">Search performance</h3>
-                <span>last 30 runs</span>
+                <h3 id="performance-title">探索性能</h3>
+                <span>直近30回</span>
               </div>
               <div class="score-line">
-                <div><span>Success</span><strong id="detail-success">84.2%</strong></div>
-                <div><span>Peak</span><strong id="detail-peak">18.6</strong></div>
-                <div><span>Terminal</span><strong id="detail-terminal">14.1</strong></div>
+                <div><span>成功</span><strong id="detail-success">84.2%</strong></div>
+                <div><span>ピーク</span><strong id="detail-peak">18.6</strong></div>
+                <div><span>終端</span><strong id="detail-terminal">14.1</strong></div>
               </div>
-              <div class="bar-chart" id="bar-chart" aria-label="Strategy success comparison"></div>
+              <div class="bar-chart" id="bar-chart" aria-label="戦略別成功率比較"></div>
             </section>
 
             <section class="detail-section" aria-labelledby="composition-title">
               <div class="subheading">
-                <h3 id="composition-title">Composition</h3>
-                <span>main deck</span>
+                <h3 id="composition-title">構成</h3>
+                <span>メインデッキ</span>
               </div>
-              <div class="composition-bar" aria-label="Monster 55 percent, Spell 32 percent, Trap 13 percent">
+              <div class="composition-bar" aria-label="モンスター55パーセント、魔法32パーセント、罠13パーセント">
                 <span class="monster part-55"></span>
                 <span class="spell part-32"></span>
                 <span class="trap part-13"></span>
               </div>
               <div class="legend">
-                <span><i class="monster"></i>Monster 22</span>
-                <span><i class="spell"></i>Spell 13</span>
-                <span><i class="trap"></i>Trap 5</span>
+                <span><i class="monster"></i>モンスター 22</span>
+                <span><i class="spell"></i>魔法 13</span>
+                <span><i class="trap"></i>罠 5</span>
               </div>
             </section>
 
-            <section class="diagnostic success" id="preflight-summary" aria-label="Latest preflight">
+            <section class="diagnostic success" id="preflight-summary" aria-label="最新の事前検証">
               <div>
-                <strong>Preflight passed</strong>
-                <span>DB, Lua scripts, asset lock, and deck shape verified.</span>
+                <strong>事前検証に成功</strong>
+                <span>DB、Luaスクリプト、資産ロック、デッキ形状を確認済み。</span>
               </div>
               <time datetime="2026-07-16T02:14:00+09:00">02:14</time>
             </section>
           </div>
 
           <div id="panel-cards" role="tabpanel" aria-labelledby="tab-cards" hidden>
-            <div class="card-list-header"><span>Card presentation</span><span>Count</span></div>
+            <div class="card-list-header"><span>カード表示</span><span>枚数</span></div>
             <div class="card-list" id="card-list"></div>
           </div>
 
@@ -214,159 +214,242 @@
         <section class="analytics-pane" id="analytics-pane" aria-labelledby="analytics-title" hidden>
           <div class="section-heading analytics-heading">
             <div>
-              <p class="eyebrow">Immutable query snapshot</p>
-              <h1 id="analytics-title">Run observations</h1>
+              <p class="eyebrow">不変クエリスナップショット</p>
+              <h1 id="analytics-title">実行観測</h1>
             </div>
             <div class="analytics-count" aria-live="polite">
               <strong id="analytics-loaded">0</strong>
-              <span>loaded of <b id="analytics-matched">0</b></span>
+              <span><b id="analytics-matched">0</b> 件中を読み込み</span>
             </div>
           </div>
 
-          <div class="analytics-toolbar" role="search" aria-label="Run observation filters">
+          <div class="analytics-toolbar" role="search" aria-label="実行観測フィルター">
             <label class="select-field">
-              <span>Filter</span>
+              <span>項目</span>
               <select id="analytics-filter-field">
-                <option value="run">Run ID</option>
-                <option value="deck">Deck</option>
-                <option value="strategy">Strategy</option>
-                <option value="status">Status</option>
+                <option value="run">実行ID</option>
+                <option value="deck">デッキ</option>
+                <option value="strategy">戦略</option>
+                <option value="opening_hand_cohort">初手群</option>
+                <option value="profile">評価プロファイル</option>
+                <option value="termination">停止理由</option>
+                <option value="censor_state">打ち切り</option>
+                <option value="status">状態</option>
               </select>
             </label>
             <label class="search-field analytics-filter-value">
-              <span class="visually-hidden">Exact filter value</span>
-              <input id="analytics-filter-value" type="search" placeholder="Exact value" autocomplete="off">
+              <span class="visually-hidden">完全一致の値</span>
+              <input id="analytics-filter-value" type="search" placeholder="完全一致の値" autocomplete="off">
             </label>
-            <button class="button secondary" id="analytics-apply-filter" type="button">Apply</button>
+            <button class="button secondary" id="analytics-apply-filter" type="button">適用</button>
             <label class="select-field">
-              <span>Sort</span>
+              <span>並び順</span>
               <select id="analytics-sort-field">
-                <option value="time">Observed</option>
-                <option value="score">Score</option>
-                <option value="action_count">Actions</option>
+                <option value="time">観測時刻</option>
+                <option value="score">スコア</option>
+                <option value="action_count">アクション数</option>
+                <option value="opening_hand_cohort">初手群</option>
+                <option value="termination">停止理由</option>
               </select>
             </label>
-            <button class="icon-button" id="analytics-sort-direction" type="button" data-direction="desc" aria-label="Sort descending" title="Sort direction">↓</button>
+            <button class="icon-button" id="analytics-sort-direction" type="button" data-direction="desc" aria-label="降順で並び替え" title="並び順">↓</button>
             <details class="column-menu">
-              <summary>Columns</summary>
+              <summary>列</summary>
               <fieldset>
-                <legend>Visible columns</legend>
-                <label><input type="checkbox" value="run" data-analytics-column checked>Run</label>
-                <label><input type="checkbox" value="deck" data-analytics-column checked>Deck</label>
-                <label><input type="checkbox" value="strategy" data-analytics-column checked>Strategy</label>
-                <label><input type="checkbox" value="success" data-analytics-column checked>Outcome</label>
-                <label><input type="checkbox" value="score" data-analytics-column checked>Score</label>
-                <label><input type="checkbox" value="action_count" data-analytics-column checked>Actions</label>
-                <label><input type="checkbox" value="status" data-analytics-column checked>Status</label>
-                <label><input type="checkbox" value="time" data-analytics-column checked>Observed</label>
+                <legend>表示する列</legend>
+                <label><input type="checkbox" value="run" data-analytics-column checked>実行</label>
+                <label><input type="checkbox" value="deck" data-analytics-column checked>デッキ</label>
+                <label><input type="checkbox" value="strategy" data-analytics-column checked>戦略</label>
+                <label><input type="checkbox" value="opening_hand_cohort" data-analytics-column checked>初手群</label>
+                <label><input type="checkbox" value="profile" data-analytics-column>プロファイル</label>
+                <label><input type="checkbox" value="success" data-analytics-column checked>結果</label>
+                <label><input type="checkbox" value="score" data-analytics-column checked>スコア</label>
+                <label><input type="checkbox" value="action_count" data-analytics-column checked>アクション</label>
+                <label><input type="checkbox" value="status" data-analytics-column checked>状態</label>
+                <label><input type="checkbox" value="termination" data-analytics-column>停止</label>
+                <label><input type="checkbox" value="censor_state" data-analytics-column>打ち切り</label>
+                <label><input type="checkbox" value="time" data-analytics-column checked>観測</label>
               </fieldset>
             </details>
             <label class="select-field analytics-export-format">
-              <span>Export</span>
+              <span>出力</span>
               <select id="analytics-export-format">
                 <option value="json">JSON</option>
                 <option value="csv">CSV</option>
                 <option value="parquet">Parquet</option>
               </select>
             </label>
-            <button class="button secondary" id="analytics-export-start" type="button">Export</button>
-            <button class="button danger" id="analytics-export-cancel" type="button" hidden>Cancel</button>
-            <div class="segmented" aria-label="Run table density">
-              <button type="button" class="is-selected" aria-pressed="true" data-density="compact">Compact</button>
-              <button type="button" aria-pressed="false" data-density="comfortable">Comfortable</button>
+            <button class="button secondary" id="analytics-export-start" type="button">出力</button>
+            <button class="button danger" id="analytics-export-cancel" type="button" hidden>中止</button>
+            <div class="segmented" aria-label="実行表の密度">
+              <button type="button" class="is-selected" aria-pressed="true" data-density="compact">密</button>
+              <button type="button" aria-pressed="false" data-density="comfortable">標準</button>
             </div>
           </div>
 
-          <div class="virtual-grid" id="analytics-grid" role="grid" aria-label="Run observations" aria-rowcount="1" aria-colcount="8" aria-busy="false">
+          <div class="virtual-grid" id="analytics-grid" role="grid" aria-label="実行観測" aria-rowcount="1" aria-colcount="8" aria-busy="false">
             <div class="virtual-grid-header" id="analytics-grid-header" role="row" aria-rowindex="1"></div>
-            <div class="virtual-grid-viewport" id="analytics-viewport" role="presentation" tabindex="0" aria-label="Scrollable run observations">
+            <div class="virtual-grid-viewport" id="analytics-viewport" role="presentation" tabindex="0" aria-label="スクロール可能な実行観測">
               <div class="virtual-grid-spacer" id="analytics-spacer" aria-hidden="true"></div>
               <div class="virtual-grid-rows" id="analytics-rows" role="rowgroup"></div>
             </div>
           </div>
 
           <div class="analytics-state empty-state" id="analytics-empty" hidden>
-            <strong>No matching observations</strong>
-            <span>Change the exact filter or select another snapshot.</span>
+            <strong>一致する観測がありません</strong>
+            <span>完全一致フィルターを変えるか、別のスナップショットを選んでください。</span>
           </div>
           <div class="analytics-state diagnostic error" id="analytics-error" role="alert" hidden></div>
 
           <div class="analytics-footer">
-            <span id="analytics-status" role="status" aria-live="polite">Analytics query not started</span>
-            <span id="analytics-export-status" role="status" aria-live="polite">Export idle</span>
-            <code id="analytics-snapshot">No snapshot</code>
-            <button class="button secondary" id="analytics-load-more" type="button" hidden>Load next page</button>
+            <span id="analytics-status" role="status" aria-live="polite">分析クエリは未開始です</span>
+            <span id="analytics-export-status" role="status" aria-live="polite">出力は待機中です</span>
+            <code id="analytics-snapshot">スナップショットなし</code>
+            <button class="button secondary" id="analytics-load-more" type="button" hidden>次のページを読み込む</button>
           </div>
         </section>
       </main>
     </div>
 
+    <dialog class="inline-deck-dialog" id="inline-deck-dialog" aria-labelledby="inline-deck-title">
+      <form id="inline-deck-form" method="dialog">
+        <div class="dialog-header">
+          <div>
+            <p class="eyebrow">デッキカタログ</p>
+            <h2 id="inline-deck-title">インラインデッキ登録</h2>
+          </div>
+          <button class="close-button" id="close-inline-deck" type="button" aria-label="インラインデッキフォームを閉じる">×</button>
+        </div>
+        <div class="dialog-body">
+          <section class="form-section" aria-labelledby="inline-deck-fields-title">
+            <div class="form-section-heading">
+              <span>01</span>
+              <div><h3 id="inline-deck-fields-title">カードコード</h3><p>カンマ、空白、改行で区切った整数として読み取ります。</p></div>
+            </div>
+            <div class="form-grid inline-deck-grid">
+              <label><span>名前</span><input id="inline-deck-name" type="text" maxlength="80" value="インライン研究デッキ"></label>
+              <label><span>メインデッキ</span><textarea id="inline-main-cards" rows="8" placeholder="10000, 10001, 10002"></textarea></label>
+              <label><span>エクストラデッキ</span><textarea id="inline-extra-cards" rows="5" placeholder="任意のエクストラデッキコード"></textarea></label>
+              <label><span>サイドデッキ</span><textarea id="inline-side-cards" rows="5" placeholder="任意のサイドデッキコード"></textarea></label>
+            </div>
+            <div class="diagnostic warning" id="inline-deck-status" role="status" aria-live="polite">
+              <div><strong>未登録</strong><span>インラインデッキはデスクトップサービスで内容アドレス化されます。</span></div>
+            </div>
+          </section>
+        </div>
+        <div class="dialog-footer">
+          <span>探索前にDB、スクリプト、資産、デッキ上限を再検証します。</span>
+          <div>
+            <button class="button secondary" id="cancel-inline-deck" type="button">キャンセル</button>
+            <button class="button primary" id="register-inline-deck" type="submit">登録</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
     <dialog class="search-dialog" id="search-dialog" aria-labelledby="search-dialog-title">
       <form id="search-form" method="dialog">
         <div class="dialog-header">
           <div>
-            <p class="eyebrow">New experiment</p>
-            <h2 id="search-dialog-title">Search <span id="search-deck-name">Short route fixture</span></h2>
+            <p class="eyebrow">新しい実験</p>
+            <h2 id="search-dialog-title"><span id="search-deck-name">短経路 fixture</span> を探索</h2>
           </div>
-          <button class="close-button" id="close-search" type="button" aria-label="Close search form">×</button>
+          <button class="close-button" id="close-search" type="button" aria-label="探索フォームを閉じる">×</button>
         </div>
 
         <div class="dialog-body">
           <section class="form-section" aria-labelledby="scenario-title">
             <div class="form-section-heading">
               <span>01</span>
-              <div><h3 id="scenario-title">Scenario</h3><p>Uses Experiment 0.4 without UI rule inference.</p></div>
+              <div><h3 id="scenario-title">シナリオ</h3><p>UI側でルール推測せず、Experiment 0.4 を使います。</p></div>
             </div>
             <div class="form-grid three-columns">
-              <label><span>Objective</span><select id="objective"><option>Maximize terminal board</option></select></label>
-              <label><span>Opening hand</span><select id="opening-hand"><option>Seeded random</option></select></label>
-              <label><span>Artifact target</span><select id="artifact-target"><option>Local catalog (atomic)</option></select></label>
+              <label><span>目的</span><select id="objective"><option value="terminal_board_min_monster_v1">終盤盤面を最大化</option></select></label>
+              <label><span>初手</span><select id="opening-hand">
+                <option value="random">seed付きランダム</option>
+                <option value="fixed">固定カード</option>
+                <option value="conditional">条件付きドロー</option>
+              </select></label>
+              <label><span>終端プロファイル</span><select id="preference-profile"><option value="">既定の終端評価</option></select></label>
+              <label><span>成果物の保存先</span><select id="artifact-target"><option>ローカルカタログ（atomic）</option></select></label>
+            </div>
+            <div class="form-grid opening-hand-options" id="opening-hand-options">
+              <label id="fixed-hand-field" hidden><span>固定初手コード</span><input id="fixed-hand-cards" type="text" placeholder="10000, 10001, 10002, 10003, 10004"></label>
+              <label id="conditional-card-field" hidden><span>必須カードコード</span><input id="conditional-card-code" type="number" min="1" placeholder="カードコード"></label>
+              <label id="conditional-min-field" hidden><span>最小枚数</span><input id="conditional-min-count" type="number" min="0" value="1"></label>
+              <label id="conditional-max-field" hidden><span>最大枚数</span><input id="conditional-max-count" type="number" min="0" placeholder="上限なし"></label>
+              <label id="conditional-attempts-field" hidden><span>最大試行回数</span><input id="conditional-max-attempts" type="number" min="1" max="100000" value="10000"></label>
+            </div>
+            <div class="profile-editor" id="profile-editor">
+              <div class="profile-editor-heading">
+                <strong>終端プロファイルを複製</strong>
+                <span id="profile-edit-status" aria-live="polite">カタログのプロファイル編集は新しい不変プロファイルを作成します。</span>
+              </div>
+              <div class="form-grid profile-rule-grid">
+                <label><span>新しい名前</span><input id="preference-profile-name" type="text" maxlength="80" placeholder="編集済み終端評価"></label>
+                <label><span>カードコード</span><input id="preference-rule-card" type="number" min="1" placeholder="カードコード"></label>
+                <label><span>場所</span><select id="preference-rule-location">
+                  <option value="HAND">手札</option>
+                  <option value="MONSTER_ZONE">モンスターゾーン</option>
+                  <option value="SPELL_TRAP_ZONE">魔法・罠ゾーン</option>
+                  <option value="GRAVEYARD">墓地</option>
+                  <option value="BANISHED">除外</option>
+                </select></label>
+                <label><span>表示形式</span><select id="preference-rule-position">
+                  <option value="ANY">任意</option>
+                  <option value="FACE_UP">表側</option>
+                  <option value="FACE_DOWN">裏側/セット</option>
+                </select></label>
+                <label><span>重み</span><input id="preference-rule-weight" type="number" step="1" value="1"></label>
+                <button class="button secondary" id="clone-profile" type="button">複製</button>
+              </div>
             </div>
           </section>
 
           <section class="form-section" aria-labelledby="strategy-title">
             <div class="form-section-heading">
               <span>02</span>
-              <div><h3 id="strategy-title">Strategy and budget</h3><p>Deterministic for the same seed and semantic node identity.</p></div>
+              <div><h3 id="strategy-title">戦略と予算</h3><p>同じseedとsemantic node identityなら決定論的に動作します。</p></div>
             </div>
             <fieldset class="strategy-options">
-              <legend class="visually-hidden">Search strategy</legend>
-              <label><input type="radio" name="strategy" value="random_search_v1" checked><span><strong>Random</strong><small>Broad deterministic sampling</small></span></label>
-              <label><input type="radio" name="strategy" value="beam_search_v1"><span><strong>Beam</strong><small>Score-ranked frontier</small></span></label>
-              <label><input type="radio" name="strategy" value="mcts_v1"><span><strong>MCTS</strong><small>Exploration and rollout</small></span></label>
+              <legend class="visually-hidden">探索戦略</legend>
+              <label><input type="radio" name="strategy" value="random_search_v1" checked><span><strong>Random</strong><small>広く決定論的にサンプリング</small></span></label>
+              <label><input type="radio" name="strategy" value="beam_search_v1"><span><strong>Beam</strong><small>スコア順のfrontier</small></span></label>
+              <label><input type="radio" name="strategy" value="mcts_v1"><span><strong>MCTS</strong><small>探索とrollout</small></span></label>
             </fieldset>
             <div class="form-grid budget-grid">
               <label><span>Seed</span><input id="seed" type="number" min="0" step="1" value="42017"></label>
-              <label><span>Max nodes</span><input id="max-nodes" type="number" min="1" max="100000" step="1000" value="50000"></label>
-              <label><span>Max depth</span><input id="max-depth" type="number" min="1" max="256" value="48"></label>
-              <label><span>Max seconds</span><input id="max-seconds" type="number" min="1" max="3600" value="120"></label>
+              <label><span>最大ノード</span><input id="max-nodes" type="number" min="1" max="100000" step="1000" value="50000"></label>
+              <label><span>最大深さ</span><input id="max-depth" type="number" min="1" max="256" value="48"></label>
+              <label><span>最大秒数</span><input id="max-seconds" type="number" min="1" max="3600" value="120"></label>
+              <label><span>Poolサイズ</span><input id="pool-size" type="number" min="1" max="8" step="1" value="1"></label>
             </div>
           </section>
 
           <section class="form-section" aria-labelledby="interruption-title">
             <div class="form-section-heading">
               <span>03</span>
-              <div><h3 id="interruption-title">Interruption</h3><p>Only core-presented activation opportunities are branched.</p></div>
+              <div><h3 id="interruption-title">妨害</h3><p>core が提示した発動機会だけを分岐します。</p></div>
             </div>
             <label class="toggle-row">
-              <span><strong>Enable specified interruption</strong><small>Baseline and interrupted routes retain shared lineage.</small></span>
+              <span><strong>指定妨害を有効化</strong><small>基準経路と妨害経路は共通lineageを保持します。</small></span>
               <input id="interruption-toggle" type="checkbox" role="switch">
             </label>
-            <label id="interruption-card-field" hidden><span>Opponent card code</span><input id="interruption-code" type="number" min="1" placeholder="Card code"></label>
+            <label id="interruption-card-field" hidden><span>相手カードコード</span><input id="interruption-code" type="number" min="1" placeholder="カードコード"></label>
           </section>
 
           <section class="preflight-box" id="preflight-box" aria-live="polite">
             <div class="preflight-icon" aria-hidden="true">✓</div>
-            <div><strong>Ready for preflight</strong><span>Validation runs before any worker is started.</span></div>
-            <button class="button secondary" id="run-preflight" type="button">Validate</button>
+            <div><strong>事前検証待ち</strong><span>workerを開始する前に検証します。</span></div>
+            <button class="button secondary" id="run-preflight" type="button">検証</button>
           </section>
         </div>
 
         <div class="dialog-footer">
           <span id="experiment-summary">random-search-strategy-v1 · seed 42017 · 50,000 nodes</span>
           <div>
-            <button class="button secondary" id="cancel-search" type="button">Cancel</button>
-            <button class="button primary" id="queue-search" type="submit" disabled>Queue search</button>
+            <button class="button secondary" id="cancel-search" type="button">キャンセル</button>
+            <button class="button primary" id="queue-search" type="submit" disabled>探索をキューへ追加</button>
           </div>
         </div>
       </form>
@@ -375,20 +458,20 @@
     <dialog class="job-dialog" id="job-dialog" aria-labelledby="job-title">
       <div class="job-content">
         <div class="job-header">
-          <div><p class="eyebrow">Search job</p><h2 id="job-title">Replaying frontier nodes</h2></div>
+          <div><p class="eyebrow">探索ジョブ</p><h2 id="job-title">frontier node をReplay中</h2></div>
           <code id="job-id">job_fixture_0042</code>
         </div>
-        <progress id="job-progress" class="progress-track" aria-label="Search progress" max="100" value="0">0%</progress>
+        <progress id="job-progress" class="progress-track" aria-label="探索の進捗" max="100" value="0">0%</progress>
         <div class="job-stats">
-          <div><span>Logical nodes</span><strong id="job-nodes">0 / 50,000</strong></div>
-          <div><span>Fresh replays</span><strong id="job-replays">0</strong></div>
-          <div><span>Best score</span><strong id="job-score">0.0</strong></div>
-          <div><span>Elapsed</span><strong id="job-elapsed">0.0s</strong></div>
+          <div><span>論理ノード</span><strong id="job-nodes">0 / 50,000</strong></div>
+          <div><span>Fresh Replay</span><strong id="job-replays">0</strong></div>
+          <div><span>最高スコア</span><strong id="job-score">0.0</strong></div>
+          <div><span>経過</span><strong id="job-elapsed">0.0s</strong></div>
         </div>
-        <div class="job-log" id="job-log" aria-live="polite">Queued through synthetic preview adapter. No worker has started.</div>
+        <div class="job-log" id="job-log" aria-live="polite">synthetic preview adapter でキュー済み。workerはまだ開始していません。</div>
         <div class="job-actions">
-          <button class="button secondary danger" id="cancel-job" type="button">Cancel job</button>
-          <button class="button primary" id="view-result" type="button" hidden>View best route</button>
+          <button class="button secondary danger" id="cancel-job" type="button">ジョブを中止</button>
+          <button class="button primary" id="view-result" type="button" hidden>最良経路を見る</button>
         </div>
       </div>
     </dialog>
@@ -396,58 +479,81 @@
     <dialog class="card-dialog" id="card-dialog" aria-labelledby="card-title">
       <div class="card-detail">
         <div class="card-detail-header">
-          <div><p class="eyebrow" id="card-code">Code 10000</p><h2 id="card-title">Synthetic Relay Alpha</h2></div>
-          <button class="close-button" id="close-card" type="button" aria-label="Close card detail">×</button>
+          <div><p class="eyebrow" id="card-code">コード 10000</p><h2 id="card-title">Synthetic Relay Alpha</h2></div>
+          <button class="close-button" id="close-card" type="button" aria-label="カード詳細を閉じる">×</button>
         </div>
         <dl class="card-metadata" id="card-metadata"></dl>
         <section class="effect-text" aria-labelledby="effect-title">
-          <div class="subheading"><h3 id="effect-title">Effect text</h3><span>synthetic fixture / en</span></div>
-          <p id="effect-text">When this synthetic fixture is selected, record one deterministic decision. This text is for presentation testing only.</p>
+          <div class="subheading"><h3 id="effect-title">効果テキスト</h3><span>synthetic fixture / ja</span></div>
+          <p id="effect-text">この synthetic fixture が選択されたとき、決定論的なDecisionを1件記録します。このテキストは表示テスト専用です。</p>
         </section>
-        <div class="source-note"><strong>Presentation only</strong><span>Never used by Search, Replay, State, Decision, or Evaluation.</span></div>
+        <div class="source-note"><strong>表示専用</strong><span>Search、Replay、State、Decision、Evaluation では使用しません。</span></div>
       </div>
     </dialog>
 
     <dialog class="compare-dialog" id="compare-dialog" aria-labelledby="compare-title">
       <div class="compare-content">
         <div class="card-detail-header">
-          <div><p class="eyebrow">Paired route statistics</p><h2 id="compare-title">Baseline / interruption / recovery</h2></div>
-          <button class="close-button" id="close-compare" type="button" aria-label="Close comparison">×</button>
+          <div><p class="eyebrow">ペア経路統計</p><h2 id="compare-title">基準 / 妨害 / 復旧</h2></div>
+          <button class="close-button" id="close-compare" type="button" aria-label="比較を閉じる">×</button>
         </div>
-        <div class="comparison-notice"><strong>30 paired runs</strong><span>Same deck, seed family, budget, strategy, and evaluator versions.</span></div>
+        <div class="comparison-notice"><strong>30件のペア実行</strong><span>同じデッキ、seed系統、予算、戦略、評価器versionです。</span></div>
         <div class="table-frame">
           <table class="comparison-table">
-            <thead><tr><th scope="col">Cohort</th><th scope="col">Success</th><th scope="col">Peak</th><th scope="col">Terminal</th><th scope="col">Censoring</th></tr></thead>
+            <thead><tr><th scope="col">群</th><th scope="col">成功</th><th scope="col">ピーク</th><th scope="col">終端</th><th scope="col">打ち切り</th></tr></thead>
             <tbody>
-              <tr><th scope="row">Baseline</th><td>84.2%</td><td>18.6</td><td>14.1</td><td>0 / 30</td></tr>
-              <tr><th scope="row">Interrupted</th><td>46.7%</td><td>11.2</td><td>8.4</td><td>2 / 30</td></tr>
-              <tr><th scope="row">Recovery</th><td>63.3%</td><td>14.8</td><td>11.7</td><td>1 / 30</td></tr>
+              <tr><th scope="row">基準</th><td>84.2%</td><td>18.6</td><td>14.1</td><td>0 / 30</td></tr>
+              <tr><th scope="row">妨害</th><td>46.7%</td><td>11.2</td><td>8.4</td><td>2 / 30</td></tr>
+              <tr><th scope="row">復旧</th><td>63.3%</td><td>14.8</td><td>11.7</td><td>1 / 30</td></tr>
             </tbody>
           </table>
         </div>
-        <p class="comparison-footnote">Confidence metadata is provisional; pruning bias remains visible and statistical pruning stays disabled by default.</p>
+        <p class="comparison-footnote">信頼度metadataは暫定です。枝刈りbiasは可視化し、統計的枝刈りは既定で無効です。</p>
       </div>
     </dialog>
 
     <dialog class="result-dialog" id="result-dialog" aria-labelledby="result-title">
       <div class="result-content">
         <div class="card-detail-header">
-          <div><p class="eyebrow">Best route / fresh replay verified</p><h2 id="result-title">Route result</h2></div>
-          <button class="close-button" id="close-result" type="button" aria-label="Close route result">×</button>
+          <div><p class="eyebrow" id="result-eyebrow">ブラウザプレビュー</p><h2 id="result-title">経路結果</h2></div>
+          <button class="close-button" id="close-result" type="button" aria-label="経路結果を閉じる">×</button>
         </div>
-        <div class="result-identity"><span>Route ID</span><code>route_fixture_5b7a2c10</code></div>
+        <div class="result-identity"><span>Route ID</span><code id="result-route-id">preview-only</code></div>
         <div class="job-stats result-stats">
-          <div><span>Success</span><strong>Yes</strong></div>
-          <div><span>Peak score</span><strong>18.6</strong></div>
-          <div><span>Terminal score</span><strong>14.1</strong></div>
-          <div><span>Actions</span><strong>12</strong></div>
+          <div><span>成功</span><strong id="result-success">プレビュー</strong></div>
+          <div><span>ピークスコア</span><strong id="result-peak">0</strong></div>
+          <div><span>終端スコア</span><strong id="result-terminal">0</strong></div>
+          <div><span>アクション</span><strong id="result-actions">0</strong></div>
         </div>
-        <ol class="route-line">
-          <li><span>01</span><div><strong>Decision response</strong><small>candidate fixture_action_01</small></div></li>
-          <li><span>02</span><div><strong>State transition</strong><small>state_fixture_a3 → state_fixture_b8</small></div></li>
-          <li><span>03</span><div><strong>Legal stop</strong><small>STOP_LINE, separate from END_TURN</small></div></li>
+        <div class="result-evidence" id="result-evidence" aria-label="探索証跡の概要" hidden>
+          <div><span>Coverage</span><strong id="result-coverage">best observed</strong></div>
+          <div><span>候補</span><strong id="result-candidates">0</strong></div>
+          <div><span>探索済み</span><strong id="result-explored">0</strong></div>
+          <div><span>打ち切り</span><strong id="result-censored">0</strong></div>
+        </div>
+        <div class="result-verification" id="result-verification">
+          <div><span>Replay検証</span><strong id="result-verification-state">未検証</strong></div>
+          <button class="button secondary" id="verify-result" type="button">Replayを検証</button>
+        </div>
+        <div class="result-drilldown" id="result-drilldown" hidden>
+          <div class="result-drilldown-header">
+            <div><span id="result-drilldown-title">Top-K経路</span><strong id="result-drilldown-summary">commit済みrankingなし</strong></div>
+            <div class="result-tabs" role="tablist" aria-label="結果ドリルダウン">
+              <button id="result-tab-ranking" type="button" role="tab" aria-selected="true">Top-K</button>
+              <button id="result-tab-candidates" type="button" role="tab" aria-selected="false">候補</button>
+            </div>
+          </div>
+          <div class="result-table-scroll">
+            <table class="result-table" aria-label="commit済み結果ドリルダウン">
+              <thead><tr id="result-drilldown-head"></tr></thead>
+              <tbody id="result-drilldown-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <ol class="route-line" id="result-route-line">
+          <li><span>01</span><div><strong>プレビュー経路</strong><small>commit済みdesktop artifactは読み込まれていません。</small></div></li>
         </ol>
-        <div class="source-note"><strong>Synthetic preview result</strong><span>#244 replaces this adapter with the typed Python bridge and real job artifacts.</span></div>
+        <div class="source-note"><strong id="result-note-title">Synthetic preview result</strong><span id="result-note-detail">実desktop jobは型付きjob artifact serviceから読み込む必要があります。</span></div>
       </div>
     </dialog>
 

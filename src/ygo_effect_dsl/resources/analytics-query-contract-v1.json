@@ -22,10 +22,25 @@
       "sortable": true,
       "value_type": "integer"
     },
+    "asset_lock": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
     "card": {
       "filter_operators": ["contains", "contains_any", "contains_all", "state_is"],
       "sortable": false,
       "value_type": "string_list"
+    },
+    "censor_state": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
+    "core_lock": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
     },
     "deck": {
       "filter_operators": ["eq", "in", "state_is"],
@@ -46,6 +61,21 @@
       "filter_operators": ["contains", "contains_any", "contains_all", "state_is"],
       "sortable": false,
       "value_type": "string_list"
+    },
+    "opening_hand_cohort": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
+    "profile": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
+    "ranking_policy": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
     },
     "resource_consumption": {
       "filter_operators": ["eq", "in", "gte", "lte", "between", "state_is"],
@@ -87,7 +117,17 @@
       "sortable": true,
       "value_type": "boolean"
     },
+    "success_predicate": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
     "target_board": {
+      "filter_operators": ["eq", "in", "state_is"],
+      "sortable": true,
+      "value_type": "string"
+    },
+    "termination": {
       "filter_operators": ["eq", "in", "state_is"],
       "sortable": true,
       "value_type": "string"

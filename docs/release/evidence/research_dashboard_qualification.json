@@ -1,0 +1,170 @@
+{
+  "checks": [
+    {
+      "check_id": "committed-artifact-e2e",
+      "evidence": {
+        "artifact_commit_status": "committed",
+        "artifact_id": "resultartifact_030d8bfe177dd21f280097c93360c947ce56b8de6ee2856522639c5344e12556",
+        "artifact_kind": "committed-dashboard-result",
+        "evidence_artifacts": [
+          {
+            "kind": "result-view",
+            "name": "result-view.json",
+            "sha256": "673aa142ce6bcc802b869db890177a20da3456735003ca874c55b5171b095ca5"
+          },
+          {
+            "kind": "route-dsl",
+            "name": "route.yaml",
+            "sha256": "8b7c9d8af71a786fdf67bc077f1cc73e66eb161ce9ba9bb67f92404cfb367534"
+          },
+          {
+            "kind": "search-run-report",
+            "name": "search-report.json",
+            "sha256": "11630f081c14e050e79d37cf04fd31fa9db0c5d5d108aac17443a2309afcf1d6"
+          }
+        ],
+        "path_redacted": true,
+        "renderer_path_input": false,
+        "report_sha256": "11630f081c14e050e79d37cf04fd31fa9db0c5d5d108aac17443a2309afcf1d6",
+        "report_sha256_verified": true,
+        "result_view_schema_version": "desktop-result-view-v1",
+        "result_view_sha256": "673aa142ce6bcc802b869db890177a20da3456735003ca874c55b5171b095ca5",
+        "route_artifact_schema_version": "route-dsl",
+        "route_id": "route_fb5ca15b9bd9e280eda9575cf0631563e6ff98dd19c3855066900642c85b7276",
+        "route_id_verified": true,
+        "route_sha256": "8b7c9d8af71a786fdf67bc077f1cc73e66eb161ce9ba9bb67f92404cfb367534",
+        "route_sha256_verified": true,
+        "search_run_id": "searchrun_dashboard_rehearsal",
+        "search_run_schema_version": "search-run-result-v5"
+      },
+      "passed": true
+    },
+    {
+      "check_id": "fresh-replay-e2e",
+      "evidence": {
+        "action_sequence_verified": true,
+        "artifact_id": "freshreplayartifact_7a97cb40321c61bd66ec34c3fbf0ec04ae085838f972caf8f3d6c00a8fddf540",
+        "artifact_kind": "fresh-replay-verification",
+        "evidence_artifacts": [
+          {
+            "kind": "fresh-replay-report",
+            "name": "fresh-replay-report.json",
+            "sha256": "fcb78bd1db060440d2d396232ffa70059a37ebb14b49b89ef48913be09257bd0"
+          }
+        ],
+        "fresh_worker": true,
+        "path_redacted": true,
+        "replay_report_sha256": "fcb78bd1db060440d2d396232ffa70059a37ebb14b49b89ef48913be09257bd0",
+        "route_id_verified": true,
+        "schema_version": "fresh-replay-verification-v1",
+        "search_worker_shared_state": false,
+        "terminal_state_verified": true
+      },
+      "passed": true
+    },
+    {
+      "check_id": "desktop-screenshot-a11y",
+      "evidence": {
+        "artifact_kind": "desktop-quality-evidence",
+        "axe_violations": 0,
+        "evidence_artifacts": [
+          {
+            "kind": "screenshot",
+            "name": "desktop-1440x900.png",
+            "sha256": "32f09e6a3cbfe443a3a601a4a3cd64ceb5fd67896ce5de4feaeafaf46666e866"
+          },
+          {
+            "kind": "screenshot",
+            "name": "desktop-360x800.png",
+            "sha256": "e544667999f848813d300cce90f4294f38ec6fa67e4fed7409de6f2abffd5946"
+          },
+          {
+            "kind": "screenshot",
+            "name": "desktop-960x600.png",
+            "sha256": "93e6d92939ae5db42238c03329a3fd9dbc4a3fdcdb4ede07d7eb23fdd39b5953"
+          }
+        ],
+        "high_contrast_passed": true,
+        "keyboard_smoke_passed": true,
+        "path_redacted": true,
+        "reduced_motion_passed": true,
+        "screenshot_sha256": {
+          "1440x900": "32f09e6a3cbfe443a3a601a4a3cd64ceb5fd67896ce5de4feaeafaf46666e866",
+          "360x800": "e544667999f848813d300cce90f4294f38ec6fa67e4fed7409de6f2abffd5946",
+          "960x600": "93e6d92939ae5db42238c03329a3fd9dbc4a3fdcdb4ede07d7eb23fdd39b5953"
+        },
+        "viewports": [
+          "1440x900",
+          "960x600",
+          "360x800"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check_id": "security-redaction",
+      "evidence": {
+        "absolute_paths_redacted": true,
+        "artifact_kind": "security-redaction-review",
+        "csp_checked": true,
+        "deck_contents_redacted": true,
+        "evidence_artifacts": [
+          {
+            "kind": "security-review",
+            "name": "security-redaction-review.json",
+            "sha256": "8cabe996c66342f2fed77d253dde9495f5148660294061eedd908b5b5401411e"
+          }
+        ],
+        "path_redacted": true,
+        "renderer_path_input_rejected": true,
+        "review_sha256": "8cabe996c66342f2fed77d253dde9495f5148660294061eedd908b5b5401411e",
+        "secret_scan_passed": true
+      },
+      "passed": true
+    },
+    {
+      "check_id": "resource-budget",
+      "evidence": {
+        "artifact_kind": "resource-budget",
+        "budget_wall_seconds": 30.0,
+        "censor_state_recorded": true,
+        "evidence_artifacts": [
+          {
+            "kind": "resource-budget",
+            "name": "resource-budget.json",
+            "sha256": "5aeb06aabd9231e4d743a99b83ee2e407c2d9df95851cca0cc80e78555651000"
+          }
+        ],
+        "max_artifact_bytes": 160188,
+        "max_peak_rss_bytes": 134217728,
+        "max_wall_seconds": 4.280065,
+        "measured_runs": 3,
+        "node_budget": 100000,
+        "path_redacted": true,
+        "replay_budget": 100000,
+        "resource_report_sha256": "5aeb06aabd9231e4d743a99b83ee2e407c2d9df95851cca0cc80e78555651000",
+        "within_budget": true
+      },
+      "passed": true
+    }
+  ],
+  "environment": {
+    "package_version": "0.5.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python_version": "3.13.7"
+  },
+  "evidence_id": "researchdashqual_f869335e70c2979d295915f6ca83e92d4a764e14b5ea59f81493da3e782ab636",
+  "gate": {
+    "required_checks": [
+      "committed-artifact-e2e",
+      "fresh-replay-e2e",
+      "desktop-screenshot-a11y",
+      "security-redaction",
+      "resource-budget"
+    ],
+    "work_item": "docs/spec/v0.7.0/20_work_breakdown_and_acceptance.md#29"
+  },
+  "passed": true,
+  "rejection_reasons": [],
+  "schema_version": "research-dashboard-qualification-v1"
+}

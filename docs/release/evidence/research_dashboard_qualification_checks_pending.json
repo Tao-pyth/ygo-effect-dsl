@@ -1,0 +1,40 @@
+{
+  "checks": [
+    {
+      "check_id": "committed-artifact-e2e",
+      "evidence": {
+        "reason": "pending real-core dashboard end-to-end artifact evidence"
+      },
+      "passed": false
+    },
+    {
+      "check_id": "fresh-replay-e2e",
+      "evidence": {
+        "reason": "pending independent fresh Replay end-to-end evidence"
+      },
+      "passed": false
+    },
+    {
+      "check_id": "desktop-screenshot-a11y",
+      "evidence": {
+        "reason": "pending desktop screenshot, keyboard, accessibility, and responsive evidence"
+      },
+      "passed": false
+    },
+    {
+      "check_id": "security-redaction",
+      "evidence": {
+        "reason": "pending security, path containment, and redaction evidence"
+      },
+      "passed": false
+    },
+    {
+      "check_id": "resource-budget",
+      "evidence": {
+        "reason": "pending resource, RSS, timeout, and disk budget evidence"
+      },
+      "passed": false
+    }
+  ],
+  "schema_version": "research-dashboard-qualification-checks-pending-v1"
+}

@@ -1,0 +1,195 @@
+name: Release self-hosted evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_parallel_search:
+        description: "Run 0.6 parallel-search release collection"
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      run_research_dashboard:
+        description: "Run 0.7 research-dashboard qualification bundle"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      research_dashboard_manifest:
+        description: "Runner-local research-dashboard-qualification-artifact-manifest-v1 path"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: [self-hosted, Windows, X64, ygo-real-core]
+    timeout-minutes: 360
+    env:
+      YGO_EFFECT_DSL_EXTERNAL_ROOT: ${{ vars.YGO_EFFECT_DSL_EXTERNAL_ROOT }}
+
+    steps:
+      - name: Initialize sanitized release summary
+        shell: powershell
+        env:
+          RUN_PARALLEL_SEARCH: ${{ inputs.run_parallel_search }}
+          RUN_RESEARCH_DASHBOARD: ${{ inputs.run_research_dashboard }}
+        run: |
+          $work = Join-Path $env:RUNNER_TEMP 'ygo-release-self-hosted-evidence'
+          New-Item -ItemType Directory -Force -Path $work | Out-Null
+          $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+          $summaryPath = Join-Path $work 'summary.json'
+          $summaryJson = [ordered]@{ schema_version = 'release-self-hosted-evidence-v1'; status = 'running'; commit = $env:GITHUB_SHA; run_id = $env:GITHUB_RUN_ID; parallel_search = $env:RUN_PARALLEL_SEARCH; research_dashboard = $env:RUN_RESEARCH_DASHBOARD } | ConvertTo-Json
+          [System.IO.File]::WriteAllText($summaryPath, $summaryJson + [Environment]::NewLine, $utf8NoBom)
+
+      - name: Check out exact commit
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $basic = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("x-access-token:$env:GH_TOKEN"))
+          $checkout = Join-Path $env:RUNNER_TEMP 'ygo-release-checkout'
+          New-Item -ItemType Directory -Force -Path $checkout | Out-Null
+          git init $checkout
+          Set-Location $checkout
+          git remote add origin "https://github.com/$env:GITHUB_REPOSITORY.git"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $basic" fetch --no-tags --depth=1 origin $env:GITHUB_SHA
+          git checkout --detach FETCH_HEAD
+          $actual = git rev-parse HEAD
+          if ($actual -ne $env:GITHUB_SHA) { throw "checkout commit mismatch: $actual" }
+
+      - name: Verify host Python
+        shell: powershell
+        run: |
+          python --version
+          python -c "import sys; assert sys.version_info >= (3, 10), sys.version"
+
+      - name: Install current checkout
+        shell: powershell
+        working-directory: ${{ runner.temp }}/ygo-release-checkout
+        run: |
+          python -m pip install -e .
+          python -c "from pathlib import Path; import ygo_effect_dsl; assert Path(ygo_effect_dsl.__file__).resolve().parent == (Path.cwd() / 'src' / 'ygo_effect_dsl').resolve()"
+
+      - name: Verify release real-core prerequisites
+        shell: powershell
+        working-directory: ${{ runner.temp }}/ygo-release-checkout
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ([string]::IsNullOrWhiteSpace($env:YGO_EFFECT_DSL_EXTERNAL_ROOT)) { throw 'YGO_EFFECT_DSL_EXTERNAL_ROOT repository variable is required' }
+          python -m ygo_effect_dsl ocgcore-verify --external-root $env:YGO_EFFECT_DSL_EXTERNAL_ROOT
+          if ($LASTEXITCODE -ne 0) { throw 'ocgcore-verify failed' }
+          python -m ygo_effect_dsl ocgcore-assets-verify --external-root $env:YGO_EFFECT_DSL_EXTERNAL_ROOT
+          if ($LASTEXITCODE -ne 0) { throw 'ocgcore-assets-verify failed' }
+
+      - name: Run 0.6 parallel-search release collection
+        if: ${{ inputs.run_parallel_search == 'true' }}
+        shell: powershell
+        working-directory: ${{ runner.temp }}/ygo-release-checkout
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ([string]::IsNullOrWhiteSpace($env:YGO_EFFECT_DSL_EXTERNAL_ROOT)) { throw 'YGO_EFFECT_DSL_EXTERNAL_ROOT repository variable is required' }
+          $work = Join-Path $env:RUNNER_TEMP 'ygo-release-self-hosted-evidence'
+          $raw = Join-Path $work 'raw-parallel-search'
+          $records = Join-Path $work 'parallel_search_records.json'
+          $manifest = Join-Path $work 'parallel_search_record_inputs.json'
+          $gate = Join-Path $work 'parallel_search_gate.json'
+          python -m ygo_effect_dsl parallel-search-collect `
+            --experiment short_line=examples/experiments/cross_validation_short.yaml `
+            --experiment long_line=examples/experiments/cross_validation_long.yaml `
+            --experiment grave_banish_or_chain=examples/experiments/cross_validation_grave_banish.yaml `
+            --artifact-root $raw `
+            --manifest-out $manifest `
+            --records-out $records `
+            --pool-sizes 1,2,4 `
+            --repeat-count 5 `
+            --max-nodes 100000 `
+            --max-replays 100000 `
+            --max-depth 2 `
+            --external-root $env:YGO_EFFECT_DSL_EXTERNAL_ROOT `
+            --require-release-grid
+          if ($LASTEXITCODE -ne 0) { throw 'parallel-search-collect failed' }
+          python -m ygo_effect_dsl parallel-search-gate `
+            --records $records `
+            --out $gate `
+            --source-evidence docs/search/evidence/real_core_parallel_stress.json `
+            --source-evidence docs/adr/evidence/0105_general_search_100k.json `
+            --source-evidence docs/adr/evidence/0128_real_core_replay_pool.json
+          if ($LASTEXITCODE -ne 0) { throw 'parallel-search-gate failed' }
+
+      - name: Run 0.7 research-dashboard qualification bundle
+        if: ${{ inputs.run_research_dashboard == 'true' }}
+        shell: powershell
+        working-directory: ${{ runner.temp }}/ygo-release-checkout
+        env:
+          RESEARCH_DASHBOARD_MANIFEST: ${{ inputs.research_dashboard_manifest }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ([string]::IsNullOrWhiteSpace($env:RESEARCH_DASHBOARD_MANIFEST)) { throw 'research_dashboard_manifest input is required when run_research_dashboard is true' }
+          $work = Join-Path $env:RUNNER_TEMP 'ygo-release-self-hosted-evidence'
+          $qualification = Join-Path $work 'research_dashboard_qualification.json'
+          $checks = Join-Path $work 'research_dashboard_qualification_checks.json'
+          $gate = Join-Path $work 'research_dashboard_gate.json'
+          python -m ygo_effect_dsl research-dashboard-qualification-bundle --manifest $env:RESEARCH_DASHBOARD_MANIFEST --checks-out $checks --out $qualification
+          if ($LASTEXITCODE -ne 0) { throw 'research-dashboard-qualification-bundle failed' }
+          python -m ygo_effect_dsl research-dashboard-gate --repo-root . --qualification $qualification --out $gate
+          if ($LASTEXITCODE -ne 0) { throw 'research-dashboard-gate failed' }
+
+      - name: Finalize and audit sanitized release evidence
+        if: always()
+        shell: powershell
+        env:
+          RUN_PARALLEL_SEARCH: ${{ inputs.run_parallel_search }}
+          RUN_RESEARCH_DASHBOARD: ${{ inputs.run_research_dashboard }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $work = Join-Path $env:RUNNER_TEMP 'ygo-release-self-hosted-evidence'
+          $path = Join-Path $work 'summary.json'
+          $summary = Get-Content -Raw -Encoding utf8 $path | ConvertFrom-Json
+          if ($summary.status -eq 'running') { $summary.status = '${{ job.status }}' }
+          $auditError = $null
+          if ($summary.status -eq 'success') {
+            $auditOut = Join-Path $env:RUNNER_TEMP 'release-self-hosted-evidence-audit.json'
+            $auditArgs = @(
+              'release-self-hosted-evidence-audit',
+              '--artifact-dir', $work,
+              '--expected-commit', $env:GITHUB_SHA,
+              '--expected-run-id', $env:GITHUB_RUN_ID,
+              '--out', $auditOut
+            )
+            if ($env:RUN_PARALLEL_SEARCH -eq 'true') { $auditArgs += '--require-parallel-search' }
+            if ($env:RUN_RESEARCH_DASHBOARD -eq 'true') { $auditArgs += '--require-research-dashboard' }
+            python -m ygo_effect_dsl @auditArgs
+            if ($LASTEXITCODE -ne 0) {
+              $auditError = 'release-self-hosted-evidence-audit failed'
+              $summary.status = 'failure'
+              if (-not ($summary.PSObject.Properties.Name -contains 'failure_category')) {
+                $summary | Add-Member -NotePropertyName failure_category -NotePropertyValue 'release_evidence_audit_failed'
+              }
+            }
+          }
+          $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+          $summaryJson = $summary | ConvertTo-Json
+          [System.IO.File]::WriteAllText($path, $summaryJson + [Environment]::NewLine, $utf8NoBom)
+          if ($auditError) { throw $auditError }
+
+      - name: Publish sanitized release evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-self-hosted-evidence
+          path: |
+            ${{ runner.temp }}/ygo-release-self-hosted-evidence/summary.json
+            ${{ runner.temp }}/ygo-release-self-hosted-evidence/parallel_search_records.json
+            ${{ runner.temp }}/ygo-release-self-hosted-evidence/parallel_search_gate.json
+            ${{ runner.temp }}/ygo-release-self-hosted-evidence/research_dashboard_qualification.json
+            ${{ runner.temp }}/ygo-release-self-hosted-evidence/research_dashboard_gate.json
+          if-no-files-found: warn
+          retention-days: 14

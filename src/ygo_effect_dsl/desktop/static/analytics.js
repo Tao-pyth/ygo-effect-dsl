@@ -10,10 +10,14 @@
     { field: "run", label: "Run", width: "minmax(180px, 1.5fr)" },
     { field: "deck", label: "Deck", width: "minmax(150px, 1.2fr)" },
     { field: "strategy", label: "Strategy", width: "minmax(120px, 1fr)" },
+    { field: "opening_hand_cohort", label: "Cohort", width: "minmax(120px, 1fr)" },
+    { field: "profile", label: "Profile", width: "minmax(150px, 1.1fr)" },
     { field: "success", label: "Outcome", width: "100px" },
     { field: "score", label: "Score", width: "84px" },
     { field: "action_count", label: "Actions", width: "84px" },
     { field: "status", label: "Status", width: "110px" },
+    { field: "termination", label: "Stop", width: "minmax(120px, 1fr)" },
+    { field: "censor_state", label: "Censor", width: "minmax(100px, 0.8fr)" },
     { field: "time", label: "Observed", width: "170px" },
   ]);
 
@@ -27,10 +31,20 @@
   function fixtureScalar(field, index) {
     const strategy = ["random_search_v1", "beam_search_v1", "mcts_v1"][index % 3];
     const status = ["complete", "complete", "partial", "quarantined"][index % 4];
+    const openingHandCohort = ["seeded_random", "fixed", "conditional"][index % 3];
+    const termination = ["goal_reached", "max_nodes", "max_seconds", "failed"][index % 4];
     const values = {
       run: `searchrun_fixture_${String(index).padStart(6, "0")}`,
       deck: `deck_fixture_${String(index % 40).padStart(2, "0")}`,
       strategy,
+      opening_hand_cohort: openingHandCohort,
+      profile: `termpref_fixture_${String(index % 5).padStart(2, "0")}`,
+      success_predicate: "qualified-board-count-v1",
+      ranking_policy: "route-ranking-v1",
+      termination,
+      censor_state: termination === "goal_reached" ? "complete" : "censored",
+      core_lock: "ocgcore-v11.0-win-x64-msvc-v1",
+      asset_lock: "ocgcore-assets-202504-v1",
       success: index % 5 !== 0,
       score: index / 10,
       action_count: index + 1,

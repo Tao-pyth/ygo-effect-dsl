@@ -10,11 +10,22 @@ from pathlib import Path
 import threading
 from typing import Any, Protocol
 
+import yaml
+
 from ygo_effect_dsl.desktop.bridge import DesktopHandler, DesktopServiceError
 from ygo_effect_dsl.engine.canonical import (
     canonical_json,
     stable_digest,
     to_canonical_data,
+)
+from ygo_effect_dsl.engine.evaluation import (
+    RouteRankingPolicy,
+    TerminalPreferenceProfile,
+    TerminalPreferenceProfileCatalog,
+    build_terminal_board_projection,
+    build_route_randomness_summary,
+    evaluate_terminal_preferences,
+    rank_route_candidates,
 )
 from ygo_effect_dsl.engine.information import InformationAccessPolicy
 from ygo_effect_dsl.engine.search import strategy_from_experiment
@@ -46,10 +57,41 @@ from ygo_effect_dsl.version import __version__
 
 DESKTOP_DECK_CATALOG_VERSION = "desktop-deck-catalog-v1"
 DESKTOP_SERVICE_VERSION = "desktop-application-service-v1"
+DESKTOP_RESULT_VIEW_VERSION = "desktop-result-view-v1"
 MAX_CATALOG_DECKS = 10_000
 MAX_DESKTOP_SEARCH_NODES = 100_000
 MAX_DESKTOP_SEARCH_DEPTH = 256
 MAX_DESKTOP_SEARCH_SECONDS = 3_600.0
+MAX_DESKTOP_SEARCH_POOL_SIZE = 8
+DEFAULT_SCENARIO_PRESET_ID = "terminal_board_min_monster_v1"
+CANDIDATE_COUNT_STATUSES = (
+    "explored",
+    "unexplored",
+    "pruned",
+    "failed",
+    "censored",
+)
+DESKTOP_SCENARIO_PRESETS: dict[str, dict[str, Any]] = {
+    DEFAULT_SCENARIO_PRESET_ID: {
+        "evaluate_at": "legal_stop",
+        "evaluator": {
+            "config": {
+                "hand_weight": 1,
+                "missing_value_policy": "error",
+                "monster_weight": 10,
+                "temporary_value_policy": "exclude_expired_or_unverified_v1",
+            },
+            "id": "real_core_board_count",
+            "version": "1",
+        },
+        "objective": "maximize_terminal_board",
+        "success_predicate": {
+            "config": {"min_count": 1, "player": 0, "zone": "monster_zone"},
+            "id": "real_core_min_monster_count",
+            "version": "1",
+        },
+    }
+}
 
 
 class YdkPicker(Protocol):
@@ -80,6 +122,133 @@ def _exact(payload: Mapping[str, Any], expected: set[str], method: str) -> None:
             "invalid_method_payload",
             f"{method} payload fields must be exactly {sorted(expected)}",
         )
+
+
+def _coverage_int(value: Any, field: str) -> int:
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+        raise DesktopServiceError(
+            "artifact_schema_mismatch",
+            f"search report coverage {field} must be a non-negative integer",
+        )
+    return value
+
+
+def _validate_coverage_certificate(coverage: Mapping[str, Any]) -> None:
+    if coverage.get("schema_version") != "search-coverage-v1":
+        raise DesktopServiceError(
+            "artifact_schema_mismatch",
+            "search report coverage certificate schema_version is invalid",
+        )
+    coverage_status = coverage.get("coverage_status")
+    frontier_exhausted = coverage.get("frontier_exhausted")
+    if not isinstance(frontier_exhausted, bool):
+        raise DesktopServiceError(
+            "artifact_schema_mismatch",
+            "search report coverage frontier_exhausted must be boolean",
+        )
+    expected_status = "frontier_exhausted" if frontier_exhausted else "best_observed"
+    if coverage_status != expected_status:
+        raise DesktopServiceError(
+            "artifact_identity_mismatch",
+            "search report coverage status does not match frontier exhaustion",
+        )
+    counts = coverage.get("candidate_counts")
+    if not isinstance(counts, Mapping):
+        raise DesktopServiceError(
+            "artifact_schema_mismatch",
+            "search report coverage candidate_counts must be an object",
+        )
+    unexplored = _coverage_int(counts.get("unexplored"), "candidate_counts.unexplored")
+    censored = _coverage_int(counts.get("censored"), "candidate_counts.censored")
+    pruned = _coverage_int(counts.get("pruned"), "candidate_counts.pruned")
+    pending_frontier = _coverage_int(
+        coverage.get("pending_frontier_count"),
+        "pending_frontier_count",
+    )
+    unknown_candidates = _coverage_int(
+        coverage.get("unknown_candidate_count"),
+        "unknown_candidate_count",
+    )
+    if pending_frontier != unexplored:
+        raise DesktopServiceError(
+            "artifact_identity_mismatch",
+            "search report coverage pending frontier does not match candidate counts",
+        )
+    if frontier_exhausted:
+        if coverage.get("candidate_accounting_complete") is not True:
+            raise DesktopServiceError(
+                "artifact_identity_mismatch",
+                "frontier exhausted requires complete candidate accounting",
+            )
+        if coverage.get("termination_reason") != "frontier_exhausted":
+            raise DesktopServiceError(
+                "artifact_identity_mismatch",
+                "frontier exhausted requires frontier_exhausted termination",
+            )
+        if pending_frontier or unknown_candidates or unexplored or censored or pruned:
+            raise DesktopServiceError(
+                "artifact_identity_mismatch",
+                "frontier exhausted requires zero pending, unknown, censored, and pruned candidates",
+            )
+
+
+def _candidate_counts_from_records(candidates: Sequence[Any]) -> dict[str, int]:
+    counts = {status: 0 for status in CANDIDATE_COUNT_STATUSES}
+    for index, candidate in enumerate(candidates):
+        if not isinstance(candidate, Mapping):
+            raise DesktopServiceError(
+                "artifact_schema_mismatch",
+                f"search report candidate evidence candidates[{index}] must be an object",
+            )
+        status = candidate.get("status")
+        if status not in counts:
+            raise DesktopServiceError(
+                "artifact_schema_mismatch",
+                f"search report candidate evidence candidates[{index}].status is invalid",
+            )
+        counts[status] += 1
+    counts["total"] = len(candidates)
+    return counts
+
+
+def _candidate_counts_from_mapping(counts: Mapping[str, Any], field: str) -> dict[str, int]:
+    parsed = {
+        status: _coverage_int(counts.get(status), f"{field}.{status}")
+        for status in CANDIDATE_COUNT_STATUSES
+    }
+    parsed["total"] = _coverage_int(counts.get("total"), f"{field}.total")
+    return parsed
+
+
+def _validate_candidate_evidence(search_evidence: Mapping[str, Any]) -> dict[str, int]:
+    if search_evidence.get("schema_version") != "search-candidate-evidence-v1":
+        raise DesktopServiceError(
+            "artifact_schema_mismatch",
+            "search report candidate evidence schema_version is invalid",
+        )
+    candidates = search_evidence.get("candidates")
+    if not isinstance(candidates, list):
+        raise DesktopServiceError(
+            "artifact_schema_mismatch",
+            "search report candidate evidence candidates must be a list",
+        )
+    raw_counts = search_evidence.get("candidate_counts")
+    if not isinstance(raw_counts, Mapping):
+        raise DesktopServiceError(
+            "artifact_schema_mismatch",
+            "search report candidate evidence candidate_counts must be an object",
+        )
+    declared_counts = _candidate_counts_from_mapping(
+        raw_counts,
+        "candidate_counts",
+    )
+    observed_counts = _candidate_counts_from_records(candidates)
+    if declared_counts != observed_counts:
+        raise DesktopServiceError(
+            "artifact_identity_mismatch",
+            "search report candidate evidence counts do not match candidate records",
+        )
+    return declared_counts
 
 
 def _cards(value: Any, field: str) -> tuple[int, ...]:
@@ -396,6 +565,10 @@ class DesktopApplicationService:
         )
         self.deck_catalog = DesktopDeckCatalog(self.data_root / "decks.json")
         self.job_catalog = JobCatalog(self.data_root / "jobs.sqlite3")
+        self.preference_catalog = TerminalPreferenceProfileCatalog(
+            self.data_root / "terminal-preference-profiles"
+        )
+        self.preference_catalog.ensure_default()
         self.ydk_picker = ydk_picker
         self.card_provider = card_provider
         self.comparison_handler = comparison_handler
@@ -433,8 +606,13 @@ class DesktopApplicationService:
             "deck.import_ydk": self.deck_import_ydk,
             "deck.register_inline": self.deck_register_inline,
             "job.cancel": self.job_cancel,
+            "job.enqueue_replay_verification": self.job_enqueue_replay_verification,
             "job.enqueue_search": self.job_enqueue_search,
+            "job.result": self.job_result,
             "job.status": self.job_status,
+            "profile.clone": self.profile_clone,
+            "profile.get": self.profile_get,
+            "profile.list": self.profile_list,
             "scenario.compose_search": self.scenario_compose_search,
             "scenario.preflight": self.scenario_preflight,
             "system.describe": self.system_describe,
@@ -452,7 +630,9 @@ class DesktopApplicationService:
                 "card_presentation": self.card_provider is not None,
                 "comparison": self.comparison_handler is not None,
                 "native_ydk_import": self.ydk_picker is not None,
+                "terminal_preference_profiles": True,
                 "search_job_queue": True,
+                "verified_result_view": True,
                 "worker_execution": self.worker_execution,
                 "worker_health": (
                     self.worker_health()
@@ -519,6 +699,70 @@ class DesktopApplicationService:
         )
         return {"deck": record.summary()}
 
+    def profile_list(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, set(), "profile.list")
+        return {
+            "catalog_digest": self.preference_catalog.catalog_digest(),
+            "profiles": [
+                record.to_dict() for record in self.preference_catalog.list()
+            ],
+        }
+
+    def profile_get(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, {"profile_id"}, "profile.get")
+        profile_id = payload["profile_id"]
+        if not isinstance(profile_id, str):
+            raise DesktopServiceError(
+                "invalid_profile_id",
+                "profile_id must be a string",
+                path="$.payload.profile_id",
+            )
+        try:
+            record = self.preference_catalog.require(profile_id)
+        except (KeyError, ValueError) as exc:
+            raise DesktopServiceError(
+                "profile_not_found",
+                "terminal preference profile is not present in the catalog",
+                path="$.payload.profile_id",
+            ) from exc
+        return {"profile": record.to_dict()}
+
+    def profile_clone(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, {"name", "profile_id", "rules"}, "profile.clone")
+        profile_id = payload["profile_id"]
+        if not isinstance(profile_id, str):
+            raise DesktopServiceError(
+                "invalid_profile_id",
+                "profile_id must be a string",
+                path="$.payload.profile_id",
+            )
+        name = payload["name"]
+        if name is not None and (not isinstance(name, str) or not name):
+            raise DesktopServiceError(
+                "invalid_profile_name",
+                "name must be null or a non-empty string",
+                path="$.payload.name",
+            )
+        rules = payload["rules"]
+        if rules is not None and not isinstance(rules, list):
+            raise DesktopServiceError(
+                "invalid_profile_rules",
+                "rules must be null or a list",
+                path="$.payload.rules",
+            )
+        try:
+            record = self.preference_catalog.clone(
+                profile_id,
+                name=name,
+                rules=rules,
+            )
+        except (KeyError, ValueError) as exc:
+            raise DesktopServiceError(
+                "invalid_profile_clone",
+                "terminal preference profile clone request is invalid",
+            ) from exc
+        return {"profile": record.to_dict()}
+
     def _resolved_experiment(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         experiment = payload.get("experiment")
         if not isinstance(experiment, Mapping):
@@ -562,10 +806,19 @@ class DesktopApplicationService:
             "seed",
             "strategy",
         }
-        if set(configuration) != expected:
+        optional = {
+            "opening_hand",
+            "pool_size",
+            "preference_profile_id",
+            "scenario_preset_id",
+        }
+        unknown = sorted(set(configuration) - expected - optional)
+        missing = sorted(expected - set(configuration))
+        if unknown or missing:
             raise DesktopServiceError(
                 "invalid_search_configuration",
-                f"configuration fields must be exactly {sorted(expected)}",
+                "configuration fields are invalid",
+                details={"missing": missing, "unknown": unknown},
                 path="$.payload.configuration",
             )
         record = self.deck_catalog.get(payload["deck_id"])
@@ -587,6 +840,12 @@ class DesktopApplicationService:
             "max_seconds",
             minimum=1,
             maximum=MAX_DESKTOP_SEARCH_SECONDS,
+        )
+        pool_size = _integer(
+            configuration.get("pool_size", 1),
+            "pool_size",
+            minimum=1,
+            maximum=MAX_DESKTOP_SEARCH_POOL_SIZE,
         )
         strategy = configuration["strategy"]
         strategy_parameters: dict[str, Any]
@@ -613,6 +872,134 @@ class DesktopApplicationService:
                 "termination": {"stop_on_success": True},
             }
         )
+        if pool_size > 1:
+            strategy_parameters["parallel"] = {
+                "base_seed": seed,
+                "max_retries": 1,
+                "pool_size": pool_size,
+            }
+        scenario_preset_id = configuration.get(
+            "scenario_preset_id",
+            DEFAULT_SCENARIO_PRESET_ID,
+        )
+        if not isinstance(scenario_preset_id, str):
+            raise DesktopServiceError(
+                "invalid_scenario_preset",
+                "scenario_preset_id must be a string",
+                path="$.payload.configuration.scenario_preset_id",
+            )
+        if scenario_preset_id not in DESKTOP_SCENARIO_PRESETS:
+            raise DesktopServiceError(
+                "unsupported_scenario_preset",
+                "desktop scenario preset is not supported",
+                path="$.payload.configuration.scenario_preset_id",
+            )
+        scenario_preset = json.loads(
+            json.dumps(DESKTOP_SCENARIO_PRESETS[scenario_preset_id])
+        )
+        raw_opening_hand = configuration.get("opening_hand")
+        if raw_opening_hand is None:
+            opening_hand = {"mode": "random", "seed": seed, "size": 5}
+        elif not isinstance(raw_opening_hand, Mapping):
+            raise DesktopServiceError(
+                "invalid_opening_hand",
+                "opening_hand must be an object",
+                path="$.payload.configuration.opening_hand",
+            )
+        else:
+            opening_mode = raw_opening_hand.get("mode")
+            if opening_mode == "random":
+                opening_hand = {
+                    "mode": "random",
+                    "seed": _integer(
+                        raw_opening_hand.get("seed", seed),
+                        "opening_hand.seed",
+                        minimum=0,
+                        maximum=2**63 - 1,
+                    ),
+                    "size": _integer(
+                        raw_opening_hand.get("size", 5),
+                        "opening_hand.size",
+                        minimum=1,
+                        maximum=10,
+                    ),
+                }
+            elif opening_mode == "fixed":
+                cards = raw_opening_hand.get("cards")
+                if not isinstance(cards, list) or not cards:
+                    raise DesktopServiceError(
+                        "invalid_opening_hand",
+                        "fixed opening_hand.cards must be a non-empty list",
+                        path="$.payload.configuration.opening_hand.cards",
+                    )
+                opening_hand = {
+                    "cards": [
+                        _integer(
+                            card,
+                            "opening_hand.cards[]",
+                            minimum=1,
+                            maximum=2**31 - 1,
+                        )
+                        for card in cards
+                    ],
+                    "mode": "fixed",
+                }
+            elif opening_mode == "conditional":
+                conditions = raw_opening_hand.get("conditions")
+                if not isinstance(conditions, list) or not conditions:
+                    raise DesktopServiceError(
+                        "invalid_opening_hand",
+                        "conditional opening_hand.conditions must be a non-empty list",
+                        path="$.payload.configuration.opening_hand.conditions",
+                    )
+                opening_hand = {
+                    "conditions": to_canonical_data(conditions),
+                    "max_attempts": _integer(
+                        raw_opening_hand.get("max_attempts", 10_000),
+                        "opening_hand.max_attempts",
+                        minimum=1,
+                        maximum=100_000,
+                    ),
+                    "mode": "conditional",
+                    "seed": _integer(
+                        raw_opening_hand.get("seed", seed),
+                        "opening_hand.seed",
+                        minimum=0,
+                        maximum=2**63 - 1,
+                    ),
+                    "size": _integer(
+                        raw_opening_hand.get("size", 5),
+                        "opening_hand.size",
+                        minimum=1,
+                        maximum=10,
+                    ),
+                }
+            else:
+                raise DesktopServiceError(
+                    "invalid_opening_hand",
+                    "opening_hand.mode must be random, fixed, or conditional",
+                    path="$.payload.configuration.opening_hand.mode",
+                )
+        requested_profile_id = configuration.get("preference_profile_id")
+        if requested_profile_id is None:
+            preference_record = self.preference_catalog.ensure_default()
+        elif isinstance(requested_profile_id, str):
+            try:
+                preference_record = self.preference_catalog.require(
+                    requested_profile_id
+                )
+            except (KeyError, ValueError) as exc:
+                raise DesktopServiceError(
+                    "profile_not_found",
+                    "terminal preference profile is not present in the catalog",
+                    path="$.payload.configuration.preference_profile_id",
+                ) from exc
+        else:
+            raise DesktopServiceError(
+                "invalid_profile_id",
+                "preference_profile_id must be null or a string",
+                path="$.payload.configuration.preference_profile_id",
+            )
         interruption_code = configuration["interruption_card_code"]
         if interruption_code is None:
             interruption = {"definitions": [], "mode": "none"}
@@ -646,6 +1033,10 @@ class DesktopApplicationService:
             "max_depth": max_depth,
             "max_nodes": max_nodes,
             "max_seconds": max_seconds,
+            "opening_hand": opening_hand,
+            "pool_size": pool_size,
+            "preference_profile_id": preference_record.profile.profile_id,
+            "scenario_preset_id": scenario_preset_id,
             "seed": seed,
             "strategy": strategy,
         }
@@ -658,26 +1049,17 @@ class DesktopApplicationService:
                 "side": list(record.side),
                 "source": "inline",
             },
-            "evaluate_at": "legal_stop",
-            "evaluator": {
-                "config": {
-                    "hand_weight": 1,
-                    "missing_value_policy": "error",
-                    "monster_weight": 10,
-                    "temporary_value_policy": "exclude_expired_or_unverified_v1",
-                },
-                "id": "real_core_board_count",
-                "version": "1",
-            },
+            "evaluate_at": scenario_preset["evaluate_at"],
+            "evaluator": scenario_preset["evaluator"],
             "experiment_id": experiment_id,
             "information_mode": "complete_information",
             "information_policy": policy.to_experiment_dict(),
             "interruption": interruption,
-            "objective": "maximize_terminal_board",
+            "objective": scenario_preset["objective"],
             "player": {"perspective": 0, "starting_player": 0},
             "replay": {"strict_versions": True},
             "scenario": {
-                "opening_hand": {"mode": "random", "seed": seed, "size": 5},
+                "opening_hand": opening_hand,
                 "schema_version": "scenario-v1",
             },
             "schema_version": "0.4",
@@ -691,11 +1073,8 @@ class DesktopApplicationService:
                 "parameters": strategy_parameters,
                 "strategy": strategy,
             },
-            "success_predicate": {
-                "config": {"min_count": 1, "player": 0, "zone": "monster_zone"},
-                "id": "real_core_min_monster_count",
-                "version": "1",
-            },
+            "success_predicate": scenario_preset["success_predicate"],
+            "terminal_preference_profile": preference_record.profile.to_dict(),
             "turn_limit": 2,
         }
         try:
@@ -768,6 +1147,108 @@ class DesktopApplicationService:
             "preflight": preflight.to_dict(),
         }
 
+    def job_enqueue_replay_verification(
+        self, payload: Mapping[str, Any]
+    ) -> Mapping[str, Any]:
+        _exact(
+            payload,
+            {"idempotency_key", "priority", "search_job_id"},
+            "job.enqueue_replay_verification",
+        )
+        search_job_id = payload["search_job_id"]
+        if not isinstance(search_job_id, str):
+            raise DesktopServiceError(
+                "invalid_job_id",
+                "search_job_id must be a string",
+                path="$.payload.search_job_id",
+            )
+        try:
+            snapshot = self.job_catalog.status_snapshot(search_job_id)
+        except KeyError as exc:
+            raise DesktopServiceError(
+                "job_not_found",
+                "search job ID is not present in the desktop catalog",
+                path="$.payload.search_job_id",
+            ) from exc
+        if (
+            snapshot.job.kind != JobKind.SEARCH
+            or snapshot.job.state != JobState.SUCCEEDED
+        ):
+            raise DesktopServiceError(
+                "verification_not_available",
+                "only a succeeded search job can enqueue fresh Replay verification",
+                path="$.payload.search_job_id",
+            )
+        route_artifact = self._single_artifact(snapshot, "route-dsl")
+        try:
+            route = yaml.safe_load(
+                self._read_job_artifact(route_artifact).decode("utf-8")
+            )
+        except (UnicodeDecodeError, yaml.YAMLError) as exc:
+            raise DesktopServiceError(
+                "artifact_decode_failed",
+                "committed Route artifact could not be decoded",
+            ) from exc
+        if not isinstance(route, Mapping):
+            raise DesktopServiceError(
+                "artifact_schema_mismatch",
+                "committed Route artifact must decode to an object",
+            )
+        route_id = route.get("route_id")
+        replay = route.get("replay") if isinstance(route.get("replay"), Mapping) else {}
+        manifest = (
+            replay.get("manifest")
+            if isinstance(replay.get("manifest"), Mapping)
+            else {}
+        )
+        manifest_hash = manifest.get("manifest_hash")
+        if not isinstance(route_id, str) or not route_id.startswith("route_"):
+            raise DesktopServiceError(
+                "artifact_schema_mismatch",
+                "committed Route ID is invalid",
+            )
+        if (
+            not isinstance(manifest_hash, str)
+            or not manifest_hash.startswith("manifest_")
+        ):
+            raise DesktopServiceError(
+                "artifact_schema_mismatch",
+                "committed Route replay manifest hash is invalid",
+            )
+        spec = JobSpec(
+            kind=JobKind.REPLAY,
+            idempotency_key=payload["idempotency_key"],
+            input_digest=stable_digest(
+                {
+                    "manifest_hash": manifest_hash,
+                    "route_id": route_id,
+                    "route_sha256": route_artifact.sha256,
+                    "search_job_id": search_job_id,
+                },
+                prefix="jobinput_",
+            ),
+            payload={
+                "replay_manifest_hash": manifest_hash,
+                "route_id": route_id,
+            },
+            priority=payload["priority"],
+            dependency_ids=(search_job_id,),
+            retry_policy=JobRetryPolicy(attempt_timeout_seconds=300.0),
+        )
+        job = self.job_catalog.create_job(
+            spec,
+            created_at=_now(),
+            actor="desktop_bridge",
+        )
+        return {
+            "job": job.to_dict(),
+            "source": {
+                "route_artifact": route_artifact.to_dict(),
+                "search_job_id": search_job_id,
+                "verification_state": "queued",
+            },
+        }
+
     @staticmethod
     def _attempt_timeout(experiment: Mapping[str, Any]) -> float:
         search = experiment.get("search")
@@ -791,6 +1272,475 @@ class DesktopApplicationService:
                 path="$.payload.job_id",
             ) from exc
         return snapshot.to_dict()
+
+    def _read_job_artifact(self, artifact: Any) -> bytes:
+        base = (self.data_root / "job-store").resolve()
+        relative = Path(artifact.path)
+        if relative.is_absolute() or ".." in relative.parts:
+            raise DesktopServiceError(
+                "artifact_path_forbidden",
+                "job artifact path is outside the managed store",
+            )
+        path = (base / relative).resolve()
+        try:
+            path.relative_to(base)
+        except ValueError as exc:
+            raise DesktopServiceError(
+                "artifact_path_forbidden",
+                "job artifact path is outside the managed store",
+            ) from exc
+        if not path.is_file():
+            raise DesktopServiceError(
+                "artifact_missing",
+                "committed job artifact is missing from the managed store",
+            )
+        content = path.read_bytes()
+        if hashlib.sha256(content).hexdigest() != artifact.sha256:
+            raise DesktopServiceError(
+                "artifact_hash_mismatch",
+                "committed job artifact checksum does not match catalog metadata",
+            )
+        return content
+
+    @staticmethod
+    def _single_artifact(snapshot: Any, kind: str) -> Any:
+        matches = [
+            artifact for artifact in snapshot.artifacts if artifact.kind == kind
+        ]
+        if len(matches) != 1:
+            raise DesktopServiceError(
+                "artifact_set_incomplete",
+                f"succeeded search job must contain exactly one {kind} artifact",
+            )
+        return matches[0]
+
+    @staticmethod
+    def _terminal_board_projection_source(
+        route: Mapping[str, Any],
+        terminal_board: Mapping[str, Any],
+    ) -> Mapping[str, Any]:
+        embedded_summary = terminal_board.get("board_summary")
+        if isinstance(embedded_summary, Mapping):
+            return embedded_summary
+        if "public_cards" in terminal_board:
+            return terminal_board
+        checkpoint_step = terminal_board.get("checkpoint_step")
+        checkpoints = route.get("checkpoints")
+        if isinstance(checkpoint_step, int) and isinstance(checkpoints, list):
+            for checkpoint in checkpoints:
+                if not isinstance(checkpoint, Mapping):
+                    continue
+                if checkpoint.get("step") != checkpoint_step:
+                    continue
+                board_summary = checkpoint.get("board_summary")
+                if isinstance(board_summary, Mapping):
+                    return board_summary
+        raise ValueError(
+            "terminal preference evaluation requires terminal board public_cards"
+        )
+
+    def job_result(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, {"job_id"}, "job.result")
+        job_id = payload["job_id"]
+        if not isinstance(job_id, str):
+            raise DesktopServiceError("invalid_job_id", "job_id must be a string")
+        try:
+            snapshot = self.job_catalog.status_snapshot(job_id)
+        except KeyError as exc:
+            raise DesktopServiceError(
+                "job_not_found",
+                "job ID is not present in the desktop catalog",
+                path="$.payload.job_id",
+            ) from exc
+        if (
+            snapshot.job.kind != JobKind.SEARCH
+            or snapshot.job.state != JobState.SUCCEEDED
+        ):
+            raise DesktopServiceError(
+                "result_not_available",
+                "only a succeeded search job can expose a result view",
+            )
+        if snapshot.job.artifact_set_id is None:
+            raise DesktopServiceError(
+                "artifact_set_incomplete",
+                "succeeded search job is missing its artifact set identity",
+            )
+        route_artifact = self._single_artifact(snapshot, "route-dsl")
+        report_artifact = self._single_artifact(snapshot, "search-run-report")
+        route_content = self._read_job_artifact(route_artifact)
+        report_content = self._read_job_artifact(report_artifact)
+        try:
+            route = yaml.safe_load(route_content.decode("utf-8"))
+            report = json.loads(report_content.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError, yaml.YAMLError) as exc:
+            raise DesktopServiceError(
+                "artifact_decode_failed",
+                "committed job artifact could not be decoded",
+            ) from exc
+        if not isinstance(route, Mapping) or not isinstance(report, Mapping):
+            raise DesktopServiceError(
+                "artifact_schema_mismatch",
+                "committed result artifacts must decode to objects",
+            )
+        route_id = route.get("route_id")
+        best_route = report.get("best_route")
+        artifact_commit = report.get("artifact_commit")
+        if not isinstance(route_id, str) or not route_id.startswith("route_"):
+            raise DesktopServiceError("artifact_schema_mismatch", "Route ID is invalid")
+        if (
+            not isinstance(best_route, Mapping)
+            or best_route.get("route_id") != route_id
+        ):
+            raise DesktopServiceError(
+                "artifact_identity_mismatch",
+                "search report best Route does not match the committed Route",
+            )
+        if (
+            report.get("report_schema_version") != report_artifact.schema_version
+            or report.get("status") != "complete"
+            or not isinstance(artifact_commit, Mapping)
+            or artifact_commit.get("schema_version") != "search-artifact-commit-v1"
+            or artifact_commit.get("status") != "committed"
+            or artifact_commit.get("route_id") != route_id
+            or artifact_commit.get("route_sha256") != route_artifact.sha256
+        ):
+            raise DesktopServiceError(
+                "artifact_identity_mismatch",
+                "search report artifact commit does not match catalog metadata",
+            )
+        randomness_summary = build_route_randomness_summary(route)
+        recorded_randomness = best_route.get("randomness_summary")
+        if recorded_randomness is not None and to_canonical_data(
+            recorded_randomness
+        ) != randomness_summary:
+            raise DesktopServiceError(
+                "artifact_identity_mismatch",
+                "search report randomness summary does not match committed Route",
+            )
+        route_ranking = report.get("route_ranking")
+        if route_ranking is not None:
+            raw_routes = report.get("routes")
+            if not isinstance(route_ranking, Mapping) or not isinstance(raw_routes, list):
+                raise DesktopServiceError(
+                    "artifact_schema_mismatch",
+                    "search report ranking requires route summaries",
+                )
+            unique_route_summaries: list[Mapping[str, Any]] = []
+            seen_route_ids: set[str] = set()
+            for route_summary in raw_routes:
+                if not isinstance(route_summary, Mapping):
+                    continue
+                summary_route_id = route_summary.get("route_id")
+                if not isinstance(summary_route_id, str):
+                    continue
+                if summary_route_id in seen_route_ids:
+                    continue
+                seen_route_ids.add(summary_route_id)
+                unique_route_summaries.append(route_summary)
+            committed_summaries = [
+                route_summary
+                for route_summary in unique_route_summaries
+                if route_summary.get("route_id") == route_id
+            ]
+            if len(committed_summaries) != 1:
+                raise DesktopServiceError(
+                    "artifact_identity_mismatch",
+                    "search report ranking must include the committed best Route",
+                )
+            committed_summary = committed_summaries[0]
+            summary_randomness = committed_summary.get("randomness_summary")
+            if (
+                route_ranking.get("best_route_id") != route_id
+                or committed_summary.get("success") != best_route.get("success")
+                or committed_summary.get("terminal_score")
+                != best_route.get("terminal_score")
+                or committed_summary.get("peak_score") != best_route.get("peak_score")
+                or to_canonical_data(summary_randomness) != randomness_summary
+            ):
+                raise DesktopServiceError(
+                    "artifact_identity_mismatch",
+                    "search report ranking summary does not match committed best Route",
+                )
+            try:
+                expected_ranking = rank_route_candidates(
+                    [
+                        {
+                            "action_count": route_summary.get("action_count"),
+                            "peak_score": route_summary.get("peak_score"),
+                            "randomness_summary": route_summary.get(
+                                "randomness_summary"
+                            ),
+                            "route_id": route_summary.get("route_id"),
+                            "success": route_summary.get("success"),
+                            "terminal_composite_score": route_summary.get(
+                                "terminal_score"
+                            ),
+                        }
+                        for route_summary in unique_route_summaries
+                    ],
+                    policy=RouteRankingPolicy(),
+                )
+            except ValueError as exc:
+                raise DesktopServiceError(
+                    "artifact_schema_mismatch",
+                    "search report ranking cannot be recomputed",
+                ) from exc
+            if to_canonical_data(route_ranking) != expected_ranking:
+                raise DesktopServiceError(
+                    "artifact_identity_mismatch",
+                    "search report ranking does not match route summaries",
+                )
+        result = route.get("result") if isinstance(route.get("result"), Mapping) else {}
+        terminal_board = (
+            result.get("terminal_board")
+            if isinstance(result.get("terminal_board"), Mapping)
+            else {}
+        )
+        replay = route.get("replay") if isinstance(route.get("replay"), Mapping) else {}
+        events = replay.get("events") if isinstance(replay.get("events"), list) else []
+        actions = []
+        for index, event in enumerate(events[:100], start=1):
+            action = event.get("action") if isinstance(event, Mapping) else None
+            request = event.get("request") if isinstance(event, Mapping) else None
+            actions.append(
+                {
+                    "index": index,
+                    "action_id": (
+                        action.get("action_id")
+                        if isinstance(action, Mapping)
+                        else event.get("action_id")
+                        if isinstance(event, Mapping)
+                        else None
+                    ),
+                    "decision_kind": (
+                        request.get("kind")
+                        if isinstance(request, Mapping)
+                        else event.get("decision_kind")
+                        if isinstance(event, Mapping)
+                        else None
+                    ),
+                    "state_hash_after": (
+                        event.get("state_hash_after")
+                        if isinstance(event, Mapping)
+                        else None
+                    ),
+                }
+            )
+        preference_evaluation = best_route.get("terminal_preference_evaluation")
+        if preference_evaluation is not None and not isinstance(
+            preference_evaluation, Mapping
+        ):
+            raise DesktopServiceError(
+                "artifact_schema_mismatch",
+                "search report terminal preference evaluation must be an object",
+            )
+        route_experiment = route.get("experiment")
+        if isinstance(route_experiment, Mapping) and isinstance(
+            route_experiment.get("terminal_preference_profile"), Mapping
+        ):
+            try:
+                profile = TerminalPreferenceProfile.from_mapping(
+                    {
+                        "name": route_experiment[
+                            "terminal_preference_profile"
+                        ].get("name"),
+                        "rules": route_experiment[
+                            "terminal_preference_profile"
+                        ].get("rules"),
+                        "schema_version": route_experiment[
+                            "terminal_preference_profile"
+                        ].get("schema_version"),
+                    }
+                )
+                if profile.rules:
+                    projection_source = self._terminal_board_projection_source(
+                        route,
+                        terminal_board,
+                    )
+                    projection = build_terminal_board_projection(projection_source)
+                    expected_preference = evaluate_terminal_preferences(
+                        projection,
+                        profile,
+                        base_score=best_route.get(
+                            "score",
+                            terminal_board.get("score"),
+                        ),
+                    )
+                    if to_canonical_data(preference_evaluation) != expected_preference:
+                        raise DesktopServiceError(
+                            "artifact_identity_mismatch",
+                            "search report terminal preference evaluation does not match committed Route",
+                        )
+                    if (
+                        best_route.get("terminal_score")
+                        != expected_preference.get("terminal_composite_score")
+                    ):
+                        raise DesktopServiceError(
+                            "artifact_identity_mismatch",
+                            "search report terminal score does not match terminal preference evaluation",
+                        )
+                elif preference_evaluation is not None:
+                    raise DesktopServiceError(
+                        "artifact_identity_mismatch",
+                        "empty terminal preference profile must not publish preference evaluation",
+                    )
+            except DesktopServiceError:
+                raise
+            except (TypeError, ValueError) as exc:
+                raise DesktopServiceError(
+                    "artifact_schema_mismatch",
+                    "committed Route terminal preference profile cannot be evaluated",
+                ) from exc
+        score = best_route.get(
+            "terminal_score",
+            best_route.get("score", terminal_board.get("score")),
+        )
+        base_score = (
+            preference_evaluation.get("base_score")
+            if isinstance(preference_evaluation, Mapping)
+            else best_route.get("score", terminal_board.get("score"))
+        )
+        peak_score = best_route.get("peak_score", score)
+        coverage = (
+            report.get("coverage")
+            if isinstance(report.get("coverage"), Mapping)
+            else {}
+        )
+        coverage_candidate_counts: dict[str, int] | None = None
+        if coverage:
+            coverage_identity = {
+                key: value for key, value in coverage.items() if key != "coverage_id"
+            }
+            if coverage.get("coverage_id") != stable_digest(
+                coverage_identity,
+                prefix="searchcoverage_",
+            ):
+                raise DesktopServiceError(
+                    "artifact_identity_mismatch",
+                    "search report coverage certificate content ID is invalid",
+                )
+            _validate_coverage_certificate(coverage)
+            raw_coverage_counts = coverage.get("candidate_counts")
+            if isinstance(raw_coverage_counts, Mapping):
+                coverage_candidate_counts = _candidate_counts_from_mapping(
+                    raw_coverage_counts,
+                    "candidate_counts",
+                )
+        search_evidence = (
+            report.get("search_evidence")
+            if isinstance(report.get("search_evidence"), Mapping)
+            else {}
+        )
+        search_candidate_counts: dict[str, int] | None = None
+        if search_evidence:
+            evidence_identity = {
+                key: value
+                for key, value in search_evidence.items()
+                if key != "evidence_id"
+            }
+            if search_evidence.get("evidence_id") != stable_digest(
+                evidence_identity,
+                prefix="searchev_",
+            ):
+                raise DesktopServiceError(
+                    "artifact_identity_mismatch",
+                    "search report candidate evidence content ID is invalid",
+                )
+            search_candidate_counts = _validate_candidate_evidence(search_evidence)
+        if (
+            coverage_candidate_counts is not None
+            and search_candidate_counts is not None
+            and coverage_candidate_counts != search_candidate_counts
+        ):
+            raise DesktopServiceError(
+                "artifact_identity_mismatch",
+                "search report coverage counts do not match candidate evidence",
+            )
+        candidate_records = (
+            search_evidence.get("candidates")
+            if isinstance(search_evidence.get("candidates"), list)
+            else []
+        )
+        return to_canonical_data(
+            {
+                "artifact_set_id": snapshot.job.artifact_set_id,
+                "artifacts": {
+                    "report": report_artifact.to_dict(),
+                    "route": route_artifact.to_dict(),
+                },
+                "job_id": job_id,
+                "result_truth": {
+                    "randomness_summary_id": randomness_summary["summary_id"],
+                    "ranking_id": (
+                        route_ranking.get("ranking_id")
+                        if isinstance(route_ranking, Mapping)
+                        else None
+                    ),
+                    "source": "committed_job_artifacts",
+                    "synthetic": False,
+                    "verification_state": "unverified",
+                },
+                "route": {
+                    "action_count": len(events),
+                    "actions": actions,
+                    "randomness_summary": randomness_summary,
+                    "route_id": route_id,
+                    "success": bool(best_route.get("success", False)),
+                    "terminal_board": dict(terminal_board),
+                },
+                "schema_version": DESKTOP_RESULT_VIEW_VERSION,
+                "score": {
+                    "base": base_score,
+                    "peak": peak_score,
+                    "preference": (
+                        preference_evaluation.get("components", [])
+                        if isinstance(preference_evaluation, Mapping)
+                        else []
+                    ),
+                    "preference_evaluation": (
+                        to_canonical_data(preference_evaluation)
+                        if isinstance(preference_evaluation, Mapping)
+                        else None
+                    ),
+                    "randomness_penalty": (
+                        preference_evaluation.get("randomness_penalty", 0)
+                        if isinstance(preference_evaluation, Mapping)
+                        else 0
+                    ),
+                    "terminal_composite": score,
+                },
+                "search_run": {
+                    "best_observed": not bool(coverage.get("frontier_exhausted")),
+                    "candidate_evidence": (
+                        {
+                            "candidate_counts": search_evidence.get(
+                                "candidate_counts",
+                                {},
+                            ),
+                            "candidates": candidate_records[:100],
+                            "evidence_id": search_evidence.get("evidence_id"),
+                            "schema_version": search_evidence.get("schema_version"),
+                            "total": len(candidate_records),
+                        }
+                        if search_evidence
+                        else None
+                    ),
+                    "coverage": (
+                        to_canonical_data(coverage) if coverage else None
+                    ),
+                    "nodes": report.get("nodes"),
+                    "route_ranking": (
+                        to_canonical_data(route_ranking)
+                        if isinstance(route_ranking, Mapping)
+                        else None
+                    ),
+                    "replays": report.get("replays"),
+                    "run_id": report.get("run_id"),
+                    "status": report.get("status"),
+                    "termination_reason": report.get("termination_reason"),
+                },
+            }
+        )
 
     def job_cancel(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         _exact(payload, {"job_id"}, "job.cancel")
@@ -938,6 +1888,7 @@ class DesktopApplicationService:
 
 __all__ = [
     "DESKTOP_DECK_CATALOG_VERSION",
+    "DESKTOP_RESULT_VIEW_VERSION",
     "DESKTOP_SERVICE_VERSION",
     "DesktopApplicationService",
     "DesktopDeckCatalog",

@@ -49,3 +49,30 @@ def test_python_m_pipeline_smoke(tmp_path: Path) -> None:
     assert isinstance(report["quality"]["empty_block_ratio"], dict)
     assert isinstance(report["validation"]["severity_counts"], dict)
     assert isinstance(report["validation"]["code_counts"], dict)
+
+
+def test_release_readiness_verify_accepts_expected_identity_options() -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    audit = json.loads(
+        (repo_root / "docs/release/evidence/release_self_hosted_evidence_audit.json")
+        .read_text(encoding="utf-8")
+    )
+
+    completed = _run_cli(
+        [
+            "release-readiness-verify",
+            "--evidence-dir",
+            "docs/release/evidence",
+            "--status",
+            "docs/release/evidence/release_readiness_status.json",
+            "--expected-commit",
+            audit["summary"]["commit"],
+            "--expected-run-id",
+            audit["summary"]["run_id"],
+            "--require-passed",
+        ],
+        repo_root,
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert "release-readiness-verify: passed" in completed.stdout

@@ -120,6 +120,7 @@ def _success_launcher(command: list[str], *, cwd: Path) -> _FakeTree:
             {
                 "best_route": {"route_id": "route_fixture"},
                 "nodes": 7,
+                "replays": 9,
                 "report_schema_version": "search-run-report-v1",
                 "run_id": "searchrun_fixture",
                 "status": "complete",
@@ -145,6 +146,7 @@ def _accept_fixture_artifacts(
         report_content=report_path.read_bytes(),
         report=report,
         nodes=report["nodes"],
+        replays=report["replays"],
         route_id=report["best_route"]["route_id"],
         semantic_result_digest="jobsemantic_" + "a" * 64,
     )
@@ -167,6 +169,7 @@ def test_desktop_worker_publishes_only_complete_search_artifacts(
     assert snapshot.job.state == JobState.SUCCEEDED
     assert snapshot.latest_checkpoint is not None
     assert snapshot.latest_checkpoint.completed_units == 7
+    assert snapshot.latest_checkpoint.payload["replays"] == 9
     assert snapshot.latest_checkpoint.semantic_result_digest is not None
     assert {artifact.kind for artifact in snapshot.artifacts} == {
         "route-dsl",

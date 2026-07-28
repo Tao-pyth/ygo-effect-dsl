@@ -41,10 +41,17 @@
     },
     "deck.register_inline": {
       "payload_fields": ["extra", "main", "name", "side"],
+      "renderer_path_input": false,
       "worker_start_allowed": false
     },
     "job.cancel": {
       "payload_fields": ["job_id"],
+      "worker_start_allowed": false
+    },
+    "job.enqueue_replay_verification": {
+      "payload_fields": ["idempotency_key", "priority", "search_job_id"],
+      "source": "committed_search_job_artifacts",
+      "verification_job_kind": "replay",
       "worker_start_allowed": false
     },
     "job.enqueue_search": {
@@ -52,13 +59,60 @@
       "preflight_required": true,
       "worker_start_allowed": false
     },
+    "job.result": {
+      "payload_fields": ["job_id"],
+      "renderer_path_input": false,
+      "requires_committed_artifacts": ["route-dsl", "search-run-report"],
+      "worker_start_allowed": false
+    },
     "job.status": {
       "payload_fields": ["job_id"],
       "worker_start_allowed": false
     },
+    "profile.clone": {
+      "payload_fields": ["name", "profile_id", "rules"],
+      "renderer_path_input": false,
+      "worker_start_allowed": false
+    },
+    "profile.get": {
+      "payload_fields": ["profile_id"],
+      "renderer_path_input": false,
+      "worker_start_allowed": false
+    },
+    "profile.list": {
+      "payload_fields": [],
+      "renderer_path_input": false,
+      "worker_start_allowed": false
+    },
     "scenario.compose_search": {
+      "configuration_fields": [
+        "interruption_card_code",
+        "max_depth",
+        "max_nodes",
+        "max_seconds",
+        "opening_hand",
+        "pool_size",
+        "preference_profile_id",
+        "scenario_preset_id",
+        "seed",
+        "strategy"
+      ],
+      "parallel_policy": {
+        "default_pool_size": 1,
+        "max_pool_size": 8,
+        "schema_version": "parallel-search-policy-v1"
+      },
       "payload_fields": ["configuration", "deck_id"],
+      "renderer_path_input": false,
       "renderer_rule_inference": false,
+      "scenario_presets": [
+        {
+          "id": "terminal_board_min_monster_v1",
+          "objective": "maximize_terminal_board",
+          "evaluator": "real_core_board_count/1",
+          "success_predicate": "real_core_min_monster_count/1"
+        }
+      ],
       "worker_start_allowed": false
     },
     "scenario.preflight": {

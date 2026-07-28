@@ -456,7 +456,7 @@ def strategy_from_experiment(experiment: Mapping[str, Any]) -> SearchStrategy:
     parameters = search.get("parameters", {})
     if not isinstance(parameters, Mapping):
         raise ValueError("experiment.search.parameters must be a mapping")
-    shared_parameter_names = {"max_frontier_actions", "termination"}
+    shared_parameter_names = {"max_frontier_actions", "parallel", "termination"}
     if strategy_id == "random_search_v1":
         checked = _parameters(
             parameters,

@@ -1,0 +1,36 @@
+{
+  "artifact_files": [
+    "parallel_search_gate.json",
+    "parallel_search_records.json",
+    "research_dashboard_gate.json",
+    "research_dashboard_qualification.json"
+  ],
+  "evidence_id": "releaseevidenceaudit_0531a7e0875b3e66f586afe19d0fe89facc1c294eeae40694b95cffbc0b2ae40",
+  "parallel_search": {
+    "gate_evidence_id": "parsearchgate_9a35d00a2ff4b04c0be6f85fb94263dbdea08c9cf9e3488a5c208fcc5b7d647c",
+    "passed": true,
+    "record_count": 45,
+    "records_evidence_id": "parsearchrecords_97e471c429a771b0a83ef1d88b183dbaed0694fabe87aa7c4cd039509942d96f"
+  },
+  "research_dashboard": {
+    "gate_evidence_id": "researchdashgate_eb4fffc2631c64275614cf4d1e52c1c24535308c31fbbc621a3a48b4f910f80a",
+    "passed": true,
+    "qualification_evidence_id": "researchdashqual_f869335e70c2979d295915f6ca83e92d4a764e14b5ea59f81493da3e782ab636",
+    "required_check_count": 5
+  },
+  "schema_version": "release-self-hosted-evidence-audit-v1",
+  "source_artifact_files": [
+    "parallel_search_gate.json",
+    "parallel_search_records.json",
+    "research_dashboard_gate.json",
+    "research_dashboard_qualification.json",
+    "summary.json"
+  ],
+  "summary": {
+    "commit": "871432d3a8b7085e616a8c23ffe4aff266b891f3",
+    "parallel_search": "true",
+    "research_dashboard": "true",
+    "run_id": "local-combined-20260726-1",
+    "status": "success"
+  }
+}

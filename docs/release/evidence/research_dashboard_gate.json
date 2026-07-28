@@ -1,0 +1,162 @@
+{
+  "environment": {
+    "package_version": "0.5.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python_version": "3.13.7"
+  },
+  "evidence_id": "researchdashgate_eb4fffc2631c64275614cf4d1e52c1c24535308c31fbbc621a3a48b4f910f80a",
+  "gate": {
+    "manual_release_evidence_required": true,
+    "static_gate_count": 7,
+    "work_breakdown": "docs/spec/v0.7.0/20_work_breakdown_and_acceptance.md"
+  },
+  "manual_checks": [
+    {
+      "check_id": "real-core-dashboard-qualification",
+      "evidence": {
+        "check_count": 5,
+        "evidence_id": "researchdashqual_f869335e70c2979d295915f6ca83e92d4a764e14b5ea59f81493da3e782ab636",
+        "path_redacted": true,
+        "rejection_reasons": [],
+        "schema_version": "research-dashboard-qualification-v1",
+        "source_path_name": "research_dashboard_qualification.json"
+      },
+      "gate": "release",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "rejection_reasons": [],
+  "schema_version": "research-dashboard-release-gate-v1",
+  "static_checks": [
+    {
+      "check_id": "committed-result-artifact-service",
+      "evidence": {
+        "bridge_method": "job.result",
+        "bridge_schema_version": "desktop-bridge-v1",
+        "expected_bridge_schema_version": "desktop-bridge-v1",
+        "method_payload_fields_valid": true,
+        "renderer_path_input": false,
+        "requires_committed_artifacts": [
+          "route-dsl",
+          "search-run-report"
+        ],
+        "schema_version": "desktop-result-view-v1",
+        "test": "tests/test_desktop_bridge.py",
+        "test_exists": true
+      },
+      "gate": "A",
+      "passed": true
+    },
+    {
+      "check_id": "independent-replay-verification-service",
+      "evidence": {
+        "bridge_method": "job.enqueue_replay_verification",
+        "method_payload_fields_valid": true,
+        "worker": "desktop.lifecycle._run_replay_verification",
+        "worker_source_contains": true
+      },
+      "gate": "A",
+      "passed": true
+    },
+    {
+      "check_id": "terminal-preference-contracts",
+      "evidence": {
+        "bridge_methods": [
+          "profile.list",
+          "profile.get",
+          "profile.clone"
+        ],
+        "bridge_methods_valid": true,
+        "desktop_test": "tests/test_desktop_bridge.py",
+        "desktop_test_contains": true,
+        "result_service_source_contains": true,
+        "schema_versions": [
+          "terminal-board-projection-v1",
+          "terminal-preference-catalog-v1",
+          "terminal-preference-evaluation-v1",
+          "terminal-preference-profile-v1"
+        ],
+        "tests": {
+          "tests/test_terminal_preference.py": true,
+          "tests/test_terminal_preference_catalog.py": true
+        }
+      },
+      "gate": "B",
+      "passed": true
+    },
+    {
+      "check_id": "route-randomness-and-ranking-contracts",
+      "evidence": {
+        "desktop_test": "tests/test_desktop_bridge.py",
+        "desktop_test_contains": true,
+        "result_service_source_contains": true,
+        "schema_versions": [
+          "route-randomness-summary-v1",
+          "route-ranking-policy-v1",
+          "route-ranking-v1"
+        ],
+        "source_contains": true,
+        "test": "tests/test_route_randomness_ranking.py",
+        "test_exists": true
+      },
+      "gate": "C",
+      "passed": true
+    },
+    {
+      "check_id": "candidate-coverage-and-drilldown-contracts",
+      "evidence": {
+        "desktop_test": "tests/test_desktop_bridge.py",
+        "desktop_test_contains": true,
+        "result_service_source_contains": true,
+        "schema_versions": [
+          "search-candidate-evidence-v1",
+          "search-coverage-v1"
+        ],
+        "source_contains": true,
+        "test": "tests/test_search_executor.py",
+        "test_exists": true
+      },
+      "gate": "D",
+      "passed": true
+    },
+    {
+      "check_id": "typed-research-scenario-and-cohort-ui",
+      "evidence": {
+        "analytics_contract_version": "analytics-query-contract-v1",
+        "analytics_fields": [
+          "opening_hand_cohort",
+          "profile",
+          "success_predicate",
+          "ranking_policy",
+          "termination",
+          "censor_state",
+          "core_lock",
+          "asset_lock"
+        ],
+        "analytics_fields_present": true,
+        "bridge_methods": [
+          "deck.register_inline",
+          "scenario.compose_search"
+        ],
+        "bridge_methods_valid": true,
+        "deck_register_inline_renderer_path_input": false,
+        "expected_analytics_contract_version": "analytics-query-contract-v1",
+        "scenario_compose_renderer_path_input": false,
+        "scenario_compose_renderer_rule_inference": false,
+        "source_contains": true
+      },
+      "gate": "E",
+      "passed": true
+    },
+    {
+      "check_id": "neuron-direct-import-rejection-adr",
+      "evidence": {
+        "adr": "docs/adr/0019_reject_neuron_direct_import_without_official_api.md",
+        "adr_exists": true
+      },
+      "gate": "E",
+      "passed": true
+    }
+  ]
+}

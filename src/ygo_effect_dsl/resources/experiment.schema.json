@@ -59,6 +59,7 @@
     "evaluate_at": {"type": "string", "minLength": 1},
     "success_predicate": {"$ref": "#/$defs/plugin"},
     "evaluator": {"$ref": "#/$defs/plugin"},
+    "terminal_preference_profile": {"$ref": "#/$defs/terminalPreferenceProfile"},
     "search": {
       "type": "object",
       "required": ["strategy", "budget"],
@@ -224,6 +225,44 @@
         "version": {"type": "string", "minLength": 1},
         "config": {"type": "object"}
       }
+    },
+    "terminalPreferenceProfile": {
+      "type": "object",
+      "required": ["profile_id", "schema_version", "name", "rules"],
+      "properties": {
+        "profile_id": {"type": "string", "pattern": "^termpref_[0-9a-f]{64}$"},
+        "schema_version": {"const": "terminal-preference-profile-v1"},
+        "name": {"type": "string", "minLength": 1},
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "card_code", "controller", "enabled", "location", "max_count",
+              "min_count", "position", "rule_id", "scoring_mode", "weight"
+            ],
+            "properties": {
+              "card_code": {"type": "integer", "minimum": 1},
+              "controller": {"enum": [0, 1]},
+              "enabled": {"type": "boolean"},
+              "location": {
+                "enum": [
+                  "HAND", "MONSTER_ZONE", "SPELL_TRAP_ZONE",
+                  "FIELD_ZONE", "GRAVEYARD", "BANISHED"
+                ]
+              },
+              "max_count": {"type": ["integer", "null"], "minimum": 1},
+              "min_count": {"type": "integer", "minimum": 1},
+              "position": {"enum": ["ANY", "FACE_UP", "FACE_DOWN"]},
+              "rule_id": {"type": "string", "minLength": 1},
+              "scoring_mode": {"enum": ["once", "per_copy", "threshold"]},
+              "weight": {"type": "integer"}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

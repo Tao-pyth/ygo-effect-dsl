@@ -1,55 +1,57 @@
 # Release Stage Index: 0.3.0 to 1.0.0
 
-Status: Package 0.5.0 released; 0.5.1 active; 0.6.0 and 0.7.0 planned
+Status: Package `0.5.0` released; `0.5.1`, `0.6.0`, and `0.7.0` source release evidence ready; `0.8.0` and `1.0.0` planned
 
-Last updated: 2026-07-16
+Last updated: 2026-07-28
 
 ## Purpose
 
-本書はpackage `0.3.0`から`1.0.0`までのstage、依存関係、責任境界、親Issueを一つの索引にする。現行packageは`0.5.0`である。`0.4.0`は実装stageとして完了し、独立tagを作らず累積`0.5.0`へ収録した。次のactive package milestoneは`0.5.1`、後続のplanned milestoneは`0.6.0`と`0.7.0`である。
+本書は package `0.3.0` から `1.0.0` までの stage、依存関係、責任境界、親 Issue を一つの索引にする。現行の package/CLI version は `0.5.0` であり、正本は `ygo_effect_dsl.version.__version__` である。`0.4.0` は実装 stage として完了したが独立 tag を作らず、累積 `0.5.0` へ収録した。
+
+`0.5.1`、`0.6.0`、`0.7.0` は source release evidence が ready である。ただし package/tag としての現行 release は `0.5.0` のまま維持する。`0.8.0` は日本人想定ユーザー向けの desktop UI/i18n 品質 stage、`1.0.0` は production/distribution gate である。
 
 ## Stage dependency
 
 ```text
 0.3.0 real-core and EDOPro Lua qualified baseline
   -> 0.4.0 search breadth and private-view safety
-      -> 0.5.0 corpus analytics and UI
+      -> 0.5.0 corpus analytics and desktop UI
           -> 0.5.1 verification efficiency and compatible maintenance
               -> 0.6.0 deterministic parallel search and measured latency reduction
                   -> 0.7.0 evidence-driven research dashboard and preference-aware results
-                      -> 1.0.0 stable distribution and operations
+                      -> 0.8.0 Japanese-centered desktop UI and localization quality
+                          -> 1.0.0 stable distribution and operations
 ```
 
-| Stage | Parent | 入力 | 主成果 | 次stageへ渡す不変条件 |
+| Stage | Parent | Input | Main responsibility | Exit condition |
 |---|---|---|---|---|
-| `0.3.0` | [#131](https://github.com/Tao-pyth/ygo-effect-dsl/issues/131) | 現行Random Search、real-core frontier、asset lock | clean bootstrap、3 deck qualification、10万node evidence | core由来合法性、fresh Replay、exact identity、fail-close |
-| `0.4.0` | [#132](https://github.com/Tao-pyth/ygo-effect-dsl/issues/132) | `0.3.0`の実core基準線 | Beam/MCTS、PlayerView、複数妨害、複数turn | strategy決定性、hidden情報非漏洩、Route lineage |
-| `0.5.0` | [#133](https://github.com/Tao-pyth/ygo-effect-dsl/issues/133) | `0.4.0`のversion付きevidence | corpus/job/query/comparison/UI | provenance、idempotency、CLI/API/UI semantic一致 |
-| `0.5.1` | [#236](https://github.com/Tao-pyth/ygo-effect-dsl/issues/236) | release済み`0.5.0`検証profile | test分類、fixture統合、quiet evidence | semantic coverage維持、wall time・出力byte測定削減 |
-| `0.6.0` | [#258](https://github.com/Tao-pyth/ygo-effect-dsl/issues/258) | serial SearchExecutor、独立parallel contract、`0.5.1`検証profile | node-level process pool、strategy並列化、desktop、100k speedup evidence | fresh Replay、semantic commit、pool determinism、bounded resource |
-| `0.7.0` | [#276](https://github.com/Tao-pyth/ygo-effect-dsl/issues/276) | `0.6.0` bounded Search、desktop artifact publication、analytics | real result、terminal preference、Route randomness、Replay verification、Top-K/coverage | artifact truth、immutable evaluation、reliability provenance、best-observed honesty |
-| `1.0.0` | [#134](https://github.com/Tao-pyth/ygo-effect-dsl/issues/134) | qualification済みruntimeとanalytics | stable compatibility、license、release、ops | support期間内の互換性と監査可能な配布 |
+| `0.3.0` | [#131](https://github.com/Tao-pyth/ygo-effect-dsl/issues/131) | Random Search, real-core frontier, asset lock | real-core/EDOPro Lua qualification | clean bootstrap, real deck qualification, fail-close behavior |
+| `0.4.0` | [#132](https://github.com/Tao-pyth/ygo-effect-dsl/issues/132) | `0.3.0` qualified core baseline | Beam/MCTS, PlayerView, interruptions, multiple turns | strategy determinism, private information safety, Route lineage |
+| `0.5.0` | [#133](https://github.com/Tao-pyth/ygo-effect-dsl/issues/133) | `0.4.0` implementation evidence | corpus, jobs, query/comparison, desktop UI | package `0.5.0` source tag and desktop analytics milestone |
+| `0.5.1` | [#236](https://github.com/Tao-pyth/ygo-effect-dsl/issues/236) | released `0.5.0` plus verification profile | test profile, fixture consolidation, quieter evidence | source release evidence ready without weakening regression coverage |
+| `0.6.0` | [#258](https://github.com/Tao-pyth/ygo-effect-dsl/issues/258) | serial SearchExecutor and `0.5.1` verification profile | bounded process pool and parallel strategy execution | source release evidence ready with semantic determinism and timing witnesses |
+| `0.7.0` | [#276](https://github.com/Tao-pyth/ygo-effect-dsl/issues/276) | bounded Search and desktop artifact publication | real result hydration, terminal preferences, Route randomness, Replay verification, Top-K/coverage | source release evidence ready with truthful committed artifacts |
+| `0.8.0` | TBD | `0.7.0` research dashboard | Japanese-centered UI/i18n quality, `lang="ja"`, mojibake removal | default desktop UI is Japanese, visible text is centralized, and tests reject mojibake |
+| `1.0.0` | [#134](https://github.com/Tao-pyth/ygo-effect-dsl/issues/134) | qualified runtime, analytics, and localized desktop UI | stable compatibility, license, distribution, security, operations | auditable supported distribution and operations readiness |
 
 ## Version allocation rules
 
-1. package versionは利用者に提供する全体releaseを表す。
-2. schema/contract versionは保存形式、API、semanticの互換境界を表す。
-3. package milestone開始時にschema番号を予約しない。
-4. optional field追加でもcanonical hashや意味が変わる場合は、対象contractのversion更新を検討する。
-5. strategy、evaluator、cache policyは独立versionを持ち、package versionだけで再現性を表現しない。
-6. old Experiment/Route/Replayを黙って再解釈せず、read、replay、migration、rejectのいずれかを明示する。
+1. Package version は利用者へ提示する repository-wide release を表す。
+2. Schema/contract version は保存形式、API、semantic boundary を表す。
+3. Package milestone 開始時に schema 番号を自動的には上げない。
+4. UI 文言、言語属性、fixture 表示、文書文字化けが利用者体験を変える場合は package milestone に割り当てる。
+5. `0.8.0` の既定 UI は日本語中心とするが、英語 locale の完全提供や locale switch UI は必須にしない。
+6. `1.0.0` は production/distribution gate であり、日本語化をそこまで延期しない。
 
 ## Cross-stage mandatory gates
 
-- Pythonはルールを所有しない。
-- runtime resolverはnetwork accessやinstallを行わない。
-- asset/core mismatchは実行前に停止する。
-- node/replay/depth budgetではworker retry、pool size、完了順でsemantic結果を変えない。wall-clock deadlineはtiming-censoredとして分離する。
-- private情報を保存・表示・exportするsurfaceはPlayerView policyに従う。
-- third-party assetは審査なしに配布物へ含めない。
-- evidenceにはpackage、schema、lock、deck、seed、budget、hardware/workload manifestを必要範囲で保存する。
-- real job resultはcommit済みartifactへ結び、synthetic、unverified、censored、unknownを成功・verified・optimalへ読み替えない。
-- terminal preference、gameplay randomness、ranking、coverageは独立version identityを持ち、legacy artifactの欠落を既定値で再解釈しない。
+- Python 側でカード効果、合法性、タイミングを推測しない。
+- Runtime resolver は実行時に network install を行わない。
+- Asset/core mismatch は worker 起動前に fail-close する。
+- Node/replay/depth budget の semantic 結果は pool size、worker completion order、retry に依存させない。
+- Real job result は committed artifact だけを表示し、synthetic/unverified/censored/unknown を verified/optimal として扱わない。
+- UI は想定ユーザーに合わせた言語属性と文言を持ち、文字化けを release-facing artifact に残さない。
+- Third-party core/assets は監査なしに wheel、sdist、executable、CI artifact へ同梱しない。
 
 ## Detailed specifications
 
@@ -72,6 +74,7 @@ Last updated: 2026-07-16
 - [0.7.0 evaluation, randomness, and result contracts](v0.7.0/10_evaluation_randomness_and_result_contracts.md)
 - [0.7.0 research dashboard workflow](v0.7.0/15_research_dashboard_workflow.md)
 - [0.7.0 work breakdown and acceptance](v0.7.0/20_work_breakdown_and_acceptance.md)
+- [0.8.0 Japanese UI and i18n quality scope](v0.8.0/00_scope.md)
 - [1.0.0 scope](v1.0.0/00_scope.md)
 - [1.0.0 production contracts](v1.0.0/10_production_distribution_contracts.md)
 - [1.0.0 work breakdown and acceptance](v1.0.0/20_work_breakdown_and_acceptance.md)

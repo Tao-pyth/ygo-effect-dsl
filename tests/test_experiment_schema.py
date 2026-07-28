@@ -9,6 +9,7 @@ import sys
 import pytest
 import yaml
 
+from ygo_effect_dsl.engine.evaluation import TerminalPreferenceProfile
 from ygo_effect_dsl.experiment import (
     load_experiment_document,
     migrate_experiment_v03a_to_v03b,
@@ -29,20 +30,35 @@ ROOT = Path(__file__).parents[1]
 SAMPLE = ROOT / "examples" / "experiments" / "real_core_effect_veiler.yaml"
 
 
-def test_sample_experiment_and_distributed_json_schema_are_aligned() -> None:
+def _v04_experiment() -> dict:
     experiment = load_experiment_document(SAMPLE)
     experiment["schema_version"] = "0.4"
     experiment["deck"] = {
-        "id": "schema_fixture",
-        "source": "inline",
-        "main": list(range(1, 41)),
         "extra": [],
+        "id": "schema_fixture",
+        "main": list(range(1, 41)),
         "side": [],
+        "source": "inline",
     }
     experiment["scenario"] = {
+        "opening_hand": {"cards": list(range(1, 6)), "mode": "fixed"},
         "schema_version": "scenario-v1",
-        "opening_hand": {"mode": "fixed", "cards": list(range(1, 6))},
     }
+    return experiment
+
+
+def _terminal_profile() -> dict:
+    return TerminalPreferenceProfile.from_mapping(
+        {
+            "name": "schema profile",
+            "rules": [],
+            "schema_version": "terminal-preference-profile-v1",
+        }
+    ).to_dict()
+
+
+def test_sample_experiment_and_distributed_json_schema_are_aligned() -> None:
+    experiment = _v04_experiment()
     schema = json.loads(
         (
             ROOT
@@ -55,7 +71,38 @@ def test_sample_experiment_and_distributed_json_schema_are_aligned() -> None:
 
     assert validate_experiment(experiment) == ()
     assert schema["properties"]["schema_version"]["const"] == "0.4"
+    assert "terminal_preference_profile" in schema["properties"]
     assert set(schema["required"]).issubset(experiment)
+
+
+def test_v04_accepts_content_addressed_terminal_preference_profile() -> None:
+    experiment = _v04_experiment()
+    experiment["terminal_preference_profile"] = _terminal_profile()
+
+    assert validate_experiment(experiment) == ()
+
+
+def test_terminal_preference_profile_id_must_match_experiment_content() -> None:
+    experiment = _v04_experiment()
+    experiment["terminal_preference_profile"] = {
+        **_terminal_profile(),
+        "profile_id": "termpref_" + "0" * 64,
+    }
+
+    issues = validate_experiment(experiment)
+
+    assert [issue.code for issue in issues] == ["content_id_mismatch"]
+
+
+def test_legacy_experiment_cannot_carry_terminal_preference_profile() -> None:
+    experiment = load_experiment_document(SAMPLE)
+    experiment["schema_version"] = "0.3a"
+    experiment.pop("information_policy", None)
+    experiment["terminal_preference_profile"] = _terminal_profile()
+
+    issues = validate_experiment(experiment)
+
+    assert "field_not_allowed_in_legacy_schema" in {issue.code for issue in issues}
 
 
 def test_v03a_requires_explicit_policy_choices_to_migrate() -> None:

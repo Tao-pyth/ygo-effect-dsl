@@ -74,6 +74,34 @@ def test_packaged_frontend_and_machine_contract_are_versioned() -> None:
         BEAM_SEARCH_STRATEGY_SCHEMA_VERSION,
         MCTS_STRATEGY_SCHEMA_VERSION,
     ]
+    compose_contract = desktop_bridge_contract_document()["methods"][
+        "scenario.compose_search"
+    ]
+    assert "opening_hand" in compose_contract["configuration_fields"]
+    assert "pool_size" in compose_contract["configuration_fields"]
+    assert "scenario_preset_id" in compose_contract["configuration_fields"]
+    assert compose_contract["scenario_presets"] == [
+        {
+            "evaluator": "real_core_board_count/1",
+            "id": "terminal_board_min_monster_v1",
+            "objective": "maximize_terminal_board",
+            "success_predicate": "real_core_min_monster_count/1",
+        }
+    ]
+    assert compose_contract["parallel_policy"] == {
+        "default_pool_size": 1,
+        "max_pool_size": 8,
+        "schema_version": "parallel-search-policy-v1",
+    }
+    replay_contract = desktop_bridge_contract_document()["methods"][
+        "job.enqueue_replay_verification"
+    ]
+    assert replay_contract["payload_fields"] == [
+        "idempotency_key",
+        "priority",
+        "search_job_id",
+    ]
+    assert replay_contract["source"] == "committed_search_job_artifacts"
     assert contract["large_catalog"] == {
         "contract": DESKTOP_VIRTUAL_TABLE_CONTRACT_VERSION,
         "issue": 165,
@@ -112,15 +140,52 @@ def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
         "workspace",
         "deck-filter",
         "deck-table-body",
+        "inline-deck-dialog",
+        "inline-deck-form",
+        "inline-deck-name",
+        "inline-main-cards",
+        "inline-extra-cards",
+        "inline-side-cards",
+        "inline-deck-status",
+        "register-inline-deck",
         "open-search",
+        "objective",
         "search-dialog",
         "search-form",
         "run-preflight",
         "queue-search",
+        "opening-hand",
+        "fixed-hand-cards",
+        "conditional-card-code",
+        "conditional-min-count",
+        "conditional-max-count",
+        "conditional-max-attempts",
+        "pool-size",
+        "preference-profile",
+        "preference-profile-name",
+        "preference-rule-card",
+        "preference-rule-location",
+        "preference-rule-position",
+        "preference-rule-weight",
+        "clone-profile",
         "job-dialog",
         "cancel-job",
         "view-result",
         "result-dialog",
+        "result-route-id",
+        "result-route-line",
+        "result-evidence",
+        "result-coverage",
+        "result-candidates",
+        "result-explored",
+        "result-censored",
+        "result-verification-state",
+        "verify-result",
+        "result-drilldown",
+        "result-tab-ranking",
+        "result-tab-candidates",
+        "result-drilldown-head",
+        "result-drilldown-body",
         "card-dialog",
         "compare-dialog",
         "analytics-grid",
@@ -128,7 +193,7 @@ def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
         "analytics-viewport",
     }
     assert required_ids <= parser.ids
-    assert html.count("<dialog") == 5
+    assert html.count("<dialog") == 6
     assert '<script src="app.js" defer></script>' in html
     assert '<script src="bridge.js" defer></script>' in html
     assert '<script src="analytics.js" defer></script>' in html
@@ -137,7 +202,10 @@ def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
 
 def test_frontend_has_no_network_or_direct_python_bridge_path() -> None:
     html, css, bridge, javascript = _assets()
-    combined = "\n".join((html, css, bridge, javascript)).lower()
+    analytics_javascript = (desktop_frontend_root() / "analytics.js").read_text(
+        encoding="utf-8"
+    )
+    combined = "\n".join((html, css, bridge, javascript, analytics_javascript)).lower()
 
     assert "http://" not in combined
     assert "https://" not in combined
@@ -146,12 +214,51 @@ def test_frontend_has_no_network_or_direct_python_bridge_path() -> None:
     assert "websocket" not in javascript.lower()
     assert "window.pywebview" not in javascript
     assert "window.pywebview.api.invoke" in bridge
+    assert '"profile.list"' in bridge
+    assert '"profile.clone"' in bridge
+    assert '"job.enqueue_replay_verification"' in bridge
+    assert '"deck.register_inline"' in bridge
+    assert '"deck.register_inline"' in javascript
+    assert "inlineDeckPayload" in javascript
+    assert "Inline deck registration is connected by issue #244." not in javascript
+    assert "refreshPreferenceProfiles" in javascript
+    assert "preference_profile_id: elements.preferenceProfile.value || null" in javascript
+    assert '"profile.get"' in javascript
+    assert '"profile.clone"' in javascript
+    assert "desktop-rule-${cardCode}-${location}-${position}-${Date.now()}" in javascript
+    assert "Cloned profile selected." in javascript
+    assert "opening_hand: openingHandConfiguration()" in javascript
+    assert "scenario_preset_id: elements.objective.value" in javascript
+    assert 'value="terminal_board_min_monster_v1"' in html
+    assert "Conditional hand requires a positive card code." in javascript
+    assert "fixed-hand-cards" in html
+    assert "pool_size:" in javascript
+    assert "pool_size must be between 1 and 8" in javascript
+    assert "checkpoint?.payload?.replays" in javascript
+    assert "elements.jobReplays.textContent = String(snapshot.job.attempt)" not in javascript
+    assert 'value="opening_hand_cohort"' in html
+    assert 'value="profile"' in html
+    assert 'value="termination"' in html
+    assert "opening_hand_cohort" in analytics_javascript
+    assert "censor_state" in analytics_javascript
+    assert "`replay-verification-${currentJobId}`" in javascript
+    assert "Replay verification queued." in javascript
+    assert "pollReplayVerification" in javascript
+    assert "route_ranking" in javascript
+    assert "Candidate paths" in javascript
+    assert "result-tab-candidates" in html
+    assert "Preference ${component.rule_id" in javascript
     assert DESKTOP_BRIDGE_CONTRACT_VERSION in bridge
     assert desktop_bridge_contract_document()["security"]["local_rest_api"] is False
     assert "innerHTML" not in javascript
     assert "eval(" not in javascript
     assert "No real worker has started" in javascript
     assert "No worker started" in javascript
+    assert '"job.result"' in javascript
+    assert "candidate_evidence" in javascript
+    assert "coverage.coverage_status" in javascript
+    assert "Frontier exhaustion certified by candidate accounting." in javascript
+    assert "route_fixture_5b7a2c10" not in html
     assert desktop_workflow_contract_document()["integration"]["preview_adapter"] == (
         "synthetic_search_browser_only"
     )

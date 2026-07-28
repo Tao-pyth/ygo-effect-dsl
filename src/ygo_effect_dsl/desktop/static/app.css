@@ -1172,6 +1172,10 @@ dialog::backdrop {
   width: min(820px, calc(100vw - 48px));
 }
 
+.inline-deck-dialog {
+  width: min(760px, calc(100vw - 48px));
+}
+
 .dialog-header,
 .dialog-footer {
   justify-content: space-between;
@@ -1252,6 +1256,19 @@ dialog::backdrop {
   margin-top: 12px;
 }
 
+.inline-deck-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.inline-deck-grid label:first-child {
+  grid-column: 1 / -1;
+}
+
+.opening-hand-options {
+  grid-template-columns: minmax(220px, 1.5fr) repeat(4, minmax(96px, 0.75fr));
+  margin-top: 12px;
+}
+
 .form-grid label,
 #interruption-card-field {
   display: grid;
@@ -1263,6 +1280,7 @@ dialog::backdrop {
 
 .form-grid input,
 .form-grid select,
+.form-grid textarea,
 #interruption-card-field input {
   width: 100%;
   min-width: 0;
@@ -1272,6 +1290,42 @@ dialog::backdrop {
   border-radius: 4px;
   background: var(--surface);
   color: var(--ink);
+}
+
+.form-grid textarea {
+  height: auto;
+  min-height: 122px;
+  padding: 9px;
+  resize: vertical;
+}
+
+.profile-editor {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.profile-editor-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profile-editor-heading span {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.profile-rule-grid {
+  grid-template-columns: minmax(140px, 1.2fr) minmax(100px, 0.8fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(80px, 0.6fr) auto;
+}
+
+.profile-rule-grid button {
+  align-self: end;
+  min-height: 36px;
 }
 
 .strategy-options {
@@ -1645,6 +1699,162 @@ dialog::backdrop {
   margin-bottom: 16px;
 }
 
+.result-evidence {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.result-evidence div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface-muted);
+}
+
+.result-evidence span {
+  color: var(--muted);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+}
+
+.result-evidence strong {
+  overflow: hidden;
+  font-size: 0.82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-verification {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface-muted);
+}
+
+.result-verification div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.result-verification span {
+  color: var(--muted);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+}
+
+.result-verification strong {
+  overflow: hidden;
+  font-size: 0.86rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-verification button {
+  flex: 0 0 auto;
+}
+
+.result-drilldown {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.result-drilldown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.result-drilldown-header > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.result-drilldown-header span {
+  color: var(--muted);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+}
+
+.result-drilldown-header strong {
+  overflow: hidden;
+  font-size: 0.86rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-tabs {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  background: var(--surface-muted);
+}
+
+.result-tabs button {
+  min-height: 28px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.result-tabs button[aria-selected="true"] {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.result-table-scroll {
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.result-table th,
+.result-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.result-table th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-muted);
+  color: var(--muted);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+}
+
+.result-table td {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .route-line {
   display: grid;
   gap: 0;
@@ -1783,6 +1993,41 @@ dialog::backdrop {
 
   .budget-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .opening-hand-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .inline-deck-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .profile-rule-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .profile-editor-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .result-evidence {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .result-verification {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .result-drilldown-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .result-tabs {
+    align-self: flex-start;
   }
 
   .three-columns {

@@ -130,6 +130,61 @@ def test_search_cli_publishes_route_before_commit_report(tmp_path, monkeypatch) 
     }
 
 
+def test_search_cli_records_parallel_policy_provenance(tmp_path, monkeypatch) -> None:
+    args = _args(tmp_path)
+    adapter = _Adapter()
+    experiment = _experiment()
+    experiment["search"]["parameters"]["parallel"] = {
+        "base_seed": 100,
+        "max_retries": 2,
+        "pool_size": 4,
+    }
+    result = SimpleNamespace(
+        best_route=SimpleNamespace(
+            route_document={"route_id": "route_fixture"},
+            route_id="route_fixture",
+        ),
+        nodes=1,
+        replays=1,
+        run_id="searchrun_fixture",
+        to_dict=lambda: {
+            "best_route": {"route_id": "route_fixture"},
+            "schema_version": "search-run-result-v5",
+            "termination_reason": "max_nodes",
+        },
+    )
+
+    class _Executor:
+        def __init__(self, *_args):
+            pass
+
+        def run(self, _experiment):
+            return result
+
+    monkeypatch.setattr(command_module, "_resolved_experiment", lambda _args: experiment)
+    monkeypatch.setattr(
+        command_module,
+        "preflight_scenario",
+        lambda *_args, **_kwargs: _Preflight(),
+    )
+    monkeypatch.setattr(command_module, "RealCoreFrontierAdapter", lambda **_kwargs: adapter)
+    monkeypatch.setattr(command_module, "SearchExecutor", _Executor)
+    monkeypatch.setattr(
+        command_module,
+        "dump_route_document",
+        lambda _document, path: atomic_write_text(path, "route\n"),
+    )
+
+    assert command_module.cmd_experiment_search(args) == 0
+    report = json.loads(args.search_report.read_text(encoding="utf-8"))
+
+    assert report["parallel_policy"]["schema_version"] == "parallel-search-policy-v1"
+    assert report["parallel_policy"]["pool_size"] == 4
+    assert report["parallel_policy"]["base_seed"] == 100
+    assert report["parallel_policy"]["max_retries"] == 2
+    assert report["parallel_policy"]["policy_id"].startswith("parallelpol_")
+
+
 def test_search_cli_records_structured_worker_failure_without_route_publish(
     tmp_path, monkeypatch
 ) -> None:

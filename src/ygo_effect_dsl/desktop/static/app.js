@@ -1,6 +1,121 @@
 "use strict";
 
 const WORKFLOW_VERSION = "desktop-workflow-v1";
+const UI_LOCALE = "ja";
+const UI_TEXT = Object.freeze({
+  analyticsQueryFailed: "分析クエリはfail-closeしました",
+  exportRequiresBridge: "version付き出力にはデスクトップブリッジが必要です",
+  exportQueueFailed: "出力キューはfail-closeしました",
+  exportStatusFailed: "出力状態の確認はfail-closeしました",
+  exportCancelFailed: "出力の中止はfail-closeしました",
+  bridgeReady: "デスクトップブリッジ準備完了",
+  preflightPerRun: "実行ごとに事前検証",
+  localDeckCatalog: "ローカルのデスクトップデッキカタログを表示中",
+  registered: "登録済み",
+  localCatalog: "ローカルカタログ",
+  cardPrefix: "カード",
+  presentationUnavailable: "表示情報なし",
+  terminalPreference: "終端評価",
+  defaultTerminalPreference: "既定の終端評価",
+  profileCatalogUnavailable: "デスクトップのプロファイルカタログを利用できません。",
+  positiveCardCode: "カードコードは正の整数で入力してください。",
+  integerWeight: "重みは整数で入力してください。",
+  profileLoadFailed: "プロファイルの読み込みはfail-closeしました。",
+  profileCloneFailed: "プロファイルの複製はfail-closeしました。",
+  profileCloned: "複製したプロファイルを選択しました。",
+  ydkRequiresDesktop: "WindowsデスクトップシェルでYDKファイルを選択できます。",
+  ydkImportFailed: "YDKの読み込みに失敗しました。",
+  ydkRegistered: "YDKをローカルのデスクトップカタログへ登録しました。",
+  inlineDeckRequiresBridge: "インラインデッキ登録にはWindowsデスクトップブリッジが必要です。",
+  notRegistered: "未登録",
+  inlineAddressed: "インラインデッキはデスクトップサービスで内容アドレス化されます。",
+  inlineResearchDeck: "インライン研究デッキ",
+  bridgeUnavailable: "ブリッジ未接続",
+  inlineRegistrationDisabled: "ブラウザプレビューではインライン登録は無効です。",
+  deckInputRejected: "デッキ入力を拒否しました",
+  deckRegistrationFailed: "デッキ登録に失敗しました",
+  inlineRegistered: "インラインデッキをローカルのデスクトップカタログへ登録しました。",
+  main: "メイン",
+  extra: "エクストラ",
+  side: "サイド",
+  invalidCardCode: "デッキに正の整数ではないカードコードが含まれています。",
+  mainTooSmall: "メインデッキは40枚以上必要です。",
+  mainTooLarge: "メインデッキは60枚以下にしてください。",
+  extraTooLarge: "エクストラデッキは15枚以下にしてください。",
+  sideTooLarge: "サイドデッキは15枚以下にしてください。",
+  deckNameRequired: "デッキ名を入力してください。",
+  preflightPassed: "事前検証に成功",
+  registeredDeckPreflight: "登録済みデッキです。探索前にローカルサービスで再検証します。",
+  staleAssetLock: "資産ロックが古い",
+  staleAssetDetail: "ローカルソースを再検証するまで探索はブロックされます。",
+  readyForPreflight: "事前検証待ち",
+  validationBeforeWorker: "workerを開始する前に検証します。",
+  assetLockMismatch: "想定された資産ロックがデッキmanifestと一致しません。workerは開始していません。",
+  maxNodesInvalid: "max_nodesは1から100,000の範囲で指定してください。workerは開始していません。",
+  poolSizeInvalid: "pool_sizeは1から8の範囲で指定してください。workerは開始していません。",
+  noWorkerStarted: "workerは開始していません。",
+  runningPreflight: "事前検証中",
+  composingScenario: "シナリオを構成し、ローカル資産を検証しています。",
+  localAssetValidationFailed: "ローカル資産検証はfail-closeしました。",
+  scenarioPreflightFailed: "シナリオの事前検証はfail-closeしました。",
+  terminalProfileCatalogFailed: "終端評価プロファイルカタログはfail-closeしました。",
+  desktopSearchDispatchFailed: "デスクトップ探索のdispatchはfail-closeしました。",
+  searchFailed: "探索に失敗しました",
+  searchRejected: "探索を拒否しました",
+  searchQueueFailed: "探索キューはfail-closeしました。",
+  desktopCatalogFailed: "デスクトップカタログはfail-closeしました。",
+  settingsBridgeIssue: "設定はデスクトップブリッジ issue #244 で接続されます。",
+  queuedPreview: "synthetic preview adapter でキュー済み。実workerは開始していません。",
+  previewCheckpoint: "プレビューcheckpoint",
+  previewDeterministic: "semantic resultは決定論的なままです。実workerの実行は無効です。",
+  syntheticReplayMatched: "synthetic fresh Replayが選択中のRoute IDと一致しました。結果を確認できます。",
+  cancellationFailed: "中止はfail-closeしました。",
+  cancellationRequested: "中止を要求しました。実行中workerの停止を待っています。",
+  cancellationPollingFailed: "中止状態のpollingはfail-closeしました。",
+  cancellationToast: "実行中のデスクトップworkerへ中止を要求しました。",
+  syntheticJobCanceled: "synthetic jobを中止しました。artifactはcommitされていません。",
+  committedRowsEmpty: "このartifactにはcommit済み行がありません。",
+  candidatePaths: "候補経路",
+  committedCandidateRows: "件のcommit済み候補行",
+  topKRoutes: "Top-K経路",
+  committedRanking: "commit済みranking",
+  previewOnly: "プレビューのみ",
+  browserPreview: "ブラウザプレビュー",
+  preview: "プレビュー",
+  previewRoute: "プレビュー経路",
+  noCommittedArtifact: "commit済みdesktop artifactは読み込まれていません。",
+  syntheticPreviewResult: "Synthetic preview result",
+  realJobArtifactRequired: "実desktop jobは型付きjob artifact serviceから読み込む必要があります。",
+  realJobReplayVerified: "実job / Replay検証済み",
+  realJobReplayUnverified: "実job / Replay未検証",
+  yes: "はい",
+  no: "いいえ",
+  preference: "評価",
+  rule: "ルール",
+  unknown: "不明",
+  routeAction: "Route action",
+  committedRouteEvent: "commit済みRoute event",
+  terminalResult: "終端結果",
+  bestObservedNotCertified: "best observedです。frontier exhaustionは証明されていません。",
+  frontierCertified: "candidate accountingによりfrontier exhaustionを証明済みです。",
+  candidate: "候補",
+  resultUnavailable: "結果を利用できません",
+  notLoaded: "not-loaded",
+  blocked: "ブロック",
+  unavailable: "利用不可",
+  artifactVerificationFailed: "artifact検証に失敗しました",
+  failClosedResult: "Fail-closed result",
+  rendererDidNotSubstitute: "rendererはfixture値へ置き換えませんでした。",
+  committedArtifactsUnavailable: "commit済みartifactを読み込めませんでした。",
+  statusUnavailable: "状態を確認できません",
+  replayStatusFailed: "Replay検証状態の確認はfail-closeしました。",
+  replaySucceeded: "Replay検証に成功しました。",
+  replayPollingFailed: "Replay検証pollingはfail-closeしました。",
+  replayRequiresCommittedJob: "Replay検証にはcommit済みdesktop jobが必要です。",
+  queueing: "キュー投入中",
+  replayEnqueueFailed: "Replay検証のキュー投入はfail-closeしました。",
+  replayQueued: "Replay検証をキューへ追加しました。",
+});
 
 let decks = [
   {
@@ -158,21 +273,72 @@ const elements = {
   runs: document.querySelector("#run-list"),
   preflightSummary: document.querySelector("#preflight-summary"),
   searchDialog: document.querySelector("#search-dialog"),
+  inlineDeckDialog: document.querySelector("#inline-deck-dialog"),
+  inlineDeckForm: document.querySelector("#inline-deck-form"),
+  inlineDeckName: document.querySelector("#inline-deck-name"),
+  inlineMainCards: document.querySelector("#inline-main-cards"),
+  inlineExtraCards: document.querySelector("#inline-extra-cards"),
+  inlineSideCards: document.querySelector("#inline-side-cards"),
+  inlineDeckStatus: document.querySelector("#inline-deck-status"),
   jobDialog: document.querySelector("#job-dialog"),
   cardDialog: document.querySelector("#card-dialog"),
   compareDialog: document.querySelector("#compare-dialog"),
   resultDialog: document.querySelector("#result-dialog"),
+  resultEyebrow: document.querySelector("#result-eyebrow"),
+  resultRouteId: document.querySelector("#result-route-id"),
+  resultSuccess: document.querySelector("#result-success"),
+  resultPeak: document.querySelector("#result-peak"),
+  resultTerminal: document.querySelector("#result-terminal"),
+  resultActions: document.querySelector("#result-actions"),
+  resultEvidence: document.querySelector("#result-evidence"),
+  resultCoverage: document.querySelector("#result-coverage"),
+  resultCandidates: document.querySelector("#result-candidates"),
+  resultExplored: document.querySelector("#result-explored"),
+  resultCensored: document.querySelector("#result-censored"),
+  resultVerificationState: document.querySelector("#result-verification-state"),
+  verifyResult: document.querySelector("#verify-result"),
+  resultDrilldown: document.querySelector("#result-drilldown"),
+  resultDrilldownTitle: document.querySelector("#result-drilldown-title"),
+  resultDrilldownSummary: document.querySelector("#result-drilldown-summary"),
+  resultTabRanking: document.querySelector("#result-tab-ranking"),
+  resultTabCandidates: document.querySelector("#result-tab-candidates"),
+  resultDrilldownHead: document.querySelector("#result-drilldown-head"),
+  resultDrilldownBody: document.querySelector("#result-drilldown-body"),
+  resultRouteLine: document.querySelector("#result-route-line"),
+  resultNoteTitle: document.querySelector("#result-note-title"),
+  resultNoteDetail: document.querySelector("#result-note-detail"),
   searchForm: document.querySelector("#search-form"),
   searchDeckName: document.querySelector("#search-deck-name"),
   preflightBox: document.querySelector("#preflight-box"),
   queueSearch: document.querySelector("#queue-search"),
   experimentSummary: document.querySelector("#experiment-summary"),
+  objective: document.querySelector("#objective"),
+  openingHand: document.querySelector("#opening-hand"),
+  fixedHandField: document.querySelector("#fixed-hand-field"),
+  fixedHandCards: document.querySelector("#fixed-hand-cards"),
+  conditionalCardField: document.querySelector("#conditional-card-field"),
+  conditionalCardCode: document.querySelector("#conditional-card-code"),
+  conditionalMinField: document.querySelector("#conditional-min-field"),
+  conditionalMinCount: document.querySelector("#conditional-min-count"),
+  conditionalMaxField: document.querySelector("#conditional-max-field"),
+  conditionalMaxCount: document.querySelector("#conditional-max-count"),
+  conditionalAttemptsField: document.querySelector("#conditional-attempts-field"),
+  conditionalMaxAttempts: document.querySelector("#conditional-max-attempts"),
+  preferenceProfile: document.querySelector("#preference-profile"),
+  profileEditStatus: document.querySelector("#profile-edit-status"),
+  preferenceProfileName: document.querySelector("#preference-profile-name"),
+  preferenceRuleCard: document.querySelector("#preference-rule-card"),
+  preferenceRuleLocation: document.querySelector("#preference-rule-location"),
+  preferenceRulePosition: document.querySelector("#preference-rule-position"),
+  preferenceRuleWeight: document.querySelector("#preference-rule-weight"),
+  cloneProfile: document.querySelector("#clone-profile"),
   interruptionToggle: document.querySelector("#interruption-toggle"),
   interruptionField: document.querySelector("#interruption-card-field"),
   interruptionCode: document.querySelector("#interruption-code"),
   maxNodes: document.querySelector("#max-nodes"),
   maxDepth: document.querySelector("#max-depth"),
   maxSeconds: document.querySelector("#max-seconds"),
+  poolSize: document.querySelector("#pool-size"),
   seed: document.querySelector("#seed"),
   progress: document.querySelector("#job-progress"),
   jobTitle: document.querySelector("#job-title"),
@@ -201,6 +367,11 @@ let toastTimer = null;
 let currentExperiment = null;
 let currentJobId = null;
 let currentJobState = null;
+let currentReplayJobId = null;
+let replayTimer = null;
+let currentResultView = null;
+let currentResultTab = "ranking";
+let preferenceProfilesLoaded = false;
 
 function desktopBridgeAvailable() {
   return Boolean(window.routeLabBridge && window.routeLabBridge.available());
@@ -307,6 +478,96 @@ async function refreshDesktopCatalog() {
   updateDetail(selectedDeck);
 }
 
+function renderPreferenceProfiles(records) {
+  const selected = elements.preferenceProfile.value;
+  elements.preferenceProfile.replaceChildren();
+  records.forEach((record) => {
+    const profile = record.profile || record;
+    const option = document.createElement("option");
+    option.value = profile.profile_id || "";
+    option.textContent = profile.name || profile.profile_id || "Terminal preference";
+    elements.preferenceProfile.append(option);
+  });
+  if (selected && [...elements.preferenceProfile.options].some((option) => option.value === selected)) {
+    elements.preferenceProfile.value = selected;
+  }
+  elements.preferenceProfile.disabled = records.length === 0;
+  elements.cloneProfile.disabled = !desktopBridgeAvailable() || records.length === 0;
+}
+
+async function refreshPreferenceProfiles() {
+  if (!desktopBridgeAvailable()) {
+    renderPreferenceProfiles([{ profile: { name: "Default terminal preference", profile_id: "" } }]);
+    elements.preferenceProfile.disabled = true;
+    return;
+  }
+  const response = await window.routeLabBridge.invoke("profile.list", {});
+  if (!response.ok) {
+    showToast(response.diagnostics[0]?.message || "Terminal preference catalog failed.");
+    renderPreferenceProfiles([{ profile: { name: "Default terminal preference", profile_id: "" } }]);
+    elements.preferenceProfile.disabled = true;
+    return;
+  }
+  renderPreferenceProfiles(response.result.profiles || []);
+  preferenceProfilesLoaded = true;
+}
+
+async function clonePreferenceProfile() {
+  if (!desktopBridgeAvailable() || !elements.preferenceProfile.value) {
+    elements.profileEditStatus.textContent = "Desktop profile catalog is unavailable.";
+    return;
+  }
+  const cardCode = Number(elements.preferenceRuleCard.value);
+  const weight = Number(elements.preferenceRuleWeight.value);
+  if (!Number.isInteger(cardCode) || cardCode < 1) {
+    elements.profileEditStatus.textContent = "Card code must be a positive integer.";
+    elements.preferenceRuleCard.focus();
+    return;
+  }
+  if (!Number.isInteger(weight)) {
+    elements.profileEditStatus.textContent = "Weight must be an integer.";
+    elements.preferenceRuleWeight.focus();
+    return;
+  }
+  const current = await window.routeLabBridge.invoke("profile.get", {
+    profile_id: elements.preferenceProfile.value,
+  });
+  if (!current.ok) {
+    elements.profileEditStatus.textContent = current.diagnostics[0]?.message || "Profile load failed closed.";
+    return;
+  }
+  const source = current.result.profile.profile;
+  const location = elements.preferenceRuleLocation.value;
+  const position = elements.preferenceRulePosition.value;
+  const rule = {
+    card_code: cardCode,
+    controller: 0,
+    enabled: true,
+    location,
+    max_count: null,
+    min_count: 1,
+    position,
+    rule_id: `desktop-rule-${cardCode}-${location}-${position}-${Date.now()}`,
+    scoring_mode: "once",
+    weight,
+  };
+  const response = await window.routeLabBridge.invoke("profile.clone", {
+    name: elements.preferenceProfileName.value.trim() || `${source.name} edited`,
+    profile_id: source.profile_id,
+    rules: [...source.rules, rule],
+  });
+  if (!response.ok) {
+    elements.profileEditStatus.textContent = response.diagnostics[0]?.message || "Profile clone failed closed.";
+    return;
+  }
+  const profileId = response.result.profile.profile_id;
+  await refreshPreferenceProfiles();
+  elements.preferenceProfile.value = profileId;
+  elements.profileEditStatus.textContent = "Cloned profile selected.";
+  invalidatePreflight();
+  updateExperimentSummary();
+}
+
 async function importDesktopYdk() {
   if (!desktopBridgeAvailable()) {
     showToast("Native YDK file selection is available in the Windows desktop shell.");
@@ -320,6 +581,83 @@ async function importDesktopYdk() {
   if (response.result.cancelled) return;
   await refreshDesktopCatalog();
   showToast("YDK registered in the local desktop catalog.");
+}
+
+function setInlineDeckStatus(kind, title, detail) {
+  elements.inlineDeckStatus.className = `diagnostic ${kind}`;
+  elements.inlineDeckStatus.replaceChildren();
+  const body = document.createElement("div");
+  body.append(textElement("strong", title), textElement("span", detail));
+  elements.inlineDeckStatus.append(body);
+}
+
+function openInlineDeckDialog() {
+  if (!desktopBridgeAvailable()) {
+    showToast("Inline deck registration requires the Windows desktop bridge.");
+    return;
+  }
+  elements.inlineDeckForm.reset();
+  setInlineDeckStatus(
+    "warning",
+    "Not registered",
+    "Inline decks are content-addressed by the desktop service.",
+  );
+  elements.inlineDeckDialog.showModal();
+}
+
+function inlineDeckPayload() {
+  return {
+    extra: parseCardCodeList(elements.inlineExtraCards.value),
+    main: parseCardCodeList(elements.inlineMainCards.value),
+    name: elements.inlineDeckName.value.trim() || "Inline research deck",
+    side: parseCardCodeList(elements.inlineSideCards.value),
+  };
+}
+
+function inlineDeckInputError(payload) {
+  const sections = [
+    ["main", payload.main],
+    ["extra", payload.extra],
+    ["side", payload.side],
+  ];
+  for (const [section, cards] of sections) {
+    if (cards.some((card) => !Number.isInteger(card) || card < 1)) {
+      return `${section} deck contains a non-positive or non-integer card code.`;
+    }
+  }
+  if (payload.main.length < 40 || payload.main.length > 60) {
+    return "main deck must contain 40 to 60 cards.";
+  }
+  if (payload.extra.length > 15) return "extra deck must contain at most 15 cards.";
+  if (payload.side.length > 15) return "side deck must contain at most 15 cards.";
+  return null;
+}
+
+async function registerInlineDeck() {
+  if (!desktopBridgeAvailable()) {
+    setInlineDeckStatus("error", "Bridge unavailable", "Inline registration is disabled in browser preview.");
+    return;
+  }
+  const payload = inlineDeckPayload();
+  const inputError = inlineDeckInputError(payload);
+  if (inputError) {
+    setInlineDeckStatus("error", "Deck input rejected", inputError);
+    return;
+  }
+  const response = await window.routeLabBridge.invoke("deck.register_inline", payload);
+  if (!response.ok) {
+    setInlineDeckStatus(
+      "error",
+      "Deck registration failed",
+      response.diagnostics[0]?.message || "The desktop service rejected this deck.",
+    );
+    return;
+  }
+  const deckId = response.result.deck.deck_id;
+  await refreshDesktopCatalog();
+  selectDeck(deckId);
+  elements.inlineDeckDialog.close();
+  showToast("Inline deck registered in the local desktop catalog.");
 }
 
 function textElement(tag, text, className = "") {
@@ -500,8 +838,78 @@ function selectedStrategy() {
   return document.querySelector('input[name="strategy"]:checked').value;
 }
 
+function parseCardCodeList(value) {
+  const tokens = value.split(/[,\s]+/).map((item) => item.trim()).filter(Boolean);
+  return tokens.map((item) => Number(item));
+}
+
+function updateOpeningHandFields() {
+  const mode = elements.openingHand.value;
+  const fixed = mode === "fixed";
+  const conditional = mode === "conditional";
+  elements.fixedHandField.hidden = !fixed;
+  elements.conditionalCardField.hidden = !conditional;
+  elements.conditionalMinField.hidden = !conditional;
+  elements.conditionalMaxField.hidden = !conditional;
+  elements.conditionalAttemptsField.hidden = !conditional;
+}
+
+function openingHandConfiguration() {
+  const mode = elements.openingHand.value;
+  if (mode === "fixed") {
+    return {
+      cards: parseCardCodeList(elements.fixedHandCards.value),
+      mode: "fixed",
+    };
+  }
+  if (mode === "conditional") {
+    const condition = {
+      code: Number(elements.conditionalCardCode.value),
+      min_count: Number(elements.conditionalMinCount.value || 0),
+    };
+    if (elements.conditionalMaxCount.value) {
+      condition.max_count = Number(elements.conditionalMaxCount.value);
+    }
+    return {
+      conditions: [condition],
+      max_attempts: Number(elements.conditionalMaxAttempts.value || 10000),
+      mode: "conditional",
+      seed: Number(elements.seed.value),
+      size: 5,
+    };
+  }
+  return { mode: "random", seed: Number(elements.seed.value), size: 5 };
+}
+
+function openingHandInputError() {
+  const mode = elements.openingHand.value;
+  if (mode === "fixed") {
+    const cards = parseCardCodeList(elements.fixedHandCards.value);
+    if (!cards.length || cards.some((card) => !Number.isInteger(card) || card < 1)) {
+      return "Fixed hand requires one or more positive card codes.";
+    }
+  }
+  if (mode === "conditional") {
+    const code = Number(elements.conditionalCardCode.value);
+    const minCount = Number(elements.conditionalMinCount.value || 0);
+    const maxCount = elements.conditionalMaxCount.value
+      ? Number(elements.conditionalMaxCount.value)
+      : null;
+    const attempts = Number(elements.conditionalMaxAttempts.value || 10000);
+    if (!Number.isInteger(code) || code < 1) return "Conditional hand requires a positive card code.";
+    if (!Number.isInteger(minCount) || minCount < 0) return "Conditional min count must be zero or greater.";
+    if (maxCount !== null && (!Number.isInteger(maxCount) || maxCount < minCount)) {
+      return "Conditional max count must be greater than or equal to min count.";
+    }
+    if (!Number.isInteger(attempts) || attempts < 1 || attempts > 100000) {
+      return "Conditional max attempts must be between 1 and 100,000.";
+    }
+  }
+  return null;
+}
+
 function updateExperimentSummary() {
-  elements.experimentSummary.textContent = `${selectedStrategy()} · seed ${elements.seed.value || "-"} · ${Number(elements.maxNodes.value || 0).toLocaleString("en-US")} nodes`;
+  elements.experimentSummary.textContent = `${selectedStrategy()} · seed ${elements.seed.value || "-"} · pool ${elements.poolSize.value || "1"} · ${Number(elements.maxNodes.value || 0).toLocaleString("en-US")} nodes`;
 }
 
 function searchConfiguration() {
@@ -510,6 +918,10 @@ function searchConfiguration() {
     max_depth: Number(elements.maxDepth.value),
     max_nodes: Number(elements.maxNodes.value),
     max_seconds: Number(elements.maxSeconds.value),
+    opening_hand: openingHandConfiguration(),
+    pool_size: Number(elements.poolSize.value),
+    preference_profile_id: elements.preferenceProfile.value || null,
+    scenario_preset_id: elements.objective.value,
     seed: Number(elements.seed.value),
     strategy: selectedStrategy(),
   };
@@ -529,6 +941,21 @@ async function runPreflight() {
     elements.preflightBox.className = "preflight-box is-invalid";
     title.textContent = "Budget is outside the MVP limit";
     detail.textContent = "max_nodes must be between 1 and 100,000. No worker started.";
+    elements.queueSearch.disabled = true;
+    return;
+  }
+  if (Number(elements.poolSize.value) < 1 || Number(elements.poolSize.value) > 8) {
+    elements.preflightBox.className = "preflight-box is-invalid";
+    title.textContent = "Pool size is outside the desktop limit";
+    detail.textContent = "pool_size must be between 1 and 8. No worker started.";
+    elements.queueSearch.disabled = true;
+    return;
+  }
+  const openingError = openingHandInputError();
+  if (openingError) {
+    elements.preflightBox.className = "preflight-box is-invalid";
+    title.textContent = "Opening hand is invalid";
+    detail.textContent = `${openingError} No worker started.`;
     elements.queueSearch.disabled = true;
     return;
   }
@@ -571,12 +998,17 @@ async function runPreflight() {
   preflightValid = true;
   elements.preflightBox.className = "preflight-box is-valid";
   title.textContent = "Preflight passed";
-  detail.textContent = "Fixture manifest, deck shape, strategy, seed, and budgets are valid.";
+  detail.textContent = "Fixture manifest, deck shape, strategy, seed, pool policy, and budgets are valid.";
   elements.queueSearch.disabled = false;
 }
 
 function openSearch() {
   elements.searchDeckName.textContent = selectedDeck.name;
+  if (!preferenceProfilesLoaded) {
+    refreshPreferenceProfiles()
+      .then(updateExperimentSummary)
+      .catch(() => showToast("Terminal preference catalog failed closed."));
+  }
   invalidatePreflight();
   updateExperimentSummary();
   elements.searchDialog.showModal();
@@ -591,9 +1023,11 @@ function closeSearch() {
 function resetJob() {
   window.clearInterval(jobTimer);
   window.clearTimeout(jobTimer);
+  clearReplayVerificationTimer();
   jobTimer = null;
   currentJobId = null;
   currentJobState = "queued";
+  currentReplayJobId = null;
   elements.progress.value = 0;
   elements.progress.textContent = "0%";
   elements.jobTitle.textContent = "Replaying frontier nodes";
@@ -615,8 +1049,11 @@ function finishDesktopJob(snapshot) {
   const checkpoint = snapshot.latest_checkpoint;
   const completed = checkpoint?.completed_units || 0;
   const total = checkpoint?.total_units || Number(elements.maxNodes.value);
+  const replayCount = checkpoint?.payload?.replays;
   elements.jobNodes.textContent = `${completed.toLocaleString("en-US")} / ${total.toLocaleString("en-US")}`;
-  elements.jobReplays.textContent = String(snapshot.job.attempt);
+  elements.jobReplays.textContent = Number.isInteger(replayCount)
+    ? replayCount.toLocaleString("en-US")
+    : "-";
   elements.jobElapsed.textContent = `attempt ${snapshot.job.attempt}/${snapshot.job.max_attempts}`;
   if (checkpoint && total > 0) {
     const percent = Math.min(100, Math.round((completed * 100) / total));
@@ -751,10 +1188,285 @@ async function cancelJob() {
   showToast("Synthetic job canceled. No artifact was committed.");
 }
 
-function openResult() {
+function renderResultRows(rows) {
+  elements.resultRouteLine.replaceChildren();
+  rows.slice(0, 100).forEach((row, index) => {
+    const item = document.createElement("li");
+    const ordinal = String(index + 1).padStart(2, "0");
+    const body = document.createElement("div");
+    body.append(textElement("strong", row.title), textElement("small", row.detail));
+    item.append(textElement("span", ordinal), body);
+    elements.resultRouteLine.append(item);
+  });
+}
+
+function renderResultEvidence(searchRun) {
+  const evidence = searchRun?.candidate_evidence;
+  const coverage = searchRun?.coverage;
+  const counts = evidence?.candidate_counts;
+  if (!counts || !coverage) {
+    elements.resultEvidence.hidden = true;
+    elements.resultCoverage.textContent = "-";
+    elements.resultCandidates.textContent = "0";
+    elements.resultExplored.textContent = "0";
+    elements.resultCensored.textContent = "0";
+    return;
+  }
+  elements.resultEvidence.hidden = false;
+  elements.resultCoverage.textContent = coverage.coverage_status || "best_observed";
+  elements.resultCandidates.textContent = String(counts.total ?? evidence.total ?? 0);
+  elements.resultExplored.textContent = String(counts.explored ?? 0);
+  elements.resultCensored.textContent = String(counts.censored ?? 0);
+}
+
+function clearReplayVerificationTimer() {
+  window.clearTimeout(replayTimer);
+  replayTimer = null;
+}
+
+function setResultVerificationState(state, canVerify) {
+  elements.resultVerificationState.textContent = state || "unverified";
+  elements.verifyResult.hidden = !desktopBridgeAvailable() || !currentJobId;
+  elements.verifyResult.disabled = !canVerify;
+}
+
+function resultCell(value) {
+  const cell = document.createElement("td");
+  cell.textContent = value === null || value === undefined || value === "" ? "-" : String(value);
+  return cell;
+}
+
+function renderResultTable(headers, rows) {
+  elements.resultDrilldownHead.replaceChildren();
+  elements.resultDrilldownBody.replaceChildren();
+  if (!headers.length) {
+    return;
+  }
+  headers.forEach((header) => {
+    const cell = document.createElement("th");
+    cell.textContent = header;
+    elements.resultDrilldownHead.append(cell);
+  });
+  if (!rows.length) {
+    const empty = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = headers.length;
+    cell.textContent = "No committed rows in this artifact.";
+    empty.append(cell);
+    elements.resultDrilldownBody.append(empty);
+    return;
+  }
+  rows.slice(0, 100).forEach((row) => {
+    const item = document.createElement("tr");
+    row.forEach((value) => item.append(resultCell(value)));
+    elements.resultDrilldownBody.append(item);
+  });
+}
+
+function renderResultDrilldown(view) {
+  currentResultView = view;
+  const ranking = view?.search_run?.route_ranking;
+  const rankedRoutes = Array.isArray(ranking?.ranked_routes) ? ranking.ranked_routes : [];
+  const candidates = Array.isArray(view?.search_run?.candidate_evidence?.candidates)
+    ? view.search_run.candidate_evidence.candidates
+    : [];
+  if (!rankedRoutes.length && !candidates.length) {
+    elements.resultDrilldown.hidden = true;
+    renderResultTable([], []);
+    return;
+  }
+  elements.resultDrilldown.hidden = false;
+  elements.resultTabRanking.setAttribute("aria-selected", currentResultTab === "ranking" ? "true" : "false");
+  elements.resultTabCandidates.setAttribute("aria-selected", currentResultTab === "candidates" ? "true" : "false");
+  if (currentResultTab === "candidates") {
+    elements.resultDrilldownTitle.textContent = "Candidate paths";
+    elements.resultDrilldownSummary.textContent = `${candidates.length} committed candidate rows`;
+    renderResultTable(
+      ["Status", "Depth", "Action", "Prefix", "Parent"],
+      candidates.map((candidate) => [
+        candidate.status,
+        candidate.depth,
+        candidate.action_id,
+        candidate.prefix_id,
+        candidate.parent_prefix_id,
+      ]),
+    );
+    return;
+  }
+  elements.resultDrilldownTitle.textContent = "Top-K routes";
+  elements.resultDrilldownSummary.textContent = ranking?.ranking_id || "committed ranking";
+  renderResultTable(
+    ["Rank", "Route", "Terminal", "Reliability", "Random", "Actions"],
+    rankedRoutes.map((route) => [
+      route.rank,
+      route.route_id,
+      route.terminal_composite_score,
+      route.gameplay_reliability,
+      route.gameplay_random_event_count,
+      route.action_count,
+    ]),
+  );
+}
+
+function renderPreviewResult() {
+  clearReplayVerificationTimer();
+  currentReplayJobId = null;
+  currentResultView = null;
+  elements.resultEyebrow.textContent = "Browser preview";
+  elements.resultRouteId.textContent = "preview-only";
+  elements.resultSuccess.textContent = "Preview";
+  elements.resultPeak.textContent = "0";
+  elements.resultTerminal.textContent = "0";
+  elements.resultActions.textContent = "0";
+  setResultVerificationState("preview only", false);
+  renderResultEvidence(null);
+  elements.resultDrilldown.hidden = true;
+  renderResultTable([], []);
+  renderResultRows([
+    {
+      title: "Preview route",
+      detail: "No committed desktop artifact loaded.",
+    },
+  ]);
+  elements.resultNoteTitle.textContent = "Synthetic preview result";
+  elements.resultNoteDetail.textContent = "Real desktop jobs must load through the typed job artifact service.";
+}
+
+function renderVerifiedResult(view) {
+  clearReplayVerificationTimer();
+  currentReplayJobId = null;
+  currentResultTab = "ranking";
+  const verificationState = view.result_truth.verification_state || "unverified";
+  elements.resultEyebrow.textContent = view.result_truth.verification_state === "verified"
+    ? "Real job / replay verified"
+    : "Real job / unverified replay";
+  elements.resultRouteId.textContent = view.route.route_id;
+  elements.resultSuccess.textContent = view.route.success ? "Yes" : "No";
+  elements.resultPeak.textContent = String(view.score.peak ?? "-");
+  elements.resultTerminal.textContent = String(view.score.terminal_composite ?? "-");
+  elements.resultActions.textContent = String(view.route.action_count);
+  setResultVerificationState(verificationState, verificationState !== "verified");
+  renderResultEvidence(view.search_run);
+  renderResultDrilldown(view);
+  const preferenceRows = Array.isArray(view.score.preference)
+    ? view.score.preference.map((component) => ({
+      title: `Preference ${component.rule_id || "rule"}`,
+      detail: `${component.match_status || "unknown"} / ${component.applied_value ?? 0}`,
+    }))
+    : [];
+  const actionRows = view.route.actions.length
+    ? view.route.actions.map((action) => ({
+      title: action.decision_kind || action.action_id || "Route action",
+      detail: action.state_hash_after
+        ? `state ${action.state_hash_after}`
+        : "committed Route event",
+    }))
+    : [{
+      title: view.search_run.termination_reason || "Terminal result",
+      detail: view.search_run.best_observed
+        ? "Best observed; frontier exhaustion is not certified."
+        : "Frontier exhaustion certified by candidate accounting.",
+    }];
+  const candidateRows = Array.isArray(view.search_run.candidate_evidence?.candidates)
+    ? view.search_run.candidate_evidence.candidates.slice(0, 8).map((candidate) => ({
+      title: `Candidate ${candidate.action_id || "action"}`,
+      detail: `${candidate.status || "unknown"} / depth ${candidate.depth ?? "-"}`,
+    }))
+    : [];
+  const rows = [...preferenceRows, ...actionRows, ...candidateRows];
+  renderResultRows(rows);
+  elements.resultNoteTitle.textContent = "Committed artifact result";
+  elements.resultNoteDetail.textContent = `${view.artifacts.route.schema_version} / ${view.artifact_set_id}`;
+}
+
+function renderResultError(message) {
+  clearReplayVerificationTimer();
+  currentReplayJobId = null;
+  currentResultView = null;
+  elements.resultEyebrow.textContent = "Result unavailable";
+  elements.resultRouteId.textContent = "not-loaded";
+  elements.resultSuccess.textContent = "Blocked";
+  elements.resultPeak.textContent = "-";
+  elements.resultTerminal.textContent = "-";
+  elements.resultActions.textContent = "-";
+  setResultVerificationState("unavailable", false);
+  renderResultEvidence(null);
+  elements.resultDrilldown.hidden = true;
+  renderResultTable([], []);
+  renderResultRows([{ title: "Artifact verification failed", detail: message }]);
+  elements.resultNoteTitle.textContent = "Fail-closed result";
+  elements.resultNoteDetail.textContent = "The renderer did not substitute a fixture value.";
+}
+
+async function openResult() {
   elements.jobDialog.close();
+  if (!desktopBridgeAvailable() || !currentJobId) {
+    renderPreviewResult();
+    elements.resultDialog.showModal();
+    replaceHash(`view=result&deck=${encodeURIComponent(selectedDeck.id)}`);
+    return;
+  }
+  const response = await window.routeLabBridge.invoke("job.result", { job_id: currentJobId });
+  if (response.ok) {
+    renderVerifiedResult(response.result);
+  } else {
+    renderResultError(response.diagnostics[0]?.message || "Committed artifacts could not be loaded.");
+  }
   elements.resultDialog.showModal();
   replaceHash(`view=result&deck=${encodeURIComponent(selectedDeck.id)}`);
+}
+
+async function pollReplayVerification() {
+  if (!currentReplayJobId) return;
+  const response = await window.routeLabBridge.invoke("job.status", { job_id: currentReplayJobId });
+  if (!response.ok) {
+    setResultVerificationState("status unavailable", Boolean(currentJobId));
+    showToast(response.diagnostics[0]?.message || "Replay verification status failed closed.");
+    return;
+  }
+  const state = response.result.job.state;
+  if (state === "succeeded") {
+    setResultVerificationState("verified", false);
+    elements.resultEyebrow.textContent = "Real job / replay verified";
+    showToast("Replay verification succeeded.");
+    return;
+  }
+  if (["cancelled", "failed", "quarantined"].includes(state)) {
+    setResultVerificationState(state, Boolean(currentJobId));
+    showToast(`Replay verification ${state}.`);
+    return;
+  }
+  setResultVerificationState(state, false);
+  replayTimer = window.setTimeout(() => {
+    pollReplayVerification().catch(() => {
+      setResultVerificationState("status unavailable", Boolean(currentJobId));
+      showToast("Replay verification polling failed closed.");
+    });
+  }, 750);
+}
+
+async function enqueueReplayVerification() {
+  if (!desktopBridgeAvailable() || !currentJobId) {
+    setResultVerificationState("preview only", false);
+    showToast("Replay verification requires a committed desktop job.");
+    return;
+  }
+  clearReplayVerificationTimer();
+  setResultVerificationState("queueing", false);
+  const response = await window.routeLabBridge.invoke("job.enqueue_replay_verification", {
+    search_job_id: currentJobId,
+    idempotency_key: `replay-verification-${currentJobId}`,
+    priority: 5,
+  });
+  if (!response.ok) {
+    setResultVerificationState("unavailable", true);
+    showToast(response.diagnostics[0]?.message || "Replay verification enqueue failed closed.");
+    return;
+  }
+  currentReplayJobId = response.result.job.job_id;
+  setResultVerificationState(response.result.source?.verification_state || response.result.job.state || "queued", false);
+  showToast("Replay verification queued.");
+  await pollReplayVerification();
 }
 
 function openCard(card) {
@@ -890,11 +1602,40 @@ elements.interruptionToggle.addEventListener("change", () => {
   elements.interruptionField.hidden = !elements.interruptionToggle.checked;
   if (elements.interruptionToggle.checked) elements.interruptionCode.focus();
 });
+elements.openingHand.addEventListener("change", () => {
+  updateOpeningHandFields();
+  if (elements.openingHand.value === "fixed") elements.fixedHandCards.focus();
+  if (elements.openingHand.value === "conditional") elements.conditionalCardCode.focus();
+});
+elements.cloneProfile.addEventListener("click", () => {
+  clonePreferenceProfile().catch(() => {
+    elements.profileEditStatus.textContent = "Profile clone failed closed.";
+  });
+});
 
 elements.cancelJob.addEventListener("click", () => {
   cancelJob().catch(() => showToast("Cancellation failed closed."));
 });
-elements.viewResult.addEventListener("click", openResult);
+elements.viewResult.addEventListener("click", () => {
+  openResult().catch(() => {
+    renderResultError("Committed artifacts could not be loaded.");
+    elements.resultDialog.showModal();
+  });
+});
+elements.verifyResult.addEventListener("click", () => {
+  enqueueReplayVerification().catch(() => {
+    setResultVerificationState("unavailable", Boolean(currentJobId));
+    showToast("Replay verification enqueue failed closed.");
+  });
+});
+elements.resultTabRanking.addEventListener("click", () => {
+  currentResultTab = "ranking";
+  if (currentResultView) renderResultDrilldown(currentResultView);
+});
+elements.resultTabCandidates.addEventListener("click", () => {
+  currentResultTab = "candidates";
+  if (currentResultView) renderResultDrilldown(currentResultView);
+});
 elements.jobDialog.addEventListener("cancel", (event) => {
   event.preventDefault();
   cancelJob().catch(() => showToast("Cancellation failed closed."));
@@ -902,10 +1643,14 @@ elements.jobDialog.addEventListener("cancel", (event) => {
 elements.searchDialog.addEventListener("close", () => {
   if (!elements.jobDialog.open) replaceHash(`deck=${encodeURIComponent(selectedDeck.id)}`);
 });
+elements.inlineDeckDialog.addEventListener("close", () => {
+  if (selectedDeck) replaceHash(`deck=${encodeURIComponent(selectedDeck.id)}`);
+});
 elements.compareDialog.addEventListener("close", () => {
   replaceHash(`deck=${encodeURIComponent(selectedDeck.id)}`);
 });
 elements.resultDialog.addEventListener("close", () => {
+  clearReplayVerificationTimer();
   replaceHash(`deck=${encodeURIComponent(selectedDeck.id)}`);
 });
 document.querySelector("#close-card").addEventListener("click", () => elements.cardDialog.close());
@@ -917,16 +1662,27 @@ document.querySelector("#close-result").addEventListener("click", () => {
   elements.resultDialog.close();
   replaceHash(`deck=${encodeURIComponent(selectedDeck.id)}`);
 });
+document.querySelector("#close-inline-deck").addEventListener("click", () => elements.inlineDeckDialog.close());
+document.querySelector("#cancel-inline-deck").addEventListener("click", () => elements.inlineDeckDialog.close());
+elements.inlineDeckForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  registerInlineDeck().catch(() => {
+    setInlineDeckStatus("error", "Deck registration failed", "Desktop bridge registration failed closed.");
+  });
+});
 
 document.querySelector("#import-deck").addEventListener("click", () => {
   importDesktopYdk().catch(() => showToast("Desktop YDK import failed closed."));
 });
-document.querySelector("#new-inline").addEventListener("click", () => showToast("Inline deck registration is connected by issue #244."));
+document.querySelector("#new-inline").addEventListener("click", () => openInlineDeckDialog());
 
 document.documentElement.dataset.workflowVersion = WORKFLOW_VERSION;
+updateOpeningHandFields();
 initializeFromHash();
 window.addEventListener("routelabbridgeready", () => {
   refreshDesktopCatalog().catch(() => showToast("Desktop catalog failed closed."));
+  refreshPreferenceProfiles().catch(() => showToast("Terminal preference catalog failed closed."));
   if (!elements.analyticsPane.hidden) analyticsController.refresh();
 });
+refreshPreferenceProfiles().catch(() => showToast("Terminal preference catalog failed closed."));
 refreshDesktopCatalog().catch(() => showToast("Desktop catalog failed closed."));

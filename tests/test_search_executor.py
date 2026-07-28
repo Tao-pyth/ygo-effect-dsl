@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import replace
+import threading
+import time
 
 import pytest
 
@@ -12,6 +14,7 @@ from ygo_effect_dsl.engine.failures import (
     FailureRecordError,
     RecoveryAction,
 )
+from ygo_effect_dsl.engine.evaluation import TerminalPreferenceProfile
 from ygo_effect_dsl.engine.search import (
     BeamSearchStrategyV1,
     MctsSearchStrategyV1,
@@ -56,15 +59,17 @@ def _frontier(
     success: bool = False,
     legal: bool = False,
     lifecycle: dict | None = None,
+    route_document: Mapping[str, object] | None = None,
 ) -> SearchFrontier:
-    route = (
-        {
+    if route_document is not None:
+        route = route_document
+    elif legal:
+        route = {
             "route_id": f"route_{state}",
             "result": {"success": success},
         }
-        if legal
-        else None
-    )
+    else:
+        route = None
     return SearchFrontier(
         state_id=state,
         state_completeness=state_completeness,
@@ -154,6 +159,397 @@ def test_random_search_is_semantically_deterministic() -> None:
     assert first.best_route is not None
     assert first.best_route.route_id == "route_right"
     assert [route.route_id for route in first.routes] == ["route_right", "route_left"]
+    assert first.routes[0].to_dict()["randomness_summary"]["reliability_class"] == (
+        "unknown"
+    )
+    assert first.to_dict()["route_ranking"]["ranking_id"].startswith("routerank_")
+
+
+def test_research_ranking_is_persisted_without_replacing_legacy_best_route() -> None:
+    high_peak = _action("high_peak")
+    high_terminal = _action("high_terminal")
+    frontiers = {
+        (): _frontier("root", actions=(high_peak, high_terminal)),
+        ("high_peak",): _frontier(
+            "high_peak",
+            score=4,
+            peak=99,
+            success=True,
+            legal=True,
+        ),
+        ("high_terminal",): _frontier(
+            "high_terminal",
+            score=20,
+            peak=20,
+            success=True,
+            legal=True,
+        ),
+    }
+
+    result = SearchExecutor(
+        FakeFrontierAdapter(frontiers),
+        BeamSearchStrategyV1(beam_width=2, seed=5),
+        SearchBudget(max_nodes=3),
+        clock=lambda: 0.0,
+    ).run(_beam_experiment(beam_width=2, seed=5))
+
+    assert result.best_route is not None
+    assert result.best_route.route_id == "route_high_peak"
+    payload = result.to_dict()
+    assert payload["route_ranking"]["best_route_id"] == "route_high_terminal"
+    assert payload["routes"][0]["route_id"] == "route_high_peak"
+    assert payload["routes"][1]["route_id"] == "route_high_terminal"
+
+
+def test_candidate_evidence_certifies_small_frontier_exhaustion() -> None:
+    left = _action("left")
+    right = _action("right")
+    frontiers = {
+        (): _frontier("root", actions=(left, right)),
+        ("left",): _frontier("left", score=5, legal=True),
+        ("right",): _frontier("right", score=9, legal=True),
+    }
+
+    result = SearchExecutor(
+        FakeFrontierAdapter(frontiers),
+        RandomSearchStrategyV1(41),
+        SearchBudget(max_nodes=10),
+        clock=lambda: 0.0,
+    ).run(_experiment())
+    payload = result.to_dict()
+
+    assert payload["search_evidence"]["schema_version"] == (
+        "search-candidate-evidence-v1"
+    )
+    assert payload["search_evidence"]["candidate_counts"] == {
+        "censored": 0,
+        "explored": 2,
+        "failed": 0,
+        "pruned": 0,
+        "total": 2,
+        "unexplored": 0,
+    }
+    assert payload["coverage"]["schema_version"] == "search-coverage-v1"
+    assert payload["coverage"]["frontier_exhausted"] is True
+    assert payload["coverage"]["coverage_status"] == "frontier_exhausted"
+
+
+def test_candidate_evidence_marks_budget_stopped_frontier_as_best_observed() -> None:
+    left = _action("left")
+    right = _action("right")
+    frontiers = {
+        (): _frontier("root", actions=(left, right)),
+        ("left",): _frontier("left", score=5, legal=True),
+        ("right",): _frontier("right", score=9, legal=True),
+    }
+
+    result = SearchExecutor(
+        FakeFrontierAdapter(frontiers),
+        RandomSearchStrategyV1(41),
+        SearchBudget(max_nodes=2),
+        clock=lambda: 0.0,
+    ).run(_experiment())
+    payload = result.to_dict()
+
+    assert payload["termination_reason"] == "max_nodes"
+    assert payload["search_evidence"]["candidate_counts"]["censored"] == 1
+    assert payload["search_evidence"]["candidate_counts"]["explored"] == 1
+    assert payload["coverage"]["frontier_exhausted"] is False
+    assert payload["coverage"]["coverage_status"] == "best_observed"
+
+
+def test_beam_parallel_policy_keeps_canonical_layer_commit_order() -> None:
+    slow = _action("slow")
+    fast = _action("fast")
+    frontiers = {
+        (): _frontier("root", actions=(slow, fast)),
+        ("slow",): _frontier(
+            "slow",
+            score=5,
+            peak=5,
+            legal=True,
+        ),
+        ("fast",): _frontier(
+            "fast",
+            score=9,
+            peak=9,
+            success=True,
+            legal=True,
+        ),
+    }
+
+    class DelayedAdapter(FakeFrontierAdapter):
+        def replay(
+            self, experiment: Mapping, action_prefix: Sequence[Action]
+        ) -> SearchFrontier:
+            key = tuple(action.selections[0].candidate_id for action in action_prefix)
+            if key == ("slow",):
+                time.sleep(0.02)
+            return super().replay(experiment, action_prefix)
+
+    experiment = _beam_experiment(beam_width=2, seed=5)
+    experiment["search"]["parameters"]["parallel"] = {
+        "base_seed": 11,
+        "max_retries": 0,
+        "pool_size": 2,
+    }
+    serial = SearchExecutor(
+        FakeFrontierAdapter(frontiers),
+        BeamSearchStrategyV1(beam_width=2, seed=5),
+        SearchBudget(max_nodes=3),
+        clock=lambda: 0.0,
+    ).run(_beam_experiment(beam_width=2, seed=5))
+    parallel_adapter = DelayedAdapter(frontiers)
+    parallel = SearchExecutor(
+        parallel_adapter,
+        strategy_from_experiment(experiment),
+        SearchBudget(max_nodes=3),
+        clock=lambda: 0.0,
+    ).run(experiment)
+
+    assert [route.route_id for route in parallel.routes] == [
+        route.route_id for route in serial.routes
+    ]
+    assert parallel.strategy_evidence["logical_updates"] == (
+        serial.strategy_evidence["logical_updates"]
+    )
+    assert set(parallel_adapter.prefixes) == {(), ("slow",), ("fast",)}
+
+
+def test_random_parallel_policy_prefetches_without_changing_commit_order() -> None:
+    actions = tuple(_action(name) for name in ("alpha", "beta", "gamma"))
+    frontiers = {(): _frontier("root", actions=actions)}
+    frontiers.update(
+        {
+            (action.selections[0].candidate_id,): _frontier(
+                action.selections[0].candidate_id,
+                score=index,
+                legal=True,
+            )
+            for index, action in enumerate(actions, start=1)
+        }
+    )
+
+    class ConcurrentAdapter(FakeFrontierAdapter):
+        def __init__(
+            self,
+            values: Mapping[tuple[str, ...], SearchFrontier],
+        ) -> None:
+            super().__init__(values)
+            self._lock = threading.Lock()
+            self._active = 0
+            self.max_active = 0
+
+        def replay(
+            self, experiment: Mapping, action_prefix: Sequence[Action]
+        ) -> SearchFrontier:
+            key = tuple(action.selections[0].candidate_id for action in action_prefix)
+            if len(key) == 1:
+                with self._lock:
+                    self._active += 1
+                    self.max_active = max(self.max_active, self._active)
+                try:
+                    time.sleep(0.02)
+                    return super().replay(experiment, action_prefix)
+                finally:
+                    with self._lock:
+                        self._active -= 1
+            return super().replay(experiment, action_prefix)
+
+    serial_experiment = _experiment(seed=29)
+    serial_experiment["search"]["parameters"]["parallel"] = {
+        "base_seed": 29,
+        "max_retries": 0,
+        "pool_size": 1,
+    }
+    parallel_experiment = _experiment(seed=29)
+    parallel_experiment["search"]["parameters"]["parallel"] = {
+        "base_seed": 29,
+        "max_retries": 0,
+        "pool_size": 2,
+    }
+    serial_adapter = ConcurrentAdapter(frontiers)
+    parallel_adapter = ConcurrentAdapter(frontiers)
+
+    serial = SearchExecutor(
+        serial_adapter,
+        strategy_from_experiment(serial_experiment),
+        SearchBudget(max_nodes=3),
+        clock=lambda: 0.0,
+    ).run(serial_experiment)
+    parallel = SearchExecutor(
+        parallel_adapter,
+        strategy_from_experiment(parallel_experiment),
+        SearchBudget(max_nodes=3),
+        clock=lambda: 0.0,
+    ).run(parallel_experiment)
+
+    assert parallel_adapter.max_active == 2
+    assert serial_adapter.max_active == 1
+    assert parallel.strategy_evidence["logical_updates"] == (
+        serial.strategy_evidence["logical_updates"]
+    )
+    assert [route.route_id for route in parallel.routes] == [
+        route.route_id for route in serial.routes
+    ]
+
+
+def test_mcts_parallel_policy_prefetches_untried_expansions_once() -> None:
+    actions = tuple(_action(name) for name in ("alpha", "beta", "gamma"))
+    frontiers = {(): _frontier("root", actions=actions)}
+    frontiers.update(
+        {
+            (action.selections[0].candidate_id,): _frontier(
+                action.selections[0].candidate_id,
+                score=index * 10,
+                success=True,
+                legal=True,
+            )
+            for index, action in enumerate(actions, start=1)
+        }
+    )
+
+    class ConcurrentAdapter(FakeFrontierAdapter):
+        def __init__(
+            self,
+            values: Mapping[tuple[str, ...], SearchFrontier],
+        ) -> None:
+            super().__init__(values)
+            self._lock = threading.Lock()
+            self._active = 0
+            self.max_active = 0
+
+        def replay(
+            self, experiment: Mapping, action_prefix: Sequence[Action]
+        ) -> SearchFrontier:
+            key = tuple(action.selections[0].candidate_id for action in action_prefix)
+            if len(key) == 1:
+                with self._lock:
+                    self._active += 1
+                    self.max_active = max(self.max_active, self._active)
+                try:
+                    time.sleep(0.02)
+                    return super().replay(experiment, action_prefix)
+                finally:
+                    with self._lock:
+                        self._active -= 1
+            return super().replay(experiment, action_prefix)
+
+    serial_experiment = _mcts_experiment(simulations=2, seed=31)
+    serial_experiment["search"]["parameters"]["parallel"] = {
+        "base_seed": 31,
+        "max_retries": 0,
+        "pool_size": 1,
+    }
+    parallel_experiment = _mcts_experiment(simulations=2, seed=31)
+    parallel_experiment["search"]["parameters"]["parallel"] = {
+        "base_seed": 31,
+        "max_retries": 0,
+        "pool_size": 2,
+    }
+    serial_adapter = ConcurrentAdapter(frontiers)
+    parallel_adapter = ConcurrentAdapter(frontiers)
+
+    serial = SearchExecutor(
+        serial_adapter,
+        strategy_from_experiment(serial_experiment),
+        SearchBudget(max_nodes=3),
+        clock=lambda: 0.0,
+    ).run(serial_experiment)
+    parallel = SearchExecutor(
+        parallel_adapter,
+        strategy_from_experiment(parallel_experiment),
+        SearchBudget(max_nodes=3),
+        clock=lambda: 0.0,
+    ).run(parallel_experiment)
+
+    assert parallel_adapter.max_active == 2
+    assert serial_adapter.max_active == 1
+    assert parallel.strategy_evidence["logical_updates"] == (
+        serial.strategy_evidence["logical_updates"]
+    )
+    assert [route.route_id for route in parallel.routes] == [
+        route.route_id for route in serial.routes
+    ]
+
+
+def test_terminal_preference_profile_updates_route_terminal_composite_score() -> None:
+    card = 10000
+    profile = TerminalPreferenceProfile.from_mapping(
+        {
+            "name": "search scoring profile",
+            "rules": [
+                {
+                    "card_code": card,
+                    "controller": 0,
+                    "enabled": True,
+                    "location": "HAND",
+                    "max_count": None,
+                    "min_count": 1,
+                    "position": "ANY",
+                    "rule_id": "hand-copy",
+                    "scoring_mode": "once",
+                    "weight": 5,
+                }
+            ],
+            "schema_version": "terminal-preference-profile-v1",
+        }
+    )
+    experiment = {
+        **_experiment(),
+        "terminal_preference_profile": profile.to_dict(),
+    }
+    action = _action("keep")
+    route_document = {
+        "result": {
+            "terminal_board": {
+                "board_summary": {
+                    "public_cards": [
+                        {
+                            "code": card,
+                            "controller": 0,
+                            "location": "hand",
+                            "position": 1,
+                            "slot": 0,
+                        }
+                    ],
+                    "state_hash": "state_preference",
+                },
+                "score": 10,
+                "state_hash": "state_preference",
+            }
+        },
+        "route_id": "route_preference",
+    }
+    frontiers = {
+        (): _frontier("root", actions=(action,)),
+        ("keep",): _frontier(
+            "preference",
+            score=10,
+            peak=10,
+            success=True,
+            legal=True,
+            route_document=route_document,
+        ),
+    }
+
+    result = SearchExecutor(
+        FakeFrontierAdapter(frontiers),
+        RandomSearchStrategyV1(1),
+        SearchBudget(max_nodes=5),
+        clock=lambda: 0.0,
+    ).run(experiment)
+
+    assert result.best_route is not None
+    assert result.best_route.terminal_score == 15
+    payload = result.best_route.to_dict()
+    preference = payload["terminal_preference_evaluation"]
+    assert preference["preference_profile_id"] == profile.profile_id
+    assert preference["preference_score"] == 5
+    assert preference["terminal_composite_score"] == 15
+    assert result.to_dict()["route_ranking"]["ranked_routes"][0][
+        "terminal_composite_score"
+    ] == 15
 
 
 def test_seed_changes_budget_limited_exploration_order() -> None:

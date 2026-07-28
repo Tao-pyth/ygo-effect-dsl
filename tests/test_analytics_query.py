@@ -39,6 +39,14 @@ def _row(
             "deck": "deck_alpha" if index < 3 else "deck_beta",
             "card": ["100", str(200 + index)],
             "strategy": strategy,
+            "opening_hand_cohort": ["seeded_random", "fixed", "conditional"][index % 3],
+            "profile": "termpref_default",
+            "success_predicate": "qualified-board-count-v1",
+            "ranking_policy": "route-ranking-v1",
+            "termination": "goal_reached" if index % 2 == 0 else "max_nodes",
+            "censor_state": "complete" if index % 2 == 0 else "censored",
+            "core_lock": "ocgcore-v11.0-win-x64-msvc-v1",
+            "asset_lock": "ocgcore-assets-202504-v1",
             "interruption": [] if index == 0 else ["ash_blossom"],
             "success": index % 2 == 0,
             "score": float(index if score is None else score),
@@ -155,6 +163,14 @@ def test_aggregation_adapter_preserves_identity_and_explicit_dimensions() -> Non
             "deck": "deck_adapter",
             "card": ["100", "200"],
             "strategy": "beam-search-v1",
+            "opening_hand_cohort": "conditional",
+            "profile": "termpref_adapter",
+            "success_predicate": "qualified-board-count-v1",
+            "ranking_policy": "route-ranking-v1",
+            "termination": "goal_reached",
+            "censor_state": "complete",
+            "core_lock": "ocgcore-v11.0-win-x64-msvc-v1",
+            "asset_lock": "ocgcore-assets-202504-v1",
             "interruption": AnalyticsValue.not_applicable(),
             "status": "complete",
         },
@@ -165,6 +181,9 @@ def test_aggregation_adapter_preserves_identity_and_explicit_dimensions() -> Non
     assert row.values["version"].value == "7"
     assert row.values["resource_consumption"].state == AnalyticsValueState.MISSING
     assert row.values["interruption"].state == AnalyticsValueState.NOT_APPLICABLE
+    assert row.values["opening_hand_cohort"].value == "conditional"
+    assert row.values["profile"].value == "termpref_adapter"
+    assert row.values["ranking_policy"].value == "route-ranking-v1"
 
     with pytest.raises(ValueError, match="cannot replace aggregation fields"):
         analytics_row_from_aggregation(record, dimensions={"version": "other"})
@@ -177,6 +196,14 @@ def test_aggregation_adapter_preserves_identity_and_explicit_dimensions() -> Non
         AnalyticsFilter("deck", "eq", "deck_alpha"),
         AnalyticsFilter("card", "contains", "100"),
         AnalyticsFilter("strategy", "eq", "random-search-v1"),
+        AnalyticsFilter("opening_hand_cohort", "eq", "conditional"),
+        AnalyticsFilter("profile", "eq", "termpref_default"),
+        AnalyticsFilter("success_predicate", "eq", "qualified-board-count-v1"),
+        AnalyticsFilter("ranking_policy", "eq", "route-ranking-v1"),
+        AnalyticsFilter("termination", "in", ["goal_reached", "max_nodes"]),
+        AnalyticsFilter("censor_state", "eq", "complete"),
+        AnalyticsFilter("core_lock", "eq", "ocgcore-v11.0-win-x64-msvc-v1"),
+        AnalyticsFilter("asset_lock", "eq", "ocgcore-assets-202504-v1"),
         AnalyticsFilter("interruption", "contains", "ash_blossom"),
         AnalyticsFilter("success", "eq", True),
         AnalyticsFilter("score", "between", [1, 3]),

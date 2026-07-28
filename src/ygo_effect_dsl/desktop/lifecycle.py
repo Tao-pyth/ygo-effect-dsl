@@ -18,7 +18,11 @@ from typing import Any, Protocol
 
 from ygo_effect_dsl.engine.canonical import stable_digest
 from ygo_effect_dsl.engine.search import SEARCH_RUN_REPORT_SCHEMA_VERSION
-from ygo_effect_dsl.experiment import assert_experiment_matches_route
+from ygo_effect_dsl.experiment import (
+    FRESH_REPLAY_VERIFICATION_SCHEMA_VERSION,
+    assert_experiment_matches_route,
+    read_fresh_replay_verification_report,
+)
 from ygo_effect_dsl.route_dsl import (
     assert_valid_route_document,
     load_route_document,
@@ -29,6 +33,7 @@ from ygo_effect_dsl.storage import (
     JobKind,
     JobLeaseError,
     JobRecord,
+    JobState,
     JobStateTransitionError,
 )
 
@@ -82,7 +87,20 @@ class ValidatedSearchArtifacts:
     report_content: bytes
     report: Mapping[str, Any]
     nodes: int
+    replays: int
     route_id: str
+    semantic_result_digest: str
+
+
+@dataclass(frozen=True)
+class ValidatedReplayArtifacts:
+    report_content: bytes
+    report: Mapping[str, Any]
+    experiment_digest: str
+    replay_manifest_hash: str
+    route_document_digest: str
+    route_id: str
+    verification_id: str
     semantic_result_digest: str
 
 
@@ -110,6 +128,11 @@ def validate_search_artifacts(
         raise ValueError("search report node count must be an integer")
     if nodes_value < 0 or nodes_value > max_nodes:
         raise ValueError("search report node count is outside its budget")
+    replays_value = report.get("replays")
+    if not isinstance(replays_value, int) or isinstance(replays_value, bool):
+        raise ValueError("search report replay count must be an integer")
+    if replays_value < 0:
+        raise ValueError("search report replay count must be non-negative")
     best_route = report.get("best_route")
     if not isinstance(best_route, Mapping):
         raise ValueError("search report is missing best_route")
@@ -148,6 +171,7 @@ def validate_search_artifacts(
         report_content=report_content,
         report=report,
         nodes=nodes_value,
+        replays=replays_value,
         route_id=route_id,
         semantic_result_digest=semantic_digest,
     )
@@ -546,20 +570,34 @@ class DesktopSearchWorker:
             worker_id=self.worker_id,
             now=self.now(),
             lease_seconds=self.lease_seconds,
-            kinds=(JobKind.SEARCH,),
+            kinds=(JobKind.SEARCH, JobKind.REPLAY),
         )
         if job is None:
             return DesktopWorkerOutcome("idle", None, None)
-        if job.kind.value != "search" or job.lease_token is None:
+        if job.lease_token is None:
             self.catalog.quarantine_job(
                 job.job_id,
                 actor=self.worker_id,
                 now=self.now(),
-                reason="desktop worker only accepts search jobs",
+                reason="desktop worker claimed a job without a lease",
                 lease_token=job.lease_token,
             )
             return DesktopWorkerOutcome("quarantined", job.job_id, job.attempt)
-        return self._run_search(job, stop_requested=stop_requested)
+        if job.kind == JobKind.SEARCH:
+            return self._run_search(job, stop_requested=stop_requested)
+        if job.kind == JobKind.REPLAY:
+            return self._run_replay_verification(
+                job,
+                stop_requested=stop_requested,
+            )
+        self.catalog.quarantine_job(
+            job.job_id,
+            actor=self.worker_id,
+            now=self.now(),
+            reason="desktop worker only accepts search and replay jobs",
+            lease_token=job.lease_token,
+        )
+        return DesktopWorkerOutcome("quarantined", job.job_id, job.attempt)
 
     def _experiment_path(self, job: JobRecord) -> Path:
         digest = str(job.spec.payload["experiment_digest"])
@@ -586,6 +624,30 @@ class DesktopSearchWorker:
             str(route),
             "--search-report",
             str(report),
+        ]
+        if self.external_root is not None:
+            command.extend(("--external-root", str(self.external_root)))
+        return command
+
+    def _replay_command(
+        self,
+        experiment: Path,
+        route: Path,
+        verification_report: Path,
+        *,
+        run_id: str,
+    ) -> list[str]:
+        command = [
+            sys.executable,
+            "-m",
+            "ygo_effect_dsl",
+            "experiment-replay",
+            str(experiment),
+            str(route),
+            "--run-id",
+            run_id,
+            "--verification-report",
+            str(verification_report),
         ]
         if self.external_root is not None:
             command.extend(("--external-root", str(self.external_root)))
@@ -637,6 +699,97 @@ class DesktopSearchWorker:
                 lease_token=job.lease_token,
             )
             return "failed"
+
+    @staticmethod
+    def _single_artifact(snapshot: Any, kind: str) -> Any:
+        matches = [
+            artifact for artifact in snapshot.artifacts if artifact.kind == kind
+        ]
+        if len(matches) != 1:
+            raise ValueError(f"job must contain exactly one {kind} artifact")
+        return matches[0]
+
+    def _read_committed_artifact(self, artifact: Any) -> bytes:
+        base = (self.data_root / "job-store").resolve()
+        path = (base / Path(artifact.path)).resolve()
+        path.relative_to(base)
+        content = path.read_bytes()
+        if hashlib.sha256(content).hexdigest() != artifact.sha256:
+            raise ValueError("committed artifact checksum does not match catalog")
+        return content
+
+    def _prepare_replay_inputs(
+        self,
+        job: JobRecord,
+        *,
+        route_path: Path,
+    ) -> Path:
+        if len(job.spec.dependency_ids) != 1:
+            raise ValueError("replay verification requires one search dependency")
+        search_job_id = job.spec.dependency_ids[0]
+        snapshot = self.catalog.status_snapshot(search_job_id)
+        if (
+            snapshot.job.kind != JobKind.SEARCH
+            or snapshot.job.state != JobState.SUCCEEDED
+        ):
+            raise ValueError("replay verification source search job is not succeeded")
+        route_artifact = self._single_artifact(snapshot, "route-dsl")
+        route_content = self._read_committed_artifact(route_artifact)
+        route_path.write_bytes(route_content)
+        route = load_route_document(route_path)
+        route_id = route.get("route_id")
+        replay = route.get("replay") if isinstance(route.get("replay"), Mapping) else {}
+        manifest = (
+            replay.get("manifest")
+            if isinstance(replay.get("manifest"), Mapping)
+            else {}
+        )
+        if route_id != job.spec.payload["route_id"]:
+            raise ValueError("replay verification Route ID does not match job payload")
+        if manifest.get("manifest_hash") != job.spec.payload["replay_manifest_hash"]:
+            raise ValueError(
+                "replay verification manifest hash does not match job payload"
+            )
+        experiment_digest = snapshot.job.spec.payload["experiment_digest"]
+        experiment_path = (
+            self.data_root / "experiments" / f"{experiment_digest}.json"
+        ).resolve()
+        experiment_path.relative_to((self.data_root / "experiments").resolve())
+        if not experiment_path.is_file():
+            raise FileNotFoundError(
+                "source Experiment for Replay verification is missing"
+            )
+        return experiment_path
+
+    @staticmethod
+    def _validate_replay_artifact(report_path: Path) -> ValidatedReplayArtifacts:
+        report = read_fresh_replay_verification_report(report_path)
+        content = report_path.read_bytes()
+        experiment_digest = report["experiment"]["digest"]
+        replay_manifest_hash = report["replay"]["manifest_hash"]
+        route_document_digest = report["route"]["route_document_digest"]
+        route_id = report["route"]["route_id"]
+        verification_id = report["verification_id"]
+        semantic_result_digest = stable_digest(
+            {
+                "experiment_digest": experiment_digest,
+                "replay_manifest_hash": replay_manifest_hash,
+                "route_document_digest": route_document_digest,
+                "route_id": route_id,
+                "verification_id": verification_id,
+            },
+            prefix="jobsemantic_",
+        )
+        return ValidatedReplayArtifacts(
+            report_content=content,
+            report=report,
+            experiment_digest=experiment_digest,
+            replay_manifest_hash=replay_manifest_hash,
+            route_document_digest=route_document_digest,
+            route_id=route_id,
+            verification_id=verification_id,
+            semantic_result_digest=semantic_result_digest,
+        )
 
     def _run_search(
         self,
@@ -832,7 +985,12 @@ class DesktopSearchWorker:
             position=f"search:attempt:{job.attempt}:complete",
             completed=validated.nodes,
             total=max_nodes,
-            payload={"route_id": validated.route_id, "status": "complete"},
+            payload={
+                "nodes": validated.nodes,
+                "replays": validated.replays,
+                "route_id": validated.route_id,
+                "status": "complete",
+            },
             semantic_result_digest=validated.semantic_result_digest,
         )
         now = self.now()
@@ -871,6 +1029,247 @@ class DesktopSearchWorker:
         report_path.unlink(missing_ok=True)
         return DesktopWorkerOutcome(
             "succeeded", job.job_id, job.attempt, return_code, cleanup_count
+        )
+
+    def _run_replay_verification(
+        self,
+        job: JobRecord,
+        *,
+        stop_requested: Callable[[], bool],
+    ) -> DesktopWorkerOutcome:
+        assert job.lease_token is not None
+        work = self.data_root / "work" / job.job_id / f"attempt-{job.attempt}"
+        work.mkdir(parents=True, exist_ok=True)
+        route_path = work / "source-route.yaml"
+        verification_path = work / "fresh-replay-verification.json"
+        route_path.unlink(missing_ok=True)
+        verification_path.unlink(missing_ok=True)
+        try:
+            experiment_path = self._prepare_replay_inputs(
+                job,
+                route_path=route_path,
+            )
+            expected_route_digest = stable_digest(
+                load_route_document(route_path),
+                prefix="routedoc_",
+            )
+        except (KeyError, TypeError, ValueError, OSError):
+            self.catalog.quarantine_job(
+                job.job_id,
+                actor=self.worker_id,
+                now=self.now(),
+                reason="Replay verification source artifacts are missing or incompatible",
+                lease_token=job.lease_token,
+            )
+            return DesktopWorkerOutcome("quarantined", job.job_id, job.attempt)
+
+        self._save_checkpoint(
+            job,
+            position=f"replay:attempt:{job.attempt}:claimed",
+            completed=0,
+            total=1,
+            payload={
+                "route_id": job.spec.payload["route_id"],
+                "status": "verifying",
+            },
+        )
+        try:
+            tree = self.launcher(
+                self._replay_command(
+                    experiment_path,
+                    route_path,
+                    verification_path,
+                    run_id=stable_digest({"job_id": job.job_id}, prefix="run_"),
+                ),
+                cwd=work,
+            )
+        except (OSError, subprocess.SubprocessError):
+            status = self._retry_or_fail(
+                job,
+                reason="desktop Replay verification worker launch failed",
+            )
+            return DesktopWorkerOutcome(status, job.job_id, job.attempt)
+
+        last_heartbeat = self.monotonic()
+        cleanup_count: int | None = None
+        try:
+            while tree.process.poll() is None:
+                if stop_requested():
+                    cleanup_count = tree.active_process_count()
+                    tree.terminate()
+                    self._save_checkpoint(
+                        job,
+                        position=f"replay:attempt:{job.attempt}:host-stop",
+                        completed=0,
+                        total=1,
+                        payload={"restart_required": True},
+                    )
+                    status = self._retry_or_fail(
+                        job,
+                        reason="desktop host stopped Replay verification",
+                    )
+                    tree.process.communicate()
+                    return DesktopWorkerOutcome(
+                        status,
+                        job.job_id,
+                        job.attempt,
+                        tree.process.returncode,
+                        cleanup_count,
+                    )
+                now = self.now()
+                signal_value = self.catalog.control_signal(
+                    job.job_id,
+                    lease_token=job.lease_token,
+                    now=now,
+                )
+                if signal_value.cancel_requested:
+                    cleanup_count = tree.active_process_count()
+                    tree.terminate()
+                    tree.process.communicate()
+                    self._save_checkpoint(
+                        job,
+                        position=f"replay:attempt:{job.attempt}:cancelled",
+                        completed=0,
+                        total=1,
+                        payload={"cancel_acknowledged": True},
+                    )
+                    self.catalog.finish_cancelled(
+                        job.job_id,
+                        actor=self.worker_id,
+                        now=self.now(),
+                        reason="desktop_replay_verification_cancel_ack",
+                        lease_token=job.lease_token,
+                    )
+                    return DesktopWorkerOutcome(
+                        "cancelled",
+                        job.job_id,
+                        job.attempt,
+                        tree.process.returncode,
+                        cleanup_count,
+                    )
+                if (
+                    signal_value.attempt_timeout_exceeded
+                    or signal_value.job_deadline_exceeded
+                ):
+                    cleanup_count = tree.active_process_count()
+                    tree.terminate()
+                    tree.process.communicate()
+                    recovered = self.catalog.recover_timed_out_attempt(
+                        job.job_id,
+                        lease_token=job.lease_token,
+                        now=now,
+                        actor=self.worker_id,
+                    )
+                    return DesktopWorkerOutcome(
+                        recovered.state.value,
+                        job.job_id,
+                        job.attempt,
+                        tree.process.returncode,
+                        cleanup_count,
+                    )
+                if self.monotonic() - last_heartbeat >= self.lease_seconds / 3:
+                    self.catalog.heartbeat(
+                        job.job_id,
+                        lease_token=job.lease_token,
+                        now=now,
+                        lease_seconds=self.lease_seconds,
+                    )
+                    last_heartbeat = self.monotonic()
+                self.sleep(self.poll_seconds)
+            stdout, stderr = tree.process.communicate()
+            return_code = tree.process.returncode
+            cleanup_count = tree.active_process_count()
+        finally:
+            try:
+                if tree.process.poll() is None:
+                    tree.terminate()
+            finally:
+                tree.close()
+
+        if return_code != 0:
+            diagnostic = (stderr or stdout).encode("utf-8")[:MAX_DIAGNOSTIC_BYTES]
+            self.catalog.fail_job(
+                job.job_id,
+                actor=self.worker_id,
+                now=self.now(),
+                error_code="replay_failed",
+                error_message="fresh Replay verification failed: "
+                + stable_digest(diagnostic.hex(), prefix="workerlog_"),
+                lease_token=job.lease_token,
+            )
+            return DesktopWorkerOutcome(
+                "failed",
+                job.job_id,
+                job.attempt,
+                return_code,
+                cleanup_count,
+            )
+
+        try:
+            validated = self._validate_replay_artifact(verification_path)
+            if validated.route_id != job.spec.payload["route_id"]:
+                raise ValueError("Replay verification report Route ID mismatch")
+            if validated.replay_manifest_hash != job.spec.payload[
+                "replay_manifest_hash"
+            ]:
+                raise ValueError("Replay verification report manifest hash mismatch")
+            if validated.route_document_digest != expected_route_digest:
+                raise ValueError("Replay verification report Route document mismatch")
+        except (KeyError, TypeError, ValueError, OSError, json.JSONDecodeError):
+            self.catalog.quarantine_job(
+                job.job_id,
+                actor=self.worker_id,
+                now=self.now(),
+                reason="Replay verification worker returned invalid artifacts",
+                lease_token=job.lease_token,
+            )
+            return DesktopWorkerOutcome(
+                "quarantined",
+                job.job_id,
+                job.attempt,
+                return_code,
+                cleanup_count,
+            )
+
+        self._save_checkpoint(
+            job,
+            position=f"replay:attempt:{job.attempt}:verified",
+            completed=1,
+            total=1,
+            payload={
+                "route_id": validated.route_id,
+                "status": "verified",
+                "verification_id": validated.verification_id,
+            },
+            semantic_result_digest=validated.semantic_result_digest,
+        )
+        now = self.now()
+        staged = [
+            self.publisher.stage_bytes(
+                job,
+                lease_token=job.lease_token,
+                now=now,
+                logical_path="fresh-replay-verification.json",
+                kind="fresh-replay-verification",
+                artifact_schema_version=FRESH_REPLAY_VERIFICATION_SCHEMA_VERSION,
+                content=validated.report_content,
+            )
+        ]
+        self.publisher.publish(
+            job,
+            actor=self.worker_id,
+            now=self.now(),
+            lease_token=job.lease_token,
+            staged_artifacts=staged,
+        )
+        route_path.unlink(missing_ok=True)
+        verification_path.unlink(missing_ok=True)
+        return DesktopWorkerOutcome(
+            "succeeded",
+            job.job_id,
+            job.attempt,
+            return_code,
+            cleanup_count,
         )
 
 

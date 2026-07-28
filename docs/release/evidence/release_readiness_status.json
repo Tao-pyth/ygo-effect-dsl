@@ -1,0 +1,71 @@
+{
+  "evidence_dir_name": "evidence",
+  "evidence_id": "releasereadiness_f8e7f960582f9b85819dce55c5634a1041e0a0de0b332fc392f68cc4b7a0d32a",
+  "incomplete_versions": [],
+  "passed": true,
+  "ready_versions": [
+    "0.5.1",
+    "0.6.0",
+    "0.7.0"
+  ],
+  "schema_version": "release-readiness-status-v1",
+  "stages": [
+    {
+      "gate": {
+        "evidence_id": "pytestprofilegate_54e5e80dbb07e75094db59a67878f74332712613a611b00859921ace8811c40a",
+        "file": "pytest_profile_gate.json",
+        "passed": true,
+        "valid": true
+      },
+      "ready": true,
+      "rejection_reasons": [],
+      "stage": "0.5.1"
+    },
+    {
+      "adopted_self_hosted_evidence": {
+        "audit_evidence_id": "releaseevidenceaudit_0531a7e0875b3e66f586afe19d0fe89facc1c294eeae40694b95cffbc0b2ae40",
+        "passed": true,
+        "verification_evidence_id": "releaseevidenceverify_d7df2a508f38576252368217f9caa54a82230bf223872f93235f4a067288b9db",
+        "verified_files": [
+          "parallel_search_gate.json",
+          "parallel_search_records.json",
+          "release_self_hosted_evidence_audit.json",
+          "research_dashboard_gate.json",
+          "research_dashboard_qualification.json"
+        ]
+      },
+      "gate": {
+        "evidence_id": "parsearchgate_9a35d00a2ff4b04c0be6f85fb94263dbdea08c9cf9e3488a5c208fcc5b7d647c",
+        "file": "parallel_search_gate.json",
+        "passed": true,
+        "valid": true
+      },
+      "ready": true,
+      "rejection_reasons": [],
+      "stage": "0.6.0"
+    },
+    {
+      "adopted_self_hosted_evidence": {
+        "audit_evidence_id": "releaseevidenceaudit_0531a7e0875b3e66f586afe19d0fe89facc1c294eeae40694b95cffbc0b2ae40",
+        "passed": true,
+        "verification_evidence_id": "releaseevidenceverify_e6d74742fd4e5a68c971c2e6f0b5e1f162310312cf9492b481ce82cc02947327",
+        "verified_files": [
+          "parallel_search_gate.json",
+          "parallel_search_records.json",
+          "release_self_hosted_evidence_audit.json",
+          "research_dashboard_gate.json",
+          "research_dashboard_qualification.json"
+        ]
+      },
+      "gate": {
+        "evidence_id": "researchdashgate_eb4fffc2631c64275614cf4d1e52c1c24535308c31fbbc621a3a48b4f910f80a",
+        "file": "research_dashboard_gate.json",
+        "passed": true,
+        "valid": true
+      },
+      "ready": true,
+      "rejection_reasons": [],
+      "stage": "0.7.0"
+    }
+  ]
+}

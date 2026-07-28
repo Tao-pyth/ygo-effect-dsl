@@ -37,6 +37,7 @@ from ygo_effect_dsl.engine.information import (
     audit_information_artifact,
 )
 from ygo_effect_dsl.engine.search import (
+    ParallelSearchPolicy,
     SEARCH_ARTIFACT_COMMIT_SCHEMA_VERSION,
     SEARCH_RUN_FAILURE_SCHEMA_VERSION,
     SEARCH_RUN_REPORT_SCHEMA_VERSION,
@@ -92,6 +93,17 @@ def _worker_evidence(adapter: object) -> dict[str, object]:
     }
 
 
+def _parallel_policy_evidence(experiment: Mapping[str, object]) -> dict[str, object]:
+    search = experiment.get("search")
+    parameters = search.get("parameters") if isinstance(search, Mapping) else None
+    if not isinstance(parameters, Mapping) or not isinstance(
+        parameters.get("parallel"),
+        Mapping,
+    ):
+        return {}
+    return {"parallel_policy": ParallelSearchPolicy.from_experiment(experiment).to_dict()}
+
+
 def _execution_failure_report(
     *,
     adapter: object,
@@ -112,6 +124,7 @@ def _execution_failure_report(
         "preflight": preflight,
         "schema_version": SEARCH_RUN_FAILURE_SCHEMA_VERSION,
         "status": failure_status,
+        **_parallel_policy_evidence(preflight.get("experiment", {})),
         **_worker_evidence(adapter),
     }
 
@@ -318,6 +331,7 @@ def cmd_experiment_search(args: argparse.Namespace) -> int:
     report = {
         **result.to_dict(),
         "artifact_commit": _search_artifact_commit("not_published"),
+        **_parallel_policy_evidence(experiment),
         "preflight": preflight.to_dict(),
         "report_schema_version": SEARCH_RUN_REPORT_SCHEMA_VERSION,
         "status": "no_route" if result.best_route is None else "publishing",

@@ -12,7 +12,7 @@ repository/distribution名 `ygo-effect-dsl`、Python import `ygo_effect_dsl`、C
 
 ## Versionと互換性
 
-現在のpackage/CLI releaseは **`0.5.0`**、Git tagは **`v0.5.0`** です。これはPythonエンジニア向けのWindows desktop analytics source milestoneであり、production対応や第三者assetの再配布を保証する一般公開distributionではありません。`0.4.0`の機能段階は独立tagを作らず、この累積releaseへ収録しました。`0.5.1`は検証効率化のactive maintenance、`0.6.0`は決定論的node-level並列探索と探索時間短縮、`0.7.0`は実成果物、位置別terminal preference、Route randomness、独立fresh Replayを扱う研究dashboardのplanned release、`1.0.0`はproduction/distribution gateです。
+現在のpackage/CLI releaseは **`0.5.0`**、Git tagは **`v0.5.0`** です。これはPythonエンジニア向けのWindows desktop analytics source milestoneであり、production対応や第三者assetの再配布を保証する一般公開distributionではありません。`0.4.0`の機能段階は独立tagを作らず、この累積releaseへ収録しました。`0.5.1`、`0.6.0`、`0.7.0`はsource release evidenceがreadyで、`1.0.0`はproduction/distribution gateです。
 
 package versionと機能契約のschema versionは独立して管理します。package versionは配布物全体の変更をSemVerで表し、schema versionは保存データまたはAPIの互換境界を表します。したがって、Experiment `0.4`をpackage `0.4.0`へ揃える運用は行いません。
 
@@ -20,14 +20,15 @@ package versionと機能契約のschema versionは独立して管理します。
 |---|---|---|
 | Package / CLI | `0.5.0` | 実core探索、PlayerView、Windows desktop、corpus analyticsを含むsource milestone |
 | Project identity | `project-identity-v1` | repository、import、CLI、製品説明の安定名 |
+| Test/release profile | `pytest-profile-plan-v1` / `pytest-profile-measurement-v1` / `pytest-profile-suite-v1` / `pytest-profile-summary-v1` / `pytest-profile-release-gate-v1` | `0.5.1`向けのpytest primary profile分類、profile別wall/stdout/stderr/RSS測定、baseline/current・cold/warm suite、baseline比削減gate集計、release gate統合。baseline/current全profile測定済み、成功時stdout/stderr削減済み、release profile選択による削減gate通過済み。release gateはsuite/summary measurement IDsとsuite profile plan IDsをwitnessとして保存し、persisted gateのrejection/passを再評価する |
 | Experiment | `0.4` | 現行scenario/search入力。`0.3b`は実行互換、`0.3a`は読み取り・migration入力 |
 | Scenario / preflight | `scenario-v1` / `scenario-manifest-v1` / `scenario-preflight-v1` | YDK/inline、初手、asset/card/script事前検査 |
 | Decision / Action / Replay | `0.3a` | request、選択、再生の基礎契約。`ygo-replay-manifest-v1` / `fresh-replay-verification-v1` |
 | Route DSL | `0.1` | 最良Routeの交換形式。正規化出力は`route-normalization-v2` |
 | Information boundary | `information-policy-v1` / `information-audit-v1` | 探索・評価が参照できる情報とaccess証跡 |
 | State identity | `ygo-state-id-v1` / `ygo-rule-state-v1` / `ygo-visibility-state-v1` | exact dedup、ルール状態、可視性状態 |
-| Evaluation | `evaluation-result-v1` / `score-breakdown-v1` / `route-resource-consumption-v1` | 成功、盤面score、資源消費。位置別terminal preference profileは`0.7.0`計画でありschema未予約 |
-| Search executor | `search-executor-v5` / `search-frontier-v2` / `search-run-result-v5` / `search-strategy-evidence-v1` / `search-run-report-v1` / `search-run-failure-v2` / `search-artifact-commit-v1` / `random-search-strategy-v1` / `beam-search-strategy-v1` / `mcts-strategy-v1` | Random、層単位Beam、直列semantic update MCTSを同一executorで実行する。node-level worker poolは`0.6.0`計画であり現行runtimeには未接続 |
+| Evaluation | `evaluation-result-v1` / `score-breakdown-v1` / `route-resource-consumption-v1` / `terminal-board-projection-v1` / `terminal-preference-profile-v1` / `terminal-preference-evaluation-v1` | 成功、盤面score、資源消費、位置別terminal preference profile/evaluation。`0.7.0` release gateは採用済みevidenceで通過 |
+| Search executor | `search-executor-v5` / `search-frontier-v2` / `search-run-result-v5` / `search-strategy-evidence-v1` / `search-run-report-v1` / `search-run-failure-v2` / `search-artifact-commit-v1` / `random-search-strategy-v1` / `beam-search-strategy-v1` / `mcts-strategy-v1` / `parallel-search-release-records-v1` / `parallel-search-release-gate-v1` | Random、層単位Beam、直列semantic update MCTSを同一executorで実行する。`search.parameters.parallel`はRandom/Beam/MCTSとdesktop composeに接続済みで、SearchRun reportからgate recordsを作るnormalizer、best Route/artifact/Route file同一性・Route SHA・ranking検証、redacted input manifestのreport/Route SHA witness、budget/committed-node invariant、100,000 committed-node/node-budget/replay-budget下限、record/gate順序正規化、duplicate repeat拒否、0-origin contiguous repeat sequence検証、content-addressed record bundle検証、release CLIでのraw records拒否、persisted gateのrecord_bundle/source summary redaction witnessとprofile/rejection/pass再評価、実測gate判定器、source evidence要約、採用済みself-hosted parallel-search gate evidenceを追加済み |
 | Search support | `search-termination-v1` / `prefix-cache-policy-v1` / `parallel-search-result-v2` / `pruning-guardrail-policy-v2` | 予算、cache、並列結果、枝刈りguardrail |
 | Real-core frontier | `real-core-frontier-v2` / `real-core-worker-failure-v1` / `real-core-frontier-worker-attempt-v1` / `real-core-frontier-worker-failure-v1` | fresh worker Replay、state completeness、retry/quarantine evidence |
 | Core bootstrap qualification | `ocgcore-clean-bootstrap-qualification-v1` | 空root、再実行、build/download中断復旧とper-build runtime hashのlocal証跡 |
@@ -37,9 +38,9 @@ package versionと機能契約のschema versionは独立して管理します。
 | Specified interruption | `core-interruption-candidate-policy-v1` / `interruption-support-taxonomy-v1` | core提示candidateだけを使う妨害分岐、fixed-fixture production範囲、未検証timing categoryのfail-close |
 | Storage / aggregation | `raw-event-log-v1` / `run-catalog-v2` / `aggregation-v1` | JSONL、run catalog、optional Parquet集計 |
 | Corpus / job | `corpus-manifest-v1` / `job-state-machine-v1` / `job-catalog-v2` | provenance、dedup、quarantine、lease、cancel、retry、checkpoint、atomic artifact commit |
-| Analytics | `analytics-query-contract-v1` / `analytics-comparison-contract-v1` / `parquet-lifecycle-contract-v1` / `analytics-export-contract-v1` | snapshot query、比較、compaction/migration、JSON/CSV/Parquet parity |
-| Windows desktop | `desktop-workflow-v1` / `desktop-bridge-v1` / `desktop-search-worker-v1` / `desktop-virtual-table-v1` | deck-first dashboard、real-core job、card detail、500行cursor virtualization。実result hydrationと研究workbench化は`0.7.0`計画 |
-| Research dashboard | package `0.7.0` planned、contract version未予約 | commit済み実artifact、terminal preference、gameplay randomness、fresh Replay、Top-K/coverageを統合する後続stage |
+| Analytics | `analytics-query-contract-v1` / `analytics-comparison-contract-v1` / `parquet-lifecycle-contract-v1` / `analytics-export-contract-v1` | snapshot query、cohort/provenance fields、比較、compaction/migration、JSON/CSV/Parquet parity |
+| Windows desktop | `desktop-workflow-v1` / `desktop-bridge-v1` / `desktop-search-worker-v1` / `desktop-virtual-table-v1` / `desktop-result-view-v1` | deck-first dashboard、real-core job、card detail、500行cursor virtualization、committed result hydration、Replay verification enqueue、Top-K/candidate evidence drill-down。`0.7.0`研究workbench release gateは採用済みevidenceで通過 |
+| Research dashboard | package `0.7.0` ready / `desktop-result-view-v1` / `research-dashboard-release-gate-v1` / `research-dashboard-qualification-v1` | commit済み実artifact、terminal preference/profile selection and clone editing、opening-hand mode controls、qualified evaluator/success presets、inline deck registration、gameplay randomness、fresh Replay、Top-K/coverage、conditioned cohort analyticsを統合。静的gate、`job.result`/inline deck/scenario composeのpath入力拒否、scenario composeのrenderer rule inference拒否、committed artifact要求、bridge/analytics contract version記録、static witnessからのpassed再評価、terminal preference composite scoreとbest Route scoreの一致検証、Top-K ranking summaryとcommitted best Routeの一致検証、candidate evidence count再計算とcoverage certificateの`frontier_exhausted`意味検証、qualification証跡のcontent-address検証、必須5 checkの固定と順序正規化、passing check別のartifact/checksum・fresh Replay・screenshot/a11y・security/redaction・resource budget witness要求、passing evidence artifact manifestのSHA/path redaction検証、必須static/manual gate check set固定、duplicate gate check拒否、gate pass/rejection整合性検証、採用済みdashboard qualification evidenceまで機械化済み |
 | Analytics scale | `analytics-scale-calibration-v1` | 10万run、100万Event/Decision row、10万aggregation rowのlocal evidence |
 | Benchmark / policy | `general-search-benchmark-v1` / `real-core-benchmark-base-routes-v2` / `cache-worker-policy-v2` / `memory-preflight-v2` | 外部qualification 3 Routeによる10万logical node校正 |
 | Real Replay policy | `real-core-replay-benchmark-v1` / `real-core-worker-policy-v1` / `real-core-memory-preflight-v1` | 480 fresh Replayのpool別throughput/RSS。既定pool 4、最大8、memory上限1.5 GiB |
@@ -135,7 +136,7 @@ production前または後続Issue:
 - production運用、互換性、一般公開配布（#127/#134）
 - #91のライセンス・第三者成果物審査。完了までは第三者assetを同梱・公開配布しない
 
-次の`0.5.1`は全回帰範囲を弱めず、検証profile、fixture重複、CI wall time、成功時log量を減らすmaintenance releaseです。続く`0.6.0`は[#258](https://github.com/Tao-pyth/ygo-effect-dsl/issues/258)を親に、現行の独立parallel contractを実SearchExecutorへ接続し、Random/Beam/MCTS、CLI/API/desktopをbounded process poolで動かします。その後の`0.7.0`は[#276](https://github.com/Tao-pyth/ygo-effect-dsl/issues/276)を親に、固定synthetic resultを実artifactへ置換し、カードの手札・表側場・set・墓地等に対するimmutable評価profile、Route gameplay randomness、独立fresh Replay、Top-K/coverageを研究dashboardへ統合します。#110の枝刈り統計と#108の既存評価weightは品質向上課題として継続し、完了までは既定有効化や一般deck品質の根拠に使いません。`1.0.0`は`#91/#134`のライセンス、互換性、配布、運用gateを満たした場合だけ候補にします。既存schemaの意味や保存形式を変更する場合はpackage番号に追従させず、その機能契約自体を別versionへ上げます。
+次の`0.5.1`は全回帰範囲を弱めず、検証profile、fixture重複、CI wall time、成功時log量を減らすmaintenance releaseです。続く`0.6.0`は[#258](https://github.com/Tao-pyth/ygo-effect-dsl/issues/258)を親に、現行の独立parallel contractを実SearchExecutorへ接続し、Random/Beam/MCTS、CLI/API/desktopをbounded process poolで動かします。その後の`0.7.0`は[#276](https://github.com/Tao-pyth/ygo-effect-dsl/issues/276)を親に、固定synthetic resultを実artifactへ置換し、カードの手札・表側場・set・墓地等に対するimmutable評価profile、fixed/conditional opening hand UI、qualified evaluator/success presets、inline deck registration、Route gameplay randomness、独立fresh Replay、Top-K/coverageを研究dashboardへ統合します。#110の枝刈り統計と#108の既存評価weightは品質向上課題として継続し、完了までは既定有効化や一般deck品質の根拠に使いません。`1.0.0`は`#91/#134`のライセンス、互換性、配布、運用gateを満たした場合だけ候補にします。既存schemaの意味や保存形式を変更する場合はpackage番号に追従させず、その機能契約自体を別versionへ上げます。
 
 実core MVPは`#119 → #124 → #121 → #120 → #122/#123 → #105`の依存順で実装し、その後にBeam/MCTS、PlayerView、desktop analyticsを接続しました。10万nodeと10万run/100万row evidenceは手動またはself-hosted workflow、CIは縮小smoke corpusを使用します。
 
@@ -145,7 +146,7 @@ production前または後続Issue:
 
 `0.6.0`ではfresh Replay隔離を維持したsingle-host process poolを追加し、pool 1を現行serial互換経路として残します。node/replay/depth budgetではpool 1/2/4のsemantic digest、best Route、lineage一致を必須とします。wall-clock deadlineはhost負荷に依存するため`timing_censored`として別扱いにし、完全一致の根拠には使いません。
 
-性能gateは、同一Windows host・同一workloadのwarm runでpool 4がpool 1に対し、3代表fixture中2件以上でmedian wall timeを25%以上短縮し、どのfixtureも10%を超えて悪化させないことです。未達ならparallel modeを既定化せず、`0.6.0`を探索時間短縮済みとして完了扱いにしません。詳細は[0.6.0 scope](docs/spec/v0.6.0/00_scope.md)と[work breakdown](docs/spec/v0.6.0/20_work_breakdown_and_acceptance.md)を参照してください。
+性能gateは、同一Windows host・同一workloadのwarm runでpool 4がpool 1に対し、3代表fixture中2件以上でmedian wall timeを25%以上短縮し、どのfixtureも10%を超えて悪化させないことです。`parallel-search-release-gate-v1`はこの判定を機械化しますが、実測evidence未達ならparallel modeを既定化せず、`0.6.0`を探索時間短縮済みとして完了扱いにしません。詳細は[0.6.0 scope](docs/spec/v0.6.0/00_scope.md)と[work breakdown](docs/spec/v0.6.0/20_work_breakdown_and_acceptance.md)を参照してください。
 
 ## Planned 0.7.0: evidence-driven research dashboard
 
@@ -153,7 +154,7 @@ production前または後続Issue:
 
 Route内のcoin、dice、random selection、shuffle/draw依存はgameplay randomness eventとして保存し、opening-hand sampling、Search RNG、worker完了順と分離します。同一seedでReplayできることと実戦上の確率非依存を混同せず、既定rankingはsuccessとterminal composite scoreを優先した上で非random Routeを優先します。確率Routeの絶対除外は明示的なstrict policyだけで行います。
 
-UIは先攻初期盤面構築presetを維持し、後攻盤面、相手AI、複数turnリレーを直近scopeに含めません。frontier exhaustion、checkpoint/resume、adaptive budgetにもhard resource limitとcoverage証跡を要求し、node無制限modeは提供しません。代表カードを他card variantの代替とする機能や、効果を封殺するcost-card modeは採用せず、具体カードとocgcoreの合法Actionを正本とします。詳細は[ADR-0017](docs/adr/0017_v07_research_dashboard_evaluation_and_reliability.md)、[ADR-0018](docs/adr/0018_reject_representative_and_cost_card_modes.md)、[0.7.0 scope](docs/spec/v0.7.0/00_scope.md)、[research dashboard workflow](docs/spec/v0.7.0/15_research_dashboard_workflow.md)、[work breakdown](docs/spec/v0.7.0/20_work_breakdown_and_acceptance.md)を参照してください。
+UIは先攻初期盤面構築presetを維持し、後攻盤面、相手AI、複数turnリレーを直近scopeに含めません。frontier exhaustion、checkpoint/resume、adaptive budgetにもhard resource limitとcoverage証跡を要求し、node無制限modeは提供しません。代表カードを他card variantの代替とする機能、効果を封殺するcost-card mode、公式third-party APIなしのNeuron direct importは採用せず、具体カードとocgcoreの合法Actionを正本とします。詳細は[ADR-0017](docs/adr/0017_v07_research_dashboard_evaluation_and_reliability.md)、[ADR-0018](docs/adr/0018_reject_representative_and_cost_card_modes.md)、[ADR-0019](docs/adr/0019_reject_neuron_direct_import_without_official_api.md)、[0.7.0 scope](docs/spec/v0.7.0/00_scope.md)、[research dashboard workflow](docs/spec/v0.7.0/15_research_dashboard_workflow.md)、[work breakdown](docs/spec/v0.7.0/20_work_breakdown_and_acceptance.md)を参照してください。
 
 ## セットアップ
 
@@ -182,7 +183,38 @@ python -m ygo_effect_dsl experiment-run examples/experiments/real_core_effect_ve
 python -m ygo_effect_dsl experiment-replay examples/experiments/real_core_effect_veiler_interrupted.yaml data/prototype/interrupted.route.yaml
 python -m ygo_effect_dsl experiment-search examples/experiments/general_search_inline.yaml --out data/prototype/general-search.route.yaml --search-report data/prototype/general-search.report.json
 python -m ygo_effect_dsl experiment-replay examples/experiments/general_search_inline.yaml data/prototype/general-search.route.yaml --verification-report data/prototype/general-search.replay-verification.json
+python -m ygo_effect_dsl test-profile-plan --repo-root . --out docs/release/evidence/pytest_profile_plan.json
+python -m ygo_effect_dsl test-profile-run --repo-root . --profile release --out docs/release/evidence/pytest_profile_release.json
+python -m ygo_effect_dsl test-profile-suite --repo-root . --profile release --phase current --temperature warm --suppress-success-output --out docs/release/evidence/pytest_profile_suite.json
+python -m ygo_effect_dsl test-profile-suite --repo-root . --existing-suite docs/release/evidence/pytest_profile_suite.json --profile packaging --phase current --temperature warm --suppress-success-output --out docs/release/evidence/pytest_profile_suite.json
+python -m ygo_effect_dsl test-profile-suite --repo-root . --existing-suite docs/release/evidence/pytest_profile_suite.json --profile evidence --phase current --temperature warm --suppress-success-output --out docs/release/evidence/pytest_profile_suite.json
+python -m ygo_effect_dsl test-profile-suite --repo-root . --existing-suite docs/release/evidence/pytest_profile_suite.json --profile integration --phase current --temperature warm --suppress-success-output --out docs/release/evidence/pytest_profile_suite.json
+python -m ygo_effect_dsl test-profile-suite --repo-root . --existing-suite docs/release/evidence/pytest_profile_suite.json --profile unit --phase current --temperature warm --suppress-success-output --out docs/release/evidence/pytest_profile_suite.json
+python -m ygo_effect_dsl test-profile-suite --repo-root . --existing-suite docs/release/evidence/pytest_profile_suite.json --profile real_core --phase current --temperature warm --suppress-success-output --out docs/release/evidence/pytest_profile_suite.json
+python -m ygo_effect_dsl test-profile-suite --repo-root . --existing-suite docs/release/evidence/pytest_profile_suite.json --profile release --profile packaging --profile evidence --phase current --temperature cold --out docs/release/evidence/pytest_profile_suite.json
+python -m ygo_effect_dsl test-profile-suite --repo-root . --existing-suite docs/release/evidence/pytest_profile_suite.json --profile integration --phase current --temperature cold --out docs/release/evidence/pytest_profile_suite.json
+python -m ygo_effect_dsl test-profile-suite --repo-root . --existing-suite docs/release/evidence/pytest_profile_suite.json --profile unit --phase current --temperature cold --out docs/release/evidence/pytest_profile_suite.json
+python -m ygo_effect_dsl test-profile-suite --repo-root . --existing-suite docs/release/evidence/pytest_profile_suite.json --profile real_core --phase current --temperature cold --out docs/release/evidence/pytest_profile_suite.json
+python -m ygo_effect_dsl test-profile-suite --repo-root ../ygo-effect-dsl-baseline-v0.5.0 --existing-suite docs/release/evidence/pytest_profile_suite.json --profile release --profile packaging --profile evidence --phase baseline --temperature cold --temperature warm --out docs/release/evidence/pytest_profile_suite.json
+python -m ygo_effect_dsl test-profile-suite --repo-root ../ygo-effect-dsl-baseline-v0.5.0 --existing-suite docs/release/evidence/pytest_profile_suite.json --profile unit --profile integration --phase baseline --temperature cold --temperature warm --out docs/release/evidence/pytest_profile_suite.json
+python -m ygo_effect_dsl test-profile-suite --repo-root ../ygo-effect-dsl-baseline-v0.5.0 --existing-suite docs/release/evidence/pytest_profile_suite.json --profile real_core --phase baseline --temperature cold --temperature warm --out docs/release/evidence/pytest_profile_suite.json
+python -m ygo_effect_dsl test-profile-summary --measurement docs/release/evidence/pytest_profile_release.json --out docs/release/evidence/pytest_profile_summary.json
+python -m ygo_effect_dsl test-profile-summary --suite docs/release/evidence/pytest_profile_suite.json --suite-phase current --suite-temperature warm --baseline-suite docs/release/evidence/pytest_profile_suite.json --baseline-suite-phase baseline --baseline-suite-temperature warm --out docs/release/evidence/pytest_profile_summary.json
+python -m ygo_effect_dsl test-profile-gate --plan docs/release/evidence/pytest_profile_plan.json --suite docs/release/evidence/pytest_profile_suite.json --summary docs/release/evidence/pytest_profile_summary.json --out docs/release/evidence/pytest_profile_gate.json
 python -m ygo_effect_dsl real-deck-qualify --experiment short=D:/qualification/short.yaml --experiment long=D:/qualification/long.yaml --experiment grave_banish=D:/qualification/grave-banish.yaml --artifact-root D:/qualification/raw --index-out docs/qualification/real-deck-index.json
+python -m ygo_effect_dsl parallel-search-collect --experiment short_line=D:/qualification/short.yaml --experiment long_line=D:/qualification/long.yaml --experiment grave_banish_or_chain=D:/qualification/grave-banish.yaml --artifact-root D:/qualification/parallel-search-raw --manifest-out D:/qualification/parallel-search-report-manifest.json --records-out D:/qualification/parallel-search-records.json --pool-sizes 1,2,4 --repeat-count 5 --max-nodes 100000 --max-replays 100000 --external-root D:/ygo-effect-dsl-external --require-release-grid
+python -m ygo_effect_dsl parallel-search-records --manifest D:/qualification/parallel-search-report-manifest.json --out D:/qualification/parallel-search-records.json
+python -m ygo_effect_dsl parallel-search-gate --records D:/qualification/parallel-search-records.json --out D:/qualification/parallel-search-gate.json
+python -m ygo_effect_dsl parallel-search-gate --records docs/release/evidence/parallel_search_records_pending.json --source-evidence docs/search/evidence/real_core_parallel_stress.json --source-evidence docs/adr/evidence/0105_general_search_100k.json --out docs/release/evidence/parallel_search_gate.json
+python -m ygo_effect_dsl research-dashboard-qualification-manifest-template --artifact-root D:/qualification/dashboard-artifacts --out D:/qualification/research-dashboard-manifest.json
+python -m ygo_effect_dsl research-dashboard-qualification --checks docs/release/evidence/research_dashboard_qualification_checks_pending.json --out docs/release/evidence/research_dashboard_qualification.json
+python -m ygo_effect_dsl research-dashboard-gate --repo-root . --qualification docs/release/evidence/research_dashboard_qualification.json --out docs/release/evidence/research_dashboard_gate.json
+python -m ygo_effect_dsl release-readiness-status --evidence-dir docs/release/evidence --out docs/release/evidence/release_readiness_status.json
+python -m ygo_effect_dsl release-readiness-verify --evidence-dir docs/release/evidence --status docs/release/evidence/release_readiness_status.json
+python -m ygo_effect_dsl release-self-hosted-evidence-audit --artifact-dir D:/qualification/release-self-hosted-evidence --expected-commit <commit-sha> --expected-run-id <github-run-id> --require-parallel-search --require-research-dashboard --out D:/qualification/release-self-hosted-evidence/audit.json
+python -m ygo_effect_dsl release-self-hosted-evidence-adopt --artifact-dir D:/qualification/release-self-hosted-evidence --expected-commit <commit-sha> --expected-run-id <github-run-id> --adopt-parallel-search --adopt-research-dashboard
+python -m ygo_effect_dsl release-self-hosted-evidence-verify-adopted --evidence-dir docs/release/evidence --expected-commit <commit-sha> --expected-run-id <github-run-id> --require-parallel-search --require-research-dashboard --out docs/release/evidence/release_self_hosted_evidence_verification.json
+python -m ygo_effect_dsl release-readiness-verify --evidence-dir docs/release/evidence --status docs/release/evidence/release_readiness_status.json --expected-commit <commit-sha> --expected-run-id <github-run-id> --require-passed
 python -m ygo_effect_dsl ocgcore-lua-qualify --out docs/ocgcore/evidence/lua_load_qualification.json
 python -m ygo_effect_dsl ocgcore-decision-corpus --route data/prototype/real-core-route.yaml --out data/prototype/decision-corpus.json
 ```
@@ -227,6 +259,7 @@ python -m pytest
 - [ADR-0008: Project name and boundary](docs/adr/0008_project_name_and_boundary.md)
 - [ADR-0017: Research Dashboard Evaluation and Route Reliability](docs/adr/0017_v07_research_dashboard_evaluation_and_reliability.md)
 - [ADR-0018: Reject Representative and Cost Card Modes](docs/adr/0018_reject_representative_and_cost_card_modes.md)
+- [ADR-0019: Reject NEURON Direct Import Without Official API](docs/adr/0019_reject_neuron_direct_import_without_official_api.md)
 - [0.7.0 Research Dashboard Specifications](docs/spec/v0.7.0/00_scope.md)
 - [Bridge DecisionRequest](docs/spec/v0.3a/10_bridge_decision_request.md)
 - [Action](docs/spec/v0.3a/20_action.md)

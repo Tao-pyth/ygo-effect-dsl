@@ -553,6 +553,51 @@ def validate_experiment(value: Any) -> tuple[ExperimentValidationIssue, ...]:
     evaluator = _required_mapping(value, "evaluator", issues)
     _plugin(success_predicate, "$.success_predicate", issues)
     _plugin(evaluator, "$.evaluator", issues)
+    preference_profile = value.get("terminal_preference_profile")
+    if preference_profile is not None:
+        if schema_version != EXPERIMENT_SCHEMA_VERSION:
+            issues.append(
+                ExperimentValidationIssue(
+                    "$.terminal_preference_profile",
+                    "field_not_allowed_in_legacy_schema",
+                    "terminal preference profiles require Experiment 0.4",
+                )
+            )
+        elif not isinstance(preference_profile, Mapping):
+            issues.append(
+                ExperimentValidationIssue(
+                    "$.terminal_preference_profile",
+                    "expected_mapping",
+                    "must be a terminal preference profile object",
+                )
+            )
+        else:
+            try:
+                from ygo_effect_dsl.engine.evaluation import TerminalPreferenceProfile
+
+                profile = TerminalPreferenceProfile.from_mapping(
+                    {
+                        "name": preference_profile.get("name"),
+                        "rules": preference_profile.get("rules"),
+                        "schema_version": preference_profile.get("schema_version"),
+                    }
+                )
+                if preference_profile.get("profile_id") != profile.profile_id:
+                    issues.append(
+                        ExperimentValidationIssue(
+                            "$.terminal_preference_profile.profile_id",
+                            "content_id_mismatch",
+                            "must match the terminal preference profile content",
+                        )
+                    )
+            except ValueError as exc:
+                issues.append(
+                    ExperimentValidationIssue(
+                        "$.terminal_preference_profile",
+                        "invalid_terminal_preference_profile",
+                        str(exc),
+                    )
+                )
 
     search = _required_mapping(value, "search", issues)
     if search is not None:

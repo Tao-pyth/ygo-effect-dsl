@@ -32,6 +32,12 @@ jobs:
       - name: Run pytest
         run: python -m pytest
 
+      - name: Verify release readiness evidence is current
+        run: >
+          python -m ygo_effect_dsl release-readiness-verify
+          --evidence-dir docs/release/evidence
+          --status docs/release/evidence/release_readiness_status.json
+
       - name: Build and audit wheel and sdist
         run: |
           python -m build

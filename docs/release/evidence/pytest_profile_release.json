@@ -1,0 +1,40 @@
+{
+  "command": [
+    "C:\\Program Files\\Python313\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_architecture_freeze.py",
+    "tests/test_distribution_policy.py",
+    "tests/test_parallel_search_release_gate.py",
+    "tests/test_project_identity.py",
+    "tests/test_release_audit.py",
+    "tests/test_release_governance.py"
+  ],
+  "environment": {
+    "package_version": "0.5.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python_version": "3.13.7"
+  },
+  "evidence_id": "pytestprofilemeasure_42bdd37f7356e0c0d0ca1b3c6eb612ce0b948f6bfe89048d41f5213a62c4b0cd",
+  "extra_pytest_args": [],
+  "passed": true,
+  "peak_rss_bytes": 59203584,
+  "profile": "release",
+  "profile_plan_id": "pytestprofile_2355cab0f213796a30011c97adc6e92c6f547e584382e0ff4aca3978818ee7ca",
+  "pytest_counts": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 33,
+    "skipped": 0,
+    "xfailed": 0,
+    "xpassed": 0
+  },
+  "return_code": 0,
+  "rss_measurement": "process_peak_working_set",
+  "schema_version": "pytest-profile-measurement-v1",
+  "stderr_bytes": 0,
+  "stdout_bytes": 99,
+  "summary_tail": ".................................                                        [100%]\n33 passed in 4.02s",
+  "wall_seconds": 4.963729
+}
