@@ -1,0 +1,147 @@
+{
+  "checks": [
+    {
+      "category": "support",
+      "evidence": "docs/release/evidence/v1_0_0_support_matrix.json",
+      "id": "support_matrix_supported_rows_verified",
+      "passed": false,
+      "pending_supported_rows": [
+        "windows-11-x64-desktop",
+        "local-ntfs-user-data",
+        "cpython-313-x64",
+        "ocgcore-api-11-user-acquired-assets",
+        "current-experiment-route-replay-search-artifacts",
+        "documented-cli-and-private-pywebview-bridge",
+        "clean-install-windows-x64",
+        "upgrade-rollback-uninstall-reinstall"
+      ],
+      "reason": "supported_rows_not_verified",
+      "required": true
+    },
+    {
+      "blocking_issues": [
+        91,
+        169
+      ],
+      "category": "legal",
+      "evidence": "docs/release/evidence/project_license_approval_status.json",
+      "id": "root_project_license_approved",
+      "passed": false,
+      "reason": "approval_not_recorded",
+      "required": true
+    },
+    {
+      "category": "legal",
+      "evidence": "docs/release/evidence/v1_0_0_sbom.json",
+      "id": "sbom_present",
+      "passed": true,
+      "reason": "verified",
+      "required": true
+    },
+    {
+      "category": "legal",
+      "evidence": "docs/release/evidence/v1_0_0_asset_allowlist.json",
+      "id": "third_party_payload_allowlist_default_deny",
+      "passed": true,
+      "reason": "verified",
+      "required": true
+    },
+    {
+      "category": "release",
+      "evidence": "docs/release/evidence/v1_0_0_release_artifact_composition.json",
+      "id": "release_artifact_composition_references_exist",
+      "passed": true,
+      "reason": "verified",
+      "required": true
+    },
+    {
+      "category": "build",
+      "evidence": ".github/workflows/build-windows-exe.yml",
+      "id": "windows_gui_executable_workflow_smoke",
+      "passed": true,
+      "reason": "verified",
+      "required": true
+    },
+    {
+      "category": "installer",
+      "evidence": "docs/release/evidence/v1_0_0_installer_packaging.json",
+      "id": "installer_packaging_verified",
+      "passed": false,
+      "reason": "missing_evidence",
+      "required": true
+    },
+    {
+      "category": "signing",
+      "evidence": "docs/release/evidence/v1_0_0_authenticode_signing.json",
+      "id": "authenticode_signing_verified",
+      "passed": false,
+      "reason": "missing_evidence",
+      "required": true
+    },
+    {
+      "category": "runtime",
+      "evidence": "docs/release/evidence/v1_0_0_webview2_runtime.json",
+      "id": "webview2_runtime_failure_ux_verified",
+      "passed": false,
+      "reason": "missing_evidence",
+      "required": true
+    },
+    {
+      "category": "assets",
+      "evidence": "docs/release/evidence/v1_0_0_external_asset_setup.json",
+      "id": "external_asset_setup_verified",
+      "passed": false,
+      "reason": "missing_evidence",
+      "required": true
+    },
+    {
+      "category": "security",
+      "evidence": "docs/release/evidence/v1_0_0_security_threat_model.json",
+      "id": "security_threat_model_approved",
+      "passed": false,
+      "reason": "missing_evidence",
+      "required": true
+    },
+    {
+      "category": "validation",
+      "evidence": "docs/release/evidence/v1_0_0_soak_crash_recovery.json",
+      "id": "soak_crash_recovery_verified",
+      "passed": false,
+      "reason": "missing_evidence",
+      "required": true
+    },
+    {
+      "category": "docs",
+      "evidence": "docs/release/evidence/v1_0_0_docs_support_guides.json",
+      "id": "stable_docs_and_support_guides_published",
+      "passed": false,
+      "reason": "missing_evidence",
+      "required": true
+    },
+    {
+      "category": "support",
+      "evidence": "docs/release/evidence/v1_0_0_redacted_support_bundle.json",
+      "id": "redacted_support_bundle_verified",
+      "passed": false,
+      "reason": "missing_evidence",
+      "required": true
+    }
+  ],
+  "evidence_id": "productiondistgate_cad0494ca977d901ad8e9d63ead5037839ed3b4f899a6f7cd49c457a027bb0ff",
+  "issue": 359,
+  "package_version": "0.8.0",
+  "passed": false,
+  "rejection_reasons": [
+    "authenticode_signing_verified:missing_evidence",
+    "external_asset_setup_verified:missing_evidence",
+    "installer_packaging_verified:missing_evidence",
+    "redacted_support_bundle_verified:missing_evidence",
+    "root_project_license_approved:approval_not_recorded",
+    "security_threat_model_approved:missing_evidence",
+    "soak_crash_recovery_verified:missing_evidence",
+    "stable_docs_and_support_guides_published:missing_evidence",
+    "support_matrix_supported_rows_verified:supported_rows_not_verified",
+    "webview2_runtime_failure_ux_verified:missing_evidence"
+  ],
+  "schema_version": "production-distribution-release-gate-v1"
+}

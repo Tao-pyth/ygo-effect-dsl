@@ -38,6 +38,14 @@ jobs:
           --evidence-dir docs/release/evidence
           --status docs/release/evidence/release_readiness_status.json
 
+      - name: Dry-run production distribution gate
+        run: >
+          python -m ygo_effect_dsl production-distribution-gate
+          --repo-root .
+          --evidence-dir docs/release/evidence
+          --out production-distribution-gate-dry-run.json
+          --allow-failed
+
       - name: Build and audit wheel and sdist
         run: |
           python -m build

@@ -26,6 +26,14 @@ jobs:
       - name: Run pytest
         run: python -m pytest
 
+      - name: Dry-run production distribution gate
+        run: >
+          python -m ygo_effect_dsl production-distribution-gate
+          --repo-root .
+          --evidence-dir docs/release/evidence
+          --out production-distribution-gate-dry-run.json
+          --allow-failed
+
       - name: Verify installed package version
         run: >
           python -c "from importlib.metadata import version;

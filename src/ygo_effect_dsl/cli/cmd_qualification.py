@@ -62,6 +62,9 @@ from ygo_effect_dsl.spikes.release_readiness_status import (
     read_release_readiness_status,
     write_release_readiness_status,
 )
+from ygo_effect_dsl.spikes.production_distribution_release_gate import (
+    write_production_distribution_release_gate,
+)
 
 
 def _profile_inputs(values: list[str]) -> dict[str, str]:
@@ -744,6 +747,24 @@ def cmd_release_readiness_verify(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_production_distribution_gate(args: argparse.Namespace) -> int:
+    evidence = write_production_distribution_release_gate(
+        args.repo_root,
+        evidence_dir=args.evidence_dir,
+        output_path=args.out,
+    )
+    status = "passed" if evidence["passed"] else "failed"
+    print(
+        "production-distribution-gate: "
+        f"{status} evidence_id={evidence['evidence_id']} "
+        f"rejections={','.join(evidence['rejection_reasons']) or '-'} "
+        f"out={args.out}"
+    )
+    if evidence["passed"] or args.allow_failed:
+        return 0
+    return 1
+
+
 def cmd_lua_load_qualify(args: argparse.Namespace) -> int:
     report = run_lua_load_qualification(
         external_root=args.external_root,
@@ -785,6 +806,7 @@ __all__ = [
     "cmd_parallel_search_collect",
     "cmd_parallel_search_gate",
     "cmd_parallel_search_records",
+    "cmd_production_distribution_gate",
     "cmd_real_deck_qualify",
     "cmd_research_dashboard_qualification",
     "cmd_research_dashboard_qualification_bundle",

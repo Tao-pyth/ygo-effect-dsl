@@ -43,6 +43,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_parallel_search_collect,
     cmd_parallel_search_gate,
     cmd_parallel_search_records,
+    cmd_production_distribution_gate,
     cmd_real_deck_qualify,
     cmd_research_dashboard_qualification,
     cmd_research_dashboard_qualification_bundle,
@@ -1134,6 +1135,34 @@ def main() -> int:
         ),
     )
     release_readiness_verify.set_defaults(func=cmd_release_readiness_verify)
+
+    production_distribution_gate = sub.add_parser(
+        "production-distribution-gate",
+        help="evaluate the v1.0.0 production distribution release gate",
+    )
+    production_distribution_gate.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing release evidence and workflows",
+    )
+    production_distribution_gate.add_argument(
+        "--evidence-dir",
+        type=Path,
+        default=Path("docs/release/evidence"),
+        help="release evidence directory to aggregate",
+    )
+    production_distribution_gate.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed production distribution gate JSON path",
+    )
+    production_distribution_gate.add_argument(
+        "--allow-failed",
+        action="store_true",
+        help="write failed gate evidence but return zero for CI dry-runs",
+    )
+    production_distribution_gate.set_defaults(func=cmd_production_distribution_gate)
 
     lua_load_qualify = sub.add_parser(
         "ocgcore-lua-qualify",
