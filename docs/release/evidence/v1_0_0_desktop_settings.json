@@ -1,0 +1,46 @@
+{
+  "checks": [
+    {
+      "evidence": "src/ygo_effect_dsl/desktop/settings.py",
+      "id": "versioned_settings_store_validates_and_writes_atomically",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/desktop/service.py",
+      "id": "settings_bridge_fails_closed_before_workers",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/desktop/static/index.html",
+      "id": "settings_ui_reachable_from_desktop_app",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "tests/test_desktop_settings.py",
+      "id": "tests_cover_settings_defaults_persistence_and_recovery",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": ".github/workflows/build-windows-exe.yml",
+      "id": "packaged_desktop_smoke_includes_static_settings_ui",
+      "passed": true,
+      "reason": "verified"
+    }
+  ],
+  "evidence_id": "v1desktopsettings_83e19031059d5f4e666d5159572dca8a014ed5b6ac018177f03cf78f75949214",
+  "issue": 361,
+  "package_version": "0.8.0",
+  "passed": true,
+  "rejection_reasons": [],
+  "release_policy": {
+    "automatic_downloads": false,
+    "settings_file": "desktop-settings.json",
+    "update_channel": "manual",
+    "worker_start_allowed_from_settings": false
+  },
+  "schema_version": "v1-desktop-settings-v1"
+}

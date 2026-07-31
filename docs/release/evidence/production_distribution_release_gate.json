@@ -95,6 +95,14 @@
       "required": true
     },
     {
+      "category": "desktop",
+      "evidence": "docs/release/evidence/v1_0_0_desktop_settings.json",
+      "id": "desktop_settings_preferences_verified",
+      "passed": true,
+      "reason": "verified",
+      "required": true
+    },
+    {
       "category": "security",
       "evidence": "docs/release/evidence/v1_0_0_security_threat_model.json",
       "id": "security_threat_model_approved",
@@ -127,7 +135,7 @@
       "required": true
     }
   ],
-  "evidence_id": "productiondistgate_82adb21cfad78a00b66f812a224062b5c7eb1e948ef94f354638d93350725552",
+  "evidence_id": "productiondistgate_3d3ededf65a009271fbd6d3bf8f7997202cbcd7dcb02d0aa27c22ca265beab42",
   "issue": 359,
   "package_version": "0.8.0",
   "passed": false,

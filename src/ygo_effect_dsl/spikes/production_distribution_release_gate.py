@@ -289,6 +289,14 @@ def evaluate_production_distribution_release_gate(
         ),
         _missing_or_invalid_json_check(
             root,
+            check_id="desktop_settings_preferences_verified",
+            category="desktop",
+            evidence=_evidence_ref(evidence_path, "v1_0_0_desktop_settings.json"),
+            schema_version="v1-desktop-settings-v1",
+            require_passed=True,
+        ),
+        _missing_or_invalid_json_check(
+            root,
             check_id="security_threat_model_approved",
             category="security",
             evidence=_evidence_ref(evidence_path, "v1_0_0_security_threat_model.json"),

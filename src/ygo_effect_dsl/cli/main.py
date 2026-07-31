@@ -57,6 +57,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_release_self_hosted_evidence_verify_adopted,
     cmd_strategy_interruption_qualify,
     cmd_v1_authenticode_signing,
+    cmd_v1_desktop_settings,
     cmd_v1_external_asset_setup,
     cmd_v1_installer_packaging,
     cmd_v1_webview2_runtime,
@@ -1236,6 +1237,23 @@ def main() -> int:
         help="content-addressed v1 external asset setup evidence JSON path",
     )
     v1_external_asset_setup.set_defaults(func=cmd_v1_external_asset_setup)
+
+    v1_desktop_settings = sub.add_parser(
+        "v1-desktop-settings",
+        help="evaluate the v1.0.0 desktop settings and preferences gate",
+    )
+    v1_desktop_settings.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing desktop settings sources and workflows",
+    )
+    v1_desktop_settings.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed v1 desktop settings evidence JSON path",
+    )
+    v1_desktop_settings.set_defaults(func=cmd_v1_desktop_settings)
 
     lua_load_qualify = sub.add_parser(
         "ocgcore-lua-qualify",

@@ -28,6 +28,9 @@
     "profile.list",
     "scenario.compose_search",
     "scenario.preflight",
+    "settings.get",
+    "settings.reset",
+    "settings.update",
     "system.describe",
     "system.external_asset_status",
   ]);

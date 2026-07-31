@@ -72,6 +72,10 @@ const UI_TEXT = Object.freeze({
   localAssetValidationFailed: "ローカル資産検証はfail-closeしました。",
   externalAssetSetupRequired: "外部資産セットアップが必要",
   externalAssetSetupReady: "外部資産検証済み",
+  settingsLoadFailed: "設定の読み込みはfail-closeしました。",
+  settingsSaved: "設定を保存しました。外部資産rootの変更は次回起動で有効です。",
+  settingsSaveFailed: "設定の保存はfail-closeしました。",
+  settingsReset: "設定をresetしました。",
   scenarioPreflightFailed: "シナリオの事前検証はfail-closeしました。",
   terminalProfileCatalogFailed: "終端評価プロファイルカタログはfail-closeしました。",
   desktopSearchDispatchFailed: "デスクトップ探索のdispatchはfail-closeしました。",
@@ -389,6 +393,28 @@ const elements = {
   preferenceProfile: document.querySelector("#preference-profile"),
   editProfiles: document.querySelector("#edit-profiles"),
   profilesPane: document.querySelector("#profiles-pane"),
+  settingsPane: document.querySelector("#settings-pane"),
+  settingsForm: document.querySelector("#settings-form"),
+  settingsStatus: document.querySelector("#settings-status"),
+  settingsExternalRoot: document.querySelector("#settings-external-root"),
+  settingsUpdateChannel: document.querySelector("#settings-update-channel"),
+  settingsAutoDownloads: document.querySelector("#settings-auto-downloads"),
+  settingsAssetsReady: document.querySelector("#settings-assets-ready"),
+  settingsRuntimeStatus: document.querySelector("#settings-runtime-status"),
+  settingsFilePath: document.querySelector("#settings-file-path"),
+  settingsRetentionDays: document.querySelector("#settings-retention-days"),
+  settingsCacheLimit: document.querySelector("#settings-cache-limit"),
+  settingsRedactPaths: document.querySelector("#settings-redact-paths"),
+  settingsRedactUserText: document.querySelector("#settings-redact-user-text"),
+  settingsRedactCardNames: document.querySelector("#settings-redact-card-names"),
+  settingsDataRoot: document.querySelector("#settings-data-root"),
+  settingsBackupRoot: document.querySelector("#settings-backup-root"),
+  settingsDensity: document.querySelector("#settings-density"),
+  settingsTheme: document.querySelector("#settings-theme"),
+  settingsReducedMotion: document.querySelector("#settings-reduced-motion"),
+  settingsSafeMode: document.querySelector("#settings-safe-mode"),
+  settingsReset: document.querySelector("#settings-reset"),
+  settingsSafeReset: document.querySelector("#settings-safe-reset"),
   profileNew: document.querySelector("#profile-new"),
   profileDeckSelect: document.querySelector("#profile-deck-select"),
   profileIncludeArchived: document.querySelector("#profile-include-archived"),
@@ -448,6 +474,7 @@ let currentReplayJobId = null;
 let replayTimer = null;
 let currentResultView = null;
 let currentResultTab = "ranking";
+let currentDesktopSettings = null;
 let preferenceProfilesLoaded = false;
 const profilePageState = {
   cardOptions: [],
@@ -514,6 +541,107 @@ async function refreshExternalAssetStatus() {
   elements.environmentCode.textContent = status.ready
     ? UI_TEXT.externalAssetSetupReady
     : UI_TEXT.externalAssetSetupRequired;
+}
+
+function applySettingsToForm(payload) {
+  const settings = payload.settings;
+  currentDesktopSettings = settings;
+  elements.settingsExternalRoot.value = settings.external_asset_root || "";
+  elements.settingsUpdateChannel.value = settings.updates.channel;
+  elements.settingsAutoDownloads.checked = settings.updates.automatic_downloads;
+  elements.settingsRetentionDays.value = String(settings.storage.retention_days);
+  elements.settingsCacheLimit.value = String(settings.storage.cache_limit_mb);
+  elements.settingsRedactPaths.checked = !settings.privacy.include_local_paths_in_support_bundle;
+  elements.settingsRedactUserText.checked = settings.privacy.redact_user_text;
+  elements.settingsRedactCardNames.checked = settings.privacy.redact_card_names;
+  elements.settingsDensity.value = settings.display.density;
+  elements.settingsTheme.value = settings.display.theme;
+  elements.settingsReducedMotion.checked = settings.display.reduced_motion;
+  elements.settingsSafeMode.checked = settings.recovery.safe_mode;
+  elements.settingsAssetsReady.textContent = payload.external_assets?.ready
+    ? UI_TEXT.externalAssetSetupReady
+    : UI_TEXT.externalAssetSetupRequired;
+  elements.settingsRuntimeStatus.textContent = payload.runtime?.webview2 || "-";
+  elements.settingsFilePath.textContent = payload.storage_locations?.settings_file || "-";
+  elements.settingsDataRoot.textContent = payload.storage_locations?.data_root || "-";
+  elements.settingsBackupRoot.textContent = payload.storage_locations?.backup_export_root || "-";
+  document.body.classList.toggle("comfortable", settings.display.density === "comfortable");
+}
+
+function collectSettingsFromForm() {
+  const base = currentDesktopSettings || {
+    schema_version: "desktop-settings-v1",
+    external_asset_root: null,
+    updates: { automatic_downloads: false, channel: "manual" },
+    storage: { cache_limit_mb: 512, retention_days: 30 },
+    privacy: {
+      include_local_paths_in_support_bundle: false,
+      redact_card_names: true,
+      redact_user_text: true,
+    },
+    display: { density: "compact", reduced_motion: false, theme: "system" },
+    recovery: { safe_mode: false },
+  };
+  return {
+    ...base,
+    display: {
+      density: elements.settingsDensity.value,
+      reduced_motion: elements.settingsReducedMotion.checked,
+      theme: elements.settingsTheme.value,
+    },
+    external_asset_root: elements.settingsExternalRoot.value.trim() || null,
+    privacy: {
+      include_local_paths_in_support_bundle: !elements.settingsRedactPaths.checked,
+      redact_card_names: elements.settingsRedactCardNames.checked,
+      redact_user_text: elements.settingsRedactUserText.checked,
+    },
+    recovery: { safe_mode: elements.settingsSafeMode.checked },
+    storage: {
+      cache_limit_mb: Number(elements.settingsCacheLimit.value),
+      retention_days: Number(elements.settingsRetentionDays.value),
+    },
+    updates: {
+      automatic_downloads: false,
+      channel: elements.settingsUpdateChannel.value,
+    },
+  };
+}
+
+async function refreshSettings() {
+  if (!desktopBridgeAvailable()) {
+    elements.settingsStatus.textContent = UI_TEXT.bridgeUnavailable;
+    return;
+  }
+  const response = await window.routeLabBridge.invoke("settings.get", {});
+  if (!response.ok) {
+    elements.settingsStatus.textContent = response.diagnostics[0]?.message || UI_TEXT.settingsLoadFailed;
+    return;
+  }
+  applySettingsToForm(response.result);
+  elements.settingsStatus.textContent = UI_TEXT.externalAssetSetupReady;
+}
+
+async function saveDesktopSettings(event) {
+  event.preventDefault();
+  const response = await window.routeLabBridge.invoke("settings.update", {
+    settings: collectSettingsFromForm(),
+  });
+  if (!response.ok) {
+    elements.settingsStatus.textContent = response.diagnostics[0]?.message || UI_TEXT.settingsSaveFailed;
+    return;
+  }
+  await refreshSettings();
+  elements.settingsStatus.textContent = UI_TEXT.settingsSaved;
+}
+
+async function resetDesktopSettings(safeMode) {
+  const response = await window.routeLabBridge.invoke("settings.reset", { safe_mode: safeMode });
+  if (!response.ok) {
+    elements.settingsStatus.textContent = response.diagnostics[0]?.message || UI_TEXT.settingsSaveFailed;
+    return;
+  }
+  await refreshSettings();
+  elements.settingsStatus.textContent = UI_TEXT.settingsReset;
 }
 
 function bridgeDeck(record) {
@@ -1955,7 +2083,7 @@ function initializeFromHash() {
   profilePageState.deckId = selectedDeck?.id || "";
   renderProfileDeckOptions();
   const view = params.get("view");
-  showWorkspaceView(["runs", "profiles"].includes(view) ? view : "decks", false);
+  showWorkspaceView(["runs", "profiles", "settings"].includes(view) ? view : "decks", false);
   if (view === "search") openSearch();
   if (view === "compare") elements.compareDialog.showModal();
 }
@@ -1972,22 +2100,27 @@ function setRailCurrent(view) {
 function showWorkspaceView(view, updateHash = true) {
   const analyticsActive = view === "runs";
   const profilesActive = view === "profiles";
-  const decksActive = !analyticsActive && !profilesActive;
+  const settingsActive = view === "settings";
+  const decksActive = !analyticsActive && !profilesActive && !settingsActive;
   elements.catalogPane.hidden = !decksActive;
   elements.detailPane.hidden = !decksActive;
   elements.analyticsPane.hidden = !analyticsActive;
   elements.profilesPane.hidden = !profilesActive;
-  elements.workspace.classList.toggle("analytics-active", analyticsActive);
-  setRailCurrent(profilesActive ? "profiles" : analyticsActive ? "runs" : "decks");
+  elements.settingsPane.hidden = !settingsActive;
+  elements.workspace.classList.toggle("analytics-active", analyticsActive || settingsActive);
+  setRailCurrent(settingsActive ? "settings" : profilesActive ? "profiles" : analyticsActive ? "runs" : "decks");
   if (analyticsActive && analyticsController.metrics().query_count === 0) {
     analyticsController.refresh();
   }
   if (profilesActive) {
     refreshDeckProfiles().catch(() => showToast(UI_TEXT.profileCatalogUnavailable));
   }
+  if (settingsActive) {
+    refreshSettings().catch(() => showToast(UI_TEXT.settingsLoadFailed));
+  }
   if (updateHash) {
     const deckHash = `deck=${encodeURIComponent(selectedDeck?.id || "")}`;
-    replaceHash(analyticsActive ? "view=runs" : profilesActive ? `view=profiles&${deckHash}` : deckHash);
+    replaceHash(analyticsActive ? "view=runs" : settingsActive ? "view=settings" : profilesActive ? `view=profiles&${deckHash}` : deckHash);
   }
 }
 
@@ -2033,6 +2166,10 @@ document.querySelectorAll(".rail-item").forEach((button) => {
       showWorkspaceView("profiles");
       return;
     }
+    if (view === "settings") {
+      showWorkspaceView("settings");
+      return;
+    }
     if (view === "decks") {
       showWorkspaceView("decks");
       activateTab("overview");
@@ -2048,6 +2185,21 @@ elements.deckSettings.addEventListener("click", openDeckSettings);
 elements.deckSettingsForm.addEventListener("submit", (event) => {
   saveDeckSettings(event).catch(() => {
     setDeckSettingsStatus("error", UI_TEXT.deckInputRejected, UI_TEXT.deckSettingsFailed);
+  });
+});
+elements.settingsForm.addEventListener("submit", (event) => {
+  saveDesktopSettings(event).catch(() => {
+    elements.settingsStatus.textContent = UI_TEXT.settingsSaveFailed;
+  });
+});
+elements.settingsReset.addEventListener("click", () => {
+  resetDesktopSettings(false).catch(() => {
+    elements.settingsStatus.textContent = UI_TEXT.settingsSaveFailed;
+  });
+});
+elements.settingsSafeReset.addEventListener("click", () => {
+  resetDesktopSettings(true).catch(() => {
+    elements.settingsStatus.textContent = UI_TEXT.settingsSaveFailed;
   });
 });
 document.querySelector("#close-deck-settings").addEventListener("click", () => elements.deckSettingsDialog.close());

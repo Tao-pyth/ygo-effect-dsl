@@ -160,6 +160,21 @@
       "payload_fields": ["deck_id", "experiment"],
       "worker_start_allowed": false
     },
+    "settings.get": {
+      "payload_fields": [],
+      "source": "versioned_desktop_settings",
+      "worker_start_allowed": false
+    },
+    "settings.reset": {
+      "payload_fields": ["safe_mode"],
+      "source": "versioned_desktop_settings",
+      "worker_start_allowed": false
+    },
+    "settings.update": {
+      "payload_fields": ["settings"],
+      "source": "versioned_desktop_settings",
+      "worker_start_allowed": false
+    },
     "system.describe": {
       "payload_fields": [],
       "worker_start_allowed": false

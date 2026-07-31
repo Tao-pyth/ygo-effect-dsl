@@ -1,5 +1,5 @@
 {
-  "evidence_id": "pytestprofile_006750a712fabebf746f3b194b5c61a2984476e91e099bde5b7a280eda8a8b3b",
+  "evidence_id": "pytestprofile_497e65845d6062c4c921a7ccfbf66f7cb38a49faadc901bd491b9595620beaa0",
   "package_version": "0.8.0",
   "profiles": {
     "evidence": {
@@ -29,7 +29,7 @@
       ]
     },
     "integration": {
-      "file_count": 31,
+      "file_count": 32,
       "files": [
         "tests/test_analytics_comparison.py",
         "tests/test_analytics_export.py",
@@ -38,6 +38,7 @@
         "tests/test_desktop_bridge_smoke.py",
         "tests/test_desktop_frontend.py",
         "tests/test_desktop_lifecycle.py",
+        "tests/test_desktop_settings.py",
         "tests/test_desktop_shell.py",
         "tests/test_desktop_virtual_table.py",
         "tests/test_experiment_schema.py",
@@ -72,6 +73,7 @@
         "tests/test_desktop_bridge_smoke.py",
         "tests/test_desktop_frontend.py",
         "tests/test_desktop_lifecycle.py",
+        "tests/test_desktop_settings.py",
         "tests/test_desktop_shell.py",
         "tests/test_desktop_virtual_table.py",
         "tests/test_experiment_schema.py",
@@ -333,7 +335,7 @@
   },
   "schema_version": "pytest-profile-plan-v1",
   "source": {
-    "discovered_file_count": 134,
+    "discovered_file_count": 135,
     "repo_root_name": "ygo-effect-dsl"
   },
   "validation": {

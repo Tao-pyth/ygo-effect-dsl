@@ -15,6 +15,7 @@ from ygo_effect_dsl.desktop import desktop_frontend_entrypoint
 from ygo_effect_dsl.desktop import desktop_workflow_contract_document
 from ygo_effect_dsl.desktop.bridge import DesktopBridge
 from ygo_effect_dsl.desktop.lifecycle import DesktopWorkerSupervisor
+from ygo_effect_dsl.desktop.settings import DesktopSettingsStore
 from ygo_effect_dsl.desktop.service import DesktopApplicationService
 from ygo_effect_dsl.external.ocgcore import load_ocgcore_asset_lock, resolve_ocgcore_assets
 from ygo_effect_dsl.presentation import (
@@ -313,6 +314,26 @@ def default_desktop_data_root(environ: Mapping[str, str] | None = None) -> Path:
     return (Path(local) / "ygo-effect-dsl" / "desktop-v1").resolve()
 
 
+def configured_external_root(
+    data_root: str | Path,
+    *,
+    override: str | Path | None = None,
+) -> Path | None:
+    if override is not None:
+        return Path(override).expanduser().resolve()
+    try:
+        configured = DesktopSettingsStore(
+            Path(data_root).expanduser().resolve() / "desktop-settings.json"
+        ).read()["external_asset_root"]
+    except ValueError as exc:
+        raise DesktopStartupError(
+            "desktop_settings_invalid",
+            "デスクトップ設定ファイルの検証に失敗しました",
+            details={"reason": str(exc)},
+        ) from exc
+    return Path(configured).expanduser().resolve() if configured is not None else None
+
+
 def start_desktop(
     *,
     data_root: str | Path,
@@ -324,6 +345,10 @@ def start_desktop(
         AnalyticsExportSupervisor
     ] = AnalyticsExportSupervisor,
 ) -> None:
+    effective_external_root = configured_external_root(
+        data_root,
+        override=external_root,
+    )
     if webview_module is None:
         try:
             webview = importlib.import_module("webview")
@@ -336,17 +361,17 @@ def start_desktop(
         webview = webview_module
     supervisor = supervisor_factory(
         data_root,
-        external_root=external_root,
+        external_root=effective_external_root,
     )
     export_supervisor: AnalyticsExportSupervisor | None = None
     picker = NativeYdkPicker(webview)
-    card_provider = build_desktop_card_provider(external_root=external_root)
+    card_provider = build_desktop_card_provider(external_root=effective_external_root)
     service_kwargs: dict[str, Any] = {}
     if external_asset_status is not None:
         service_kwargs["external_asset_status"] = external_asset_status
     service = DesktopApplicationService(
         data_root,
-        external_root=external_root,
+        external_root=effective_external_root,
         card_provider=card_provider,
         ydk_picker=picker,
         worker_execution="desktop-supervisor-v1",

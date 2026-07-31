@@ -13,6 +13,10 @@ from typing import Any, Protocol
 import yaml
 
 from ygo_effect_dsl.desktop.bridge import DesktopHandler, DesktopServiceError
+from ygo_effect_dsl.desktop.settings import (
+    DESKTOP_SETTINGS_RESPONSE_SCHEMA_VERSION,
+    DesktopSettingsStore,
+)
 from ygo_effect_dsl.engine.canonical import (
     canonical_json,
     stable_digest,
@@ -1027,6 +1031,9 @@ class DesktopApplicationService:
         self.deck_profile_catalog = DesktopDeckTerminalProfileCatalog(
             self.data_root / "deck-terminal-profiles.json"
         )
+        self.settings_store = DesktopSettingsStore(
+            self.data_root / "desktop-settings.json"
+        )
         self.ydk_picker = ydk_picker
         self.card_provider = card_provider
         self.comparison_handler = comparison_handler
@@ -1082,6 +1089,9 @@ class DesktopApplicationService:
             "profile.list": self.profile_list,
             "scenario.compose_search": self.scenario_compose_search,
             "scenario.preflight": self.scenario_preflight,
+            "settings.get": self.settings_get,
+            "settings.reset": self.settings_reset,
+            "settings.update": self.settings_update,
             "system.describe": self.system_describe,
             "system.external_asset_status": self.system_external_asset_status,
         }
@@ -1109,6 +1119,7 @@ class DesktopApplicationService:
                 "deck_terminal_profiles": True,
                 "comparison": self.comparison_handler is not None,
                 "native_ydk_import": self.ydk_picker is not None,
+                "settings_preferences": True,
                 "terminal_preference_profiles": True,
                 "search_job_queue": search_assets_ready,
                 "verified_result_view": True,
@@ -1136,7 +1147,83 @@ class DesktopApplicationService:
         return self._external_asset_status()
 
     def _external_asset_status(self) -> Mapping[str, Any]:
-        return self.external_asset_status(external_root=self.external_root)
+        return self.external_asset_status(external_root=self._effective_external_root())
+
+    def _read_settings(self) -> dict[str, Any]:
+        try:
+            return self.settings_store.read()
+        except ValueError as exc:
+            raise DesktopServiceError(
+                "desktop_settings_invalid",
+                f"デスクトップ設定ファイルが不正です: {exc}",
+                details={"settings_file": str(self.settings_store.path)},
+            ) from exc
+
+    def _effective_external_root(self) -> str | Path | None:
+        settings = self._read_settings()
+        configured = settings.get("external_asset_root")
+        return configured if configured is not None else self.external_root
+
+    def _storage_locations(self) -> dict[str, str]:
+        return {
+            "analytics_exports": str(self.data_root / "analytics-exports"),
+            "backup_export_root": str(self.data_root / "backups"),
+            "cache_root": str(self.data_root / "cache"),
+            "data_root": str(self.data_root),
+            "deck_catalog": str(self.data_root / "decks.json"),
+            "job_store": str(self.data_root / "job-store"),
+            "settings_file": str(self.settings_store.path),
+        }
+
+    def settings_get(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, set(), "settings.get")
+        settings = self._read_settings()
+        return {
+            "external_assets": self._external_asset_status(),
+            "package_version": __version__,
+            "runtime": {
+                "updates": "manual",
+                "webview2": "validated_by_desktop_shell_preflight",
+            },
+            "schema_version": DESKTOP_SETTINGS_RESPONSE_SCHEMA_VERSION,
+            "settings": settings,
+            "storage_locations": self._storage_locations(),
+        }
+
+    def settings_update(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, {"settings"}, "settings.update")
+        try:
+            settings = self.settings_store.write(payload["settings"])
+        except ValueError as exc:
+            raise DesktopServiceError(
+                "desktop_settings_invalid",
+                f"デスクトップ設定は保存できません: {exc}",
+                details={"settings_file": str(self.settings_store.path)},
+            ) from exc
+        return {
+            "schema_version": DESKTOP_SETTINGS_RESPONSE_SCHEMA_VERSION,
+            "settings": settings,
+            "storage_locations": self._storage_locations(),
+        }
+
+    def settings_reset(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, {"safe_mode"}, "settings.reset")
+        safe_mode = payload["safe_mode"]
+        if not isinstance(safe_mode, bool):
+            raise DesktopServiceError(
+                "invalid_safe_mode",
+                "safe_modeは真偽値で指定してください",
+                path="$.payload.safe_mode",
+            )
+        settings = self.settings_store.reset(
+            external_asset_root=self.external_root,
+            safe_mode=safe_mode,
+        )
+        return {
+            "schema_version": DESKTOP_SETTINGS_RESPONSE_SCHEMA_VERSION,
+            "settings": settings,
+            "storage_locations": self._storage_locations(),
+        }
 
     def deck_catalog_list(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         _exact(payload, set(), "deck.catalog")
@@ -1879,10 +1966,11 @@ class DesktopApplicationService:
 
     def scenario_preflight(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         _exact(payload, {"deck_id", "experiment"}, "scenario.preflight")
+        external_root = self._effective_external_root()
         experiment = self._resolved_experiment(payload)
         result = self.preflight(
             experiment,
-            external_root=self.external_root,
+            external_root=external_root,
         )
         return {"experiment": experiment, "preflight": result.to_dict()}
 
@@ -1892,8 +1980,9 @@ class DesktopApplicationService:
             {"deck_id", "experiment", "idempotency_key", "priority"},
             "job.enqueue_search",
         )
+        external_root = self._effective_external_root()
         experiment = self._resolved_experiment(payload)
-        preflight = self.preflight(experiment, external_root=self.external_root)
+        preflight = self.preflight(experiment, external_root=external_root)
         if not preflight.ok:
             raise DesktopServiceError(
                 "scenario_preflight_failed",
