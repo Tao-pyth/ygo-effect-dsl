@@ -7,6 +7,9 @@ from typing import Any, Callable
 
 from ygo_effect_dsl.engine.canonical import stable_digest, to_canonical_data
 from ygo_effect_dsl.io_atomic import atomic_write_text
+from ygo_effect_dsl.spikes.japanese_i18n_release_gate import (
+    read_japanese_i18n_release_gate,
+)
 from ygo_effect_dsl.spikes.parallel_search_release_gate import (
     read_parallel_search_release_gate,
 )
@@ -20,16 +23,18 @@ from ygo_effect_dsl.test_profile_plan import read_pytest_profile_release_gate
 
 
 RELEASE_READINESS_STATUS_SCHEMA_VERSION = "release-readiness-status-v1"
-_STAGE_ORDER = ("0.5.1", "0.6.0", "0.7.0")
+_STAGE_ORDER = ("0.5.1", "0.6.0", "0.7.0", "0.8.0")
 _STAGE_GATE_FILES = {
     "0.5.1": "pytest_profile_gate.json",
     "0.6.0": "parallel_search_gate.json",
     "0.7.0": "research_dashboard_gate.json",
+    "0.8.0": "japanese_i18n_gate.json",
 }
 _STAGE_GATE_PREFIXES = {
     "0.5.1": "pytestprofilegate_",
     "0.6.0": "parsearchgate_",
     "0.7.0": "researchdashgate_",
+    "0.8.0": "japanesei18ngate_",
 }
 _STAGE_REQUIRED_VERIFIED_FILES = {
     "0.6.0": {"parallel_search_gate.json", "parallel_search_records.json"},
@@ -154,6 +159,12 @@ def build_release_readiness_status(evidence_dir: str | Path) -> dict[str, Any]:
             require_parallel_search=False,
             require_research_dashboard=True,
             stage="0.7.0",
+        ),
+        _gate_stage(
+            evidence_dir=root,
+            gate_filename="japanese_i18n_gate.json",
+            reader=read_japanese_i18n_release_gate,
+            stage="0.8.0",
         ),
     ]
     ready_versions = [stage["stage"] for stage in stages if stage["ready"] is True]

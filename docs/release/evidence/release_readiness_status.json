@@ -1,12 +1,13 @@
 {
   "evidence_dir_name": "evidence",
-  "evidence_id": "releasereadiness_50505e9366f3d0887741c3ffc703f7a9e4ebdd7714fa67b3af487d5c6629fb3b",
+  "evidence_id": "releasereadiness_78f61e4b8bdc9dcb8ae42fe52e0c6f08a343c8b22d7ba912b9c74b4820426bc3",
   "incomplete_versions": [],
   "passed": true,
   "ready_versions": [
     "0.5.1",
     "0.6.0",
-    "0.7.0"
+    "0.7.0",
+    "0.8.0"
   ],
   "schema_version": "release-readiness-status-v1",
   "stages": [
@@ -66,6 +67,17 @@
       "ready": true,
       "rejection_reasons": [],
       "stage": "0.7.0"
+    },
+    {
+      "gate": {
+        "evidence_id": "japanesei18ngate_eb93942ca19d34ec1dd9ce0fee897d67e2443139c4b008ab304556fe9af0d73b",
+        "file": "japanese_i18n_gate.json",
+        "passed": true,
+        "valid": true
+      },
+      "ready": true,
+      "rejection_reasons": [],
+      "stage": "0.8.0"
     }
   ]
 }

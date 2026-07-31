@@ -347,9 +347,13 @@ def collect_desktop_virtual_table_evidence(
 
         deck_column = page.locator('[data-analytics-column][value="deck"]')
         page.locator(".column-menu summary").click()
+        column_count_before_selection = _integer_attribute(
+            page, "#analytics-grid", "aria-colcount"
+        )
         deck_column.uncheck()
         page.wait_for_function(
-            "() => document.querySelector('#analytics-grid').getAttribute('aria-colcount') === '7'"
+            "expected => document.querySelector('#analytics-grid').getAttribute('aria-colcount') === String(expected)",
+            arg=column_count_before_selection - 1,
         )
         column_count_after_selection = _integer_attribute(
             page, "#analytics-grid", "aria-colcount"
@@ -368,7 +372,7 @@ def collect_desktop_virtual_table_evidence(
         page.locator("#analytics-export-start").click()
         page.wait_for_function(
             "() => document.querySelector('#analytics-export-status').textContent === "
-            "'Desktop bridge is required for versioned exports'"
+            "'version付き出力にはデスクトップブリッジが必要です'"
         )
         browser_export = {
             "backend_authority_required": True,

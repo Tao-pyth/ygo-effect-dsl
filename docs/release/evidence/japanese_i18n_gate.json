@@ -1,0 +1,98 @@
+{
+  "checks": [
+    {
+      "check_id": "desktop-html-lang-ja",
+      "evidence": {
+        "expected": "ja",
+        "file": "src/ygo_effect_dsl/desktop/static/index.html"
+      },
+      "passed": true
+    },
+    {
+      "check_id": "desktop-static-japanese-copy",
+      "evidence": {
+        "required_copy": [
+          "デッキ研究ワークスペース",
+          "デッキカタログ",
+          "探索を実行",
+          "実行観測"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check_id": "dynamic-copy-catalogs",
+      "evidence": {
+        "analytics_catalog": "ANALYTICS_TEXT",
+        "app_catalog": "UI_TEXT",
+        "locale": "ja"
+      },
+      "passed": true
+    },
+    {
+      "check_id": "fixture-copy-japanese",
+      "evidence": {
+        "fixture_names": [
+          "短経路 fixture",
+          "長チェーン fixture",
+          "墓地/除外 fixture",
+          "復旧プローブ"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check_id": "analytics-copy-japanese",
+      "evidence": {
+        "catalog": "ANALYTICS_TEXT",
+        "virtual_table_labels": true
+      },
+      "passed": true
+    },
+    {
+      "check_id": "desktop-static-no-mojibake",
+      "evidence": {
+        "files": [
+          "src/ygo_effect_dsl/desktop/static/index.html",
+          "src/ygo_effect_dsl/desktop/static/app.js",
+          "src/ygo_effect_dsl/desktop/static/analytics.js"
+        ],
+        "hits": []
+      },
+      "passed": true
+    },
+    {
+      "check_id": "release-docs-no-mojibake",
+      "evidence": {
+        "files": [
+          "README.md",
+          "CHANGELOG.md",
+          "docs/20_roadmap.md",
+          "docs/release/00_versioning.md",
+          "docs/spec/00_release_stage_index.md",
+          "docs/spec/v0.8.0/00_scope.md"
+        ],
+        "hits": []
+      },
+      "passed": true
+    },
+    {
+      "check_id": "scope-non-goals-explicit",
+      "evidence": {
+        "file": "docs/spec/v0.8.0/00_scope.md"
+      },
+      "passed": true
+    },
+    {
+      "check_id": "changelog-release-entry",
+      "evidence": {
+        "file": "CHANGELOG.md"
+      },
+      "passed": true
+    }
+  ],
+  "evidence_id": "japanesei18ngate_eb93942ca19d34ec1dd9ce0fee897d67e2443139c4b008ab304556fe9af0d73b",
+  "passed": true,
+  "rejection_reasons": [],
+  "schema_version": "japanese-i18n-release-gate-v1"
+}

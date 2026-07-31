@@ -1,12 +1,12 @@
 # 0.8.0 Scope: Japanese-Centered Desktop UI And I18n Quality
 
-Status: planned
+Status: released source milestone
 
 Last updated: 2026-07-28
 
 ## Purpose
 
-`0.8.0` は、日本人想定ユーザーが desktop research dashboard を自然に読める状態へ引き上げる UI 品質 stage である。対象は UI 文言の日本語中心化、`html lang="ja"`、文字化け除去、将来の locale 切替に備えた文言集約である。
+`0.8.0` は、日本人想定ユーザーが desktop research dashboard を自然に読める状態へ引き上げた UI 品質 stage である。対象は UI 文言の日本語中心化、`html lang="ja"`、文字化け除去、将来の locale 切替に備えた文言集約である。
 
 ## In scope
 
@@ -30,3 +30,4 @@ Last updated: 2026-07-28
 - Browser preview と desktop bridge 接続時の主要な状態表示が日本語で表示される。
 - U+FF82/U+FF77 などの既知文字化けmarkerが desktop static assets と release-facing version docs に残らない。
 - Existing bridge/security tests と release governance checks が通る。
+- `japanese-i18n-release-gate-v1` と `release-readiness-status-v1` が `0.8.0` を ready として記録する。

@@ -55,6 +55,39 @@ def _assets() -> tuple[str, str, str, str]:
     )
 
 
+def _static_asset_texts() -> dict[str, str]:
+    root = desktop_frontend_root()
+    return {
+        name: (root / name).read_text(encoding="utf-8")
+        for name in ("index.html", "app.css", "bridge.js", "app.js", "analytics.js")
+    }
+
+
+def _mojibake_markers() -> tuple[str, ...]:
+    return (
+        chr(0xFF82) + chr(0xFF77),
+        chr(0xFF83) + chr(0x30FB),
+        chr(0x7E5D),
+        chr(0x7E3A),
+        chr(0x8709),
+        chr(0x8B0C),
+        chr(0x8B41),
+        chr(0x8B5B),
+        chr(0x8373),
+        chr(0x87B3),
+        chr(0x9089),
+        chr(0x9B06),
+        chr(0x9695),
+        chr(0x8B80),
+        chr(0x7ACA) + chr(0x30FB),
+        chr(0x7B28) + chr(0x30FB),
+    )
+
+
+def _has_halfwidth_katakana(text: str) -> bool:
+    return any(0xFF61 <= ord(character) <= 0xFF9F for character in text)
+
+
 def test_packaged_frontend_and_machine_contract_are_versioned() -> None:
     entrypoint = desktop_frontend_entrypoint()
     contract = desktop_workflow_contract_document()
@@ -206,24 +239,48 @@ def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
 
 
 def test_desktop_frontend_uses_japanese_copy_and_rejects_mojibake() -> None:
-    html, _, _, javascript = _assets()
-    combined = "\n".join((html, javascript))
-    mojibake_markers = ("ﾂｷ", "ﾃ・", "竊・", "笨・")
+    assets = _static_asset_texts()
+    html = assets["index.html"]
+    javascript = assets["app.js"]
+    analytics = assets["analytics.js"]
+    combined = "\n".join(assets.values())
 
-    assert all(marker not in combined for marker in mojibake_markers)
+    assert all(marker not in combined for marker in _mojibake_markers())
+    assert not _has_halfwidth_katakana(combined)
     assert "UI_LOCALE = \"ja\"" in javascript
     assert "const UI_TEXT = Object.freeze({" in javascript
+    assert "ANALYTICS_LOCALE = \"ja\"" in analytics
+    assert "const ANALYTICS_TEXT = Object.freeze({" in analytics
     assert "短経路 fixture" in javascript
     assert "長チェーン fixture" in javascript
     assert "墓地/除外 fixture" in javascript
     assert "復旧プローブ" in javascript
     assert "Replay検証をキューへ追加しました。" in javascript
+    assert "評価プロファイル" in analytics
+    assert "分析ページ準備完了" in analytics
+    assert "出力をキューへ投入中" in analytics
     assert "事前検証待ち" in javascript
     assert "デスクトップブリッジ準備完了" in javascript
     assert "Short route fixture" not in combined
     assert "Long chain fixture" not in combined
     assert "Grave / banish fixture" not in combined
     assert "Recovery probe" not in combined
+
+
+def test_release_facing_0_8_docs_reject_mojibake() -> None:
+    release_docs = [
+        REPO_ROOT / "README.md",
+        REPO_ROOT / "CHANGELOG.md",
+        REPO_ROOT / "docs" / "20_roadmap.md",
+        REPO_ROOT / "docs" / "release" / "00_versioning.md",
+        REPO_ROOT / "docs" / "spec" / "00_release_stage_index.md",
+        REPO_ROOT / "docs" / "spec" / "v0.8.0" / "00_scope.md",
+    ]
+    combined = "\n".join(path.read_text(encoding="utf-8") for path in release_docs)
+
+    assert all(marker not in combined for marker in _mojibake_markers())
+    assert not _has_halfwidth_katakana(combined)
+    assert "japanese-i18n-release-gate-v1" in combined
 
 
 def test_frontend_has_no_network_or_direct_python_bridge_path() -> None:

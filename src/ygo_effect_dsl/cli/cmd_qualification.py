@@ -42,6 +42,9 @@ from ygo_effect_dsl.spikes.parallel_search_release_gate import (
     write_parallel_search_release_records,
     write_parallel_search_release_gate,
 )
+from ygo_effect_dsl.spikes.japanese_i18n_release_gate import (
+    write_japanese_i18n_release_gate,
+)
 from ygo_effect_dsl.spikes.research_dashboard_release_gate import (
     RESEARCH_DASHBOARD_QUALIFICATION_ARTIFACT_MANIFEST_SCHEMA_VERSION,
     build_research_dashboard_qualification_checks_from_artifact_manifest,
@@ -532,6 +535,20 @@ def cmd_research_dashboard_gate(args: argparse.Namespace) -> int:
     return 0 if evidence["passed"] else 1
 
 
+def cmd_japanese_i18n_gate(args: argparse.Namespace) -> int:
+    evidence = write_japanese_i18n_release_gate(
+        args.repo_root,
+        output_path=args.out,
+    )
+    status = "passed" if evidence["passed"] else "failed"
+    print(
+        "japanese-i18n-gate: "
+        f"{status} evidence_id={evidence['evidence_id']} "
+        f"rejections={len(evidence['rejection_reasons'])} out={args.out}"
+    )
+    return 0 if evidence["passed"] else 1
+
+
 def cmd_research_dashboard_qualification(args: argparse.Namespace) -> int:
     source = json.loads(args.checks.read_text(encoding="utf-8"))
     checks = source.get("checks") if isinstance(source, dict) else source
@@ -763,6 +780,7 @@ def cmd_clean_bootstrap_qualify(args: argparse.Namespace) -> int:
 
 __all__ = [
     "cmd_clean_bootstrap_qualify",
+    "cmd_japanese_i18n_gate",
     "cmd_lua_load_qualify",
     "cmd_parallel_search_collect",
     "cmd_parallel_search_gate",

@@ -5,20 +5,56 @@
   const OVERSCAN_ROWS = 6;
   const FIXTURE_ROW_COUNT = 100000;
   const VALUE_SCHEMA = "analytics-query-value-v1";
+  const ANALYTICS_LOCALE = "ja";
+  const ANALYTICS_TEXT = Object.freeze({
+    action: "アクション",
+    actions: "アクション数",
+    analyticsCursorChanged: "分析カーソルが不変スナップショットから変わりました",
+    analyticsPageReady: "分析ページ準備完了",
+    analyticsPageRepeatedRow: "分析ページに重複した行IDがあります",
+    analyticsQueryFailed: "分析クエリはfail-closeしました",
+    analyticsResponseMismatch: "分析レスポンスのversionが一致しません",
+    censor: "打ち切り",
+    cohort: "初手群",
+    deck: "デッキ",
+    empty: "[空]",
+    exportCancellationFailed: "出力の中止はfail-closeしました",
+    exportFailedClosed: "出力はfail-closeしました",
+    exportQueuedState: "出力",
+    exportQueueing: "出力をキューへ投入中",
+    exportStatusFailed: "出力状態の確認はfail-closeしました",
+    failure: "失敗",
+    loadingAnalyticsPage: "分析ページ読み込み中",
+    missing: "[欠落]",
+    noSnapshot: "スナップショットなし",
+    observed: "観測",
+    outcome: "成否",
+    profile: "評価プロファイル",
+    run: "実行",
+    score: "スコア",
+    sortAscending: "昇順で並び替え",
+    sortDescending: "降順で並び替え",
+    status: "状態",
+    stop: "停止理由",
+    strategy: "戦略",
+    success: "成功",
+    syntheticCursorInvalid: "Synthetic cursor が不正です",
+    unknownState: "不明",
+  });
 
   const columns = Object.freeze([
-    { field: "run", label: "Run", width: "minmax(180px, 1.5fr)" },
-    { field: "deck", label: "Deck", width: "minmax(150px, 1.2fr)" },
-    { field: "strategy", label: "Strategy", width: "minmax(120px, 1fr)" },
-    { field: "opening_hand_cohort", label: "Cohort", width: "minmax(120px, 1fr)" },
-    { field: "profile", label: "Profile", width: "minmax(150px, 1.1fr)" },
-    { field: "success", label: "Outcome", width: "100px" },
-    { field: "score", label: "Score", width: "84px" },
-    { field: "action_count", label: "Actions", width: "84px" },
-    { field: "status", label: "Status", width: "110px" },
-    { field: "termination", label: "Stop", width: "minmax(120px, 1fr)" },
-    { field: "censor_state", label: "Censor", width: "minmax(100px, 0.8fr)" },
-    { field: "time", label: "Observed", width: "170px" },
+    { field: "run", label: ANALYTICS_TEXT.run, width: "minmax(180px, 1.5fr)" },
+    { field: "deck", label: ANALYTICS_TEXT.deck, width: "minmax(150px, 1.2fr)" },
+    { field: "strategy", label: ANALYTICS_TEXT.strategy, width: "minmax(120px, 1fr)" },
+    { field: "opening_hand_cohort", label: ANALYTICS_TEXT.cohort, width: "minmax(120px, 1fr)" },
+    { field: "profile", label: ANALYTICS_TEXT.profile, width: "minmax(150px, 1.1fr)" },
+    { field: "success", label: ANALYTICS_TEXT.outcome, width: "100px" },
+    { field: "score", label: ANALYTICS_TEXT.score, width: "84px" },
+    { field: "action_count", label: ANALYTICS_TEXT.actions, width: "84px" },
+    { field: "status", label: ANALYTICS_TEXT.status, width: "110px" },
+    { field: "termination", label: ANALYTICS_TEXT.stop, width: "minmax(120px, 1fr)" },
+    { field: "censor_state", label: ANALYTICS_TEXT.censor, width: "minmax(100px, 0.8fr)" },
+    { field: "time", label: ANALYTICS_TEXT.observed, width: "170px" },
   ]);
 
   function analyticsValue(value) {
@@ -74,7 +110,7 @@
   async function syntheticAnalyticsQuery(request) {
     await Promise.resolve();
     const offset = request.cursor ? Number(request.cursor.replace("fixture_", "")) : 0;
-    if (!Number.isInteger(offset) || offset < 0) throw new Error("Synthetic cursor is invalid");
+    if (!Number.isInteger(offset) || offset < 0) throw new Error(ANALYTICS_TEXT.syntheticCursorInvalid);
     const direction = request.sort[0]?.direction || "asc";
     const selected = [];
     let matched = 0;
@@ -99,12 +135,14 @@
   }
 
   function stateText(value) {
-    if (!value || typeof value !== "object") return "[missing]";
+    if (!value || typeof value !== "object") return ANALYTICS_TEXT.missing;
     if (value.state !== "value" && value.state !== "empty") {
-      return `[${String(value.state || "unknown").replaceAll("_", " ")}]`;
+      return `[${String(value.state || ANALYTICS_TEXT.unknownState).replaceAll("_", " ")}]`;
     }
-    if (value.state === "empty") return "[empty]";
-    if (typeof value.value === "boolean") return value.value ? "Success" : "Failure";
+    if (value.state === "empty") return ANALYTICS_TEXT.empty;
+    if (typeof value.value === "boolean") {
+      return value.value ? ANALYTICS_TEXT.success : ANALYTICS_TEXT.failure;
+    }
     if (Array.isArray(value.value)) return value.value.join(", ");
     return String(value.value);
   }
@@ -186,7 +224,10 @@
         const direction = this.sortDirection.dataset.direction === "desc" ? "asc" : "desc";
         this.sortDirection.dataset.direction = direction;
         this.sortDirection.textContent = direction === "desc" ? "↓" : "↑";
-        this.sortDirection.setAttribute("aria-label", `Sort ${direction}ending`);
+        this.sortDirection.setAttribute(
+          "aria-label",
+          direction === "desc" ? ANALYTICS_TEXT.sortDescending : ANALYTICS_TEXT.sortAscending,
+        );
         this.refresh();
       });
       this.loadMore.addEventListener("click", () => this.loadNext());
@@ -245,7 +286,7 @@
     async enqueueExport() {
       if (this.exportJobId) return;
       this.exportStart.disabled = true;
-      this.exportStatus.textContent = "Queueing export";
+      this.exportStatus.textContent = ANALYTICS_TEXT.exportQueueing;
       try {
         const result = await this.exportJobs.enqueue({
           format: this.exportFormat.value,
@@ -256,11 +297,11 @@
         });
         this.exportJobId = result.job.job_id;
         this.exportCancel.hidden = false;
-        this.exportStatus.textContent = `Export ${result.job.state}`;
+        this.exportStatus.textContent = `${ANALYTICS_TEXT.exportQueuedState} ${result.job.state}`;
         this.scheduleExportPoll();
       } catch (error) {
         this.exportStart.disabled = false;
-        this.exportStatus.textContent = error instanceof Error ? error.message : "Export failed closed";
+        this.exportStatus.textContent = error instanceof Error ? error.message : ANALYTICS_TEXT.exportFailedClosed;
       }
     }
 
@@ -274,7 +315,7 @@
       try {
         const result = await this.exportJobs.status(this.exportJobId);
         const state = result.job.state;
-        this.exportStatus.textContent = `Export ${state}`;
+        this.exportStatus.textContent = `${ANALYTICS_TEXT.exportQueuedState} ${state}`;
         if (["succeeded", "failed", "cancelled", "quarantined"].includes(state)) {
           this.exportJobId = null;
           this.exportStart.disabled = false;
@@ -283,7 +324,7 @@
         }
         this.scheduleExportPoll();
       } catch (error) {
-        this.exportStatus.textContent = error instanceof Error ? error.message : "Export status failed closed";
+        this.exportStatus.textContent = error instanceof Error ? error.message : ANALYTICS_TEXT.exportStatusFailed;
         this.scheduleExportPoll();
       }
     }
@@ -293,10 +334,10 @@
       this.exportCancel.disabled = true;
       try {
         const result = await this.exportJobs.cancel(this.exportJobId);
-        this.exportStatus.textContent = `Export ${result.job.state}`;
+        this.exportStatus.textContent = `${ANALYTICS_TEXT.exportQueuedState} ${result.job.state}`;
         this.scheduleExportPoll();
       } catch (error) {
-        this.exportStatus.textContent = error instanceof Error ? error.message : "Export cancellation failed closed";
+        this.exportStatus.textContent = error instanceof Error ? error.message : ANALYTICS_TEXT.exportCancellationFailed;
       } finally {
         this.exportCancel.disabled = false;
       }
@@ -340,14 +381,14 @@
         .then((response) => {
           if (generation !== this.generation) return;
           if (response.schema_version !== "analytics-query-response-v1") {
-            throw new Error("Analytics response version mismatch");
+            throw new Error(ANALYTICS_TEXT.analyticsResponseMismatch);
           }
           if (this.snapshotId && this.snapshotId !== response.snapshot_id) {
-            throw new Error("Analytics cursor changed immutable snapshot");
+            throw new Error(ANALYTICS_TEXT.analyticsCursorChanged);
           }
           this.snapshotId = response.snapshot_id;
           for (const row of response.rows) {
-            if (this.rowIds.has(row.row_id)) throw new Error("Analytics page repeated a row ID");
+            if (this.rowIds.has(row.row_id)) throw new Error(ANALYTICS_TEXT.analyticsPageRepeatedRow);
             this.rowIds.add(row.row_id);
             this.rows.push(row);
           }
@@ -359,7 +400,7 @@
         .catch((error) => {
           if (generation !== this.generation) return;
           this.error.hidden = false;
-          this.error.textContent = error instanceof Error ? error.message : "Analytics query failed closed";
+          this.error.textContent = error instanceof Error ? error.message : ANALYTICS_TEXT.analyticsQueryFailed;
           this.render();
         })
         .finally(() => {
@@ -375,7 +416,7 @@
       this.grid.setAttribute("aria-busy", busy ? "true" : "false");
       this.loadMore.disabled = busy;
       if (busy) this.empty.hidden = true;
-      this.status.textContent = busy ? "Loading analytics page" : "Analytics page ready";
+      this.status.textContent = busy ? ANALYTICS_TEXT.loadingAnalyticsPage : ANALYTICS_TEXT.analyticsPageReady;
     }
 
     rowHeight() {
@@ -385,7 +426,7 @@
     render() {
       this.loaded.textContent = this.rows.length.toLocaleString("en-US");
       this.matched.textContent = this.matchedRows.toLocaleString("en-US");
-      this.snapshot.textContent = this.snapshotId ? this.snapshotId.slice(0, 28) : "No snapshot";
+      this.snapshot.textContent = this.snapshotId ? this.snapshotId.slice(0, 28) : ANALYTICS_TEXT.noSnapshot;
       this.grid.setAttribute("aria-rowcount", String(this.matchedRows + 1));
       this.empty.hidden = this.rows.length !== 0 || Boolean(this.inFlight) || !this.error.hidden;
       this.loadMore.hidden = !this.nextCursor;

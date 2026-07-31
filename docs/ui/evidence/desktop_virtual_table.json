@@ -1,25 +1,25 @@
 {
   "accessibility": {
-    "aria_column_count_after_selection": 7,
+    "aria_column_count_after_selection": 8,
     "aria_row_count": 100001,
     "comfortable_row_height": 48,
     "keyboard_focus_delta": -1,
-    "keyboard_response_seconds": 0.045839,
+    "keyboard_response_seconds": 0.041077,
     "named_grid": true,
     "roving_tabindex": true,
     "sticky_header_position": "sticky"
   },
   "browser": {
     "console_errors": [],
-    "edge_version": "150.0.4078.65",
+    "edge_version": "150.0.4078.105",
     "page_errors": [],
     "remote_requests": []
   },
-  "evidence_id": "desktopvirtualtableevidence_908bda8b3e78b6664f1855b8af4b902f3032920f6f6eb512d02338e77e594731",
+  "evidence_id": "desktopvirtualtableevidence_b2c646196f0efcf47fbf1a2ed5133cb1096c514683e4308a4fc3a821186217cf",
   "export": {
     "backend_authority_required": true,
     "renderer_generated_file": false,
-    "status": "Desktop bridge is required for versioned exports"
+    "status": "version付き出力にはデスクトップブリッジが必要です"
   },
   "pagination": {
     "cursor_contract": "analytics-cursor-v1",
@@ -29,7 +29,7 @@
       "query_delta": 1
     },
     "filter_matched_rows": 2500,
-    "filter_response_seconds": 0.189626,
+    "filter_response_seconds": 0.240801,
     "first_run_ascending": "searchrun_fixture_000000",
     "first_run_descending": "searchrun_fixture_099999",
     "max_concurrent_queries": 1,
@@ -38,7 +38,7 @@
   },
   "scale": {
     "dom_rows_after_end_scroll": 22,
-    "elapsed_seconds": 3.807845,
+    "elapsed_seconds": 4.009326,
     "header_height_after": 38,
     "header_height_before": 38,
     "heap_delta_bytes": 0,
@@ -48,7 +48,7 @@
     "maximum_observed_dom_rows": 28,
     "page_queries": 198,
     "scroll_height": 4000000,
-    "scroll_top": 3999397
+    "scroll_top": 3999399
   },
   "schema_version": "desktop-virtual-table-evidence-v1",
   "scope": {
@@ -58,17 +58,17 @@
   },
   "screenshots": [
     {
-      "bytes": 97861,
+      "bytes": 110512,
       "filename": "analytics_runs_1440x900.png",
       "height": 900,
-      "sha256": "3e3c7e3c2c8c0ab8e303609124908a041988e46bc977e0f0f42e0be8526a6b87",
+      "sha256": "a2f3801859048ef263acfb6f69a8e7982bb490c6ef30af6a67f79d3f4f56dc43",
       "width": 1440
     },
     {
-      "bytes": 67780,
+      "bytes": 78453,
       "filename": "analytics_runs_760x900.png",
       "height": 900,
-      "sha256": "e60d5e685e541afc11fe228d8ec9119c03dd248d771a180765e0a013a9d50968",
+      "sha256": "e7ea8a45961a97c43f4d2bc17bd56be0a756ed2c85ede000da8f3e4b38ee4179",
       "width": 760
     }
   ],
@@ -79,10 +79,10 @@
       "boxes": {
         "#analytics-grid": {
           "bottom": 840,
-          "height": 643.296875,
+          "height": 641.296875,
           "left": 96,
           "right": 1416,
-          "top": 196.703125,
+          "top": 198.703125,
           "width": 1320
         },
         ".analytics-footer": {
@@ -94,19 +94,19 @@
           "width": 1320
         },
         ".analytics-heading": {
-          "bottom": 130.703125,
-          "height": 44.703125,
+          "bottom": 132.703125,
+          "height": 46.703125,
           "left": 96,
           "right": 1416,
           "top": 86,
           "width": 1320
         },
         ".analytics-toolbar": {
-          "bottom": 184.703125,
+          "bottom": 186.703125,
           "height": 36,
           "left": 96,
           "right": 1416,
-          "top": 148.703125,
+          "top": 150.703125,
           "width": 1320
         }
       },
@@ -124,35 +124,35 @@
       "body_vertical_overflow": false,
       "boxes": {
         "#analytics-grid": {
-          "bottom": 824,
-          "height": 583.296875,
+          "bottom": 823,
+          "height": 580.296875,
           "left": 82,
           "right": 736,
-          "top": 240.703125,
+          "top": 242.703125,
           "width": 654
         },
         ".analytics-footer": {
           "bottom": 884,
-          "height": 60,
+          "height": 61,
           "left": 82,
           "right": 736,
-          "top": 824,
+          "top": 823,
           "width": 654
         },
         ".analytics-heading": {
-          "bottom": 130.703125,
-          "height": 44.703125,
+          "bottom": 132.703125,
+          "height": 46.703125,
           "left": 82,
           "right": 736,
           "top": 86,
           "width": 654
         },
         ".analytics-toolbar": {
-          "bottom": 228.703125,
+          "bottom": 230.703125,
           "height": 80,
           "left": 82,
           "right": 736,
-          "top": 148.703125,
+          "top": 150.703125,
           "width": 654
         }
       },

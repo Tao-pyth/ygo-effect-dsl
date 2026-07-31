@@ -143,7 +143,7 @@ def test_committed_100k_virtual_table_evidence_is_content_addressed() -> None:
     assert evidence["export"] == {
         "backend_authority_required": True,
         "renderer_generated_file": False,
-        "status": "Desktop bridge is required for versioned exports",
+        "status": "version付き出力にはデスクトップブリッジが必要です",
     }
 
     for screenshot in evidence["screenshots"]:

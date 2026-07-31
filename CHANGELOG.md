@@ -8,6 +8,24 @@ All notable package changes are documented here. Package versions follow Semanti
 
 - No unreleased package changes yet.
 
+## 0.8.0 - 2026-07-31
+
+Status: Japanese-centered desktop UI and i18n quality source release. It promotes the research dashboard UI to Japanese defaults, rejects mojibake in release-facing assets, and adds a dedicated release gate for localization quality.
+
+### Added
+
+- [v0.8.0] Added `japanese-i18n-release-gate-v1` and the `japanese-i18n-gate` CLI command so `lang="ja"`, Japanese desktop copy, dynamic text catalogs, fixture copy, release-facing docs, and known mojibake markers are checked as release readiness evidence.
+- [v0.8.0] Added `ANALYTICS_TEXT` and `ANALYTICS_LOCALE` to the desktop analytics module so virtual table labels, status text, export messages, and fail-closed diagnostics are centralized in Japanese for future locale switching.
+
+### Changed
+
+- [v0.8.0] Promoted desktop UI copy to Japanese-centered defaults across the packaged static HTML, dynamic deck/search/result text, analytics table labels, fixture deck names, fixture tags, card metadata, recent runs, aria labels, placeholders, dialog labels, and status regions.
+- [v0.8.0] Updated release governance, roadmap, versioning documentation, and release readiness aggregation so `0.8.0` is tracked as a released source milestone and `1.0.0` remains the production/distribution gate.
+
+### Fixed
+
+- [v0.8.0] Removed known mojibake patterns such as halfwidth U+FF82 separators and corrupted arrow/close/check glyphs from desktop static assets and release-facing 0.8.0 documentation, with regression tests covering the packaged UI and docs.
+
 ## 0.7.0 - 2026-07-31
 
 Status: Evidence-driven research dashboard source release. It promotes committed result hydration, preference-aware ranking, fresh Replay verification, Top-K/coverage drill-down, conditioned cohort analytics, and adopted dashboard qualification evidence.

@@ -4,7 +4,7 @@
     "search_dialog_present": true,
     "workflow_version_present": true
   },
-  "evidence_id": "desktopfrontendevidence_4f259a62bc94cc856c13c8cac5a9534afe0f6c5678050d4062f2ed87711ee04b",
+  "evidence_id": "desktopfrontendevidence_2fe1933893d2a03d33ff2f806adb886b6cca1ff8ac2eded815ba2e4ea2485dd6",
   "limitations": [
     "synthetic_search_browser_adapter_only",
     "desktop_bridge_is_verified_separately_from_browser_capture",
@@ -17,17 +17,17 @@
   "schema_version": "desktop-frontend-evidence-v1",
   "screenshots": [
     {
-      "bytes": 72397,
+      "bytes": 103786,
       "filename": "deck_dashboard_1440x900.png",
       "height": 900,
-      "sha256": "f0b814dbe9bb4e0c843e7c269b14639fff600675d7a6b215f9534476b781c00e",
+      "sha256": "eb1368b606ee270ed70aacd1c3e18d7a3bc712af715b1151d4b1dc7c848fd74d",
       "width": 1440
     },
     {
-      "bytes": 52360,
+      "bytes": 81559,
       "filename": "deck_search_960x700.png",
       "height": 700,
-      "sha256": "bb825775b85902924076398047ad029d0753e803b80d251860f5cb93e65e04e5",
+      "sha256": "f1ef3a7c4dc36f162f5eae088d205d2a816fad582a32c798cd6f1d2b53cded82",
       "width": 960
     }
   ],

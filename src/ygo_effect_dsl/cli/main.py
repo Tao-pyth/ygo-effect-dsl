@@ -38,6 +38,7 @@ from ygo_effect_dsl.cli.cmd_prototype import (
 )
 from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_clean_bootstrap_qualify,
+    cmd_japanese_i18n_gate,
     cmd_lua_load_qualify,
     cmd_parallel_search_collect,
     cmd_parallel_search_gate,
@@ -877,6 +878,23 @@ def main() -> int:
     )
     research_dashboard_gate.set_defaults(func=cmd_research_dashboard_gate)
 
+    japanese_i18n_gate = sub.add_parser(
+        "japanese-i18n-gate",
+        help="evaluate 0.8 Japanese desktop UI and i18n release-readiness evidence",
+    )
+    japanese_i18n_gate.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root to inspect",
+    )
+    japanese_i18n_gate.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed Japanese i18n gate JSON path",
+    )
+    japanese_i18n_gate.set_defaults(func=cmd_japanese_i18n_gate)
+
     research_dashboard_qualification = sub.add_parser(
         "research-dashboard-qualification",
         help="write content-addressed 0.7 real-core dashboard qualification evidence",
@@ -1065,7 +1083,7 @@ def main() -> int:
 
     release_readiness_status = sub.add_parser(
         "release-readiness-status",
-        help="summarize 0.5.1, 0.6.0, and 0.7.0 release readiness evidence",
+        help="summarize 0.5.1 through 0.8.0 release readiness evidence",
     )
     release_readiness_status.add_argument(
         "--evidence-dir",

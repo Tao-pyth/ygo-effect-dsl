@@ -29,7 +29,7 @@ version_labels:
   - version: 0.8.0
     label: version:0.8.0
     milestone: v0.8.0
-    release_state: active
+    release_state: released
   - version: 1.0.0
     label: version:1.0.0
     milestone: v1.0.0

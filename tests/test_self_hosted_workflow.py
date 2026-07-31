@@ -441,7 +441,7 @@ def test_release_readiness_status_reports_current_pending_release_evidence(
 
     assert evidence["evidence_id"] == validated["evidence_id"]
     assert validated["passed"] is True
-    assert validated["ready_versions"] == ["0.5.1", "0.6.0", "0.7.0"]
+    assert validated["ready_versions"] == ["0.5.1", "0.6.0", "0.7.0", "0.8.0"]
     assert validated["incomplete_versions"] == []
     assert stages["0.5.1"]["ready"] is True
     assert stages["0.5.1"]["gate"]["passed"] is True
@@ -451,6 +451,8 @@ def test_release_readiness_status_reports_current_pending_release_evidence(
     assert stages["0.7.0"]["ready"] is True
     assert stages["0.7.0"]["gate"]["passed"] is True
     assert stages["0.7.0"]["adopted_self_hosted_evidence"]["passed"] is True
+    assert stages["0.8.0"]["ready"] is True
+    assert stages["0.8.0"]["gate"]["passed"] is True
     assert validated["evidence_id"].startswith("releasereadiness_")
 
 
@@ -484,7 +486,7 @@ def test_release_readiness_status_rejects_stage_ready_witness_mismatch(
     write_release_readiness_status(RELEASE_EVIDENCE, output_path=output)
     evidence = json.loads(output.read_text(encoding="utf-8"))
     evidence["stages"][1]["ready"] = False
-    evidence["ready_versions"] = ["0.5.1", "0.6.0", "0.7.0"]
+    evidence["ready_versions"] = ["0.5.1", "0.6.0", "0.7.0", "0.8.0"]
     evidence["incomplete_versions"] = []
     identity = dict(evidence)
     identity.pop("evidence_id")
@@ -534,7 +536,7 @@ def test_release_readiness_verify_cli_accepts_current_incomplete_status(
 
     assert status == 0
     assert "release-readiness-verify: passed" in captured.out
-    assert "ready=0.5.1,0.6.0,0.7.0" in captured.out
+    assert "ready=0.5.1,0.6.0,0.7.0,0.8.0" in captured.out
     assert "incomplete=-" in captured.out
 
 
@@ -1405,7 +1407,7 @@ def test_release_self_hosted_evidence_adopt_updates_readiness_status(
 
     assert status == 0
     assert "readiness_id=releasereadiness_" in captured.out
-    assert readiness["ready_versions"] == ["0.5.1", "0.6.0", "0.7.0"]
+    assert readiness["ready_versions"] == ["0.5.1", "0.6.0", "0.7.0", "0.8.0"]
     assert readiness["incomplete_versions"] == []
 
 

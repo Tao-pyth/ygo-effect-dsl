@@ -55,10 +55,10 @@ def test_distribution_metadata_matches_project_identity() -> None:
     }
 
 
-def test_package_release_version_is_0_7_0_and_single_sourced() -> None:
+def test_package_release_version_is_0_8_0_and_single_sourced() -> None:
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
-    assert __version__ == "0.7.0"
+    assert __version__ == "0.8.0"
     assert 'dynamic = ["version"]' in pyproject
     assert 'version = {attr = "ygo_effect_dsl.version.__version__"}' in pyproject
 

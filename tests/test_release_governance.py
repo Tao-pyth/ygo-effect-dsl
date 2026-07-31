@@ -38,7 +38,7 @@ def test_release_governance_has_unique_label_and_milestone_pairs() -> None:
     assert policy.versions["0.6.0"].milestone == "v0.6.0"
     assert policy.versions["0.7.0"].release_state == "released"
     assert policy.versions["0.7.0"].milestone == "v0.7.0"
-    assert policy.versions["0.8.0"].release_state == "active"
+    assert policy.versions["0.8.0"].release_state == "released"
     assert policy.versions["0.8.0"].milestone == "v0.8.0"
 
 
