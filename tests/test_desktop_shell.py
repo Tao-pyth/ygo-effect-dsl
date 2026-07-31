@@ -12,6 +12,7 @@ from ygo_effect_dsl.desktop import shell as shell_module
 from ygo_effect_dsl.desktop.shell import (
     DEFAULT_WINDOW_SIZE,
     DESKTOP_EXECUTABLE_PREFLIGHT_VERSION,
+    MINIMUM_WEBVIEW2_RUNTIME_VERSION,
     MINIMUM_WINDOW_SIZE,
     DesktopStartupError,
     SingleInstanceLock,
@@ -21,6 +22,8 @@ from ygo_effect_dsl.desktop.shell import (
     main,
     preflight_desktop_runtime,
     start_desktop,
+    webview2_failure_guidance,
+    webview2_runtime_policy_document,
 )
 from ygo_effect_dsl.version import __version__
 
@@ -70,6 +73,19 @@ def test_webview2_and_pywebview_preflight_fail_before_window_creation(
             installed_pywebview_version="6.2.1",
         )
     assert missing.value.code == "webview2_runtime_missing"
+    assert missing.value.details["guidance"]["minimum_supported_version"] == (
+        MINIMUM_WEBVIEW2_RUNTIME_VERSION
+    )
+
+    with pytest.raises(DesktopStartupError, match="older than") as outdated:
+        preflight_desktop_runtime(
+            platform_name="win32",
+            environ=_runtime(tmp_path, "149.0.0.1"),
+            installed_pywebview_version="6.2.1",
+        )
+    assert outdated.value.code == "webview2_runtime_outdated"
+    assert outdated.value.details["observed_version"] == "149.0.0.1"
+    assert outdated.value.details["required_version"] == MINIMUM_WEBVIEW2_RUNTIME_VERSION
 
     with pytest.raises(DesktopStartupError, match="does not match") as mismatch:
         preflight_desktop_runtime(
@@ -82,7 +98,7 @@ def test_webview2_and_pywebview_preflight_fail_before_window_creation(
 
 def test_webview2_probe_uses_numeric_version_order(tmp_path: Path) -> None:
     environment = _runtime(tmp_path, "99.0.0.1")
-    _runtime(tmp_path, "150.0.0.1")
+    _runtime(tmp_path, MINIMUM_WEBVIEW2_RUNTIME_VERSION)
     installations = find_webview2_installations(environment)
     selected = preflight_desktop_runtime(
         platform_name="win32",
@@ -90,8 +106,11 @@ def test_webview2_probe_uses_numeric_version_order(tmp_path: Path) -> None:
         installed_pywebview_version="6.2.1",
     )
 
-    assert [item.version for item in installations] == ["99.0.0.1", "150.0.0.1"]
-    assert selected.version == "150.0.0.1"
+    assert [item.version for item in installations] == [
+        "99.0.0.1",
+        MINIMUM_WEBVIEW2_RUNTIME_VERSION,
+    ]
+    assert selected.version == MINIMUM_WEBVIEW2_RUNTIME_VERSION
 
 
 def test_desktop_preflight_only_writes_packaged_diagnostics(
@@ -112,6 +131,21 @@ def test_desktop_preflight_only_writes_packaged_diagnostics(
     assert document["schema_version"] == DESKTOP_EXECUTABLE_PREFLIGHT_VERSION
     assert document["package_version"] == __version__
     assert document["frontend"]["workflow_version"] == "desktop-workflow-v1"
+    assert document["runtime_policy"] == webview2_runtime_policy_document()
+
+
+def test_webview2_failure_guidance_is_user_facing() -> None:
+    guidance = webview2_failure_guidance("outdated", observed_version="149.0.0.1")
+
+    assert guidance["download_url"].startswith("https://developer.microsoft.com/")
+    assert guidance["minimum_supported_version"] == MINIMUM_WEBVIEW2_RUNTIME_VERSION
+    assert guidance["observed_version"] == "149.0.0.1"
+    assert guidance["reason"] == "outdated"
+    assert any("Install or repair" in action for action in guidance["actions"])
+    assert any(
+        "Do not download or run an installer" in action
+        for action in guidance["actions"]
+    )
 
 
 def test_single_instance_lock_releases_for_next_launch(tmp_path: Path) -> None:

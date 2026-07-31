@@ -1,0 +1,70 @@
+{
+  "checks": [
+    {
+      "evidence": "docs/adr/0019_v1_webview2_runtime_policy.md",
+      "id": "compatibility_policy_records_user_guidance",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/desktop/shell.py",
+      "id": "desktop_preflight_blocks_before_bridge_or_worker",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "tests/test_desktop_shell.py",
+      "id": "smoke_tests_cover_runtime_failure_modes",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": ".github/workflows/build-windows-exe.yml",
+      "id": "windows_package_smokes_preflight_before_bridge",
+      "passed": true,
+      "reason": "verified"
+    }
+  ],
+  "evidence_id": "v1webview2runtime_ddca62767d9284710fcbc84aa8c93cb0c411e5e7a37099c241a0fb0766b9f168",
+  "issue": 357,
+  "package_version": "0.8.0",
+  "passed": true,
+  "policy": {
+    "download_url": "https://developer.microsoft.com/microsoft-edge/webview2/",
+    "failure_modes": {
+      "missing": {
+        "actions": [
+          "Install or repair Microsoft Evergreen WebView2 Runtime from Microsoft or an approved organization software portal.",
+          "Restart ygo-effect-dsl-desktop after the runtime installation completes.",
+          "Do not download or run an installer from inside ygo-effect-dsl; runtime installation is an explicit user or administrator action."
+        ],
+        "download_url": "https://developer.microsoft.com/microsoft-edge/webview2/",
+        "minimum_supported_version": "150.0.4078.65",
+        "reason": "missing",
+        "title": "Microsoft Evergreen WebView2 Runtime is required"
+      },
+      "outdated": {
+        "actions": [
+          "Install or repair Microsoft Evergreen WebView2 Runtime from Microsoft or an approved organization software portal.",
+          "Restart ygo-effect-dsl-desktop after the runtime installation completes.",
+          "Do not download or run an installer from inside ygo-effect-dsl; runtime installation is an explicit user or administrator action."
+        ],
+        "download_url": "https://developer.microsoft.com/microsoft-edge/webview2/",
+        "minimum_supported_version": "150.0.4078.65",
+        "reason": "outdated",
+        "title": "Microsoft Evergreen WebView2 Runtime is required"
+      },
+      "unsupported_platform": {
+        "reason": "unsupported_platform",
+        "supported_platform": "win32",
+        "title": "The v1.0.0 desktop shell requires Windows."
+      }
+    },
+    "minimum_supported_version": "150.0.4078.65",
+    "runtime_distribution": "microsoft_evergreen_webview2_runtime",
+    "schema_version": "webview2-runtime-policy-v1",
+    "silent_download_or_install": false
+  },
+  "rejection_reasons": [],
+  "schema_version": "v1-webview2-runtime-v1"
+}

@@ -57,6 +57,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_strategy_interruption_qualify,
     cmd_v1_authenticode_signing,
     cmd_v1_installer_packaging,
+    cmd_v1_webview2_runtime,
 )
 from ygo_effect_dsl.cli.cmd_transform import cmd_transform
 from ygo_effect_dsl.cli.cmd_validate import cmd_validate
@@ -1199,6 +1200,23 @@ def main() -> int:
         help="content-addressed v1 Authenticode signing evidence JSON path",
     )
     v1_authenticode_signing.set_defaults(func=cmd_v1_authenticode_signing)
+
+    v1_webview2_runtime = sub.add_parser(
+        "v1-webview2-runtime",
+        help="evaluate the v1.0.0 WebView2 runtime failure UX gate",
+    )
+    v1_webview2_runtime.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing runtime docs and workflows",
+    )
+    v1_webview2_runtime.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed v1 WebView2 runtime evidence JSON path",
+    )
+    v1_webview2_runtime.set_defaults(func=cmd_v1_webview2_runtime)
 
     lua_load_qualify = sub.add_parser(
         "ocgcore-lua-qualify",

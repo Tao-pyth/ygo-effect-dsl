@@ -1,14 +1,14 @@
 {
   "all_measurements_passed": true,
   "baseline_comparison_passed": true,
-  "evidence_id": "pytestprofilesummary_ef08790237a862f3c57228c3ced64e2f8693e2625f156018a8abba7d02587323",
+  "evidence_id": "pytestprofilesummary_fe590f5cba05532cbf0f7a88b9a901da0b6e9d3e3fbc8767a1a873cfaa12907b",
   "included_measurement_count": 6,
   "measurement_ids": [
-    "pytestprofilemeasure_218956694e3d88c0cbca40ee9baa859aef6d9608f784f01bb5ce1e3897b69674",
     "pytestprofilemeasure_3d95fee2f31f527bd6e6dae5482a3c6fb07e417c2bf1f8b6825aa71678cdb0cd",
     "pytestprofilemeasure_47deaab2a4a7d0dd1fc3e3854323fb11f1d7b1ce41473a859effd1763d030408",
     "pytestprofilemeasure_70571359bee4f751b3f6e5caad6429de8535c8b9fbbbc6c83d0e0083a5122ef2",
     "pytestprofilemeasure_e57495a0447ecff153983b23b841d97b1286a8e5deeab9800c2bbb0da65743fc",
+    "pytestprofilemeasure_f196dab0d33030b031d92db920760bb1f47acbf6677ce2bb8be040d4101c6094",
     "pytestprofilemeasure_fa6c409cd65fab2aae9503a1d5b27e2a3ef5fa4aa217e003e686920e9d65b89a"
   ],
   "missing_profiles": [],
@@ -177,16 +177,16 @@
     },
     "unit": {
       "failed_count": 0,
-      "max_peak_rss_bytes": 87601152,
+      "max_peak_rss_bytes": 88473600,
       "measurement_count": 1,
       "measurement_ids": [
-        "pytestprofilemeasure_218956694e3d88c0cbca40ee9baa859aef6d9608f784f01bb5ce1e3897b69674"
+        "pytestprofilemeasure_f196dab0d33030b031d92db920760bb1f47acbf6677ce2bb8be040d4101c6094"
       ],
       "passed_count": 1,
       "pytest_passed_tests": {
-        "max": 359,
-        "median": 359,
-        "min": 359
+        "max": 363,
+        "median": 363,
+        "min": 363
       },
       "rss_measurements": {
         "process_peak_working_set": 1
@@ -202,9 +202,9 @@
         "min": 0
       },
       "wall_seconds": {
-        "max": 141.600853,
-        "median": 141.600853,
-        "min": 141.600853
+        "max": 139.278547,
+        "median": 139.278547,
+        "min": 139.278547
       }
     }
   },
@@ -289,12 +289,12 @@
       },
       "unit": {
         "baseline_pytest_passed_count": 299,
-        "current_pytest_passed_count": 359,
+        "current_pytest_passed_count": 363,
         "passed": false,
-        "pytest_passed_count_delta": 60,
+        "pytest_passed_count_delta": 64,
         "stderr_bytes_median_ratio": 0.0,
         "stdout_bytes_median_ratio": 0.0,
-        "wall_seconds_median_ratio": 1.605374,
+        "wall_seconds_median_ratio": 1.579045,
         "workload_count_changed": true
       }
     },

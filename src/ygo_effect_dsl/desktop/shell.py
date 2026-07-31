@@ -26,6 +26,10 @@ from ygo_effect_dsl.storage.export import AnalyticsExportSupervisor
 from ygo_effect_dsl.version import __version__
 
 PYWEBVIEW_REQUIREMENT = "6.2.1"
+MINIMUM_WEBVIEW2_RUNTIME_VERSION = "150.0.4078.65"
+WEBVIEW2_RUNTIME_DOWNLOAD_URL = (
+    "https://developer.microsoft.com/microsoft-edge/webview2/"
+)
 DESKTOP_STARTUP_DIAGNOSTIC_VERSION = "desktop-startup-diagnostic-v1"
 DESKTOP_EXECUTABLE_PREFLIGHT_VERSION = "desktop-executable-preflight-v1"
 MINIMUM_WINDOW_SIZE = (960, 700)
@@ -124,6 +128,46 @@ def find_webview2_installations(
     )
 
 
+def webview2_failure_guidance(
+    reason: str,
+    *,
+    observed_version: str | None = None,
+) -> dict[str, Any]:
+    guidance = {
+        "actions": [
+            "Install or repair Microsoft Evergreen WebView2 Runtime from Microsoft or an approved organization software portal.",
+            "Restart ygo-effect-dsl-desktop after the runtime installation completes.",
+            "Do not download or run an installer from inside ygo-effect-dsl; runtime installation is an explicit user or administrator action.",
+        ],
+        "download_url": WEBVIEW2_RUNTIME_DOWNLOAD_URL,
+        "minimum_supported_version": MINIMUM_WEBVIEW2_RUNTIME_VERSION,
+        "reason": reason,
+        "title": "Microsoft Evergreen WebView2 Runtime is required",
+    }
+    if observed_version is not None:
+        guidance["observed_version"] = observed_version
+    return guidance
+
+
+def webview2_runtime_policy_document() -> dict[str, Any]:
+    return {
+        "download_url": WEBVIEW2_RUNTIME_DOWNLOAD_URL,
+        "failure_modes": {
+            "missing": webview2_failure_guidance("missing"),
+            "outdated": webview2_failure_guidance("outdated"),
+            "unsupported_platform": {
+                "reason": "unsupported_platform",
+                "supported_platform": "win32",
+                "title": "The v1.0.0 desktop shell requires Windows.",
+            },
+        },
+        "minimum_supported_version": MINIMUM_WEBVIEW2_RUNTIME_VERSION,
+        "runtime_distribution": "microsoft_evergreen_webview2_runtime",
+        "schema_version": "webview2-runtime-policy-v1",
+        "silent_download_or_install": False,
+    }
+
+
 def preflight_desktop_runtime(
     *,
     platform_name: str | None = None,
@@ -142,6 +186,21 @@ def preflight_desktop_runtime(
         raise DesktopStartupError(
             "webview2_runtime_missing",
             "Microsoft Evergreen WebView2 Runtime was not found",
+            details={"guidance": webview2_failure_guidance("missing")},
+        )
+    selected = installations[-1]
+    if _version_key(selected.version) < _version_key(MINIMUM_WEBVIEW2_RUNTIME_VERSION):
+        raise DesktopStartupError(
+            "webview2_runtime_outdated",
+            "Microsoft Evergreen WebView2 Runtime is older than the v1.0.0 desktop support policy",
+            details={
+                "guidance": webview2_failure_guidance(
+                    "outdated",
+                    observed_version=selected.version,
+                ),
+                "observed_version": selected.version,
+                "required_version": MINIMUM_WEBVIEW2_RUNTIME_VERSION,
+            },
         )
     if installed_pywebview_version is None:
         try:
@@ -161,7 +220,7 @@ def preflight_desktop_runtime(
                 "required_version": PYWEBVIEW_REQUIREMENT,
             },
         )
-    return installations[-1]
+    return selected
 
 
 class SingleInstanceLock:
@@ -351,6 +410,7 @@ def build_desktop_preflight_diagnostic(runtime: WebView2Installation) -> dict[st
         "package_version": __version__,
         "pywebview_required_version": PYWEBVIEW_REQUIREMENT,
         "runtime": runtime.to_dict(),
+        "runtime_policy": webview2_runtime_policy_document(),
         "schema_version": DESKTOP_EXECUTABLE_PREFLIGHT_VERSION,
         "startup_diagnostic_schema_version": DESKTOP_STARTUP_DIAGNOSTIC_VERSION,
         "status": "passed",
@@ -409,7 +469,9 @@ __all__ = [
     "DESKTOP_EXECUTABLE_PREFLIGHT_VERSION",
     "DESKTOP_STARTUP_DIAGNOSTIC_VERSION",
     "MINIMUM_WINDOW_SIZE",
+    "MINIMUM_WEBVIEW2_RUNTIME_VERSION",
     "PYWEBVIEW_REQUIREMENT",
+    "WEBVIEW2_RUNTIME_DOWNLOAD_URL",
     "DesktopStartupError",
     "NativeYdkPicker",
     "SingleInstanceLock",
@@ -420,6 +482,8 @@ __all__ = [
     "main",
     "preflight_desktop_runtime",
     "start_desktop",
+    "webview2_failure_guidance",
+    "webview2_runtime_policy_document",
 ]
 
 

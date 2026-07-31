@@ -82,8 +82,8 @@
       "category": "runtime",
       "evidence": "docs/release/evidence/v1_0_0_webview2_runtime.json",
       "id": "webview2_runtime_failure_ux_verified",
-      "passed": false,
-      "reason": "missing_evidence",
+      "passed": true,
+      "reason": "verified",
       "required": true
     },
     {
@@ -127,7 +127,7 @@
       "required": true
     }
   ],
-  "evidence_id": "productiondistgate_d6186a7b77edcfe4296c1b0934148e9b2e0ff9cbd2b1947e344073a81589a27c",
+  "evidence_id": "productiondistgate_f9fe4012007c6a26b1fe70d64c407839fdd542d7a4950ff3451ebbbef6a73fbf",
   "issue": 359,
   "package_version": "0.8.0",
   "passed": false,
@@ -139,8 +139,7 @@
     "security_threat_model_approved:missing_evidence",
     "soak_crash_recovery_verified:missing_evidence",
     "stable_docs_and_support_guides_published:missing_evidence",
-    "support_matrix_supported_rows_verified:supported_rows_not_verified",
-    "webview2_runtime_failure_ux_verified:missing_evidence"
+    "support_matrix_supported_rows_verified:supported_rows_not_verified"
   ],
   "schema_version": "production-distribution-release-gate-v1"
 }
