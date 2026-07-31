@@ -92,6 +92,24 @@ jobs:
           .\dist\ygo-effect-dsl-desktop.exe --preflight-only --diagnostics-out desktop-preflight.json
           .\dist\ygo-effect-dsl-desktop.exe --bridge-smoke-out desktop-bridge-smoke.json
 
+      - name: Build portable Windows package
+        run: |
+          New-Item -ItemType Directory -Force package\ygo-effect-dsl-win64
+          Copy-Item dist\ygo-effect-dsl.exe package\ygo-effect-dsl-win64\ygo-effect-dsl.exe
+          Copy-Item dist\ygo-effect-dsl-desktop.exe package\ygo-effect-dsl-win64\ygo-effect-dsl-desktop.exe
+          Copy-Item packaging/windows-portable/README.txt package\ygo-effect-dsl-win64\README.txt
+          Copy-Item docs/release/evidence/v1_0_0_third_party_notices.md package\ygo-effect-dsl-win64\THIRD_PARTY_NOTICES.md
+          Copy-Item docs/legal/10_distribution_policy.md package\ygo-effect-dsl-win64\DISTRIBUTION_POLICY.md
+          Compress-Archive -Path package\ygo-effect-dsl-win64 -DestinationPath ygo-effect-dsl-win64-portable.zip -Force
+
+      - name: Smoke test portable Windows package
+        run: |
+          Expand-Archive ygo-effect-dsl-win64-portable.zip -DestinationPath package_smoke -Force
+          .\package_smoke\ygo-effect-dsl-win64\ygo-effect-dsl.exe --version
+          .\package_smoke\ygo-effect-dsl-win64\ygo-effect-dsl-desktop.exe --version
+          .\package_smoke\ygo-effect-dsl-win64\ygo-effect-dsl-desktop.exe --preflight-only --diagnostics-out package-desktop-preflight.json
+          .\package_smoke\ygo-effect-dsl-win64\ygo-effect-dsl-desktop.exe --bridge-smoke-out package-desktop-bridge-smoke.json
+
       - name: Upload executable artifacts
         uses: actions/upload-artifact@v7
         with:
@@ -99,6 +117,9 @@ jobs:
           path: |
             dist/ygo-effect-dsl.exe
             dist/ygo-effect-dsl-desktop.exe
+            ygo-effect-dsl-win64-portable.zip
             desktop-preflight.json
             desktop-bridge-smoke.json
+            package-desktop-preflight.json
+            package-desktop-bridge-smoke.json
           if-no-files-found: error

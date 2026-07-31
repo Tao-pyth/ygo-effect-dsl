@@ -32,6 +32,7 @@ def test_current_production_distribution_gate_fails_closed_until_v1_evidence_exi
     assert checks["third_party_payload_allowlist_default_deny"]["passed"] is True
     assert checks["release_artifact_composition_references_exist"]["passed"] is True
     assert checks["windows_gui_executable_workflow_smoke"]["passed"] is True
+    assert checks["installer_packaging_verified"]["passed"] is True
     assert checks["root_project_license_approved"]["reason"] == "approval_not_recorded"
     assert checks["support_matrix_supported_rows_verified"]["reason"] == (
         "supported_rows_not_verified"

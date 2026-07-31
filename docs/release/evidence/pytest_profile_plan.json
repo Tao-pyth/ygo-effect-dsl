@@ -1,5 +1,5 @@
 {
-  "evidence_id": "pytestprofile_16cba6938e9cdc6829968038feabd621ea3b3be90e2eefb8052133debf2c283f",
+  "evidence_id": "pytestprofile_a8e29b1ff47a64d208cb00dfaf1467aec67441314614f3c046181e5e623ab07d",
   "package_version": "0.8.0",
   "profiles": {
     "evidence": {
@@ -205,7 +205,7 @@
       ]
     },
     "unit": {
-      "file_count": 49,
+      "file_count": 50,
       "files": [
         "tests/test_action_aggregation.py",
         "tests/test_action_models.py",
@@ -255,7 +255,8 @@
         "tests/test_transform_v0.py",
         "tests/test_v03a_contracts.py",
         "tests/test_v1_legal_artifacts.py",
-        "tests/test_v1_support_matrix.py"
+        "tests/test_v1_support_matrix.py",
+        "tests/test_windows_installer_packaging.py"
       ],
       "pytest_args": [
         "-q",
@@ -307,7 +308,8 @@
         "tests/test_transform_v0.py",
         "tests/test_v03a_contracts.py",
         "tests/test_v1_legal_artifacts.py",
-        "tests/test_v1_support_matrix.py"
+        "tests/test_v1_support_matrix.py",
+        "tests/test_windows_installer_packaging.py"
       ]
     }
   },
@@ -325,7 +327,7 @@
   },
   "schema_version": "pytest-profile-plan-v1",
   "source": {
-    "discovered_file_count": 130,
+    "discovered_file_count": 131,
     "repo_root_name": "ygo-effect-dsl"
   },
   "validation": {

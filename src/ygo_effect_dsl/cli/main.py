@@ -55,6 +55,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_release_self_hosted_evidence_audit,
     cmd_release_self_hosted_evidence_verify_adopted,
     cmd_strategy_interruption_qualify,
+    cmd_v1_installer_packaging,
 )
 from ygo_effect_dsl.cli.cmd_transform import cmd_transform
 from ygo_effect_dsl.cli.cmd_validate import cmd_validate
@@ -1163,6 +1164,23 @@ def main() -> int:
         help="write failed gate evidence but return zero for CI dry-runs",
     )
     production_distribution_gate.set_defaults(func=cmd_production_distribution_gate)
+
+    v1_installer_packaging = sub.add_parser(
+        "v1-installer-packaging",
+        help="evaluate the v1.0.0 Windows distribution package decision",
+    )
+    v1_installer_packaging.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing packaging docs and workflows",
+    )
+    v1_installer_packaging.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed v1 installer packaging evidence JSON path",
+    )
+    v1_installer_packaging.set_defaults(func=cmd_v1_installer_packaging)
 
     lua_load_qualify = sub.add_parser(
         "ocgcore-lua-qualify",

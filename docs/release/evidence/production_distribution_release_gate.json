@@ -66,8 +66,8 @@
       "category": "installer",
       "evidence": "docs/release/evidence/v1_0_0_installer_packaging.json",
       "id": "installer_packaging_verified",
-      "passed": false,
-      "reason": "missing_evidence",
+      "passed": true,
+      "reason": "verified",
       "required": true
     },
     {
@@ -127,14 +127,13 @@
       "required": true
     }
   ],
-  "evidence_id": "productiondistgate_cad0494ca977d901ad8e9d63ead5037839ed3b4f899a6f7cd49c457a027bb0ff",
+  "evidence_id": "productiondistgate_e1b2b930bfc6ea929404e2d856368642c069c54395ee5e2e39f8e69e82d48fa8",
   "issue": 359,
   "package_version": "0.8.0",
   "passed": false,
   "rejection_reasons": [
     "authenticode_signing_verified:missing_evidence",
     "external_asset_setup_verified:missing_evidence",
-    "installer_packaging_verified:missing_evidence",
     "redacted_support_bundle_verified:missing_evidence",
     "root_project_license_approved:approval_not_recorded",
     "security_threat_model_approved:missing_evidence",

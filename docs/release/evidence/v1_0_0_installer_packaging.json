@@ -1,0 +1,40 @@
+{
+  "artifact": {
+    "archive_name": "ygo-effect-dsl-win64-portable.zip",
+    "format": "portable_zip",
+    "top_level_directory": "ygo-effect-dsl-win64"
+  },
+  "checks": [
+    {
+      "evidence": "docs/adr/0017_v1_windows_distribution_package.md",
+      "id": "packaging_adr_records_operational_contract",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "packaging/windows-portable/README.txt",
+      "id": "package_readme_records_install_uninstall_steps",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": ".github/workflows/build-windows-exe.yml",
+      "id": "ci_builds_and_smokes_portable_zip",
+      "passed": true,
+      "reason": "verified"
+    }
+  ],
+  "distribution_boundary": {
+    "admin_required": false,
+    "auto_update": "not_included",
+    "machine_wide_install": false,
+    "public_release_blocked_until_parent_gate": true,
+    "webview2_runtime_bundled": false
+  },
+  "evidence_id": "v1installerpackaging_9860bbe2d5c85a9a42cf072c4a0d61f6cc1e9ed6e32888e8f00be86726ebf4f4",
+  "issue": 355,
+  "package_version": "0.8.0",
+  "passed": true,
+  "rejection_reasons": [],
+  "schema_version": "v1-installer-packaging-v1"
+}
