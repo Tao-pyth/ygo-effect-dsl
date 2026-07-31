@@ -6,7 +6,8 @@ from typing import Any
 
 import pytest
 
-from ygo_effect_dsl.desktop.bridge import DesktopBridge
+from ygo_effect_dsl.desktop.bridge import DESKTOP_BRIDGE_CONTRACT_VERSION, DesktopBridge
+from ygo_effect_dsl.desktop import shell as shell_module
 from ygo_effect_dsl.desktop.shell import (
     DEFAULT_WINDOW_SIZE,
     MINIMUM_WINDOW_SIZE,
@@ -91,8 +92,19 @@ def test_single_instance_lock_releases_for_next_launch(tmp_path: Path) -> None:
 
 def test_start_desktop_uses_packaged_frontend_and_single_bridge_method(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     captured: dict[str, Any] = {}
+
+    class CardProvider:
+        def close(self) -> None:
+            captured["card_provider_closed"] = True
+
+    monkeypatch.setattr(
+        shell_module,
+        "build_desktop_card_provider",
+        lambda external_root=None: CardProvider(),
+    )
 
     class Supervisor:
         health = "stopped"
@@ -152,6 +164,16 @@ def test_start_desktop_uses_packaged_frontend_and_single_bridge_method(
     assert captured["height"] == DEFAULT_WINDOW_SIZE[1]
     assert captured["min_size"] == MINIMUM_WINDOW_SIZE
     assert isinstance(captured["js_api"], DesktopBridge)
+    description = captured["js_api"].invoke(
+        {
+            "method": "system.describe",
+            "payload": {},
+            "request_id": "describe",
+            "version": DESKTOP_BRIDGE_CONTRACT_VERSION,
+        }
+    )
+    assert description["result"]["capabilities"]["card_presentation"] is True
+    assert description["result"]["capabilities"]["deck_card_options"] is True
     assert captured["start"] == {
         "debug": False,
         "gui": "edgechromium",
@@ -161,6 +183,7 @@ def test_start_desktop_uses_packaged_frontend_and_single_bridge_method(
     assert captured["supervisor_stopped"] is True
     assert captured["export_supervisor_started"] is True
     assert captured["export_supervisor_stopped"] is True
+    assert captured["card_provider_closed"] is True
 
 
 def test_start_desktop_wraps_edgechromium_startup_failure(tmp_path: Path) -> None:

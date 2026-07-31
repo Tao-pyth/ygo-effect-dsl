@@ -68,6 +68,41 @@ def _preflight(*_: Any, **__: Any) -> _Preflight:
     return _Preflight()
 
 
+def _terminal_rule(
+    card_code: int,
+    *,
+    rule_id: str = "opening-copy",
+    weight: int = 5,
+) -> dict[str, Any]:
+    return {
+        "card_code": card_code,
+        "controller": 0,
+        "enabled": True,
+        "location": "HAND",
+        "max_count": None,
+        "min_count": 1,
+        "position": "ANY",
+        "rule_id": rule_id,
+        "scoring_mode": "once",
+        "weight": weight,
+    }
+
+
+class _JapaneseCardProvider:
+    def get_card(self, query: Any) -> Any:
+        assert query.schema_version == CARD_PRESENTATION_QUERY_VERSION
+        assert query.requested_locale == "ja"
+        assert query.fallback_locales == ()
+        return SimpleNamespace(
+            to_dict=lambda: {
+                "availability": "available",
+                "name": f"日本語カード{query.card_code}",
+                "presentation_id": f"cardpresentation_{query.card_code}",
+                "resolved_locale": "ja",
+            }
+        )
+
+
 def _published_result_launcher(command: list[str], *, cwd: Path) -> Any:
     del cwd
     route_path = Path(command[command.index("--out") + 1])
@@ -111,7 +146,21 @@ def _published_result_launcher(command: list[str], *, cwd: Path) -> Any:
         "experiment": {
             "experiment_id": "desktop_fixture_experiment",
             "schema_version": "0.4",
-            "search": {"strategy": "random_search_v1"},
+            "scenario": {
+                "opening_hand": {
+                    "cards": list(_codes()[:5]),
+                    "mode": "fixed",
+                }
+            },
+            "search": {
+                "budget": {
+                    "max_depth": 8,
+                    "max_nodes": 50001,
+                    "max_replays": 50001,
+                    "max_seconds": 120,
+                },
+                "strategy": "random_search_v1",
+            },
             "terminal_preference_profile": preference_profile.to_dict(),
         },
         "replay": {
@@ -665,6 +714,90 @@ def test_inline_and_native_ydk_registration_are_content_addressed(
     assert corrupt["diagnostics"][0]["code"] == "deck_catalog_corrupt"
 
 
+def test_deck_metadata_updates_display_name_tags_without_identity_change(
+    tmp_path: Path,
+) -> None:
+    service = DesktopApplicationService(
+        tmp_path,
+        card_provider=_JapaneseCardProvider(),
+        preflight=_preflight,
+    )
+    bridge = DesktopBridge(service.handlers())
+    deck = bridge.invoke(
+        _request(
+            "deck.register_inline",
+            {"extra": [], "main": _codes(), "name": "Original", "side": []},
+        )
+    )["result"]["deck"]
+    deck_id = deck["deck_id"]
+    deck_sha256 = deck["deck_sha256"]
+
+    updated = bridge.invoke(
+        _request(
+            "deck.metadata.update",
+            {
+                "deck_id": deck_id,
+                "display_name": "白き森ウィッチクラフト",
+                "tags": ["展開", "検証済み", "展開"],
+            },
+        )
+    )
+    catalog = bridge.invoke(_request("deck.catalog", {}))
+    metadata = bridge.invoke(_request("deck.metadata.get", {"deck_id": deck_id}))
+    row = catalog["result"]["decks"][0]
+
+    assert updated["ok"] is True
+    assert updated["result"]["deck_id"] == deck_id
+    assert updated["result"]["deck_sha256"] == deck_sha256
+    assert metadata["result"]["metadata"]["display_name"] == "白き森ウィッチクラフト"
+    assert metadata["result"]["metadata"]["tags"] == ["展開", "検証済み"]
+    assert row["deck_id"] == deck_id
+    assert row["deck_sha256"] == deck_sha256
+    assert row["canonical_name"] == "Original"
+    assert row["name"] == "白き森ウィッチクラフト"
+    assert row["tags"] == ["展開", "検証済み"]
+    assert row["card_counts"][0]["name_ja"].startswith("日本語カード")
+
+
+def test_imported_ydk_card_presentation_profile_smoke(tmp_path: Path) -> None:
+    ydk = tmp_path / "imported.ydk"
+    ydk.write_text(
+        "#created by test\n#main\n"
+        + "\n".join(str(code) for code in _codes())
+        + "\n#extra\n!side\n",
+        encoding="utf-8",
+    )
+    service = DesktopApplicationService(
+        tmp_path / "state",
+        ydk_picker=lambda: ydk,
+        card_provider=_JapaneseCardProvider(),
+        preflight=_preflight,
+    )
+    bridge = DesktopBridge(service.handlers())
+
+    imported = bridge.invoke(_request("deck.import_ydk", {}))
+    deck = imported["result"]["deck"]
+    options = bridge.invoke(_request("deck.card_options", {"deck_id": deck["deck_id"]}))
+    created = bridge.invoke(
+        _request(
+            "deck.profile.create",
+            {
+                "deck_id": deck["deck_id"],
+                "display_name": "YDK smoke",
+                "rules": [_terminal_rule(options["result"]["items"][0]["card_code"])],
+            },
+        )
+    )
+
+    assert imported["ok"] is True
+    assert deck["source"] == "ydk"
+    assert deck["card_counts"][0]["name_ja"].startswith("日本語カード")
+    assert options["ok"] is True
+    assert options["result"]["items"][0]["selectable"] is True
+    assert created["ok"] is True
+    assert created["result"]["profile"]["deck_id"] == deck["deck_id"]
+
+
 def test_preflight_search_queue_status_and_cancel_use_existing_catalog(
     tmp_path: Path,
 ) -> None:
@@ -764,6 +897,13 @@ def test_result_view_reads_only_verified_committed_job_artifacts(
     assert view["result_truth"]["ranking_id"].startswith("routerank_")
     assert view["route"]["route_id"] == "route_" + "a" * 64
     assert view["route"]["action_count"] == 1
+    assert view["route"]["opening_hand"]["mode"] == "fixed"
+    assert [card["card_code"] for card in view["route"]["opening_hand"]["cards"]] == list(
+        _codes()[:5]
+    )
+    assert view["route"]["peak_board"]["available"] is True
+    assert view["route"]["peak_board"]["score"] == 18
+    assert view["route"]["peak_board"]["cards"][0]["card_code"] == _codes()[0]
     assert view["route"]["randomness_summary"]["reliability_class"] == "deterministic"
     assert view["score"]["base"] == 14
     assert view["score"]["preference"][0]["applied_value"] == 5
@@ -787,6 +927,9 @@ def test_result_view_reads_only_verified_committed_job_artifacts(
     assert view["search_run"]["coverage"]["coverage_status"] == "best_observed"
     assert view["search_run"]["route_ranking"]["best_route_id"] == view["route"]["route_id"]
     assert view["search_run"]["best_observed"] is True
+    assert view["search_run"]["budget"]["max_nodes"] == 50001
+    assert view["search_run"]["nodes"] == 7
+    assert view["search_run"]["termination_reason"] == "goal_reached"
 
     route_artifact = next(
         artifact
@@ -1437,6 +1580,185 @@ def test_service_clones_and_binds_terminal_preference_profile(tmp_path: Path) ->
     assert profile_id != default_profile
     assert experiment["terminal_preference_profile"]["profile_id"] == profile_id
     assert experiment["terminal_preference_profile"]["rules"][0]["weight"] == 5
+
+
+def test_service_manages_deck_scoped_terminal_profiles(tmp_path: Path) -> None:
+    service = DesktopApplicationService(
+        tmp_path,
+        card_provider=_JapaneseCardProvider(),
+        preflight=_preflight,
+    )
+    bridge = DesktopBridge(service.handlers())
+    deck_a = bridge.invoke(
+        _request(
+            "deck.register_inline",
+            {"extra": [], "main": _codes(), "name": "Deck A", "side": []},
+        )
+    )["result"]["deck"]
+    deck_b_codes = list(range(20_000, 20_040))
+    deck_b = bridge.invoke(
+        _request(
+            "deck.register_inline",
+            {"extra": [], "main": deck_b_codes, "name": "Deck B", "side": []},
+        )
+    )["result"]["deck"]
+
+    options = bridge.invoke(_request("deck.card_options", {"deck_id": deck_a["deck_id"]}))
+    created_a = bridge.invoke(
+        _request(
+            "deck.profile.create",
+            {
+                "deck_id": deck_a["deck_id"],
+                "display_name": "展開重視",
+                "rules": [_terminal_rule(_codes()[0], weight=5)],
+            },
+        )
+    )
+    created_b = bridge.invoke(
+        _request(
+            "deck.profile.create",
+            {
+                "deck_id": deck_b["deck_id"],
+                "display_name": "展開重視",
+                "rules": [_terminal_rule(deck_b_codes[0], rule_id="deck-b", weight=5)],
+            },
+        )
+    )
+
+    assert options["ok"] is True
+    assert {item["card_code"] for item in options["result"]["items"]} == set(_codes())
+    assert options["result"]["items"][0]["name_ja"].startswith("日本語カード")
+    assert created_a["ok"] is True
+    assert created_b["ok"] is True
+    deck_profile_id = created_a["result"]["profile"]["deck_profile_id"]
+    assert deck_profile_id.startswith("decktermpref_")
+    assert created_b["result"]["profile"]["deck_profile_id"] != deck_profile_id
+
+    old_active_profile_id = created_a["result"]["profile"]["active_profile_id"]
+    updated = bridge.invoke(
+        _request(
+            "deck.profile.update",
+            {
+                "deck_profile_id": deck_profile_id,
+                "display_name": "展開重視改",
+                "rules": [_terminal_rule(_codes()[1], rule_id="updated", weight=7)],
+            },
+        )
+    )
+    profile = updated["result"]["profile"]
+
+    assert updated["ok"] is True
+    assert profile["deck_profile_id"] == deck_profile_id
+    assert profile["revision"] == 2
+    assert profile["active_profile_id"] != old_active_profile_id
+    assert service.preference_catalog.require(old_active_profile_id).profile.rules
+
+    composed = bridge.invoke(
+        _request(
+            "scenario.compose_search",
+            {
+                "configuration": {
+                    "interruption_card_code": None,
+                    "max_depth": 8,
+                    "max_nodes": 10,
+                    "max_seconds": 30,
+                    "preference_profile_id": deck_profile_id,
+                    "seed": 1,
+                    "strategy": "random_search_v1",
+                },
+                "deck_id": deck_a["deck_id"],
+            },
+        )
+    )
+    assert composed["ok"] is True
+    assert (
+        composed["result"]["experiment"]["terminal_preference_profile"]["profile_id"]
+        == profile["active_profile_id"]
+    )
+    assert (
+        composed["result"]["experiment"]["terminal_preference_profile"]["rules"][0][
+            "weight"
+        ]
+        == 7
+    )
+
+    archived = bridge.invoke(
+        _request("deck.profile.archive", {"deck_profile_id": deck_profile_id})
+    )
+    active_list = bridge.invoke(
+        _request(
+            "deck.profile.list",
+            {"deck_id": deck_a["deck_id"], "include_archived": False},
+        )
+    )
+    archived_list = bridge.invoke(
+        _request(
+            "deck.profile.list",
+            {"deck_id": deck_a["deck_id"], "include_archived": True},
+        )
+    )
+    rejected = bridge.invoke(
+        _request(
+            "scenario.compose_search",
+            {
+                "configuration": {
+                    "interruption_card_code": None,
+                    "max_depth": 8,
+                    "max_nodes": 10,
+                    "max_seconds": 30,
+                    "preference_profile_id": deck_profile_id,
+                    "seed": 1,
+                    "strategy": "random_search_v1",
+                },
+                "deck_id": deck_a["deck_id"],
+            },
+        )
+    )
+
+    assert archived["ok"] is True
+    assert archived["result"]["profile"]["state"] == "archived"
+    assert active_list["result"]["profiles"] == []
+    assert archived_list["result"]["profiles"][0]["deck_profile_id"] == deck_profile_id
+    assert rejected["ok"] is False
+    assert rejected["diagnostics"][0]["code"] == "deck_profile_archived"
+    assert service.preference_catalog.require(profile["active_profile_id"]).profile.rules
+
+
+def test_deck_profile_rules_fail_closed_outside_selected_deck(tmp_path: Path) -> None:
+    service = DesktopApplicationService(
+        tmp_path,
+        card_provider=_JapaneseCardProvider(),
+        preflight=_preflight,
+    )
+    bridge = DesktopBridge(service.handlers())
+    deck = bridge.invoke(
+        _request(
+            "deck.register_inline",
+            {"extra": [], "main": _codes(), "name": "Deck", "side": []},
+        )
+    )["result"]["deck"]
+
+    missing_source = DesktopBridge(
+        DesktopApplicationService(tmp_path, preflight=_preflight).handlers()
+    )
+    no_options = missing_source.invoke(
+        _request("deck.card_options", {"deck_id": deck["deck_id"]})
+    )
+    rejected = bridge.invoke(
+        _request(
+            "deck.profile.create",
+            {
+                "deck_id": deck["deck_id"],
+                "display_name": "デッキ外カード",
+                "rules": [_terminal_rule(99_999, weight=1)],
+            },
+        )
+    )
+
+    assert no_options["ok"] is False
+    assert no_options["diagnostics"][0]["code"] == "card_presentation_source_unavailable"
+    assert rejected["ok"] is False
+    assert rejected["diagnostics"][0]["code"] == "deck_profile_card_not_in_deck"
 
 
 def test_service_rejects_unknown_strategy_before_preflight(tmp_path: Path) -> None:

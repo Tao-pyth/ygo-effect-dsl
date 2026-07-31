@@ -21,6 +21,9 @@ DESKTOP_FRONTEND_EVIDENCE_SCHEMA_VERSION = "desktop-frontend-evidence-v1"
 DEFAULT_VIEWPORTS = (
     ("deck_dashboard_1440x900.png", 1440, 900, ""),
     ("deck_search_960x700.png", 960, 700, "#view=search&deck=short-route"),
+    ("search_profile_select_960x700.png", 960, 700, "#view=search&deck=short-route"),
+    ("profile_page_1440x900.png", 1440, 900, "#view=profiles&deck=short-route"),
+    ("profile_page_760x900.png", 760, 900, "#view=profiles&deck=short-route"),
 )
 
 

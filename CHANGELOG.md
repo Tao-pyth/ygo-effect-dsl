@@ -6,7 +6,17 @@ All notable package changes are documented here. Package versions follow Semanti
 
 ### Added
 
-- No unreleased package changes yet.
+- [v0.9.0] Added deck-scoped terminal evaluation profile management for the desktop UI, including the `[P] プロファイル` page, deck-card selection, archive deletion, and `deck.profile.*` bridge contracts.
+- [v0.9.0] Added desktop deck metadata management for display names and tags without changing `deck_id`, `deck_sha256`, existing jobs, or evidence.
+- [v0.9.0] Added result-view explainability for Help icons, conservative termination explanations, opening hand conditions, and peak-score board snapshots.
+
+### Changed
+
+- [v0.9.0] The desktop catalog now uses Japanese card presentation when available and does not treat card codes as card names. The deprecated visible inline deck creation entry point is hidden while retaining `deck.register_inline` compatibility.
+
+### Governance
+
+- [v0.9.0] Planned and started the terminal preference and card selection UX release. The stage keeps `card_code` as the internal identifier while moving desktop editing to deck-scoped profiles, deck-card selection, archive deletion, and fail-closed handling when Japanese card presentation is unavailable.
 
 ## 0.8.0 - 2026-07-31
 

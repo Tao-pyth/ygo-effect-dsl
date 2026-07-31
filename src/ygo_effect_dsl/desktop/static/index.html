@@ -33,7 +33,7 @@
         </div>
         <div class="topbar-actions">
           <button class="button secondary" id="import-deck" type="button">YDKを読み込む</button>
-          <button class="button primary" id="new-inline" type="button">インラインデッキを作成</button>
+          <button class="button primary" id="new-inline" type="button" hidden>インラインデッキを作成</button>
         </div>
       </header>
 
@@ -45,6 +45,10 @@
         <button class="rail-item" type="button" data-view="runs">
           <span class="rail-glyph" aria-hidden="true">R</span>
           <span>実行</span>
+        </button>
+        <button class="rail-item" type="button" data-view="profiles">
+          <span class="rail-glyph" aria-hidden="true">P</span>
+          <span>プロファイル</span>
         </button>
         <button class="rail-item" type="button" data-view="compare">
           <span class="rail-glyph" aria-hidden="true">C</span>
@@ -143,8 +147,9 @@
             <div>
               <span class="status-chip success" id="detail-status">準備完了</span>
               <h2 id="detail-title">短経路 fixture</h2>
-              <code id="detail-hash">a72f91c8</code>
+              <code id="detail-hash" hidden>a72f91c8</code>
             </div>
+            <button class="button secondary" id="deck-settings" type="button">デッキ設定</button>
             <button class="button primary run-search" id="open-search" type="button">探索を実行</button>
           </div>
 
@@ -308,8 +313,102 @@
             <button class="button secondary" id="analytics-load-more" type="button" hidden>次のページを読み込む</button>
           </div>
         </section>
+
+        <section class="profiles-pane" id="profiles-pane" aria-labelledby="profiles-title" hidden>
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">デッキ別 / 終端評価ルール</p>
+              <h1 id="profiles-title">プロファイル</h1>
+            </div>
+            <button class="button primary" id="profile-new" type="button">新規作成</button>
+          </div>
+          <div class="profile-page-toolbar">
+            <label class="select-field profile-deck-select">
+              <span>対象デッキ</span>
+              <select id="profile-deck-select"></select>
+            </label>
+            <label class="profile-archived-toggle"><input id="profile-include-archived" type="checkbox">アーカイブ済みを表示</label>
+            <span id="profile-page-status" role="status" aria-live="polite">デッキを選択してください。</span>
+          </div>
+          <div class="profile-page-layout">
+            <div class="profile-list-panel" aria-labelledby="profile-list-title">
+              <h2 id="profile-list-title">プロファイル一覧</h2>
+              <div id="deck-profile-list" class="deck-profile-list"></div>
+            </div>
+            <form class="profile-detail-panel" id="deck-profile-form">
+              <div class="profile-editor-heading">
+                <strong id="profile-detail-title">終端評価ルールを編集</strong>
+                <span id="deck-profile-edit-status" aria-live="polite">デッキ内カードから評価ルールを作成します。</span>
+              </div>
+              <div class="form-grid profile-rule-grid">
+                <label><span>プロファイル名</span><input id="deck-profile-name" type="text" maxlength="80" placeholder="展開重視"></label>
+                <label><span>カード</span><select id="deck-profile-card"></select></label>
+                <label><span>場所</span><select id="deck-profile-location">
+                  <option value="HAND">手札</option>
+                  <option value="MONSTER_ZONE">モンスターゾーン</option>
+                  <option value="SPELL_TRAP_ZONE">魔法・罠ゾーン</option>
+                  <option value="GRAVEYARD">墓地</option>
+                  <option value="BANISHED">除外</option>
+                </select></label>
+                <label><span>表示形式</span><select id="deck-profile-position">
+                  <option value="ANY">任意</option>
+                  <option value="FACE_UP">表側</option>
+                  <option value="FACE_DOWN">裏側/セット</option>
+                </select></label>
+                <label><span>重み</span><input id="deck-profile-weight" type="number" step="1" value="1"></label>
+                <label><span>最小枚数</span><input id="deck-profile-min-count" type="number" min="1" value="1"></label>
+                <label><span>最大枚数</span><input id="deck-profile-max-count" type="number" min="1" placeholder="上限なし"></label>
+                <label><span>加点方式</span><select id="deck-profile-scoring">
+                  <option value="once">1回だけ</option>
+                  <option value="per_copy">枚数ごと</option>
+                  <option value="threshold">しきい値</option>
+                </select></label>
+                <button class="button secondary" id="deck-profile-add-rule" type="button">ルールを追加</button>
+              </div>
+              <div class="profile-rules-table" id="deck-profile-rules" aria-label="終端評価ルール一覧"></div>
+              <div class="profile-detail-actions">
+                <button class="button primary" id="deck-profile-save" type="submit">保存</button>
+                <button class="button danger" id="deck-profile-archive" type="button">アーカイブ</button>
+              </div>
+            </form>
+          </div>
+        </section>
       </main>
     </div>
+
+    <dialog class="deck-settings-dialog" id="deck-settings-dialog" aria-labelledby="deck-settings-title">
+      <form id="deck-settings-form" method="dialog">
+        <div class="dialog-header">
+          <div>
+            <p class="eyebrow">デッキカタログ</p>
+            <h2 id="deck-settings-title">デッキ設定</h2>
+          </div>
+          <button class="close-button" id="close-deck-settings" type="button" aria-label="デッキ設定を閉じる">×</button>
+        </div>
+        <div class="dialog-body">
+          <section class="form-section" aria-labelledby="deck-settings-fields-title">
+            <div class="form-section-heading">
+              <span>01</span>
+              <div><h3 id="deck-settings-fields-title">表示名とタグ</h3><p>デッキ本体のIDやハッシュは変更せず、一覧で使う表示情報だけを更新します。</p></div>
+            </div>
+            <div class="form-grid">
+              <label><span>デッキ名</span><input id="deck-display-name" type="text" maxlength="200"></label>
+              <label><span>タグ</span><input id="deck-tags" type="text" placeholder="展開, 検証済み, 大会候補"></label>
+            </div>
+            <div class="diagnostic warning" id="deck-settings-status" role="status" aria-live="polite">
+              <div><strong>未保存</strong><span>タグはカンマ区切りで入力します。</span></div>
+            </div>
+          </section>
+        </div>
+        <div class="dialog-footer">
+          <span>過去ジョブ、deck_id、deck_sha256、evidence は変更されません。</span>
+          <div>
+            <button class="button secondary" id="cancel-deck-settings" type="button">キャンセル</button>
+            <button class="button primary" id="save-deck-settings" type="submit">保存</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
 
     <dialog class="inline-deck-dialog" id="inline-deck-dialog" aria-labelledby="inline-deck-title">
       <form id="inline-deck-form" method="dialog">
@@ -370,7 +469,8 @@
                 <option value="fixed">固定カード</option>
                 <option value="conditional">条件付きドロー</option>
               </select></label>
-              <label><span>終端プロファイル</span><select id="preference-profile"><option value="">既定の終端評価</option></select></label>
+              <label><span>終端評価ルール</span><select id="preference-profile"><option value="">既定の終端評価</option></select></label>
+              <button class="button secondary" id="edit-profiles" type="button">プロファイルを編集</button>
               <label><span>成果物の保存先</span><select id="artifact-target"><option>ローカルカタログ（atomic）</option></select></label>
             </div>
             <div class="form-grid opening-hand-options" id="opening-hand-options">
@@ -379,30 +479,6 @@
               <label id="conditional-min-field" hidden><span>最小枚数</span><input id="conditional-min-count" type="number" min="0" value="1"></label>
               <label id="conditional-max-field" hidden><span>最大枚数</span><input id="conditional-max-count" type="number" min="0" placeholder="上限なし"></label>
               <label id="conditional-attempts-field" hidden><span>最大試行回数</span><input id="conditional-max-attempts" type="number" min="1" max="100000" value="10000"></label>
-            </div>
-            <div class="profile-editor" id="profile-editor">
-              <div class="profile-editor-heading">
-                <strong>終端プロファイルを複製</strong>
-                <span id="profile-edit-status" aria-live="polite">カタログのプロファイル編集は新しい不変プロファイルを作成します。</span>
-              </div>
-              <div class="form-grid profile-rule-grid">
-                <label><span>新しい名前</span><input id="preference-profile-name" type="text" maxlength="80" placeholder="編集済み終端評価"></label>
-                <label><span>カードコード</span><input id="preference-rule-card" type="number" min="1" placeholder="カードコード"></label>
-                <label><span>場所</span><select id="preference-rule-location">
-                  <option value="HAND">手札</option>
-                  <option value="MONSTER_ZONE">モンスターゾーン</option>
-                  <option value="SPELL_TRAP_ZONE">魔法・罠ゾーン</option>
-                  <option value="GRAVEYARD">墓地</option>
-                  <option value="BANISHED">除外</option>
-                </select></label>
-                <label><span>表示形式</span><select id="preference-rule-position">
-                  <option value="ANY">任意</option>
-                  <option value="FACE_UP">表側</option>
-                  <option value="FACE_DOWN">裏側/セット</option>
-                </select></label>
-                <label><span>重み</span><input id="preference-rule-weight" type="number" step="1" value="1"></label>
-                <button class="button secondary" id="clone-profile" type="button">複製</button>
-              </div>
             </div>
           </section>
 
@@ -518,22 +594,39 @@
           <div><p class="eyebrow" id="result-eyebrow">ブラウザプレビュー</p><h2 id="result-title">経路結果</h2></div>
           <button class="close-button" id="close-result" type="button" aria-label="経路結果を閉じる">×</button>
         </div>
-        <div class="result-identity"><span>Route ID</span><code id="result-route-id">preview-only</code></div>
+        <details class="result-identity result-internal">
+          <summary>内部ID</summary>
+          <div><span>Route ID</span><code id="result-route-id">preview-only</code></div>
+        </details>
         <div class="job-stats result-stats">
-          <div><span>成功</span><strong id="result-success">プレビュー</strong></div>
-          <div><span>ピークスコア</span><strong id="result-peak">0</strong></div>
-          <div><span>終端スコア</span><strong id="result-terminal">0</strong></div>
-          <div><span>アクション</span><strong id="result-actions">0</strong></div>
+          <div><span>成功 <button class="help-icon" type="button" aria-label="成功の説明" title="設定した評価条件を満たす経路かどうかです。">?</button></span><strong id="result-success">プレビュー</strong></div>
+          <div><span>ピークスコア <button class="help-icon" type="button" aria-label="ピークスコアの説明" title="経路中に観測された最大スコアです。">?</button></span><strong id="result-peak">0</strong></div>
+          <div><span>終端スコア <button class="help-icon" type="button" aria-label="終端スコアの説明" title="経路終了時の盤面を終端評価ルールで採点した値です。">?</button></span><strong id="result-terminal">0</strong></div>
+          <div><span>アクション <button class="help-icon" type="button" aria-label="アクション数の説明" title="最良経路として保存された操作手順の数です。">?</button></span><strong id="result-actions">0</strong></div>
         </div>
         <div class="result-evidence" id="result-evidence" aria-label="探索証跡の概要" hidden>
-          <div><span>Coverage</span><strong id="result-coverage">best observed</strong></div>
-          <div><span>候補</span><strong id="result-candidates">0</strong></div>
-          <div><span>探索済み</span><strong id="result-explored">0</strong></div>
-          <div><span>打ち切り</span><strong id="result-censored">0</strong></div>
+          <div><span>Coverage <button class="help-icon" type="button" aria-label="Coverageの説明" title="best_observed は観測上の最良であり、全探索の証明ではありません。">?</button></span><strong id="result-coverage">best observed</strong></div>
+          <div><span>候補 <button class="help-icon" type="button" aria-label="候補数の説明" title="探索中に候補として記録された経路数です。">?</button></span><strong id="result-candidates">0</strong></div>
+          <div><span>探索済み <button class="help-icon" type="button" aria-label="探索済みの説明" title="実際に評価まで進んだ候補数です。">?</button></span><strong id="result-explored">0</strong></div>
+          <div><span>打ち切り <button class="help-icon" type="button" aria-label="打ち切りの説明" title="予算、深さ、重複、停止条件などで未完了扱いになった候補数です。">?</button></span><strong id="result-censored">0</strong></div>
         </div>
         <div class="result-verification" id="result-verification">
-          <div><span>Replay検証</span><strong id="result-verification-state">未検証</strong></div>
+          <div><span>Replay検証 <button class="help-icon" type="button" aria-label="Replay検証の説明" title="保存済み経路を再実行して同じ結果になるか確認する状態です。">?</button></span><strong id="result-verification-state">未検証</strong></div>
           <button class="button secondary" id="verify-result" type="button">Replayを検証</button>
+        </div>
+        <div class="result-explainability">
+          <section class="result-explain-card" aria-labelledby="result-termination-title">
+            <h3 id="result-termination-title">終了理由</h3>
+            <p id="result-termination">探索結果を読み込むと、ノード予算と停止理由を表示します。</p>
+          </section>
+          <section class="result-explain-card" aria-labelledby="result-opening-hand-title">
+            <h3 id="result-opening-hand-title">初期手札</h3>
+            <p id="result-opening-hand">未読込</p>
+          </section>
+          <section class="result-explain-card" aria-labelledby="result-peak-board-title">
+            <h3 id="result-peak-board-title">最大スコア盤面</h3>
+            <div id="result-peak-board">未読込</div>
+          </section>
         </div>
         <div class="result-drilldown" id="result-drilldown" hidden>
           <div class="result-drilldown-header">

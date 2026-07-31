@@ -15,12 +15,43 @@ from ygo_effect_dsl.desktop import desktop_frontend_entrypoint
 from ygo_effect_dsl.desktop.bridge import DesktopBridge
 from ygo_effect_dsl.desktop.lifecycle import DesktopWorkerSupervisor
 from ygo_effect_dsl.desktop.service import DesktopApplicationService
+from ygo_effect_dsl.external.ocgcore import load_ocgcore_asset_lock, resolve_ocgcore_assets
+from ygo_effect_dsl.presentation import (
+    CardPresentationSource,
+    CardPresentationSourceError,
+    LocalizedCardPresentationProvider,
+)
 from ygo_effect_dsl.storage.export import AnalyticsExportSupervisor
 
 PYWEBVIEW_REQUIREMENT = "6.2.1"
 DESKTOP_STARTUP_DIAGNOSTIC_VERSION = "desktop-startup-diagnostic-v1"
 MINIMUM_WINDOW_SIZE = (960, 700)
 DEFAULT_WINDOW_SIZE = (1440, 900)
+
+
+def build_desktop_card_provider(
+    external_root: str | Path | None = None,
+) -> LocalizedCardPresentationProvider | None:
+    try:
+        lock = load_ocgcore_asset_lock()
+        assets = resolve_ocgcore_assets(external_root=external_root)
+        database = lock.repositories["card_database"]
+        required_file = database["required_files"].get(assets.database_path.name)
+        if not isinstance(required_file, Mapping):
+            return None
+        source = CardPresentationSource(
+            locale="ja",
+            database_path=assets.database_path,
+            database_sha256=str(required_file["sha256"]),
+            asset_lock_id=lock.lock_id,
+            source_commit=str(database["commit"]),
+            source_tree=str(database["tree"]),
+            license_status=str(database["license"]),
+            repository=str(database["repository"]),
+        )
+        return LocalizedCardPresentationProvider((source,))
+    except (OSError, ValueError, CardPresentationSourceError):
+        return None
 
 
 @dataclass(frozen=True)
@@ -246,9 +277,11 @@ def start_desktop(
     )
     export_supervisor: AnalyticsExportSupervisor | None = None
     picker = NativeYdkPicker(webview)
+    card_provider = build_desktop_card_provider(external_root=external_root)
     service = DesktopApplicationService(
         data_root,
         external_root=external_root,
+        card_provider=card_provider,
         ydk_picker=picker,
         worker_execution="desktop-supervisor-v1",
         worker_health=lambda: supervisor.health,
@@ -293,6 +326,8 @@ def start_desktop(
                 active_supervisor.stop()
             except RuntimeError as exc:
                 shutdown_failures.append(exc)
+        if card_provider is not None:
+            card_provider.close()
         if shutdown_failures:
             raise DesktopStartupError(
                 "desktop_worker_shutdown_failed",

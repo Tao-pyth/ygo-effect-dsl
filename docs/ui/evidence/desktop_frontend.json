@@ -4,7 +4,7 @@
     "search_dialog_present": true,
     "workflow_version_present": true
   },
-  "evidence_id": "desktopfrontendevidence_2fe1933893d2a03d33ff2f806adb886b6cca1ff8ac2eded815ba2e4ea2485dd6",
+  "evidence_id": "desktopfrontendevidence_890abbadfc12ed2a682aa413ea4b0fefac7de8b57551342132c7b9004c6e87bb",
   "limitations": [
     "synthetic_search_browser_adapter_only",
     "desktop_bridge_is_verified_separately_from_browser_capture",
@@ -17,18 +17,39 @@
   "schema_version": "desktop-frontend-evidence-v1",
   "screenshots": [
     {
-      "bytes": 103786,
+      "bytes": 108976,
       "filename": "deck_dashboard_1440x900.png",
       "height": 900,
-      "sha256": "eb1368b606ee270ed70aacd1c3e18d7a3bc712af715b1151d4b1dc7c848fd74d",
+      "sha256": "ad2f6aa8b6470da0d5d5721290a169338627a287c711395beb0a685291cbac7d",
       "width": 1440
     },
     {
-      "bytes": 81559,
+      "bytes": 70647,
       "filename": "deck_search_960x700.png",
       "height": 700,
-      "sha256": "f1ef3a7c4dc36f162f5eae088d205d2a816fad582a32c798cd6f1d2b53cded82",
+      "sha256": "fc8837178651984ce78dd08377515991e78f456459828b47e39fb0801a74d3fb",
       "width": 960
+    },
+    {
+      "bytes": 70647,
+      "filename": "search_profile_select_960x700.png",
+      "height": 700,
+      "sha256": "fc8837178651984ce78dd08377515991e78f456459828b47e39fb0801a74d3fb",
+      "width": 960
+    },
+    {
+      "bytes": 63912,
+      "filename": "profile_page_1440x900.png",
+      "height": 900,
+      "sha256": "b8abedb7279d1b25af30746dd27a23a36d794f3b1e2f26737e68816a9b21690f",
+      "width": 1440
+    },
+    {
+      "bytes": 58564,
+      "filename": "profile_page_760x900.png",
+      "height": 900,
+      "sha256": "a9c4856cc9805845c7c22b6b4f013b372eddd6de15ac9d69031ddd3e6a2f23a5",
+      "width": 760
     }
   ],
   "security": {

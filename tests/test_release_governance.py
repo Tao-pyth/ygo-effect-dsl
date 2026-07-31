@@ -27,6 +27,7 @@ def test_release_governance_has_unique_label_and_milestone_pairs() -> None:
         "0.6.0",
         "0.7.0",
         "0.8.0",
+        "0.9.0",
         "1.0.0",
     )
     assert policy.versions["0.3.0"].release_state == "released"
@@ -40,6 +41,8 @@ def test_release_governance_has_unique_label_and_milestone_pairs() -> None:
     assert policy.versions["0.7.0"].milestone == "v0.7.0"
     assert policy.versions["0.8.0"].release_state == "released"
     assert policy.versions["0.8.0"].milestone == "v0.8.0"
+    assert policy.versions["0.9.0"].release_state == "planned"
+    assert policy.versions["0.9.0"].milestone == "v0.9.0"
 
 
 def test_title_version_precedes_legacy_range_and_override() -> None:

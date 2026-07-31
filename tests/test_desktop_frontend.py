@@ -177,12 +177,20 @@ def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
     assert html_attrs["lang"] == "ja"
     assert "デッキ研究ワークスペース" in html
     assert "デッキカタログ" in html
+    assert 'data-view="profiles"' in html
+    assert "プロファイル" in html
     assert "探索を実行" in html
 
     required_ids = {
         "workspace",
         "deck-filter",
         "deck-table-body",
+        "deck-settings",
+        "deck-settings-dialog",
+        "deck-settings-form",
+        "deck-display-name",
+        "deck-tags",
+        "deck-settings-status",
         "inline-deck-dialog",
         "inline-deck-form",
         "inline-deck-name",
@@ -205,12 +213,27 @@ def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
         "conditional-max-attempts",
         "pool-size",
         "preference-profile",
-        "preference-profile-name",
-        "preference-rule-card",
-        "preference-rule-location",
-        "preference-rule-position",
-        "preference-rule-weight",
-        "clone-profile",
+        "edit-profiles",
+        "profiles-pane",
+        "profile-new",
+        "profile-deck-select",
+        "profile-include-archived",
+        "profile-page-status",
+        "deck-profile-list",
+        "deck-profile-form",
+        "deck-profile-edit-status",
+        "deck-profile-name",
+        "deck-profile-card",
+        "deck-profile-location",
+        "deck-profile-position",
+        "deck-profile-weight",
+        "deck-profile-min-count",
+        "deck-profile-max-count",
+        "deck-profile-scoring",
+        "deck-profile-add-rule",
+        "deck-profile-rules",
+        "deck-profile-save",
+        "deck-profile-archive",
         "job-dialog",
         "cancel-job",
         "view-result",
@@ -223,6 +246,9 @@ def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
         "result-explored",
         "result-censored",
         "result-verification-state",
+        "result-termination",
+        "result-opening-hand",
+        "result-peak-board",
         "verify-result",
         "result-drilldown",
         "result-tab-ranking",
@@ -236,7 +262,11 @@ def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
         "analytics-viewport",
     }
     assert required_ids <= parser.ids
-    assert html.count("<dialog") == 6
+    assert html.count("<dialog") == 7
+    assert 'id="new-inline" type="button" hidden' in html
+    assert 'class="help-icon"' in html
+    assert "最大スコア盤面" in html
+    assert "初期手札" in html
     assert '<script src="app.js" defer></script>' in html
     assert '<script src="bridge.js" defer></script>' in html
     assert '<script src="analytics.js" defer></script>' in html
@@ -324,6 +354,13 @@ def test_frontend_has_no_network_or_direct_python_bridge_path() -> None:
     assert "window.pywebview.api.invoke" in bridge
     assert '"profile.list"' in bridge
     assert '"profile.clone"' in bridge
+    assert '"deck.profile.list"' in bridge
+    assert '"deck.profile.create"' in bridge
+    assert '"deck.profile.update"' in bridge
+    assert '"deck.profile.archive"' in bridge
+    assert '"deck.metadata.get"' in bridge
+    assert '"deck.metadata.update"' in bridge
+    assert '"deck.card_options"' in bridge
     assert '"job.enqueue_replay_verification"' in bridge
     assert '"deck.register_inline"' in bridge
     assert '"deck.register_inline"' in javascript
@@ -331,14 +368,24 @@ def test_frontend_has_no_network_or_direct_python_bridge_path() -> None:
     assert "Inline deck registration is connected by issue #244." not in javascript
     assert "refreshPreferenceProfiles" in javascript
     assert "preference_profile_id: elements.preferenceProfile.value || null" in javascript
-    assert '"profile.get"' in javascript
-    assert '"profile.clone"' in javascript
+    assert '"deck.profile.list"' in javascript
+    assert '"deck.profile.create"' in javascript
+    assert '"deck.profile.update"' in javascript
+    assert '"deck.profile.archive"' in javascript
+    assert '"deck.metadata.update"' in javascript
+    assert '"deck.card_options"' in javascript
+    assert '"profile.clone"' not in javascript
     assert "desktop-rule-${cardCode}-${location}-${position}-${Date.now()}" in javascript
-    assert "複製したプロファイルを選択しました。" in javascript
+    assert "プロファイルを保存しました。" in javascript
+    assert "プロファイルをアーカイブしました。" in javascript
     assert "opening_hand: openingHandConfiguration()" in javascript
     assert "scenario_preset_id: elements.objective.value" in javascript
     assert 'value="terminal_board_min_monster_v1"' in html
-    assert "カードコードは正の整数で入力してください。" in javascript
+    assert "デッキ内カードを選択してください。" in javascript
+    assert 'id="preference-rule-card"' not in html
+    assert 'id="clone-profile"' not in html
+    assert '<select id="deck-profile-card">' in html
+    assert '<input id="deck-profile-card"' not in html
     assert "fixed-hand-cards" in html
     assert "pool_size:" in javascript
     assert "pool_sizeは1から8の範囲で指定してください。" in javascript
@@ -365,11 +412,31 @@ def test_frontend_has_no_network_or_direct_python_bridge_path() -> None:
     assert '"job.result"' in javascript
     assert "candidate_evidence" in javascript
     assert "coverage.coverage_status" in javascript
+    assert "renderTerminationSummary" in javascript
+    assert "renderOpeningHandSummary" in javascript
+    assert "renderPeakBoardSummary" in javascript
+    assert "compactId(route.route_id)" in javascript
+    sorted_decks_slice = javascript[
+        javascript.index("function sortedDecks()"):javascript.index("function renderChart")
+    ]
+    assert "deck.hash" not in sorted_decks_slice
     assert "candidate accountingによりfrontier exhaustionを証明済みです。" in javascript
     assert "route_fixture_5b7a2c10" not in html
     assert desktop_workflow_contract_document()["integration"]["preview_adapter"] == (
         "synthetic_search_browser_only"
     )
+
+
+def test_search_button_fails_closed_when_no_deck_is_selected() -> None:
+    _, _, _, javascript = _assets()
+
+    assert "noDeckSelected" in javascript
+    assert 'document.querySelector("#open-search").disabled = true;' in javascript
+    assert 'document.querySelector("#open-search").disabled = false;' in javascript
+    open_search = javascript.index("function openSearch()")
+    no_selection_guard = javascript.index("if (!selectedDeck)", open_search)
+    deck_name_access = javascript.index("elements.searchDeckName.textContent", open_search)
+    assert no_selection_guard < deck_name_access
 
 
 def test_visual_css_preserves_dense_layout_and_accessibility_states() -> None:

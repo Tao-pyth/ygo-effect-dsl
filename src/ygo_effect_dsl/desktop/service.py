@@ -32,6 +32,7 @@ from ygo_effect_dsl.engine.search import strategy_from_experiment
 from ygo_effect_dsl.experiment.schema import assert_valid_experiment
 from ygo_effect_dsl.experiment.scenario import parse_ydk, preflight_scenario
 from ygo_effect_dsl.presentation import CardPresentationQuery
+from ygo_effect_dsl.presentation.cards import CARD_PRESENTATION_QUERY_VERSION
 from ygo_effect_dsl.storage.export import (
     AnalyticsExportFormat,
     AnalyticsExportQueue,
@@ -56,6 +57,10 @@ from ygo_effect_dsl.storage.query import (
 from ygo_effect_dsl.version import __version__
 
 DESKTOP_DECK_CATALOG_VERSION = "desktop-deck-catalog-v1"
+DESKTOP_DECK_METADATA_CATALOG_VERSION = "desktop-deck-metadata-catalog-v1"
+DESKTOP_DECK_TERMINAL_PROFILE_CATALOG_VERSION = (
+    "desktop-deck-terminal-profile-catalog-v1"
+)
 DESKTOP_SERVICE_VERSION = "desktop-application-service-v1"
 DESKTOP_RESULT_VIEW_VERSION = "desktop-result-view-v1"
 MAX_CATALOG_DECKS = 10_000
@@ -104,6 +109,55 @@ class CardProvider(Protocol):
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _non_empty_text(value: Any, field: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise DesktopServiceError(
+            "invalid_method_payload",
+            f"{field} must be a non-empty string",
+            path=f"$.payload.{field}",
+        )
+    return value.strip()
+
+
+def _tags(value: Any, field: str) -> tuple[str, ...]:
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):
+        raise DesktopServiceError(
+            "invalid_method_payload",
+            f"{field} must be a tag list",
+            path=f"$.payload.{field}",
+        )
+    normalized: list[str] = []
+    seen: set[str] = set()
+    for index, tag in enumerate(value):
+        if not isinstance(tag, str):
+            raise DesktopServiceError(
+                "invalid_method_payload",
+                "tags must contain strings",
+                path=f"$.payload.{field}[{index}]",
+            )
+        clean = tag.strip()
+        if not clean:
+            continue
+        if len(clean) > 32:
+            raise DesktopServiceError(
+                "invalid_deck_tags",
+                "deck tags must contain at most 32 characters",
+                path=f"$.payload.{field}[{index}]",
+            )
+        key = clean.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        normalized.append(clean)
+    if len(normalized) > 12:
+        raise DesktopServiceError(
+            "invalid_deck_tags",
+            "a desktop deck can have at most 12 tags",
+            path=f"$.payload.{field}",
+        )
+    return tuple(normalized)
 
 
 def _sha256(value: Any, field: str) -> str:
@@ -540,6 +594,400 @@ class DesktopDeckCatalog:
         return record
 
 
+@dataclass(frozen=True)
+class DesktopDeckMetadataRecord:
+    deck_id: str
+    display_name: str
+    tags: tuple[str, ...]
+    created_at: str
+    updated_at: str
+
+    def __post_init__(self) -> None:
+        if not self.deck_id.startswith("desktopdeck_"):
+            raise ValueError("deck_id must be a desktop deck ID")
+        if (
+            not self.display_name
+            or self.display_name != self.display_name.strip()
+            or len(self.display_name) > 200
+        ):
+            raise ValueError("display_name must contain 1..200 trimmed characters")
+        object.__setattr__(self, "tags", _tags(self.tags, "tags"))
+        for field in ("created_at", "updated_at"):
+            value = getattr(self, field)
+            if not value.endswith("Z"):
+                raise ValueError(f"{field} must be an ISO-8601 UTC timestamp")
+            datetime.fromisoformat(value[:-1] + "+00:00")
+
+    def to_dict(self) -> dict[str, Any]:
+        return to_canonical_data(asdict(self))
+
+    @classmethod
+    def from_mapping(cls, value: Mapping[str, Any]) -> "DesktopDeckMetadataRecord":
+        expected = {"created_at", "deck_id", "display_name", "tags", "updated_at"}
+        if not isinstance(value, Mapping) or set(value) != expected:
+            raise ValueError("invalid desktop deck metadata record")
+        return cls(
+            deck_id=str(value["deck_id"]),
+            display_name=str(value["display_name"]),
+            tags=_tags(value["tags"], "tags"),
+            created_at=str(value["created_at"]),
+            updated_at=str(value["updated_at"]),
+        )
+
+
+class DesktopDeckMetadataCatalog:
+    def __init__(self, path: str | Path) -> None:
+        self.path = Path(path).expanduser().resolve()
+        self._lock = threading.RLock()
+
+    def _read(self) -> dict[str, DesktopDeckMetadataRecord]:
+        if not self.path.exists():
+            return {}
+        try:
+            document = json.loads(self.path.read_text(encoding="utf-8"))
+            if not isinstance(document, Mapping) or set(document) != {
+                "metadata",
+                "schema_version",
+            }:
+                raise ValueError("desktop deck metadata catalog has invalid fields")
+            if document["schema_version"] != DESKTOP_DECK_METADATA_CATALOG_VERSION:
+                raise ValueError("desktop deck metadata catalog requires migration")
+            rows = document["metadata"]
+            if not isinstance(rows, list) or len(rows) > MAX_CATALOG_DECKS:
+                raise ValueError("desktop deck metadata catalog has invalid count")
+            records = [DesktopDeckMetadataRecord.from_mapping(item) for item in rows]
+            if len({item.deck_id for item in records}) != len(records):
+                raise ValueError("desktop deck metadata catalog contains duplicate IDs")
+            return {item.deck_id: item for item in records}
+        except (OSError, TypeError, ValueError) as exc:
+            raise DesktopServiceError(
+                "deck_metadata_catalog_corrupt",
+                "desktop deck metadata catalog failed integrity validation",
+            ) from exc
+
+    def _write(self, records: Mapping[str, DesktopDeckMetadataRecord]) -> None:
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = self.path.with_suffix(self.path.suffix + ".tmp")
+        document = {
+            "metadata": [records[key].to_dict() for key in sorted(records)],
+            "schema_version": DESKTOP_DECK_METADATA_CATALOG_VERSION,
+        }
+        temporary.write_text(
+            json.dumps(document, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+        temporary.replace(self.path)
+
+    def get_or_default(
+        self, deck: DesktopDeckRecord
+    ) -> DesktopDeckMetadataRecord:
+        with self._lock:
+            record = self._read().get(deck.deck_id)
+        if record is not None:
+            return record
+        now = _now()
+        return DesktopDeckMetadataRecord(
+            deck_id=deck.deck_id,
+            display_name=deck.name,
+            tags=(deck.source, "registered"),
+            created_at=now,
+            updated_at=now,
+        )
+
+    def update(
+        self,
+        deck: DesktopDeckRecord,
+        *,
+        display_name: str,
+        tags: tuple[str, ...],
+    ) -> DesktopDeckMetadataRecord:
+        display_name = _non_empty_text(display_name, "display_name")
+        if len(display_name) > 200:
+            raise DesktopServiceError(
+                "invalid_deck_display_name",
+                "display_name must contain at most 200 characters",
+                path="$.payload.display_name",
+            )
+        with self._lock:
+            records = self._read()
+            current = records.get(deck.deck_id)
+            now = _now()
+            updated = DesktopDeckMetadataRecord(
+                deck_id=deck.deck_id,
+                display_name=display_name,
+                tags=tags,
+                created_at=current.created_at if current else now,
+                updated_at=now,
+            )
+            records[deck.deck_id] = updated
+            self._write(records)
+        return updated
+
+
+@dataclass(frozen=True)
+class DesktopDeckTerminalProfileRecord:
+    deck_profile_id: str
+    deck_id: str
+    display_name: str
+    active_profile_id: str
+    state: str
+    revision: int
+    created_at: str
+    updated_at: str
+    archived_at: str | None = None
+
+    def __post_init__(self) -> None:
+        if not self.deck_profile_id.startswith("decktermpref_"):
+            raise ValueError("deck_profile_id must be a desktop profile ID")
+        if not self.deck_id.startswith("desktopdeck_"):
+            raise ValueError("deck_id must be a desktop deck ID")
+        if (
+            not self.display_name
+            or self.display_name != self.display_name.strip()
+            or len(self.display_name) > 80
+        ):
+            raise ValueError("display_name must contain 1..80 trimmed characters")
+        if not self.active_profile_id.startswith("termpref_"):
+            raise ValueError("active_profile_id must be a terminal preference profile ID")
+        if self.state not in {"active", "archived"}:
+            raise ValueError("unsupported deck terminal profile state")
+        if self.revision < 1:
+            raise ValueError("revision must be positive")
+        for field in ("created_at", "updated_at"):
+            value = getattr(self, field)
+            if not value.endswith("Z"):
+                raise ValueError(f"{field} must be an ISO-8601 UTC timestamp")
+            datetime.fromisoformat(value[:-1] + "+00:00")
+        if self.archived_at is not None:
+            if not self.archived_at.endswith("Z"):
+                raise ValueError("archived_at must be an ISO-8601 UTC timestamp")
+            datetime.fromisoformat(self.archived_at[:-1] + "+00:00")
+        if self.state == "active" and self.archived_at is not None:
+            raise ValueError("active deck terminal profile must not have archived_at")
+        if self.state == "archived" and self.archived_at is None:
+            raise ValueError("archived deck terminal profile requires archived_at")
+
+    def to_dict(self) -> dict[str, Any]:
+        return to_canonical_data(asdict(self))
+
+    @classmethod
+    def from_mapping(cls, value: Mapping[str, Any]) -> "DesktopDeckTerminalProfileRecord":
+        expected = {
+            "active_profile_id",
+            "archived_at",
+            "created_at",
+            "deck_id",
+            "deck_profile_id",
+            "display_name",
+            "revision",
+            "state",
+            "updated_at",
+        }
+        if not isinstance(value, Mapping) or set(value) != expected:
+            raise ValueError("invalid desktop deck terminal profile record")
+        return cls(
+            deck_profile_id=str(value["deck_profile_id"]),
+            deck_id=str(value["deck_id"]),
+            display_name=str(value["display_name"]),
+            active_profile_id=str(value["active_profile_id"]),
+            state=str(value["state"]),
+            revision=int(value["revision"]),
+            created_at=str(value["created_at"]),
+            updated_at=str(value["updated_at"]),
+            archived_at=(
+                str(value["archived_at"]) if value["archived_at"] is not None else None
+            ),
+        )
+
+
+class DesktopDeckTerminalProfileCatalog:
+    def __init__(self, path: str | Path) -> None:
+        self.path = Path(path).expanduser().resolve()
+        self._lock = threading.RLock()
+
+    def _read(self) -> dict[str, DesktopDeckTerminalProfileRecord]:
+        if not self.path.exists():
+            return {}
+        try:
+            document = json.loads(self.path.read_text(encoding="utf-8"))
+            if not isinstance(document, Mapping) or set(document) != {
+                "profiles",
+                "schema_version",
+            }:
+                raise ValueError("desktop deck terminal profile catalog has invalid fields")
+            if (
+                document["schema_version"]
+                != DESKTOP_DECK_TERMINAL_PROFILE_CATALOG_VERSION
+            ):
+                raise ValueError(
+                    "desktop deck terminal profile catalog requires explicit migration"
+                )
+            profiles = document["profiles"]
+            if not isinstance(profiles, list):
+                raise ValueError("desktop deck terminal profile catalog profiles invalid")
+            records = [
+                DesktopDeckTerminalProfileRecord.from_mapping(item)
+                for item in profiles
+            ]
+            if len({item.deck_profile_id for item in records}) != len(records):
+                raise ValueError(
+                    "desktop deck terminal profile catalog contains duplicate IDs"
+                )
+            return {item.deck_profile_id: item for item in records}
+        except (OSError, TypeError, ValueError) as exc:
+            raise DesktopServiceError(
+                "deck_profile_catalog_corrupt",
+                "desktop deck terminal profile catalog failed integrity validation",
+            ) from exc
+
+    def _write(
+        self, records: Mapping[str, DesktopDeckTerminalProfileRecord]
+    ) -> None:
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = self.path.with_suffix(self.path.suffix + ".tmp")
+        document = {
+            "profiles": [records[key].to_dict() for key in sorted(records)],
+            "schema_version": DESKTOP_DECK_TERMINAL_PROFILE_CATALOG_VERSION,
+        }
+        temporary.write_text(
+            json.dumps(document, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+        temporary.replace(self.path)
+
+    def list(
+        self, deck_id: str, *, include_archived: bool = False
+    ) -> tuple[DesktopDeckTerminalProfileRecord, ...]:
+        with self._lock:
+            records = [
+                item
+                for item in self._read().values()
+                if item.deck_id == deck_id and (include_archived or item.state == "active")
+            ]
+        return tuple(
+            sorted(
+                records,
+                key=lambda item: (
+                    item.state != "active",
+                    item.display_name.casefold(),
+                    item.deck_profile_id,
+                ),
+            )
+        )
+
+    def require(self, deck_profile_id: str) -> DesktopDeckTerminalProfileRecord:
+        with self._lock:
+            record = self._read().get(deck_profile_id)
+        if record is None:
+            raise DesktopServiceError(
+                "deck_profile_not_found",
+                "desktop deck terminal profile is not registered",
+                path="$.payload.deck_profile_id",
+            )
+        return record
+
+    def create(
+        self,
+        *,
+        deck_id: str,
+        display_name: str,
+        active_profile_id: str,
+    ) -> DesktopDeckTerminalProfileRecord:
+        created_at = _now()
+        record = DesktopDeckTerminalProfileRecord(
+            deck_profile_id=stable_digest(
+                {
+                    "active_profile_id": active_profile_id,
+                    "created_at": created_at,
+                    "deck_id": deck_id,
+                    "display_name": display_name,
+                    "schema_version": DESKTOP_DECK_TERMINAL_PROFILE_CATALOG_VERSION,
+                },
+                prefix="decktermpref_",
+            ),
+            deck_id=deck_id,
+            display_name=display_name,
+            active_profile_id=active_profile_id,
+            state="active",
+            revision=1,
+            created_at=created_at,
+            updated_at=created_at,
+            archived_at=None,
+        )
+        with self._lock:
+            records = self._read()
+            records[record.deck_profile_id] = record
+            self._write(records)
+        return record
+
+    def update(
+        self,
+        deck_profile_id: str,
+        *,
+        display_name: str,
+        active_profile_id: str,
+    ) -> DesktopDeckTerminalProfileRecord:
+        with self._lock:
+            records = self._read()
+            current = records.get(deck_profile_id)
+            if current is None:
+                raise DesktopServiceError(
+                    "deck_profile_not_found",
+                    "desktop deck terminal profile is not registered",
+                    path="$.payload.deck_profile_id",
+                )
+            if current.state != "active":
+                raise DesktopServiceError(
+                    "deck_profile_archived",
+                    "archived deck terminal profiles cannot be edited",
+                    path="$.payload.deck_profile_id",
+                )
+            updated = DesktopDeckTerminalProfileRecord(
+                deck_profile_id=current.deck_profile_id,
+                deck_id=current.deck_id,
+                display_name=display_name,
+                active_profile_id=active_profile_id,
+                state="active",
+                revision=current.revision + 1,
+                created_at=current.created_at,
+                updated_at=_now(),
+                archived_at=None,
+            )
+            records[deck_profile_id] = updated
+            self._write(records)
+        return updated
+
+    def archive(self, deck_profile_id: str) -> DesktopDeckTerminalProfileRecord:
+        with self._lock:
+            records = self._read()
+            current = records.get(deck_profile_id)
+            if current is None:
+                raise DesktopServiceError(
+                    "deck_profile_not_found",
+                    "desktop deck terminal profile is not registered",
+                    path="$.payload.deck_profile_id",
+                )
+            if current.state == "archived":
+                return current
+            archived_at = _now()
+            archived = DesktopDeckTerminalProfileRecord(
+                deck_profile_id=current.deck_profile_id,
+                deck_id=current.deck_id,
+                display_name=current.display_name,
+                active_profile_id=current.active_profile_id,
+                state="archived",
+                revision=current.revision,
+                created_at=current.created_at,
+                updated_at=archived_at,
+                archived_at=archived_at,
+            )
+            records[deck_profile_id] = archived
+            self._write(records)
+        return archived
+
+
 class DesktopApplicationService:
     def __init__(
         self,
@@ -564,11 +1012,17 @@ class DesktopApplicationService:
             else None
         )
         self.deck_catalog = DesktopDeckCatalog(self.data_root / "decks.json")
+        self.deck_metadata_catalog = DesktopDeckMetadataCatalog(
+            self.data_root / "deck-metadata.json"
+        )
         self.job_catalog = JobCatalog(self.data_root / "jobs.sqlite3")
         self.preference_catalog = TerminalPreferenceProfileCatalog(
             self.data_root / "terminal-preference-profiles"
         )
         self.preference_catalog.ensure_default()
+        self.deck_profile_catalog = DesktopDeckTerminalProfileCatalog(
+            self.data_root / "deck-terminal-profiles.json"
+        )
         self.ydk_picker = ydk_picker
         self.card_provider = card_provider
         self.comparison_handler = comparison_handler
@@ -602,8 +1056,16 @@ class DesktopApplicationService:
             "analytics.export.enqueue": self.analytics_export_enqueue,
             "analytics.query": self.analytics_query,
             "card.get": self.card_get,
+            "deck.card_options": self.deck_card_options,
             "deck.catalog": self.deck_catalog_list,
             "deck.import_ydk": self.deck_import_ydk,
+            "deck.metadata.get": self.deck_metadata_get,
+            "deck.metadata.update": self.deck_metadata_update,
+            "deck.profile.archive": self.deck_profile_archive,
+            "deck.profile.create": self.deck_profile_create,
+            "deck.profile.get": self.deck_profile_get,
+            "deck.profile.list": self.deck_profile_list,
+            "deck.profile.update": self.deck_profile_update,
             "deck.register_inline": self.deck_register_inline,
             "job.cancel": self.job_cancel,
             "job.enqueue_replay_verification": self.job_enqueue_replay_verification,
@@ -628,6 +1090,9 @@ class DesktopApplicationService:
                     item.value for item in AnalyticsExportFormat
                 ],
                 "card_presentation": self.card_provider is not None,
+                "deck_card_options": self.card_provider is not None,
+                "deck_metadata": True,
+                "deck_terminal_profiles": True,
                 "comparison": self.comparison_handler is not None,
                 "native_ydk_import": self.ydk_picker is not None,
                 "terminal_preference_profiles": True,
@@ -653,9 +1118,83 @@ class DesktopApplicationService:
         _exact(payload, set(), "deck.catalog")
         records = self.deck_catalog.list()
         return {
-            "decks": [item.summary() for item in records],
+            "decks": [self._deck_summary(item) for item in records],
             "schema_version": DESKTOP_DECK_CATALOG_VERSION,
             "total": len(records),
+        }
+
+    def _card_presentation_summary(self, card_code: int) -> dict[str, Any]:
+        if self.card_provider is None:
+            return {
+                "availability": "unavailable",
+                "card_code": card_code,
+                "name_ja": None,
+                "presentation_id": None,
+                "resolved_locale": None,
+            }
+        presentation = self.card_provider.get_card(
+            CardPresentationQuery(
+                card_code=card_code,
+                requested_locale="ja",
+                fallback_locales=(),
+                redacted=False,
+                expected_asset_lock_id=None,
+                schema_version=CARD_PRESENTATION_QUERY_VERSION,
+            )
+        ).to_dict()
+        available = (
+            presentation.get("availability") == "available"
+            and presentation.get("resolved_locale") == "ja"
+            and isinstance(presentation.get("name"), str)
+            and bool(presentation.get("name"))
+        )
+        return {
+            "availability": presentation.get("availability"),
+            "card_code": card_code,
+            "name_ja": presentation.get("name") if available else None,
+            "presentation_id": presentation.get("presentation_id"),
+            "resolved_locale": presentation.get("resolved_locale"),
+        }
+
+    def _deck_summary(self, deck: DesktopDeckRecord) -> dict[str, Any]:
+        metadata = self.deck_metadata_catalog.get_or_default(deck)
+        summary = deck.summary()
+        summary["canonical_name"] = deck.name
+        summary["name"] = metadata.display_name
+        summary["metadata"] = metadata.to_dict()
+        summary["tags"] = list(metadata.tags)
+        summary["card_counts"] = [
+            {
+                **item,
+                **self._card_presentation_summary(int(item["card_code"])),
+            }
+            for item in summary["card_counts"]
+        ]
+        return summary
+
+    def deck_metadata_get(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, {"deck_id"}, "deck.metadata.get")
+        deck = self.deck_catalog.get(_non_empty_text(payload["deck_id"], "deck_id"))
+        metadata = self.deck_metadata_catalog.get_or_default(deck)
+        return {
+            "deck_id": deck.deck_id,
+            "metadata": metadata.to_dict(),
+            "schema_version": DESKTOP_DECK_METADATA_CATALOG_VERSION,
+        }
+
+    def deck_metadata_update(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, {"deck_id", "display_name", "tags"}, "deck.metadata.update")
+        deck = self.deck_catalog.get(_non_empty_text(payload["deck_id"], "deck_id"))
+        metadata = self.deck_metadata_catalog.update(
+            deck,
+            display_name=_non_empty_text(payload["display_name"], "display_name"),
+            tags=_tags(payload["tags"], "tags"),
+        )
+        return {
+            "deck_id": deck.deck_id,
+            "deck_sha256": deck.deck_sha256,
+            "metadata": metadata.to_dict(),
+            "schema_version": DESKTOP_DECK_METADATA_CATALOG_VERSION,
         }
 
     def deck_import_ydk(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
@@ -681,7 +1220,7 @@ class DesktopApplicationService:
             sections=sections,
             source_sha256=source_sha256,
         )
-        return {"cancelled": False, "deck": record.summary()}
+        return {"cancelled": False, "deck": self._deck_summary(record)}
 
     def deck_register_inline(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         _exact(
@@ -697,7 +1236,7 @@ class DesktopApplicationService:
             source="inline",
             sections=sections,
         )
-        return {"deck": record.summary()}
+        return {"deck": self._deck_summary(record)}
 
     def profile_list(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         _exact(payload, set(), "profile.list")
@@ -762,6 +1301,207 @@ class DesktopApplicationService:
                 "terminal preference profile clone request is invalid",
             ) from exc
         return {"profile": record.to_dict()}
+
+    def _deck_profile_payload(
+        self, record: DesktopDeckTerminalProfileRecord
+    ) -> dict[str, Any]:
+        content = self.preference_catalog.require(record.active_profile_id)
+        return {
+            **record.to_dict(),
+            "active_profile": content.profile.to_dict(),
+            "catalog_schema_version": DESKTOP_DECK_TERMINAL_PROFILE_CATALOG_VERSION,
+        }
+
+    def _deck_profile_rules(
+        self,
+        deck: DesktopDeckRecord,
+        rules: Any,
+        *,
+        method: str,
+    ) -> list[Mapping[str, Any]]:
+        if not isinstance(rules, list):
+            raise DesktopServiceError(
+                "invalid_deck_profile_rules",
+                "rules must be a list",
+                path="$.payload.rules",
+            )
+        deck_codes = set((*deck.main, *deck.extra, *deck.side))
+        normalized: list[Mapping[str, Any]] = []
+        for index, rule in enumerate(rules):
+            if not isinstance(rule, Mapping):
+                raise DesktopServiceError(
+                    "invalid_deck_profile_rule",
+                    "rules must contain objects",
+                    path=f"$.payload.rules[{index}]",
+                )
+            code = rule.get("card_code")
+            if code not in deck_codes:
+                raise DesktopServiceError(
+                    "deck_profile_card_not_in_deck",
+                    "terminal evaluation rules can only reference cards in the selected deck",
+                    path=f"$.payload.rules[{index}].card_code",
+                )
+            normalized.append(rule)
+        try:
+            TerminalPreferenceProfile.from_mapping(
+                {
+                    "name": f"{method} validation",
+                    "rules": normalized,
+                    "schema_version": "terminal-preference-profile-v1",
+                }
+            )
+        except ValueError as exc:
+            raise DesktopServiceError(
+                "invalid_deck_profile_rules",
+                "terminal evaluation rules are invalid",
+                path="$.payload.rules",
+            ) from exc
+        return normalized
+
+    def _put_deck_profile_content(
+        self,
+        *,
+        display_name: str,
+        rules: list[Mapping[str, Any]],
+    ) -> str:
+        profile = TerminalPreferenceProfile.from_mapping(
+            {
+                "name": display_name,
+                "rules": rules,
+                "schema_version": "terminal-preference-profile-v1",
+            }
+        )
+        return self.preference_catalog.put(profile).profile.profile_id
+
+    def deck_profile_list(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, {"deck_id", "include_archived"}, "deck.profile.list")
+        deck_id = _non_empty_text(payload["deck_id"], "deck_id")
+        include_archived = payload["include_archived"]
+        if not isinstance(include_archived, bool):
+            raise DesktopServiceError(
+                "invalid_method_payload",
+                "include_archived must be a boolean",
+                path="$.payload.include_archived",
+            )
+        self.deck_catalog.get(deck_id)
+        records = self.deck_profile_catalog.list(
+            deck_id, include_archived=include_archived
+        )
+        return {
+            "deck_id": deck_id,
+            "profiles": [self._deck_profile_payload(record) for record in records],
+            "schema_version": DESKTOP_DECK_TERMINAL_PROFILE_CATALOG_VERSION,
+            "total": len(records),
+        }
+
+    def deck_profile_get(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, {"deck_profile_id"}, "deck.profile.get")
+        deck_profile_id = _non_empty_text(payload["deck_profile_id"], "deck_profile_id")
+        return {
+            "profile": self._deck_profile_payload(
+                self.deck_profile_catalog.require(deck_profile_id)
+            )
+        }
+
+    def deck_profile_create(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, {"deck_id", "display_name", "rules"}, "deck.profile.create")
+        deck = self.deck_catalog.get(_non_empty_text(payload["deck_id"], "deck_id"))
+        display_name = _non_empty_text(payload["display_name"], "display_name")
+        if len(display_name) > 80:
+            raise DesktopServiceError(
+                "invalid_deck_profile_name",
+                "display_name must contain at most 80 characters",
+                path="$.payload.display_name",
+            )
+        rules = self._deck_profile_rules(
+            deck, payload["rules"], method="deck.profile.create"
+        )
+        active_profile_id = self._put_deck_profile_content(
+            display_name=display_name, rules=rules
+        )
+        record = self.deck_profile_catalog.create(
+            deck_id=deck.deck_id,
+            display_name=display_name,
+            active_profile_id=active_profile_id,
+        )
+        return {"profile": self._deck_profile_payload(record)}
+
+    def deck_profile_update(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(
+            payload,
+            {"deck_profile_id", "display_name", "rules"},
+            "deck.profile.update",
+        )
+        current = self.deck_profile_catalog.require(
+            _non_empty_text(payload["deck_profile_id"], "deck_profile_id")
+        )
+        deck = self.deck_catalog.get(current.deck_id)
+        display_name = _non_empty_text(payload["display_name"], "display_name")
+        if len(display_name) > 80:
+            raise DesktopServiceError(
+                "invalid_deck_profile_name",
+                "display_name must contain at most 80 characters",
+                path="$.payload.display_name",
+            )
+        rules = self._deck_profile_rules(
+            deck, payload["rules"], method="deck.profile.update"
+        )
+        active_profile_id = self._put_deck_profile_content(
+            display_name=display_name, rules=rules
+        )
+        record = self.deck_profile_catalog.update(
+            current.deck_profile_id,
+            display_name=display_name,
+            active_profile_id=active_profile_id,
+        )
+        return {"profile": self._deck_profile_payload(record)}
+
+    def deck_profile_archive(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, {"deck_profile_id"}, "deck.profile.archive")
+        record = self.deck_profile_catalog.archive(
+            _non_empty_text(payload["deck_profile_id"], "deck_profile_id")
+        )
+        return {"profile": self._deck_profile_payload(record)}
+
+    def deck_card_options(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        _exact(payload, {"deck_id"}, "deck.card_options")
+        deck = self.deck_catalog.get(_non_empty_text(payload["deck_id"], "deck_id"))
+        if self.card_provider is None:
+            raise DesktopServiceError(
+                "card_presentation_source_unavailable",
+                "no verified Japanese card-presentation source is configured",
+            )
+        counts = Counter((*deck.main, *deck.extra, *deck.side))
+        items: list[dict[str, Any]] = []
+        diagnostics: list[dict[str, Any]] = []
+        for code, count in sorted(counts.items()):
+            payload = self._card_presentation_summary(code)
+            selectable = isinstance(payload.get("name_ja"), str)
+            items.append(
+                {
+                    "availability": payload.get("availability"),
+                    "card_code": code,
+                    "count": count,
+                    "name_ja": payload.get("name_ja"),
+                    "presentation_id": payload.get("presentation_id"),
+                    "selectable": selectable,
+                }
+            )
+            if not selectable:
+                diagnostics.append(
+                    {
+                        "card_code": code,
+                        "code": "japanese_card_name_unavailable",
+                        "message": "Japanese card name is unavailable for this deck card.",
+                        "severity": "warning",
+                    }
+                )
+        return {
+            "deck_id": deck.deck_id,
+            "diagnostics": diagnostics,
+            "items": items,
+            "schema_version": "deck-card-options-v1",
+        }
 
     def _resolved_experiment(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         experiment = payload.get("experiment")
@@ -984,16 +1724,41 @@ class DesktopApplicationService:
         if requested_profile_id is None:
             preference_record = self.preference_catalog.ensure_default()
         elif isinstance(requested_profile_id, str):
-            try:
-                preference_record = self.preference_catalog.require(
-                    requested_profile_id
-                )
-            except (KeyError, ValueError) as exc:
-                raise DesktopServiceError(
-                    "profile_not_found",
-                    "terminal preference profile is not present in the catalog",
-                    path="$.payload.configuration.preference_profile_id",
-                ) from exc
+            if requested_profile_id.startswith("decktermpref_"):
+                deck_profile = self.deck_profile_catalog.require(requested_profile_id)
+                if deck_profile.deck_id != record.deck_id:
+                    raise DesktopServiceError(
+                        "deck_profile_mismatch",
+                        "selected terminal evaluation profile belongs to another deck",
+                        path="$.payload.configuration.preference_profile_id",
+                    )
+                if deck_profile.state != "active":
+                    raise DesktopServiceError(
+                        "deck_profile_archived",
+                        "archived terminal evaluation profiles cannot be used for search",
+                        path="$.payload.configuration.preference_profile_id",
+                    )
+                try:
+                    preference_record = self.preference_catalog.require(
+                        deck_profile.active_profile_id
+                    )
+                except (KeyError, ValueError) as exc:
+                    raise DesktopServiceError(
+                        "profile_not_found",
+                        "terminal preference profile is not present in the catalog",
+                        path="$.payload.configuration.preference_profile_id",
+                    ) from exc
+            else:
+                try:
+                    preference_record = self.preference_catalog.require(
+                        requested_profile_id
+                    )
+                except (KeyError, ValueError) as exc:
+                    raise DesktopServiceError(
+                        "profile_not_found",
+                        "terminal preference profile is not present in the catalog",
+                        path="$.payload.configuration.preference_profile_id",
+                    ) from exc
         else:
             raise DesktopServiceError(
                 "invalid_profile_id",
@@ -1339,6 +2104,116 @@ class DesktopApplicationService:
             "terminal preference evaluation requires terminal board public_cards"
         )
 
+    def _presented_cards(self, codes: Sequence[int]) -> list[dict[str, Any]]:
+        return [
+            {
+                **self._card_presentation_summary(int(code)),
+                "card_code": int(code),
+            }
+            for code in codes
+        ]
+
+    def _opening_hand_summary(
+        self, route_experiment: Mapping[str, Any] | None
+    ) -> dict[str, Any]:
+        scenario = (
+            route_experiment.get("scenario")
+            if isinstance(route_experiment, Mapping)
+            else None
+        )
+        opening = (
+            scenario.get("opening_hand")
+            if isinstance(scenario, Mapping)
+            and isinstance(scenario.get("opening_hand"), Mapping)
+            else None
+        )
+        if not isinstance(opening, Mapping):
+            return {
+                "cards": [],
+                "explainability": "missing",
+                "message": "初期手札情報がartifactに含まれていません。",
+                "mode": "unknown",
+                "seed": None,
+                "size": None,
+            }
+        mode = str(opening.get("mode", "unknown"))
+        raw_cards = opening.get("cards")
+        cards: list[int] = []
+        if isinstance(raw_cards, list):
+            cards = [
+                int(card)
+                for card in raw_cards
+                if isinstance(card, int) and not isinstance(card, bool)
+            ]
+        explainability = "resolved" if cards else "condition_only"
+        if mode == "random" and not cards:
+            explainability = "seed_only"
+        if mode == "conditional" and not cards:
+            explainability = "condition_only"
+        return {
+            "cards": self._presented_cards(cards),
+            "conditions": to_canonical_data(opening.get("conditions", [])),
+            "explainability": explainability,
+            "max_attempts": opening.get("max_attempts"),
+            "message": (
+                "初期手札カードまで確定しています。"
+                if cards
+                else "初期手札カードは未解決です。seedまたは条件だけを表示しています。"
+            ),
+            "mode": mode,
+            "seed": opening.get("seed"),
+            "size": opening.get("size"),
+        }
+
+    def _board_snapshot(
+        self,
+        *,
+        label: str,
+        route: Mapping[str, Any],
+        board: Mapping[str, Any] | None,
+        fallback: Mapping[str, Any],
+        score: Any,
+    ) -> dict[str, Any]:
+        source = board if isinstance(board, Mapping) and board else fallback
+        try:
+            projection_source = self._terminal_board_projection_source(route, source)
+        except (TypeError, ValueError):
+            return {
+                "available": False,
+                "cards": [],
+                "label": label,
+                "message": "盤面snapshotがartifactから復元できません。",
+                "score": score,
+                "state_hash": source.get("state_hash") if isinstance(source, Mapping) else None,
+            }
+        public_cards = projection_source.get("public_cards")
+        cards: list[dict[str, Any]] = []
+        if isinstance(public_cards, list):
+            for card in public_cards:
+                if not isinstance(card, Mapping):
+                    continue
+                code = card.get("code")
+                presented = (
+                    self._card_presentation_summary(code)
+                    if isinstance(code, int) and not isinstance(code, bool)
+                    else {
+                        "availability": "unavailable",
+                        "card_code": code,
+                        "name_ja": None,
+                        "presentation_id": None,
+                        "resolved_locale": None,
+                    }
+                )
+                cards.append({**to_canonical_data(card), **presented})
+        return {
+            "available": True,
+            "cards": cards,
+            "label": label,
+            "message": "artifact内の公開盤面snapshotです。",
+            "score": score,
+            "state_hash": projection_source.get("state_hash") or source.get("state_hash"),
+        }
+
     def job_result(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         _exact(payload, {"job_id"}, "job.result")
         job_id = payload["job_id"]
@@ -1496,6 +2371,11 @@ class DesktopApplicationService:
             if isinstance(result.get("terminal_board"), Mapping)
             else {}
         )
+        peak_board = (
+            result.get("peak_board")
+            if isinstance(result.get("peak_board"), Mapping)
+            else None
+        )
         replay = route.get("replay") if isinstance(route.get("replay"), Mapping) else {}
         events = replay.get("events") if isinstance(replay.get("events"), list) else []
         actions = []
@@ -1601,6 +2481,19 @@ class DesktopApplicationService:
             else best_route.get("score", terminal_board.get("score"))
         )
         peak_score = best_route.get("peak_score", score)
+        route_experiment = (
+            route.get("experiment") if isinstance(route.get("experiment"), Mapping) else {}
+        )
+        search_config = (
+            route_experiment.get("search")
+            if isinstance(route_experiment.get("search"), Mapping)
+            else {}
+        )
+        search_budget = (
+            search_config.get("budget")
+            if isinstance(search_config.get("budget"), Mapping)
+            else {}
+        )
         coverage = (
             report.get("coverage")
             if isinstance(report.get("coverage"), Mapping)
@@ -1683,6 +2576,14 @@ class DesktopApplicationService:
                 "route": {
                     "action_count": len(events),
                     "actions": actions,
+                    "opening_hand": self._opening_hand_summary(route_experiment),
+                    "peak_board": self._board_snapshot(
+                        label="peak_board",
+                        route=route,
+                        board=peak_board,
+                        fallback=terminal_board,
+                        score=peak_score,
+                    ),
                     "randomness_summary": randomness_summary,
                     "route_id": route_id,
                     "success": bool(best_route.get("success", False)),
@@ -1728,6 +2629,7 @@ class DesktopApplicationService:
                     "coverage": (
                         to_canonical_data(coverage) if coverage else None
                     ),
+                    "budget": to_canonical_data(search_budget),
                     "nodes": report.get("nodes"),
                     "route_ranking": (
                         to_canonical_data(route_ranking)
@@ -1888,9 +2790,12 @@ class DesktopApplicationService:
 
 __all__ = [
     "DESKTOP_DECK_CATALOG_VERSION",
+    "DESKTOP_DECK_TERMINAL_PROFILE_CATALOG_VERSION",
     "DESKTOP_RESULT_VIEW_VERSION",
     "DESKTOP_SERVICE_VERSION",
     "DesktopApplicationService",
     "DesktopDeckCatalog",
     "DesktopDeckRecord",
+    "DesktopDeckTerminalProfileCatalog",
+    "DesktopDeckTerminalProfileRecord",
 ]

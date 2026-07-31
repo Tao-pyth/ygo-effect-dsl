@@ -17,12 +17,23 @@ const UI_TEXT = Object.freeze({
   presentationUnavailable: "表示情報なし",
   terminalPreference: "終端評価",
   defaultTerminalPreference: "既定の終端評価",
-  profileCatalogUnavailable: "デスクトップのプロファイルカタログを利用できません。",
-  positiveCardCode: "カードコードは正の整数で入力してください。",
+  profileCatalogUnavailable: "デッキ別プロファイルカタログを利用できません。",
+  profilePageNoDeck: "デッキを選択してください。",
+  profilePageNoCards: "このデッキには選択可能な日本語カード名がありません。",
+  profilePageDeckRequired: "先に対象デッキを選択してください。",
+  profileNameRequired: "プロファイル名を入力してください。",
+  profileCardRequired: "デッキ内カードを選択してください。",
   integerWeight: "重みは整数で入力してください。",
+  integerMinCount: "最小枚数は1以上の整数で入力してください。",
+  integerMaxCount: "最大枚数は空欄、または最小枚数以上の整数で入力してください。",
   profileLoadFailed: "プロファイルの読み込みはfail-closeしました。",
-  profileCloneFailed: "プロファイルの複製はfail-closeしました。",
-  profileCloned: "複製したプロファイルを選択しました。",
+  profileSaveFailed: "プロファイル保存はfail-closeしました。",
+  profileSaved: "プロファイルを保存しました。",
+  profileArchived: "プロファイルをアーカイブしました。",
+  profileArchiveFailed: "プロファイルのアーカイブはfail-closeしました。",
+  profileRuleAdded: "終端評価ルールを追加しました。",
+  profileRuleRemoved: "終端評価ルールを削除しました。",
+  deckCardOptionsFailed: "デッキ内カード候補の読み込みはfail-closeしました。",
   ydkRequiresDesktop: "WindowsデスクトップシェルでYDKファイルを選択できます。",
   ydkImportFailed: "YDKの読み込みに失敗しました。",
   ydkRegistered: "YDKをローカルのデスクトップカタログへ登録しました。",
@@ -68,6 +79,7 @@ const UI_TEXT = Object.freeze({
   jobStatusFailed: "ジョブ状態の確認はfail-closeしました。",
   jobPollingFailed: "ジョブ状態のpollingはfail-closeしました。",
   desktopCatalogFailed: "デスクトップカタログはfail-closeしました。",
+  noDeckSelected: "デッキが選択されていません。YDKを読み込むか、インラインデッキを登録してください。",
   settingsBridgeIssue: "設定はデスクトップブリッジ issue #244 で接続されます。",
   queuedPreview: "synthetic preview adapter でキュー済み。実workerは開始していません。",
   previewCheckpoint: "プレビューcheckpoint",
@@ -146,6 +158,13 @@ const UI_TEXT = Object.freeze({
   attributeLabel: "属性",
   atkDefLabel: "ATK / DEF",
   localeLabel: "言語",
+  deckSettingsSaved: "デッキ設定を保存しました。",
+  deckSettingsFailed: "デッキ設定の保存はfail-closeしました。",
+  deckNameAndTags: "デッキ名とタグ",
+  unnamedCard: "カード名未構成",
+  internalIdHidden: "内部IDは詳細表示に移動しました。",
+  routeBudgetUnknown: "ノード予算はartifactから確認できません。",
+  noPeakBoard: "最大スコア盤面はartifactから復元できません。",
   localeValue: "ja",
 });
 
@@ -293,6 +312,12 @@ const elements = {
   detailTitle: document.querySelector("#detail-title"),
   detailHash: document.querySelector("#detail-hash"),
   detailStatus: document.querySelector("#detail-status"),
+  deckSettings: document.querySelector("#deck-settings"),
+  deckSettingsDialog: document.querySelector("#deck-settings-dialog"),
+  deckSettingsForm: document.querySelector("#deck-settings-form"),
+  deckDisplayName: document.querySelector("#deck-display-name"),
+  deckTags: document.querySelector("#deck-tags"),
+  deckSettingsStatus: document.querySelector("#deck-settings-status"),
   mainCount: document.querySelector("#main-count"),
   extraCount: document.querySelector("#extra-count"),
   sideCount: document.querySelector("#side-count"),
@@ -328,6 +353,9 @@ const elements = {
   resultExplored: document.querySelector("#result-explored"),
   resultCensored: document.querySelector("#result-censored"),
   resultVerificationState: document.querySelector("#result-verification-state"),
+  resultTermination: document.querySelector("#result-termination"),
+  resultOpeningHand: document.querySelector("#result-opening-hand"),
+  resultPeakBoard: document.querySelector("#result-peak-board"),
   verifyResult: document.querySelector("#verify-result"),
   resultDrilldown: document.querySelector("#result-drilldown"),
   resultDrilldownTitle: document.querySelector("#result-drilldown-title"),
@@ -357,13 +385,28 @@ const elements = {
   conditionalAttemptsField: document.querySelector("#conditional-attempts-field"),
   conditionalMaxAttempts: document.querySelector("#conditional-max-attempts"),
   preferenceProfile: document.querySelector("#preference-profile"),
-  profileEditStatus: document.querySelector("#profile-edit-status"),
-  preferenceProfileName: document.querySelector("#preference-profile-name"),
-  preferenceRuleCard: document.querySelector("#preference-rule-card"),
-  preferenceRuleLocation: document.querySelector("#preference-rule-location"),
-  preferenceRulePosition: document.querySelector("#preference-rule-position"),
-  preferenceRuleWeight: document.querySelector("#preference-rule-weight"),
-  cloneProfile: document.querySelector("#clone-profile"),
+  editProfiles: document.querySelector("#edit-profiles"),
+  profilesPane: document.querySelector("#profiles-pane"),
+  profileNew: document.querySelector("#profile-new"),
+  profileDeckSelect: document.querySelector("#profile-deck-select"),
+  profileIncludeArchived: document.querySelector("#profile-include-archived"),
+  profilePageStatus: document.querySelector("#profile-page-status"),
+  deckProfileList: document.querySelector("#deck-profile-list"),
+  deckProfileForm: document.querySelector("#deck-profile-form"),
+  deckProfileEditStatus: document.querySelector("#deck-profile-edit-status"),
+  profileDetailTitle: document.querySelector("#profile-detail-title"),
+  deckProfileName: document.querySelector("#deck-profile-name"),
+  deckProfileCard: document.querySelector("#deck-profile-card"),
+  deckProfileLocation: document.querySelector("#deck-profile-location"),
+  deckProfilePosition: document.querySelector("#deck-profile-position"),
+  deckProfileWeight: document.querySelector("#deck-profile-weight"),
+  deckProfileMinCount: document.querySelector("#deck-profile-min-count"),
+  deckProfileMaxCount: document.querySelector("#deck-profile-max-count"),
+  deckProfileScoring: document.querySelector("#deck-profile-scoring"),
+  deckProfileAddRule: document.querySelector("#deck-profile-add-rule"),
+  deckProfileRules: document.querySelector("#deck-profile-rules"),
+  deckProfileSave: document.querySelector("#deck-profile-save"),
+  deckProfileArchive: document.querySelector("#deck-profile-archive"),
   interruptionToggle: document.querySelector("#interruption-toggle"),
   interruptionField: document.querySelector("#interruption-card-field"),
   interruptionCode: document.querySelector("#interruption-code"),
@@ -404,6 +447,13 @@ let replayTimer = null;
 let currentResultView = null;
 let currentResultTab = "ranking";
 let preferenceProfilesLoaded = false;
+const profilePageState = {
+  cardOptions: [],
+  deckId: selectedDeck?.id || "",
+  profiles: [],
+  rules: [],
+  selectedDeckProfileId: "",
+};
 
 function desktopBridgeAvailable() {
   return Boolean(window.routeLabBridge && window.routeLabBridge.available());
@@ -455,11 +505,13 @@ function markDesktopEnvironment() {
 }
 
 function bridgeDeck(record) {
+  const metadata = record.metadata || {};
   return {
     id: record.deck_id,
-    name: record.name,
+    canonicalName: record.canonical_name || record.name,
+    name: metadata.display_name || record.name,
     hash: record.deck_sha256.slice(0, 8),
-    tags: [record.source, record.status],
+    tags: Array.isArray(record.tags) ? record.tags : [record.source, record.status],
     main: record.main_count,
     extra: record.extra_count,
     side: record.side_count,
@@ -475,9 +527,9 @@ function bridgeDeck(record) {
     chart: [["Random", 0], ["Beam", 0], ["MCTS", 0]],
     cards: record.card_counts.slice(0, 30).map((item) => ({
       code: item.card_code,
-      name: `${UI_TEXT.cardPrefix} ${item.card_code}`,
+      name: item.name_ja || UI_TEXT.unnamedCard,
       count: item.count,
-      type: UI_TEXT.presentationUnavailable,
+      type: item.name_ja ? UI_TEXT.localeValue : UI_TEXT.presentationUnavailable,
       attribute: "-",
       stats: "-",
     })),
@@ -488,6 +540,7 @@ function bridgeDeck(record) {
 async function refreshDesktopCatalog() {
   if (!desktopBridgeAvailable()) return;
   markDesktopEnvironment();
+  const selectedId = selectedDeck?.id || "";
   const response = await window.routeLabBridge.invoke("deck.catalog", {});
   if (!response.ok) {
     showToast(response.diagnostics[0]?.message || UI_TEXT.desktopCatalogFailed);
@@ -498,45 +551,59 @@ async function refreshDesktopCatalog() {
     selectedDeck = null;
     elements.catalogMetrics.hidden = true;
     elements.detailPane.hidden = true;
+    document.querySelector("#open-search").disabled = true;
     elements.workspace.classList.add("catalog-only");
     renderDecks();
+    renderProfileDeckOptions();
     return;
   }
-  selectedDeck = decks[0];
+  selectedDeck = decks.find((deck) => deck.id === selectedId) || decks[0];
+  profilePageState.deckId = selectedDeck.id;
+  preferenceProfilesLoaded = false;
   elements.catalogMetrics.hidden = false;
   elements.detailPane.hidden = false;
+  document.querySelector("#open-search").disabled = false;
   elements.workspace.classList.remove("catalog-only");
   renderDecks();
   updateDetail(selectedDeck);
+  renderProfileDeckOptions();
+  if (!elements.profilesPane.hidden) {
+    await refreshDeckProfiles();
+  }
 }
 
 function renderPreferenceProfiles(records) {
   const selected = elements.preferenceProfile.value;
   elements.preferenceProfile.replaceChildren();
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = UI_TEXT.defaultTerminalPreference;
+  elements.preferenceProfile.append(defaultOption);
   records.forEach((record) => {
-    const profile = record.profile || record;
     const option = document.createElement("option");
-    option.value = profile.profile_id || "";
-    option.textContent = profile.name || profile.profile_id || UI_TEXT.terminalPreference;
+    option.value = record.deck_profile_id || "";
+    option.textContent = record.display_name || UI_TEXT.terminalPreference;
     elements.preferenceProfile.append(option);
   });
   if (selected && [...elements.preferenceProfile.options].some((option) => option.value === selected)) {
     elements.preferenceProfile.value = selected;
   }
-  elements.preferenceProfile.disabled = records.length === 0;
-  elements.cloneProfile.disabled = !desktopBridgeAvailable() || records.length === 0;
+  elements.preferenceProfile.disabled = !selectedDeck;
 }
 
 async function refreshPreferenceProfiles() {
-  if (!desktopBridgeAvailable()) {
-    renderPreferenceProfiles([{ profile: { name: UI_TEXT.defaultTerminalPreference, profile_id: "" } }]);
+  if (!desktopBridgeAvailable() || !selectedDeck) {
+    renderPreferenceProfiles([]);
     elements.preferenceProfile.disabled = true;
     return;
   }
-  const response = await window.routeLabBridge.invoke("profile.list", {});
+  const response = await window.routeLabBridge.invoke("deck.profile.list", {
+    deck_id: selectedDeck.id,
+    include_archived: false,
+  });
   if (!response.ok) {
     showToast(response.diagnostics[0]?.message || UI_TEXT.terminalProfileCatalogFailed);
-    renderPreferenceProfiles([{ profile: { name: UI_TEXT.defaultTerminalPreference, profile_id: "" } }]);
+    renderPreferenceProfiles([]);
     elements.preferenceProfile.disabled = true;
     return;
   }
@@ -544,58 +611,254 @@ async function refreshPreferenceProfiles() {
   preferenceProfilesLoaded = true;
 }
 
-async function clonePreferenceProfile() {
-  if (!desktopBridgeAvailable() || !elements.preferenceProfile.value) {
-    elements.profileEditStatus.textContent = UI_TEXT.profileCatalogUnavailable;
+function renderProfileDeckOptions() {
+  const selected = profilePageState.deckId || selectedDeck?.id || "";
+  elements.profileDeckSelect.replaceChildren();
+  decks.forEach((deck) => {
+    const option = document.createElement("option");
+    option.value = deck.id;
+    option.textContent = deck.name;
+    elements.profileDeckSelect.append(option);
+  });
+  if (selected && [...elements.profileDeckSelect.options].some((option) => option.value === selected)) {
+    elements.profileDeckSelect.value = selected;
+    profilePageState.deckId = selected;
+  } else {
+    profilePageState.deckId = elements.profileDeckSelect.value || "";
+  }
+}
+
+function currentProfileRecord() {
+  return profilePageState.profiles.find((profile) => profile.deck_profile_id === profilePageState.selectedDeckProfileId) || null;
+}
+
+function renderDeckProfileList() {
+  elements.deckProfileList.replaceChildren();
+  if (profilePageState.profiles.length === 0) {
+    elements.deckProfileList.append(textElement("span", "このデッキのプロファイルはありません。"));
     return;
   }
-  const cardCode = Number(elements.preferenceRuleCard.value);
-  const weight = Number(elements.preferenceRuleWeight.value);
+  profilePageState.profiles.forEach((profile) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "deck-profile-item";
+    if (profile.deck_profile_id === profilePageState.selectedDeckProfileId) button.classList.add("is-selected");
+    const state = profile.state === "archived" ? "アーカイブ済み" : `rev ${profile.revision}`;
+    button.append(textElement("strong", profile.display_name), textElement("small", state));
+    button.addEventListener("click", () => selectDeckProfile(profile.deck_profile_id));
+    elements.deckProfileList.append(button);
+  });
+}
+
+function renderDeckCardOptions() {
+  elements.deckProfileCard.replaceChildren();
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "デッキ内カードを選択";
+  elements.deckProfileCard.append(placeholder);
+  profilePageState.cardOptions.forEach((item) => {
+    const option = document.createElement("option");
+    option.value = String(item.card_code);
+    option.disabled = !item.selectable;
+    option.textContent = item.selectable
+      ? `${item.name_ja} ×${item.count}`
+      : `日本語名なし (${item.card_code})`;
+    elements.deckProfileCard.append(option);
+  });
+  const cardSelectionDisabled = profilePageState.cardOptions.every((item) => !item.selectable);
+  elements.deckProfileCard.disabled = cardSelectionDisabled;
+  elements.deckProfileAddRule.disabled = cardSelectionDisabled;
+}
+
+function cardOptionName(cardCode) {
+  const option = profilePageState.cardOptions.find((item) => item.card_code === cardCode);
+  return option?.name_ja || `${UI_TEXT.cardPrefix} ${cardCode}`;
+}
+
+function renderProfileRules() {
+  elements.deckProfileRules.replaceChildren();
+  if (profilePageState.rules.length === 0) {
+    elements.deckProfileRules.append(textElement("span", "ルールは未追加です。"));
+    return;
+  }
+  profilePageState.rules.forEach((rule, index) => {
+    const row = document.createElement("div");
+    row.className = "profile-rule-row";
+    row.append(
+      textElement("strong", cardOptionName(rule.card_code)),
+      textElement("span", rule.location),
+      textElement("span", rule.position),
+      textElement("span", `重み ${rule.weight}`),
+      textElement("span", `${rule.min_count}-${rule.max_count ?? "上限なし"}`),
+    );
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "button secondary";
+    remove.textContent = "削除";
+    remove.addEventListener("click", () => {
+      profilePageState.rules.splice(index, 1);
+      renderProfileRules();
+      elements.deckProfileEditStatus.textContent = UI_TEXT.profileRuleRemoved;
+    });
+    row.append(remove);
+    elements.deckProfileRules.append(row);
+  });
+}
+
+function resetProfileEditor() {
+  const current = currentProfileRecord();
+  elements.deckProfileName.value = current?.display_name || "";
+  elements.profileDetailTitle.textContent = current ? "終端評価ルールを編集" : "終端評価ルールを新規作成";
+  elements.deckProfileArchive.disabled = !current || current.state === "archived";
+  elements.deckProfileSave.disabled = !profilePageState.deckId || current?.state === "archived";
+  profilePageState.rules = current?.active_profile?.rules ? [...current.active_profile.rules] : [];
+  renderProfileRules();
+}
+
+function selectDeckProfile(deckProfileId) {
+  profilePageState.selectedDeckProfileId = deckProfileId;
+  renderDeckProfileList();
+  resetProfileEditor();
+}
+
+async function refreshDeckCardOptions() {
+  profilePageState.cardOptions = [];
+  renderDeckCardOptions();
+  if (!desktopBridgeAvailable() || !profilePageState.deckId) {
+    return;
+  }
+  const response = await window.routeLabBridge.invoke("deck.card_options", {
+    deck_id: profilePageState.deckId,
+  });
+  if (!response.ok) {
+    elements.deckProfileEditStatus.textContent = response.diagnostics[0]?.message || UI_TEXT.deckCardOptionsFailed;
+    elements.profilePageStatus.textContent = UI_TEXT.profilePageNoCards;
+    renderDeckCardOptions();
+    return;
+  }
+  profilePageState.cardOptions = response.result.items || [];
+  renderDeckCardOptions();
+}
+
+async function refreshDeckProfiles() {
+  renderProfileDeckOptions();
+  if (!desktopBridgeAvailable() || !profilePageState.deckId) {
+    profilePageState.profiles = [];
+    profilePageState.selectedDeckProfileId = "";
+    elements.profilePageStatus.textContent = UI_TEXT.profilePageDeckRequired;
+    renderDeckProfileList();
+    resetProfileEditor();
+    return;
+  }
+  const response = await window.routeLabBridge.invoke("deck.profile.list", {
+    deck_id: profilePageState.deckId,
+    include_archived: elements.profileIncludeArchived.checked,
+  });
+  if (!response.ok) {
+    elements.profilePageStatus.textContent = response.diagnostics[0]?.message || UI_TEXT.profileCatalogUnavailable;
+    profilePageState.profiles = [];
+    profilePageState.selectedDeckProfileId = "";
+  } else {
+    profilePageState.profiles = response.result.profiles || [];
+    if (!profilePageState.profiles.some((profile) => profile.deck_profile_id === profilePageState.selectedDeckProfileId)) {
+      profilePageState.selectedDeckProfileId = profilePageState.profiles[0]?.deck_profile_id || "";
+    }
+    elements.profilePageStatus.textContent = `${profilePageState.profiles.length} 件`;
+  }
+  renderDeckProfileList();
+  await refreshDeckCardOptions();
+  resetProfileEditor();
+}
+
+function addProfileRule() {
+  const cardCode = Number(elements.deckProfileCard.value);
+  const weight = Number(elements.deckProfileWeight.value);
+  const minCount = Number(elements.deckProfileMinCount.value);
+  const maxValue = elements.deckProfileMaxCount.value.trim();
+  const maxCount = maxValue ? Number(maxValue) : null;
   if (!Number.isInteger(cardCode) || cardCode < 1) {
-    elements.profileEditStatus.textContent = UI_TEXT.positiveCardCode;
-    elements.preferenceRuleCard.focus();
+    elements.deckProfileEditStatus.textContent = UI_TEXT.profileCardRequired;
+    elements.deckProfileCard.focus();
     return;
   }
   if (!Number.isInteger(weight)) {
-    elements.profileEditStatus.textContent = UI_TEXT.integerWeight;
-    elements.preferenceRuleWeight.focus();
+    elements.deckProfileEditStatus.textContent = UI_TEXT.integerWeight;
+    elements.deckProfileWeight.focus();
     return;
   }
-  const current = await window.routeLabBridge.invoke("profile.get", {
-    profile_id: elements.preferenceProfile.value,
-  });
-  if (!current.ok) {
-    elements.profileEditStatus.textContent = current.diagnostics[0]?.message || UI_TEXT.profileLoadFailed;
+  if (!Number.isInteger(minCount) || minCount < 1) {
+    elements.deckProfileEditStatus.textContent = UI_TEXT.integerMinCount;
+    elements.deckProfileMinCount.focus();
     return;
   }
-  const source = current.result.profile.profile;
-  const location = elements.preferenceRuleLocation.value;
-  const position = elements.preferenceRulePosition.value;
+  if (maxCount !== null && (!Number.isInteger(maxCount) || maxCount < minCount)) {
+    elements.deckProfileEditStatus.textContent = UI_TEXT.integerMaxCount;
+    elements.deckProfileMaxCount.focus();
+    return;
+  }
+  const location = elements.deckProfileLocation.value;
+  const position = elements.deckProfilePosition.value;
   const rule = {
     card_code: cardCode,
     controller: 0,
     enabled: true,
     location,
-    max_count: null,
-    min_count: 1,
+    max_count: maxCount,
+    min_count: minCount,
     position,
     rule_id: `desktop-rule-${cardCode}-${location}-${position}-${Date.now()}`,
-    scoring_mode: "once",
+    scoring_mode: elements.deckProfileScoring.value,
     weight,
   };
-  const response = await window.routeLabBridge.invoke("profile.clone", {
-    name: elements.preferenceProfileName.value.trim() || `${source.name} edited`,
-    profile_id: source.profile_id,
-    rules: [...source.rules, rule],
-  });
-  if (!response.ok) {
-    elements.profileEditStatus.textContent = response.diagnostics[0]?.message || UI_TEXT.profileCloneFailed;
+  profilePageState.rules.push(rule);
+  renderProfileRules();
+  elements.deckProfileEditStatus.textContent = UI_TEXT.profileRuleAdded;
+}
+
+async function saveDeckProfile(event) {
+  event.preventDefault();
+  if (!desktopBridgeAvailable() || !profilePageState.deckId) {
+    elements.deckProfileEditStatus.textContent = UI_TEXT.profilePageDeckRequired;
     return;
   }
-  const profileId = response.result.profile.profile_id;
+  const displayName = elements.deckProfileName.value.trim();
+  if (!displayName) {
+    elements.deckProfileEditStatus.textContent = UI_TEXT.profileNameRequired;
+    elements.deckProfileName.focus();
+    return;
+  }
+  const current = currentProfileRecord();
+  const method = current ? "deck.profile.update" : "deck.profile.create";
+  const payload = current
+    ? { deck_profile_id: current.deck_profile_id, display_name: displayName, rules: profilePageState.rules }
+    : { deck_id: profilePageState.deckId, display_name: displayName, rules: profilePageState.rules };
+  const response = await window.routeLabBridge.invoke(method, payload);
+  if (!response.ok) {
+    elements.deckProfileEditStatus.textContent = response.diagnostics[0]?.message || UI_TEXT.profileSaveFailed;
+    return;
+  }
+  profilePageState.selectedDeckProfileId = response.result.profile.deck_profile_id;
+  elements.deckProfileEditStatus.textContent = UI_TEXT.profileSaved;
+  await refreshDeckProfiles();
   await refreshPreferenceProfiles();
-  elements.preferenceProfile.value = profileId;
-  elements.profileEditStatus.textContent = UI_TEXT.profileCloned;
+  invalidatePreflight();
+  updateExperimentSummary();
+}
+
+async function archiveDeckProfile() {
+  const current = currentProfileRecord();
+  if (!desktopBridgeAvailable() || !current) return;
+  const response = await window.routeLabBridge.invoke("deck.profile.archive", {
+    deck_profile_id: current.deck_profile_id,
+  });
+  if (!response.ok) {
+    elements.deckProfileEditStatus.textContent = response.diagnostics[0]?.message || UI_TEXT.profileArchiveFailed;
+    return;
+  }
+  profilePageState.selectedDeckProfileId = "";
+  elements.deckProfileEditStatus.textContent = UI_TEXT.profileArchived;
+  await refreshDeckProfiles();
+  await refreshPreferenceProfiles();
   invalidatePreflight();
   updateExperimentSummary();
 }
@@ -706,7 +969,7 @@ function statusClass(deck) {
 function sortedDecks() {
   const query = elements.filter.value.trim().toLowerCase();
   const filtered = decks.filter((deck) => {
-    const haystack = [deck.name, deck.hash, ...deck.tags].join(" ").toLowerCase();
+    const haystack = [deck.name, deck.canonicalName || "", ...deck.tags].join(" ").toLowerCase();
     return haystack.includes(query);
   });
   const mode = elements.sort.value;
@@ -732,7 +995,7 @@ function renderDecks() {
     const nameButton = document.createElement("button");
     nameButton.type = "button";
     nameButton.className = "deck-name-button";
-    nameButton.append(textElement("strong", deck.name), textElement("span", deck.hash));
+    nameButton.append(textElement("strong", deck.name), textElement("span", deck.tags.join(" / ")));
     nameButton.addEventListener("click", () => selectDeck(deck.id));
     nameCell.append(nameButton);
     row.append(nameCell);
@@ -791,6 +1054,7 @@ function renderRuns(deck) {
 function updateDetail(deck) {
   elements.detailTitle.textContent = deck.name;
   elements.detailHash.textContent = deck.hash;
+  elements.detailHash.title = UI_TEXT.internalIdHidden;
   elements.detailStatus.textContent = deck.statusLabel;
   elements.detailStatus.className = `status-chip ${statusClass(deck)}`;
   elements.mainCount.textContent = String(deck.main);
@@ -822,6 +1086,58 @@ function updateDetail(deck) {
   }
 }
 
+function setDeckSettingsStatus(kind, title, detail) {
+  elements.deckSettingsStatus.className = `diagnostic ${kind}`;
+  elements.deckSettingsStatus.replaceChildren();
+  const body = document.createElement("div");
+  body.append(textElement("strong", title), textElement("span", detail));
+  elements.deckSettingsStatus.append(body);
+}
+
+function openDeckSettings() {
+  if (!selectedDeck) {
+    showToast(UI_TEXT.noDeckSelected);
+    return;
+  }
+  elements.deckDisplayName.value = selectedDeck.name;
+  elements.deckTags.value = selectedDeck.tags.join(", ");
+  setDeckSettingsStatus("warning", UI_TEXT.deckNameAndTags, "保存しても内部IDと過去の証跡は変わりません。");
+  elements.deckSettingsDialog.showModal();
+}
+
+function deckSettingsPayload() {
+  return {
+    deck_id: selectedDeck.id,
+    display_name: elements.deckDisplayName.value.trim(),
+    tags: elements.deckTags.value
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean),
+  };
+}
+
+async function saveDeckSettings(event) {
+  event.preventDefault();
+  if (!desktopBridgeAvailable() || !selectedDeck) {
+    setDeckSettingsStatus("error", UI_TEXT.bridgeUnavailable, UI_TEXT.deckSettingsFailed);
+    return;
+  }
+  const payload = deckSettingsPayload();
+  if (!payload.display_name) {
+    elements.deckDisplayName.focus();
+    setDeckSettingsStatus("error", UI_TEXT.deckInputRejected, UI_TEXT.deckNameRequired);
+    return;
+  }
+  const response = await window.routeLabBridge.invoke("deck.metadata.update", payload);
+  if (!response.ok) {
+    setDeckSettingsStatus("error", UI_TEXT.deckInputRejected, response.diagnostics[0]?.message || UI_TEXT.deckSettingsFailed);
+    return;
+  }
+  await refreshDesktopCatalog();
+  elements.deckSettingsDialog.close();
+  showToast(UI_TEXT.deckSettingsSaved);
+}
+
 function replaceHash(value) {
   if (window.history && window.history.replaceState) {
     window.history.replaceState(null, "", `#${value}`);
@@ -832,8 +1148,16 @@ function selectDeck(id) {
   const deck = decks.find((candidate) => candidate.id === id);
   if (!deck) return;
   selectedDeck = deck;
+  profilePageState.deckId = deck.id;
+  profilePageState.selectedDeckProfileId = "";
+  preferenceProfilesLoaded = false;
+  document.querySelector("#open-search").disabled = false;
   renderDecks();
   updateDetail(deck);
+  renderProfileDeckOptions();
+  if (!elements.profilesPane.hidden) {
+    refreshDeckProfiles().catch(() => showToast(UI_TEXT.profileCatalogUnavailable));
+  }
   replaceHash(`deck=${encodeURIComponent(deck.id)}`);
 }
 
@@ -928,7 +1252,7 @@ function openingHandInputError() {
       ? Number(elements.conditionalMaxCount.value)
       : null;
     const attempts = Number(elements.conditionalMaxAttempts.value || 10000);
-    if (!Number.isInteger(code) || code < 1) return UI_TEXT.positiveCardCode;
+    if (!Number.isInteger(code) || code < 1) return UI_TEXT.invalidCardCode;
     if (!Number.isInteger(minCount) || minCount < 0) return UI_TEXT.conditionalMinInvalid;
     if (maxCount !== null && (!Number.isInteger(maxCount) || maxCount < minCount)) {
       return UI_TEXT.conditionalMaxInvalid;
@@ -1035,6 +1359,10 @@ async function runPreflight() {
 }
 
 function openSearch() {
+  if (!selectedDeck) {
+    showToast(UI_TEXT.noDeckSelected);
+    return;
+  }
   elements.searchDeckName.textContent = selectedDeck.name;
   if (!preferenceProfilesLoaded) {
     refreshPreferenceProfiles()
@@ -1045,6 +1373,17 @@ function openSearch() {
   updateExperimentSummary();
   elements.searchDialog.showModal();
   replaceHash(`view=search&deck=${encodeURIComponent(selectedDeck.id)}`);
+}
+
+function openProfilePageForSelectedDeck() {
+  if (!selectedDeck) {
+    showToast(UI_TEXT.noDeckSelected);
+    return;
+  }
+  profilePageState.deckId = selectedDeck.id;
+  profilePageState.selectedDeckProfileId = elements.preferenceProfile.value || "";
+  elements.searchDialog.close();
+  showWorkspaceView("profiles");
 }
 
 function closeSearch() {
@@ -1232,6 +1571,75 @@ function renderResultRows(rows) {
   });
 }
 
+function compactId(value) {
+  if (!value) return "-";
+  const text = String(value);
+  const marker = text.indexOf("_");
+  return marker >= 0 ? `${text.slice(0, marker)}_${text.slice(marker + 1, marker + 9)}...` : text;
+}
+
+function terminationLabel(reason) {
+  return {
+    frontier_exhausted: "探索候補を使い切りました",
+    goal_reached: "成功条件に到達しました",
+    max_depth: "最大深さに到達しました",
+    max_nodes: "最大ノード数に到達しました",
+    max_seconds: "最大秒数に到達しました",
+    failed: "探索に失敗しました",
+  }[reason] || reason || "停止理由不明";
+}
+
+function cardName(card) {
+  return card?.name_ja || (card?.card_code ? `${UI_TEXT.codePrefix} ${card.card_code}` : UI_TEXT.unnamedCard);
+}
+
+function renderTerminationSummary(view) {
+  if (!view?.search_run) {
+    elements.resultTermination.textContent = "結果artifactを読み込むと停止理由を表示します。";
+    return;
+  }
+  const budget = view.search_run.budget || {};
+  const nodes = view.search_run.nodes ?? "-";
+  const maxNodes = budget.max_nodes ?? UI_TEXT.routeBudgetUnknown;
+  const reason = terminationLabel(view.search_run.termination_reason);
+  const coverage = view.search_run.best_observed ? "観測上の最良で、全探索の証明ではありません。" : "frontier exhaustion を証明済みです。";
+  elements.resultTermination.textContent = `${reason}。ノード消費 ${nodes} / ${maxNodes}。${coverage}`;
+}
+
+function renderOpeningHandSummary(opening) {
+  if (!opening) {
+    elements.resultOpeningHand.textContent = "初期手札情報がありません。";
+    return;
+  }
+  const mode = opening.mode || "unknown";
+  const cards = Array.isArray(opening.cards) ? opening.cards.map(cardName).join(" / ") : "";
+  const base = `mode: ${mode}${opening.seed !== null && opening.seed !== undefined ? ` / seed: ${opening.seed}` : ""}${opening.size ? ` / ${opening.size}枚` : ""}`;
+  elements.resultOpeningHand.textContent = cards ? `${base} / ${cards}` : `${base} / ${opening.message || "カード内容は未解決です。"}`;
+}
+
+function renderPeakBoardSummary(snapshot) {
+  elements.resultPeakBoard.replaceChildren();
+  if (!snapshot?.available) {
+    elements.resultPeakBoard.textContent = snapshot?.message || UI_TEXT.noPeakBoard;
+    return;
+  }
+  const summary = textElement("p", `score ${snapshot.score ?? "-"} / state ${compactId(snapshot.state_hash)}`);
+  elements.resultPeakBoard.append(summary);
+  const cards = Array.isArray(snapshot.cards) ? snapshot.cards : [];
+  if (!cards.length) {
+    elements.resultPeakBoard.append(textElement("p", "公開カードは記録されていません。"));
+    return;
+  }
+  const list = document.createElement("ul");
+  cards.slice(0, 20).forEach((card) => {
+    const zone = [card.location, card.slot !== undefined ? `slot ${card.slot}` : ""].filter(Boolean).join(" / ");
+    const item = document.createElement("li");
+    item.textContent = `${cardName(card)}${zone ? ` (${zone})` : ""}`;
+    list.append(item);
+  });
+  elements.resultPeakBoard.append(list);
+}
+
 function renderResultEvidence(searchRun) {
   const evidence = searchRun?.candidate_evidence;
   const coverage = searchRun?.coverage;
@@ -1314,13 +1722,13 @@ function renderResultDrilldown(view) {
     elements.resultDrilldownTitle.textContent = UI_TEXT.candidatePaths;
     elements.resultDrilldownSummary.textContent = `${candidates.length}${UI_TEXT.committedCandidateRows}`;
     renderResultTable(
-      ["Status", "Depth", "Action", "Prefix", "Parent"],
+      ["状態", "深さ", "Action", "Prefix", "Parent"],
       candidates.map((candidate) => [
         candidate.status,
         candidate.depth,
-        candidate.action_id,
-        candidate.prefix_id,
-        candidate.parent_prefix_id,
+        compactId(candidate.action_id),
+        compactId(candidate.prefix_id),
+        compactId(candidate.parent_prefix_id),
       ]),
     );
     return;
@@ -1328,10 +1736,10 @@ function renderResultDrilldown(view) {
   elements.resultDrilldownTitle.textContent = UI_TEXT.topKRoutes;
   elements.resultDrilldownSummary.textContent = ranking?.ranking_id || UI_TEXT.committedRanking;
   renderResultTable(
-    ["Rank", "Route", "Terminal", "Reliability", "Random", "Actions"],
+    ["順位", "経路", "終端", "信頼性", "Random", "手数"],
     rankedRoutes.map((route) => [
       route.rank,
-      route.route_id,
+      compactId(route.route_id),
       route.terminal_composite_score,
       route.gameplay_reliability,
       route.gameplay_random_event_count,
@@ -1360,6 +1768,9 @@ function renderPreviewResult() {
       detail: UI_TEXT.noCommittedArtifact,
     },
   ]);
+  renderTerminationSummary(null);
+  renderOpeningHandSummary(null);
+  renderPeakBoardSummary(null);
   elements.resultNoteTitle.textContent = UI_TEXT.syntheticPreviewResult;
   elements.resultNoteDetail.textContent = UI_TEXT.realJobArtifactRequired;
 }
@@ -1380,6 +1791,9 @@ function renderVerifiedResult(view) {
   setResultVerificationState(verificationState, verificationState !== "verified");
   renderResultEvidence(view.search_run);
   renderResultDrilldown(view);
+  renderTerminationSummary(view);
+  renderOpeningHandSummary(view.route.opening_hand);
+  renderPeakBoardSummary(view.route.peak_board);
   const preferenceRows = Array.isArray(view.score.preference)
     ? view.score.preference.map((component) => ({
       title: `${UI_TEXT.preference} ${component.rule_id || UI_TEXT.rule}`,
@@ -1390,7 +1804,7 @@ function renderVerifiedResult(view) {
     ? view.route.actions.map((action) => ({
       title: action.decision_kind || action.action_id || UI_TEXT.routeAction,
       detail: action.state_hash_after
-        ? `state ${action.state_hash_after}`
+        ? `${UI_TEXT.committedRouteEvent} / 状態IDは内部詳細`
         : UI_TEXT.committedRouteEvent,
     }))
     : [{
@@ -1423,6 +1837,9 @@ function renderResultError(message) {
   elements.resultActions.textContent = "-";
   setResultVerificationState(UI_TEXT.unavailable, false);
   renderResultEvidence(null);
+  renderTerminationSummary(null);
+  renderOpeningHandSummary(null);
+  renderPeakBoardSummary(null);
   elements.resultDrilldown.hidden = true;
   renderResultTable([], []);
   renderResultRows([{ title: UI_TEXT.artifactVerificationFailed, detail: message }]);
@@ -1522,8 +1939,10 @@ function initializeFromHash() {
   }
   renderDecks();
   updateDetail(selectedDeck);
+  profilePageState.deckId = selectedDeck?.id || "";
+  renderProfileDeckOptions();
   const view = params.get("view");
-  showWorkspaceView(view === "runs" ? "runs" : "decks", false);
+  showWorkspaceView(["runs", "profiles"].includes(view) ? view : "decks", false);
   if (view === "search") openSearch();
   if (view === "compare") elements.compareDialog.showModal();
 }
@@ -1539,18 +1958,23 @@ function setRailCurrent(view) {
 
 function showWorkspaceView(view, updateHash = true) {
   const analyticsActive = view === "runs";
-  elements.catalogPane.hidden = analyticsActive;
-  elements.detailPane.hidden = analyticsActive;
+  const profilesActive = view === "profiles";
+  const decksActive = !analyticsActive && !profilesActive;
+  elements.catalogPane.hidden = !decksActive;
+  elements.detailPane.hidden = !decksActive;
   elements.analyticsPane.hidden = !analyticsActive;
+  elements.profilesPane.hidden = !profilesActive;
   elements.workspace.classList.toggle("analytics-active", analyticsActive);
-  setRailCurrent(analyticsActive ? "runs" : "decks");
+  setRailCurrent(profilesActive ? "profiles" : analyticsActive ? "runs" : "decks");
   if (analyticsActive && analyticsController.metrics().query_count === 0) {
     analyticsController.refresh();
   }
+  if (profilesActive) {
+    refreshDeckProfiles().catch(() => showToast(UI_TEXT.profileCatalogUnavailable));
+  }
   if (updateHash) {
-    replaceHash(
-      analyticsActive ? "view=runs" : `deck=${encodeURIComponent(selectedDeck?.id || "")}`,
-    );
+    const deckHash = `deck=${encodeURIComponent(selectedDeck?.id || "")}`;
+    replaceHash(analyticsActive ? "view=runs" : profilesActive ? `view=profiles&${deckHash}` : deckHash);
   }
 }
 
@@ -1592,6 +2016,10 @@ document.querySelectorAll(".rail-item").forEach((button) => {
       showWorkspaceView("runs");
       return;
     }
+    if (view === "profiles") {
+      showWorkspaceView("profiles");
+      return;
+    }
     if (view === "decks") {
       showWorkspaceView("decks");
       activateTab("overview");
@@ -1603,6 +2031,14 @@ document.querySelectorAll(".rail-item").forEach((button) => {
 });
 
 document.querySelector("#open-search").addEventListener("click", openSearch);
+elements.deckSettings.addEventListener("click", openDeckSettings);
+elements.deckSettingsForm.addEventListener("submit", (event) => {
+  saveDeckSettings(event).catch(() => {
+    setDeckSettingsStatus("error", UI_TEXT.deckInputRejected, UI_TEXT.deckSettingsFailed);
+  });
+});
+document.querySelector("#close-deck-settings").addEventListener("click", () => elements.deckSettingsDialog.close());
+document.querySelector("#cancel-deck-settings").addEventListener("click", () => elements.deckSettingsDialog.close());
 document.querySelector("#close-search").addEventListener("click", closeSearch);
 document.querySelector("#cancel-search").addEventListener("click", closeSearch);
 document.querySelector("#run-preflight").addEventListener("click", () => {
@@ -1639,9 +2075,31 @@ elements.openingHand.addEventListener("change", () => {
   if (elements.openingHand.value === "fixed") elements.fixedHandCards.focus();
   if (elements.openingHand.value === "conditional") elements.conditionalCardCode.focus();
 });
-elements.cloneProfile.addEventListener("click", () => {
-  clonePreferenceProfile().catch(() => {
-    elements.profileEditStatus.textContent = UI_TEXT.profileCloneFailed;
+elements.editProfiles.addEventListener("click", openProfilePageForSelectedDeck);
+elements.profileNew.addEventListener("click", () => {
+  profilePageState.selectedDeckProfileId = "";
+  profilePageState.rules = [];
+  renderDeckProfileList();
+  resetProfileEditor();
+  elements.deckProfileName.focus();
+});
+elements.profileDeckSelect.addEventListener("change", () => {
+  profilePageState.deckId = elements.profileDeckSelect.value;
+  profilePageState.selectedDeckProfileId = "";
+  refreshDeckProfiles().catch(() => showToast(UI_TEXT.profileCatalogUnavailable));
+});
+elements.profileIncludeArchived.addEventListener("change", () => {
+  refreshDeckProfiles().catch(() => showToast(UI_TEXT.profileCatalogUnavailable));
+});
+elements.deckProfileAddRule.addEventListener("click", addProfileRule);
+elements.deckProfileForm.addEventListener("submit", (event) => {
+  saveDeckProfile(event).catch(() => {
+    elements.deckProfileEditStatus.textContent = UI_TEXT.profileSaveFailed;
+  });
+});
+elements.deckProfileArchive.addEventListener("click", () => {
+  archiveDeckProfile().catch(() => {
+    elements.deckProfileEditStatus.textContent = UI_TEXT.profileArchiveFailed;
   });
 });
 

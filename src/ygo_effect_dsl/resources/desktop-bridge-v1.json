@@ -29,6 +29,12 @@
       "payload_fields": ["query"],
       "worker_start_allowed": false
     },
+    "deck.card_options": {
+      "payload_fields": ["deck_id"],
+      "renderer_path_input": false,
+      "source": "registered_deck_and_verified_japanese_card_presentation",
+      "worker_start_allowed": false
+    },
     "deck.catalog": {
       "payload_fields": [],
       "worker_start_allowed": false
@@ -36,6 +42,41 @@
     "deck.import_ydk": {
       "native_file_picker": true,
       "payload_fields": [],
+      "renderer_path_input": false,
+      "worker_start_allowed": false
+    },
+    "deck.metadata.get": {
+      "payload_fields": ["deck_id"],
+      "renderer_path_input": false,
+      "worker_start_allowed": false
+    },
+    "deck.metadata.update": {
+      "payload_fields": ["deck_id", "display_name", "tags"],
+      "renderer_path_input": false,
+      "worker_start_allowed": false
+    },
+    "deck.profile.archive": {
+      "payload_fields": ["deck_profile_id"],
+      "renderer_path_input": false,
+      "worker_start_allowed": false
+    },
+    "deck.profile.create": {
+      "payload_fields": ["deck_id", "display_name", "rules"],
+      "renderer_path_input": false,
+      "worker_start_allowed": false
+    },
+    "deck.profile.get": {
+      "payload_fields": ["deck_profile_id"],
+      "renderer_path_input": false,
+      "worker_start_allowed": false
+    },
+    "deck.profile.list": {
+      "payload_fields": ["deck_id", "include_archived"],
+      "renderer_path_input": false,
+      "worker_start_allowed": false
+    },
+    "deck.profile.update": {
+      "payload_fields": ["deck_profile_id", "display_name", "rules"],
       "renderer_path_input": false,
       "worker_start_allowed": false
     },
