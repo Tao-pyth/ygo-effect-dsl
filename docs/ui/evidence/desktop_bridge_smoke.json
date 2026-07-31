@@ -17,7 +17,7 @@
     "schema_version": "desktop-bridge-response-v1"
   },
   "elapsed_seconds": 2.160333,
-  "evidence_id": "desktopbridgesmoke_2df8385c90a13a5ac931140edb7970492218733f009ab3793109b1f90bd30cad",
+  "evidence_id": "desktopbridgesmoke_760509ebd219bff3ce0660d2a7e6d46395156c4eb1dbc92aec02671b20255207",
   "export_response": {
     "details": {},
     "diagnostics": [],
@@ -92,7 +92,7 @@
   },
   "frontend": {
     "entrypoint": "index.html",
-    "sha256": "3ac3b3ec7462509b3b5051c2472b28931f8624fb140647761ce628976b36bae5",
+    "sha256": "3f44816c7db5e37709c60836c034a42cabbf4b7340691448665225f2a8110542",
     "workflow_version": "desktop-workflow-v1"
   },
   "limitations": [

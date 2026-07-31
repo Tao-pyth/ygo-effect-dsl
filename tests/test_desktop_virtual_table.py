@@ -72,7 +72,7 @@ def test_virtual_table_keyboard_and_accessibility_contract_is_explicit() -> None
     for attribute in ("aria-colcount", "aria-rowcount", "aria-rowindex"):
         assert attribute in script or attribute in html
     assert 'role="grid"' in html
-    assert 'aria-label="Run observations"' in html
+    assert 'aria-label="実行観測"' in html
     assert "position: sticky" in css
     assert "forced-colors: active" in css
 

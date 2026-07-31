@@ -135,6 +135,11 @@ def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
     assert all(
         not any(name.startswith("on") for name in attrs) for _, attrs in parser.attrs
     )
+    html_attrs = next(attrs for tag, attrs in parser.attrs if tag == "html")
+    assert html_attrs["lang"] == "ja"
+    assert "デッキ研究ワークスペース" in html
+    assert "デッキカタログ" in html
+    assert "探索を実行" in html
 
     required_ids = {
         "workspace",
@@ -200,6 +205,27 @@ def test_static_html_has_default_deny_csp_and_accessible_workflow() -> None:
     assert '<link rel="stylesheet" href="app.css">' in html
 
 
+def test_desktop_frontend_uses_japanese_copy_and_rejects_mojibake() -> None:
+    html, _, _, javascript = _assets()
+    combined = "\n".join((html, javascript))
+    mojibake_markers = ("ﾂｷ", "ﾃ・", "竊・", "笨・")
+
+    assert all(marker not in combined for marker in mojibake_markers)
+    assert "UI_LOCALE = \"ja\"" in javascript
+    assert "const UI_TEXT = Object.freeze({" in javascript
+    assert "短経路 fixture" in javascript
+    assert "長チェーン fixture" in javascript
+    assert "墓地/除外 fixture" in javascript
+    assert "復旧プローブ" in javascript
+    assert "Replay検証をキューへ追加しました。" in javascript
+    assert "事前検証待ち" in javascript
+    assert "デスクトップブリッジ準備完了" in javascript
+    assert "Short route fixture" not in combined
+    assert "Long chain fixture" not in combined
+    assert "Grave / banish fixture" not in combined
+    assert "Recovery probe" not in combined
+
+
 def test_frontend_has_no_network_or_direct_python_bridge_path() -> None:
     html, css, bridge, javascript = _assets()
     analytics_javascript = (desktop_frontend_root() / "analytics.js").read_text(
@@ -226,14 +252,14 @@ def test_frontend_has_no_network_or_direct_python_bridge_path() -> None:
     assert '"profile.get"' in javascript
     assert '"profile.clone"' in javascript
     assert "desktop-rule-${cardCode}-${location}-${position}-${Date.now()}" in javascript
-    assert "Cloned profile selected." in javascript
+    assert "複製したプロファイルを選択しました。" in javascript
     assert "opening_hand: openingHandConfiguration()" in javascript
     assert "scenario_preset_id: elements.objective.value" in javascript
     assert 'value="terminal_board_min_monster_v1"' in html
-    assert "Conditional hand requires a positive card code." in javascript
+    assert "カードコードは正の整数で入力してください。" in javascript
     assert "fixed-hand-cards" in html
     assert "pool_size:" in javascript
-    assert "pool_size must be between 1 and 8" in javascript
+    assert "pool_sizeは1から8の範囲で指定してください。" in javascript
     assert "checkpoint?.payload?.replays" in javascript
     assert "elements.jobReplays.textContent = String(snapshot.job.attempt)" not in javascript
     assert 'value="opening_hand_cohort"' in html
@@ -242,22 +268,22 @@ def test_frontend_has_no_network_or_direct_python_bridge_path() -> None:
     assert "opening_hand_cohort" in analytics_javascript
     assert "censor_state" in analytics_javascript
     assert "`replay-verification-${currentJobId}`" in javascript
-    assert "Replay verification queued." in javascript
+    assert "Replay検証をキューへ追加しました。" in javascript
     assert "pollReplayVerification" in javascript
     assert "route_ranking" in javascript
-    assert "Candidate paths" in javascript
+    assert "候補経路" in javascript
     assert "result-tab-candidates" in html
-    assert "Preference ${component.rule_id" in javascript
+    assert "`${UI_TEXT.preference} ${component.rule_id" in javascript
     assert DESKTOP_BRIDGE_CONTRACT_VERSION in bridge
     assert desktop_bridge_contract_document()["security"]["local_rest_api"] is False
     assert "innerHTML" not in javascript
     assert "eval(" not in javascript
-    assert "No real worker has started" in javascript
-    assert "No worker started" in javascript
+    assert "実workerは開始していません" in javascript
+    assert "workerは開始していません" in javascript
     assert '"job.result"' in javascript
     assert "candidate_evidence" in javascript
     assert "coverage.coverage_status" in javascript
-    assert "Frontier exhaustion certified by candidate accounting." in javascript
+    assert "candidate accountingによりfrontier exhaustionを証明済みです。" in javascript
     assert "route_fixture_5b7a2c10" not in html
     assert desktop_workflow_contract_document()["integration"]["preview_adapter"] == (
         "synthetic_search_browser_only"
@@ -282,9 +308,9 @@ def test_desktop_cancel_keeps_polling_until_worker_acknowledges() -> None:
     _, _, _, javascript = _assets()
 
     assert (
-        "Cancellation requested. Waiting for the active worker to stop." in javascript
+        "中止を要求しました。実行中workerの停止を待っています。" in javascript
     )
-    assert "Cancellation status polling failed closed." in javascript
+    assert "中止状態のpollingはfail-closeしました。" in javascript
     assert "elements.cancelJob.disabled = true" in javascript
 
 

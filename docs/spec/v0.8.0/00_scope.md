@@ -28,5 +28,5 @@ Last updated: 2026-07-28
 
 - Desktop entrypoint の `<html>` は `lang="ja"` を宣言する。
 - Browser preview と desktop bridge 接続時の主要な状態表示が日本語で表示される。
-- `ﾂｷ`、`ﾃ・`、`竊・`、`笨・` のような既知文字化けが desktop static assets と release-facing version docs に残らない。
+- U+FF82/U+FF77 などの既知文字化けmarkerが desktop static assets と release-facing version docs に残らない。
 - Existing bridge/security tests と release governance checks が通る。

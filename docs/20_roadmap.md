@@ -22,6 +22,8 @@ Package/CLI の現行 release は `0.5.0`、対応 tag は `v0.5.0` である。
 
 詳細な stage 索引は [release stage index](spec/00_release_stage_index.md) を正本とする。
 
+Baseline contract index: `0.4`, `0.3b`, `0.3a`, `0.1`, `project-identity-v1`, `scenario-v1`, `ygo-replay-manifest-v1`, `fresh-replay-verification-v1`, `real-deck-qualification-index-v2`, `ocgcore-lua-load-qualification-v1`, `information-policy-v1`, `ygo-state-id-v1`, `evaluation-result-v1`, `search-executor-v5`, `search-frontier-v2`, `search-run-result-v5`, `search-strategy-evidence-v1`, `search-run-report-v1`, `search-run-failure-v2`, `search-artifact-commit-v1`, `random-search-strategy-v1`, `beam-search-strategy-v1`, `mcts-strategy-v1`, `real-core-frontier-v2`, `real-core-frontier-worker-attempt-v1`, `real-core-frontier-worker-failure-v1`, `interruption-support-taxonomy-v1`, `aggregation-v1`, `general-search-benchmark-v1`, `real-core-benchmark-base-routes-v2`, `cache-worker-policy-v2`, `memory-preflight-v2`, `real-core-replay-benchmark-v1`, `real-core-worker-policy-v1`, `real-core-memory-preflight-v1`, `resolver-index-policy-v1`, `ocgcore-platform-contract-v1`, `ocgcore-doctor-v2`.
+
 ## 2. Release stages
 
 | Package target | Main purpose | Parent issue | Spec | Completion signal |

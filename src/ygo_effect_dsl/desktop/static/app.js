@@ -45,6 +45,8 @@ const UI_TEXT = Object.freeze({
   sideTooLarge: "サイドデッキは15枚以下にしてください。",
   deckNameRequired: "デッキ名を入力してください。",
   preflightPassed: "事前検証に成功",
+  readyDeckVerified: "DB、Luaスクリプト、資産ロック、デッキ形状を確認済みです。",
+  preflightRequired: "事前検証が必要",
   registeredDeckPreflight: "登録済みデッキです。探索前にローカルサービスで再検証します。",
   staleAssetLock: "資産ロックが古い",
   staleAssetDetail: "ローカルソースを再検証するまで探索はブロックされます。",
@@ -63,6 +65,8 @@ const UI_TEXT = Object.freeze({
   searchFailed: "探索に失敗しました",
   searchRejected: "探索を拒否しました",
   searchQueueFailed: "探索キューはfail-closeしました。",
+  jobStatusFailed: "ジョブ状態の確認はfail-closeしました。",
+  jobPollingFailed: "ジョブ状態のpollingはfail-closeしました。",
   desktopCatalogFailed: "デスクトップカタログはfail-closeしました。",
   settingsBridgeIssue: "設定はデスクトップブリッジ issue #244 で接続されます。",
   queuedPreview: "synthetic preview adapter でキュー済み。実workerは開始していません。",
@@ -84,7 +88,7 @@ const UI_TEXT = Object.freeze({
   preview: "プレビュー",
   previewRoute: "プレビュー経路",
   noCommittedArtifact: "commit済みdesktop artifactは読み込まれていません。",
-  syntheticPreviewResult: "Synthetic preview result",
+  syntheticPreviewResult: "Synthetic preview 結果",
   realJobArtifactRequired: "実desktop jobは型付きjob artifact serviceから読み込む必要があります。",
   realJobReplayVerified: "実job / Replay検証済み",
   realJobReplayUnverified: "実job / Replay未検証",
@@ -93,7 +97,7 @@ const UI_TEXT = Object.freeze({
   preference: "評価",
   rule: "ルール",
   unknown: "不明",
-  routeAction: "Route action",
+  routeAction: "Routeアクション",
   committedRouteEvent: "commit済みRoute event",
   terminalResult: "終端結果",
   bestObservedNotCertified: "best observedです。frontier exhaustionは証明されていません。",
@@ -104,7 +108,7 @@ const UI_TEXT = Object.freeze({
   blocked: "ブロック",
   unavailable: "利用不可",
   artifactVerificationFailed: "artifact検証に失敗しました",
-  failClosedResult: "Fail-closed result",
+  failClosedResult: "Fail-closed 結果",
   rendererDidNotSubstitute: "rendererはfixture値へ置き換えませんでした。",
   committedArtifactsUnavailable: "commit済みartifactを読み込めませんでした。",
   statusUnavailable: "状態を確認できません",
@@ -115,25 +119,53 @@ const UI_TEXT = Object.freeze({
   queueing: "キュー投入中",
   replayEnqueueFailed: "Replay検証のキュー投入はfail-closeしました。",
   replayQueued: "Replay検証をキューへ追加しました。",
+  configurationFailure: "設定エラー",
+  desktopDeckRejected: "デスクトップサービスがこのデッキを拒否しました。",
+  fixedHandInvalid: "固定初手には正のカードコードを1件以上指定してください。",
+  conditionalMinInvalid: "条件付き初手の最小枚数は0以上の整数で指定してください。",
+  conditionalMaxInvalid: "条件付き初手の最大枚数は最小枚数以上の整数で指定してください。",
+  conditionalAttemptsInvalid: "条件付き初手の最大試行回数は1から100,000の範囲で指定してください。",
+  experimentSummaryNodes: "nodes",
+  budgetOutsideMvp: "予算がMVP上限を超えています",
+  poolOutsideDesktop: "Poolサイズがデスクトップ上限を超えています",
+  openingHandInvalid: "初手条件が不正です",
+  interruptionCardRequired: "妨害カードが必要です",
+  specifyPositiveNoInference: "正のカードコードを指定してください。効果やtimingは推測しません。",
+  experimentCompositionFailed: "Experiment構成に失敗しました。",
+  preflightFailed: "事前検証に失敗",
+  preflightValidDetail: "fixture manifest、デッキ形状、戦略、seed、pool policy、予算は有効です。",
+  replayingFrontierNodes: "frontier nodeをReplay中",
+  searchState: "探索状態",
+  jobState: "ジョブ状態",
+  queuedJob: "キュー投入済み",
+  waitingDesktopWorker: "デスクトップworker leaseを待っています。",
+  bestRouteVerified: "最良経路を検証済み",
+  committedArtifactResult: "commit済みartifact結果",
+  codePrefix: "コード",
+  typeLabel: "種別",
+  attributeLabel: "属性",
+  atkDefLabel: "ATK / DEF",
+  localeLabel: "言語",
+  localeValue: "ja",
 });
 
 let decks = [
   {
     id: "short-route",
-    name: "Short route fixture",
+    name: "短経路 fixture",
     hash: "a72f91c8",
-    tags: ["qualified", "short", "baseline"],
+    tags: ["検証済み", "短経路", "基準"],
     main: 40,
     extra: 15,
     side: 0,
     source: "inline",
     status: "ready",
-    statusLabel: "Ready",
+    statusLabel: "準備完了",
     runs: 4280,
     success: 84.2,
     best: 18.6,
     terminal: 14.1,
-    updated: "12 min ago",
+    updated: "12分前",
     updatedOrder: 4,
     chart: [
       ["Random", 84.2],
@@ -141,32 +173,32 @@ let decks = [
       ["MCTS", 86.1],
     ],
     cards: [
-      { code: 10000, name: "Synthetic Relay Alpha", count: 3, type: "Effect", attribute: "Light", stats: "1800 / 1200" },
-      { code: 10001, name: "Synthetic Relay Beta", count: 3, type: "Quick-Play", attribute: "-", stats: "-" },
-      { code: 10002, name: "Synthetic Relay Gate", count: 2, type: "Trap", attribute: "-", stats: "-" },
+      { code: 10000, name: "Synthetic Relay Alpha", count: 3, type: "効果", attribute: "光", stats: "1800 / 1200" },
+      { code: 10001, name: "Synthetic Relay Beta", count: 3, type: "速攻魔法", attribute: "-", stats: "-" },
+      { code: 10002, name: "Synthetic Relay Gate", count: 2, type: "罠", attribute: "-", stats: "-" },
     ],
     recentRuns: [
-      ["Random · seed 42017", "Success · score 18.6", "02:14"],
-      ["Beam · seed 912", "Success · score 19.2", "Yesterday"],
-      ["MCTS · seed 6601", "Budget reached · score 17.4", "Yesterday"],
+      ["Random · seed 42017", "成功 · score 18.6", "02:14"],
+      ["Beam · seed 912", "成功 · score 19.2", "昨日"],
+      ["MCTS · seed 6601", "予算到達 · score 17.4", "昨日"],
     ],
   },
   {
     id: "long-chain",
-    name: "Long chain fixture",
+    name: "長チェーン fixture",
     hash: "88d14be2",
-    tags: ["qualified", "chain", "long"],
+    tags: ["検証済み", "チェーン", "長経路"],
     main: 44,
     extra: 15,
     side: 6,
     source: "ydk",
     status: "ready",
-    statusLabel: "Ready",
+    statusLabel: "準備完了",
     runs: 3650,
     success: 71.8,
     best: 22.4,
     terminal: 17.9,
-    updated: "1 hr ago",
+    updated: "1時間前",
     updatedOrder: 3,
     chart: [
       ["Random", 71.8],
@@ -174,32 +206,32 @@ let decks = [
       ["MCTS", 79.1],
     ],
     cards: [
-      { code: 11000, name: "Synthetic Chain Node", count: 3, type: "Effect", attribute: "Dark", stats: "1600 / 1000" },
-      { code: 11001, name: "Synthetic Chain Link", count: 2, type: "Continuous", attribute: "-", stats: "-" },
-      { code: 11002, name: "Synthetic Chain Guard", count: 3, type: "Counter", attribute: "-", stats: "-" },
+      { code: 11000, name: "Synthetic Chain Node", count: 3, type: "効果", attribute: "闇", stats: "1600 / 1000" },
+      { code: 11001, name: "Synthetic Chain Link", count: 2, type: "永続", attribute: "-", stats: "-" },
+      { code: 11002, name: "Synthetic Chain Guard", count: 3, type: "カウンター", attribute: "-", stats: "-" },
     ],
     recentRuns: [
-      ["MCTS · seed 773", "Success · score 22.4", "03:05"],
-      ["Beam · seed 114", "Success · score 21.7", "Yesterday"],
-      ["Random · seed 801", "Max nodes · score 18.9", "2 days ago"],
+      ["MCTS · seed 773", "成功 · score 22.4", "03:05"],
+      ["Beam · seed 114", "成功 · score 21.7", "昨日"],
+      ["Random · seed 801", "最大ノード到達 · score 18.9", "2日前"],
     ],
   },
   {
     id: "grave-banish",
-    name: "Grave / banish fixture",
+    name: "墓地/除外 fixture",
     hash: "d3196af4",
-    tags: ["qualified", "graveyard", "banish"],
+    tags: ["検証済み", "墓地", "除外"],
     main: 42,
     extra: 12,
     side: 0,
     source: "inline",
     status: "ready",
-    statusLabel: "Ready",
+    statusLabel: "準備完了",
     runs: 3180,
     success: 66.5,
     best: 20.8,
     terminal: 13.6,
-    updated: "Yesterday",
+    updated: "昨日",
     updatedOrder: 2,
     chart: [
       ["Random", 66.5],
@@ -207,32 +239,32 @@ let decks = [
       ["MCTS", 72.8],
     ],
     cards: [
-      { code: 12000, name: "Synthetic Archive Unit", count: 3, type: "Effect", attribute: "Earth", stats: "1400 / 1800" },
-      { code: 12001, name: "Synthetic Exile Path", count: 3, type: "Normal", attribute: "-", stats: "-" },
-      { code: 12002, name: "Synthetic Return Trace", count: 2, type: "Trap", attribute: "-", stats: "-" },
+      { code: 12000, name: "Synthetic Archive Unit", count: 3, type: "効果", attribute: "地", stats: "1400 / 1800" },
+      { code: 12001, name: "Synthetic Exile Path", count: 3, type: "通常", attribute: "-", stats: "-" },
+      { code: 12002, name: "Synthetic Return Trace", count: 2, type: "罠", attribute: "-", stats: "-" },
     ],
     recentRuns: [
-      ["Beam · seed 234", "Success · score 20.8", "Yesterday"],
-      ["Random · seed 120", "Legal stop · score 16.2", "2 days ago"],
-      ["MCTS · seed 990", "Success · score 19.7", "2 days ago"],
+      ["Beam · seed 234", "成功 · score 20.8", "昨日"],
+      ["Random · seed 120", "合法停止 · score 16.2", "2日前"],
+      ["MCTS · seed 990", "成功 · score 19.7", "2日前"],
     ],
   },
   {
     id: "recovery-probe",
-    name: "Recovery probe",
+    name: "復旧プローブ",
     hash: "f741e3a0",
-    tags: ["recovery", "interrupted", "review"],
+    tags: ["復旧", "妨害あり", "要確認"],
     main: 40,
     extra: 15,
     side: 3,
     source: "ydk",
     status: "stale",
-    statusLabel: "Stale lock",
+    statusLabel: "古いロック",
     runs: 1370,
     success: 42.1,
     best: 13.4,
     terminal: 8.2,
-    updated: "4 days ago",
+    updated: "4日前",
     updatedOrder: 1,
     chart: [
       ["Random", 42.1],
@@ -240,14 +272,14 @@ let decks = [
       ["MCTS", 50.4],
     ],
     cards: [
-      { code: 13000, name: "Synthetic Recovery Unit", count: 3, type: "Effect", attribute: "Water", stats: "1200 / 2000" },
-      { code: 13001, name: "Synthetic Recovery Plan", count: 2, type: "Normal", attribute: "-", stats: "-" },
-      { code: 13002, name: "Synthetic Interrupt Trace", count: 3, type: "Trap", attribute: "-", stats: "-" },
+      { code: 13000, name: "Synthetic Recovery Unit", count: 3, type: "効果", attribute: "水", stats: "1200 / 2000" },
+      { code: 13001, name: "Synthetic Recovery Plan", count: 2, type: "通常", attribute: "-", stats: "-" },
+      { code: 13002, name: "Synthetic Interrupt Trace", count: 3, type: "罠", attribute: "-", stats: "-" },
     ],
     recentRuns: [
-      ["Random · seed 184", "Configuration failure", "4 days ago"],
-      ["Beam · seed 725", "Path failure · score 9.1", "5 days ago"],
-      ["MCTS · seed 402", "Success · score 13.4", "5 days ago"],
+      ["Random · seed 184", "設定エラー", "4日前"],
+      ["Beam · seed 725", "経路エラー · score 9.1", "5日前"],
+      ["MCTS · seed 402", "成功 · score 13.4", "5日前"],
     ],
   },
 ];
@@ -384,7 +416,7 @@ async function executeAnalyticsQuery(request) {
   const response = await window.routeLabBridge.invoke("analytics.query", { request });
   if (!response.ok) {
     const diagnostic = response.diagnostics[0];
-    throw new Error(diagnostic?.message || "Analytics query failed closed");
+    throw new Error(diagnostic?.message || UI_TEXT.analyticsQueryFailed);
   }
   return response.result;
 }
@@ -392,20 +424,20 @@ async function executeAnalyticsQuery(request) {
 const analyticsExportJobs = Object.freeze({
   async enqueue(payload) {
     if (!desktopBridgeAvailable()) {
-      throw new Error("Desktop bridge is required for versioned exports");
+      throw new Error(UI_TEXT.exportRequiresBridge);
     }
     const response = await window.routeLabBridge.invoke("analytics.export.enqueue", payload);
-    if (!response.ok) throw new Error(response.diagnostics[0]?.message || "Export queue failed closed");
+    if (!response.ok) throw new Error(response.diagnostics[0]?.message || UI_TEXT.exportQueueFailed);
     return response.result;
   },
   async status(jobId) {
     const response = await window.routeLabBridge.invoke("job.status", { job_id: jobId });
-    if (!response.ok) throw new Error(response.diagnostics[0]?.message || "Export status failed closed");
+    if (!response.ok) throw new Error(response.diagnostics[0]?.message || UI_TEXT.exportStatusFailed);
     return response.result;
   },
   async cancel(jobId) {
     const response = await window.routeLabBridge.invoke("job.cancel", { job_id: jobId });
-    if (!response.ok) throw new Error(response.diagnostics[0]?.message || "Export cancellation failed closed");
+    if (!response.ok) throw new Error(response.diagnostics[0]?.message || UI_TEXT.exportCancelFailed);
     return response.result;
   },
 });
@@ -417,9 +449,9 @@ const analyticsController = window.routeLabAnalytics.createController(
 );
 
 function markDesktopEnvironment() {
-  elements.environmentLabel.textContent = "Desktop bridge ready";
-  elements.environmentCode.textContent = "preflight per run";
-  elements.catalogSourceLabel.textContent = "Showing the local desktop deck catalog";
+  elements.environmentLabel.textContent = UI_TEXT.bridgeReady;
+  elements.environmentCode.textContent = UI_TEXT.preflightPerRun;
+  elements.catalogSourceLabel.textContent = UI_TEXT.localDeckCatalog;
 }
 
 function bridgeDeck(record) {
@@ -433,19 +465,19 @@ function bridgeDeck(record) {
     side: record.side_count,
     source: record.source,
     status: "registered",
-    statusLabel: "Registered",
+    statusLabel: UI_TEXT.registered,
     runs: 0,
     success: 0,
     best: 0,
     terminal: 0,
-    updated: "Local catalog",
+    updated: UI_TEXT.localCatalog,
     updatedOrder: 5,
     chart: [["Random", 0], ["Beam", 0], ["MCTS", 0]],
     cards: record.card_counts.slice(0, 30).map((item) => ({
       code: item.card_code,
-      name: `Card ${item.card_code}`,
+      name: `${UI_TEXT.cardPrefix} ${item.card_code}`,
       count: item.count,
-      type: "Presentation unavailable",
+      type: UI_TEXT.presentationUnavailable,
       attribute: "-",
       stats: "-",
     })),
@@ -458,7 +490,7 @@ async function refreshDesktopCatalog() {
   markDesktopEnvironment();
   const response = await window.routeLabBridge.invoke("deck.catalog", {});
   if (!response.ok) {
-    showToast(response.diagnostics[0]?.message || "Desktop deck catalog failed.");
+    showToast(response.diagnostics[0]?.message || UI_TEXT.desktopCatalogFailed);
     return;
   }
   decks = response.result.decks.map(bridgeDeck);
@@ -485,7 +517,7 @@ function renderPreferenceProfiles(records) {
     const profile = record.profile || record;
     const option = document.createElement("option");
     option.value = profile.profile_id || "";
-    option.textContent = profile.name || profile.profile_id || "Terminal preference";
+    option.textContent = profile.name || profile.profile_id || UI_TEXT.terminalPreference;
     elements.preferenceProfile.append(option);
   });
   if (selected && [...elements.preferenceProfile.options].some((option) => option.value === selected)) {
@@ -497,14 +529,14 @@ function renderPreferenceProfiles(records) {
 
 async function refreshPreferenceProfiles() {
   if (!desktopBridgeAvailable()) {
-    renderPreferenceProfiles([{ profile: { name: "Default terminal preference", profile_id: "" } }]);
+    renderPreferenceProfiles([{ profile: { name: UI_TEXT.defaultTerminalPreference, profile_id: "" } }]);
     elements.preferenceProfile.disabled = true;
     return;
   }
   const response = await window.routeLabBridge.invoke("profile.list", {});
   if (!response.ok) {
-    showToast(response.diagnostics[0]?.message || "Terminal preference catalog failed.");
-    renderPreferenceProfiles([{ profile: { name: "Default terminal preference", profile_id: "" } }]);
+    showToast(response.diagnostics[0]?.message || UI_TEXT.terminalProfileCatalogFailed);
+    renderPreferenceProfiles([{ profile: { name: UI_TEXT.defaultTerminalPreference, profile_id: "" } }]);
     elements.preferenceProfile.disabled = true;
     return;
   }
@@ -514,18 +546,18 @@ async function refreshPreferenceProfiles() {
 
 async function clonePreferenceProfile() {
   if (!desktopBridgeAvailable() || !elements.preferenceProfile.value) {
-    elements.profileEditStatus.textContent = "Desktop profile catalog is unavailable.";
+    elements.profileEditStatus.textContent = UI_TEXT.profileCatalogUnavailable;
     return;
   }
   const cardCode = Number(elements.preferenceRuleCard.value);
   const weight = Number(elements.preferenceRuleWeight.value);
   if (!Number.isInteger(cardCode) || cardCode < 1) {
-    elements.profileEditStatus.textContent = "Card code must be a positive integer.";
+    elements.profileEditStatus.textContent = UI_TEXT.positiveCardCode;
     elements.preferenceRuleCard.focus();
     return;
   }
   if (!Number.isInteger(weight)) {
-    elements.profileEditStatus.textContent = "Weight must be an integer.";
+    elements.profileEditStatus.textContent = UI_TEXT.integerWeight;
     elements.preferenceRuleWeight.focus();
     return;
   }
@@ -533,7 +565,7 @@ async function clonePreferenceProfile() {
     profile_id: elements.preferenceProfile.value,
   });
   if (!current.ok) {
-    elements.profileEditStatus.textContent = current.diagnostics[0]?.message || "Profile load failed closed.";
+    elements.profileEditStatus.textContent = current.diagnostics[0]?.message || UI_TEXT.profileLoadFailed;
     return;
   }
   const source = current.result.profile.profile;
@@ -557,30 +589,30 @@ async function clonePreferenceProfile() {
     rules: [...source.rules, rule],
   });
   if (!response.ok) {
-    elements.profileEditStatus.textContent = response.diagnostics[0]?.message || "Profile clone failed closed.";
+    elements.profileEditStatus.textContent = response.diagnostics[0]?.message || UI_TEXT.profileCloneFailed;
     return;
   }
   const profileId = response.result.profile.profile_id;
   await refreshPreferenceProfiles();
   elements.preferenceProfile.value = profileId;
-  elements.profileEditStatus.textContent = "Cloned profile selected.";
+  elements.profileEditStatus.textContent = UI_TEXT.profileCloned;
   invalidatePreflight();
   updateExperimentSummary();
 }
 
 async function importDesktopYdk() {
   if (!desktopBridgeAvailable()) {
-    showToast("Native YDK file selection is available in the Windows desktop shell.");
+    showToast(UI_TEXT.ydkRequiresDesktop);
     return;
   }
   const response = await window.routeLabBridge.invoke("deck.import_ydk", {});
   if (!response.ok) {
-    showToast(response.diagnostics[0]?.message || "YDK import failed.");
+    showToast(response.diagnostics[0]?.message || UI_TEXT.ydkImportFailed);
     return;
   }
   if (response.result.cancelled) return;
   await refreshDesktopCatalog();
-  showToast("YDK registered in the local desktop catalog.");
+  showToast(UI_TEXT.ydkRegistered);
 }
 
 function setInlineDeckStatus(kind, title, detail) {
@@ -593,14 +625,14 @@ function setInlineDeckStatus(kind, title, detail) {
 
 function openInlineDeckDialog() {
   if (!desktopBridgeAvailable()) {
-    showToast("Inline deck registration requires the Windows desktop bridge.");
+    showToast(UI_TEXT.inlineDeckRequiresBridge);
     return;
   }
   elements.inlineDeckForm.reset();
   setInlineDeckStatus(
     "warning",
-    "Not registered",
-    "Inline decks are content-addressed by the desktop service.",
+    UI_TEXT.notRegistered,
+    UI_TEXT.inlineAddressed,
   );
   elements.inlineDeckDialog.showModal();
 }
@@ -609,7 +641,7 @@ function inlineDeckPayload() {
   return {
     extra: parseCardCodeList(elements.inlineExtraCards.value),
     main: parseCardCodeList(elements.inlineMainCards.value),
-    name: elements.inlineDeckName.value.trim() || "Inline research deck",
+    name: elements.inlineDeckName.value.trim() || UI_TEXT.inlineResearchDeck,
     side: parseCardCodeList(elements.inlineSideCards.value),
   };
 }
@@ -622,34 +654,34 @@ function inlineDeckInputError(payload) {
   ];
   for (const [section, cards] of sections) {
     if (cards.some((card) => !Number.isInteger(card) || card < 1)) {
-      return `${section} deck contains a non-positive or non-integer card code.`;
+      return `${UI_TEXT[section]}: ${UI_TEXT.invalidCardCode}`;
     }
   }
   if (payload.main.length < 40 || payload.main.length > 60) {
-    return "main deck must contain 40 to 60 cards.";
+    return payload.main.length < 40 ? UI_TEXT.mainTooSmall : UI_TEXT.mainTooLarge;
   }
-  if (payload.extra.length > 15) return "extra deck must contain at most 15 cards.";
-  if (payload.side.length > 15) return "side deck must contain at most 15 cards.";
+  if (payload.extra.length > 15) return UI_TEXT.extraTooLarge;
+  if (payload.side.length > 15) return UI_TEXT.sideTooLarge;
   return null;
 }
 
 async function registerInlineDeck() {
   if (!desktopBridgeAvailable()) {
-    setInlineDeckStatus("error", "Bridge unavailable", "Inline registration is disabled in browser preview.");
+    setInlineDeckStatus("error", UI_TEXT.bridgeUnavailable, UI_TEXT.inlineRegistrationDisabled);
     return;
   }
   const payload = inlineDeckPayload();
   const inputError = inlineDeckInputError(payload);
   if (inputError) {
-    setInlineDeckStatus("error", "Deck input rejected", inputError);
+    setInlineDeckStatus("error", UI_TEXT.deckInputRejected, inputError);
     return;
   }
   const response = await window.routeLabBridge.invoke("deck.register_inline", payload);
   if (!response.ok) {
     setInlineDeckStatus(
       "error",
-      "Deck registration failed",
-      response.diagnostics[0]?.message || "The desktop service rejected this deck.",
+      UI_TEXT.deckRegistrationFailed,
+      response.diagnostics[0]?.message || UI_TEXT.desktopDeckRejected,
     );
     return;
   }
@@ -657,7 +689,7 @@ async function registerInlineDeck() {
   await refreshDesktopCatalog();
   selectDeck(deckId);
   elements.inlineDeckDialog.close();
-  showToast("Inline deck registered in the local desktop catalog.");
+  showToast(UI_TEXT.inlineRegistered);
 }
 
 function textElement(tag, text, className = "") {
@@ -777,16 +809,16 @@ function updateDetail(deck) {
   const description = summary.querySelector("span");
   if (deck.status === "ready") {
     summary.className = "diagnostic success";
-    title.textContent = "Preflight passed";
-    description.textContent = "DB, Lua scripts, asset lock, and deck shape verified.";
+    title.textContent = UI_TEXT.preflightPassed;
+    description.textContent = UI_TEXT.readyDeckVerified;
   } else if (deck.status === "registered") {
     summary.className = "diagnostic warning";
-    title.textContent = "Preflight required";
-    description.textContent = "DB, Lua scripts, asset lock, and deck shape are checked for each search.";
+    title.textContent = UI_TEXT.preflightRequired;
+    description.textContent = UI_TEXT.registeredDeckPreflight;
   } else {
     summary.className = "diagnostic warning";
-    title.textContent = "Asset lock is stale";
-    description.textContent = "Search remains blocked until the local source is revalidated.";
+    title.textContent = UI_TEXT.staleAssetLock;
+    description.textContent = UI_TEXT.staleAssetDetail;
   }
 }
 
@@ -830,8 +862,8 @@ function invalidatePreflight() {
   currentExperiment = null;
   elements.queueSearch.disabled = true;
   elements.preflightBox.className = "preflight-box";
-  elements.preflightBox.querySelector("strong").textContent = "Ready for preflight";
-  elements.preflightBox.querySelector("span").textContent = "Validation runs before any worker is started.";
+  elements.preflightBox.querySelector("strong").textContent = UI_TEXT.readyForPreflight;
+  elements.preflightBox.querySelector("span").textContent = UI_TEXT.validationBeforeWorker;
 }
 
 function selectedStrategy() {
@@ -886,7 +918,7 @@ function openingHandInputError() {
   if (mode === "fixed") {
     const cards = parseCardCodeList(elements.fixedHandCards.value);
     if (!cards.length || cards.some((card) => !Number.isInteger(card) || card < 1)) {
-      return "Fixed hand requires one or more positive card codes.";
+      return UI_TEXT.fixedHandInvalid;
     }
   }
   if (mode === "conditional") {
@@ -896,20 +928,20 @@ function openingHandInputError() {
       ? Number(elements.conditionalMaxCount.value)
       : null;
     const attempts = Number(elements.conditionalMaxAttempts.value || 10000);
-    if (!Number.isInteger(code) || code < 1) return "Conditional hand requires a positive card code.";
-    if (!Number.isInteger(minCount) || minCount < 0) return "Conditional min count must be zero or greater.";
+    if (!Number.isInteger(code) || code < 1) return UI_TEXT.positiveCardCode;
+    if (!Number.isInteger(minCount) || minCount < 0) return UI_TEXT.conditionalMinInvalid;
     if (maxCount !== null && (!Number.isInteger(maxCount) || maxCount < minCount)) {
-      return "Conditional max count must be greater than or equal to min count.";
+      return UI_TEXT.conditionalMaxInvalid;
     }
     if (!Number.isInteger(attempts) || attempts < 1 || attempts > 100000) {
-      return "Conditional max attempts must be between 1 and 100,000.";
+      return UI_TEXT.conditionalAttemptsInvalid;
     }
   }
   return null;
 }
 
 function updateExperimentSummary() {
-  elements.experimentSummary.textContent = `${selectedStrategy()} · seed ${elements.seed.value || "-"} · pool ${elements.poolSize.value || "1"} · ${Number(elements.maxNodes.value || 0).toLocaleString("en-US")} nodes`;
+  elements.experimentSummary.textContent = `${selectedStrategy()} · seed ${elements.seed.value || "-"} · pool ${elements.poolSize.value || "1"} · ${Number(elements.maxNodes.value || 0).toLocaleString("en-US")} ${UI_TEXT.experimentSummaryNodes}`;
 }
 
 function searchConfiguration() {
@@ -932,52 +964,52 @@ async function runPreflight() {
   const detail = elements.preflightBox.querySelector("span");
   if (!desktopBridgeAvailable() && selectedDeck.status !== "ready") {
     elements.preflightBox.className = "preflight-box is-invalid";
-    title.textContent = "Configuration failure";
-    detail.textContent = "Expected asset lock does not match this deck manifest. No worker started.";
+    title.textContent = UI_TEXT.configurationFailure;
+    detail.textContent = UI_TEXT.assetLockMismatch;
     elements.queueSearch.disabled = true;
     return;
   }
   if (Number(elements.maxNodes.value) < 1 || Number(elements.maxNodes.value) > 100000) {
     elements.preflightBox.className = "preflight-box is-invalid";
-    title.textContent = "Budget is outside the MVP limit";
-    detail.textContent = "max_nodes must be between 1 and 100,000. No worker started.";
+    title.textContent = UI_TEXT.budgetOutsideMvp;
+    detail.textContent = UI_TEXT.maxNodesInvalid;
     elements.queueSearch.disabled = true;
     return;
   }
   if (Number(elements.poolSize.value) < 1 || Number(elements.poolSize.value) > 8) {
     elements.preflightBox.className = "preflight-box is-invalid";
-    title.textContent = "Pool size is outside the desktop limit";
-    detail.textContent = "pool_size must be between 1 and 8. No worker started.";
+    title.textContent = UI_TEXT.poolOutsideDesktop;
+    detail.textContent = UI_TEXT.poolSizeInvalid;
     elements.queueSearch.disabled = true;
     return;
   }
   const openingError = openingHandInputError();
   if (openingError) {
     elements.preflightBox.className = "preflight-box is-invalid";
-    title.textContent = "Opening hand is invalid";
-    detail.textContent = `${openingError} No worker started.`;
+    title.textContent = UI_TEXT.openingHandInvalid;
+    detail.textContent = `${openingError} ${UI_TEXT.noWorkerStarted}`;
     elements.queueSearch.disabled = true;
     return;
   }
   if (elements.interruptionToggle.checked && !elements.interruptionCode.value) {
     elements.preflightBox.className = "preflight-box is-invalid";
-    title.textContent = "Interruption card is required";
-    detail.textContent = "Specify a positive card code. No effect or timing is inferred.";
+    title.textContent = UI_TEXT.interruptionCardRequired;
+    detail.textContent = UI_TEXT.specifyPositiveNoInference;
     elements.queueSearch.disabled = true;
     return;
   }
   if (desktopBridgeAvailable()) {
     elements.queueSearch.disabled = true;
-    title.textContent = "Running preflight";
-    detail.textContent = "The Python service is validating Experiment 0.4 and pinned local assets.";
+    title.textContent = UI_TEXT.runningPreflight;
+    detail.textContent = UI_TEXT.composingScenario;
     const composed = await window.routeLabBridge.invoke("scenario.compose_search", {
       configuration: searchConfiguration(),
       deck_id: selectedDeck.id,
     });
     if (!composed.ok) {
       elements.preflightBox.className = "preflight-box is-invalid";
-      title.textContent = "Configuration failure";
-      detail.textContent = composed.diagnostics[0]?.message || "Experiment composition failed.";
+      title.textContent = UI_TEXT.configurationFailure;
+      detail.textContent = composed.diagnostics[0]?.message || UI_TEXT.experimentCompositionFailed;
       return;
     }
     currentExperiment = composed.result.experiment;
@@ -987,18 +1019,18 @@ async function runPreflight() {
     });
     if (!checked.ok || !checked.result.preflight.ok) {
       elements.preflightBox.className = "preflight-box is-invalid";
-      title.textContent = "Preflight failed";
+      title.textContent = UI_TEXT.preflightFailed;
       detail.textContent = checked.diagnostics[0]?.message
         || checked.result?.preflight?.diagnostics?.[0]?.message
-        || "Local asset validation failed closed.";
+        || UI_TEXT.localAssetValidationFailed;
       currentExperiment = null;
       return;
     }
   }
   preflightValid = true;
   elements.preflightBox.className = "preflight-box is-valid";
-  title.textContent = "Preflight passed";
-  detail.textContent = "Fixture manifest, deck shape, strategy, seed, pool policy, and budgets are valid.";
+  title.textContent = UI_TEXT.preflightPassed;
+  detail.textContent = UI_TEXT.preflightValidDetail;
   elements.queueSearch.disabled = false;
 }
 
@@ -1007,7 +1039,7 @@ function openSearch() {
   if (!preferenceProfilesLoaded) {
     refreshPreferenceProfiles()
       .then(updateExperimentSummary)
-      .catch(() => showToast("Terminal preference catalog failed closed."));
+      .catch(() => showToast(UI_TEXT.terminalProfileCatalogFailed));
   }
   invalidatePreflight();
   updateExperimentSummary();
@@ -1030,14 +1062,14 @@ function resetJob() {
   currentReplayJobId = null;
   elements.progress.value = 0;
   elements.progress.textContent = "0%";
-  elements.jobTitle.textContent = "Replaying frontier nodes";
+  elements.jobTitle.textContent = UI_TEXT.replayingFrontierNodes;
   elements.jobNodes.textContent = `0 / ${Number(elements.maxNodes.value).toLocaleString("en-US")}`;
   elements.jobReplays.textContent = "0";
   elements.jobScore.textContent = "0.0";
   elements.jobElapsed.textContent = "0.0s";
   elements.jobLog.textContent = desktopBridgeAvailable()
-    ? "Queued in the local SQLite catalog. Waiting for the desktop worker lease."
-    : "Queued through synthetic preview adapter. No real worker has started.";
+    ? `${UI_TEXT.queuedJob}: ${UI_TEXT.waitingDesktopWorker}`
+    : UI_TEXT.queuedPreview;
   elements.cancelJob.hidden = false;
   elements.cancelJob.disabled = false;
   elements.viewResult.hidden = true;
@@ -1062,9 +1094,9 @@ function finishDesktopJob(snapshot) {
   } else if (state === "running") {
     elements.progress.removeAttribute("value");
   }
-  elements.jobTitle.textContent = state === "running" ? "Replaying frontier nodes" : `Search ${state}`;
+  elements.jobTitle.textContent = state === "running" ? UI_TEXT.replayingFrontierNodes : `${UI_TEXT.searchState}: ${state}`;
   elements.jobLog.textContent = snapshot.job.error_message
-    || (checkpoint ? `Checkpoint: ${checkpoint.recovery_position}` : `Job state: ${state}`);
+    || (checkpoint ? `Checkpoint: ${checkpoint.recovery_position}` : `${UI_TEXT.jobState}: ${state}`);
   if (state === "succeeded") {
     elements.progress.value = 100;
     elements.progress.textContent = "100%";
@@ -1084,13 +1116,13 @@ async function pollDesktopJob() {
   if (!currentJobId) return;
   const response = await window.routeLabBridge.invoke("job.status", { job_id: currentJobId });
   if (!response.ok) {
-    elements.jobLog.textContent = response.diagnostics[0]?.message || "Job status failed closed.";
+    elements.jobLog.textContent = response.diagnostics[0]?.message || UI_TEXT.jobStatusFailed;
     return;
   }
   if (!finishDesktopJob(response.result)) {
     jobTimer = window.setTimeout(() => {
       pollDesktopJob().catch(() => {
-        elements.jobLog.textContent = "Job status polling failed closed.";
+        elements.jobLog.textContent = UI_TEXT.jobPollingFailed;
       });
     }, 500);
   }
@@ -1109,13 +1141,13 @@ async function startDesktopJob() {
     priority: 0,
   });
   if (!response.ok) {
-    elements.jobTitle.textContent = "Search rejected";
-    elements.jobLog.textContent = response.diagnostics[0]?.message || "Search queue failed closed.";
+    elements.jobTitle.textContent = UI_TEXT.searchRejected;
+    elements.jobLog.textContent = response.diagnostics[0]?.message || UI_TEXT.searchQueueFailed;
     elements.cancelJob.hidden = true;
     return;
   }
   currentJobId = response.result.job.job_id;
-  elements.jobLog.textContent = `Queued ${currentJobId}. Waiting for the desktop worker lease.`;
+  elements.jobLog.textContent = `${UI_TEXT.queuedJob} ${currentJobId}. ${UI_TEXT.waitingDesktopWorker}`;
   await pollDesktopJob();
 }
 
@@ -1137,13 +1169,13 @@ function startSyntheticJob() {
     elements.jobReplays.textContent = Math.max(1, Math.round(nodes * 0.72)).toLocaleString("en-US");
     elements.jobScore.textContent = (18.6 * (percent / 100)).toFixed(1);
     elements.jobElapsed.textContent = `${(index * 0.7 + 0.6).toFixed(1)}s`;
-    elements.jobLog.textContent = `Preview checkpoint ${index + 1}/${steps.length}: semantic result remains deterministic; real worker execution is disabled.`;
+    elements.jobLog.textContent = `${UI_TEXT.previewCheckpoint} ${index + 1}/${steps.length}: ${UI_TEXT.previewDeterministic}`;
     index += 1;
     if (index === steps.length) {
       window.clearInterval(jobTimer);
       jobTimer = null;
-      elements.jobTitle.textContent = "Best route verified";
-      elements.jobLog.textContent = "Synthetic fresh Replay matched the selected Route identity. Ready to inspect result.";
+      elements.jobTitle.textContent = UI_TEXT.bestRouteVerified;
+      elements.jobLog.textContent = UI_TEXT.syntheticReplayMatched;
       elements.cancelJob.hidden = true;
       elements.viewResult.hidden = false;
       elements.viewResult.focus();
@@ -1162,20 +1194,20 @@ async function cancelJob() {
     }
     const response = await window.routeLabBridge.invoke("job.cancel", { job_id: currentJobId });
     if (!response.ok) {
-      elements.jobLog.textContent = response.diagnostics[0]?.message || "Cancellation failed closed.";
+      elements.jobLog.textContent = response.diagnostics[0]?.message || UI_TEXT.cancellationFailed;
       return;
     }
     const terminal = finishDesktopJob({ ...response.result, latest_checkpoint: null });
     if (!terminal) {
       elements.cancelJob.disabled = true;
-      elements.jobLog.textContent = "Cancellation requested. Waiting for the active worker to stop.";
+      elements.jobLog.textContent = UI_TEXT.cancellationRequested;
       jobTimer = window.setTimeout(() => {
         pollDesktopJob().catch(() => {
-          elements.jobLog.textContent = "Cancellation status polling failed closed.";
+          elements.jobLog.textContent = UI_TEXT.cancellationPollingFailed;
         });
       }, 250);
     }
-    showToast("Cancellation requested from the active desktop worker.");
+    showToast(UI_TEXT.cancellationToast);
     return;
   }
   if (desktopBridgeAvailable()) {
@@ -1185,7 +1217,7 @@ async function cancelJob() {
   }
   elements.jobDialog.close();
   replaceHash(`deck=${encodeURIComponent(selectedDeck.id)}`);
-  showToast("Synthetic job canceled. No artifact was committed.");
+  showToast(UI_TEXT.syntheticJobCanceled);
 }
 
 function renderResultRows(rows) {
@@ -1251,7 +1283,7 @@ function renderResultTable(headers, rows) {
     const empty = document.createElement("tr");
     const cell = document.createElement("td");
     cell.colSpan = headers.length;
-    cell.textContent = "No committed rows in this artifact.";
+    cell.textContent = UI_TEXT.committedRowsEmpty;
     empty.append(cell);
     elements.resultDrilldownBody.append(empty);
     return;
@@ -1279,8 +1311,8 @@ function renderResultDrilldown(view) {
   elements.resultTabRanking.setAttribute("aria-selected", currentResultTab === "ranking" ? "true" : "false");
   elements.resultTabCandidates.setAttribute("aria-selected", currentResultTab === "candidates" ? "true" : "false");
   if (currentResultTab === "candidates") {
-    elements.resultDrilldownTitle.textContent = "Candidate paths";
-    elements.resultDrilldownSummary.textContent = `${candidates.length} committed candidate rows`;
+    elements.resultDrilldownTitle.textContent = UI_TEXT.candidatePaths;
+    elements.resultDrilldownSummary.textContent = `${candidates.length}${UI_TEXT.committedCandidateRows}`;
     renderResultTable(
       ["Status", "Depth", "Action", "Prefix", "Parent"],
       candidates.map((candidate) => [
@@ -1293,8 +1325,8 @@ function renderResultDrilldown(view) {
     );
     return;
   }
-  elements.resultDrilldownTitle.textContent = "Top-K routes";
-  elements.resultDrilldownSummary.textContent = ranking?.ranking_id || "committed ranking";
+  elements.resultDrilldownTitle.textContent = UI_TEXT.topKRoutes;
+  elements.resultDrilldownSummary.textContent = ranking?.ranking_id || UI_TEXT.committedRanking;
   renderResultTable(
     ["Rank", "Route", "Terminal", "Reliability", "Random", "Actions"],
     rankedRoutes.map((route) => [
@@ -1312,24 +1344,24 @@ function renderPreviewResult() {
   clearReplayVerificationTimer();
   currentReplayJobId = null;
   currentResultView = null;
-  elements.resultEyebrow.textContent = "Browser preview";
+  elements.resultEyebrow.textContent = UI_TEXT.browserPreview;
   elements.resultRouteId.textContent = "preview-only";
-  elements.resultSuccess.textContent = "Preview";
+  elements.resultSuccess.textContent = UI_TEXT.preview;
   elements.resultPeak.textContent = "0";
   elements.resultTerminal.textContent = "0";
   elements.resultActions.textContent = "0";
-  setResultVerificationState("preview only", false);
+  setResultVerificationState(UI_TEXT.previewOnly, false);
   renderResultEvidence(null);
   elements.resultDrilldown.hidden = true;
   renderResultTable([], []);
   renderResultRows([
     {
-      title: "Preview route",
-      detail: "No committed desktop artifact loaded.",
+      title: UI_TEXT.previewRoute,
+      detail: UI_TEXT.noCommittedArtifact,
     },
   ]);
-  elements.resultNoteTitle.textContent = "Synthetic preview result";
-  elements.resultNoteDetail.textContent = "Real desktop jobs must load through the typed job artifact service.";
+  elements.resultNoteTitle.textContent = UI_TEXT.syntheticPreviewResult;
+  elements.resultNoteDetail.textContent = UI_TEXT.realJobArtifactRequired;
 }
 
 function renderVerifiedResult(view) {
@@ -1338,10 +1370,10 @@ function renderVerifiedResult(view) {
   currentResultTab = "ranking";
   const verificationState = view.result_truth.verification_state || "unverified";
   elements.resultEyebrow.textContent = view.result_truth.verification_state === "verified"
-    ? "Real job / replay verified"
-    : "Real job / unverified replay";
+    ? UI_TEXT.realJobReplayVerified
+    : UI_TEXT.realJobReplayUnverified;
   elements.resultRouteId.textContent = view.route.route_id;
-  elements.resultSuccess.textContent = view.route.success ? "Yes" : "No";
+  elements.resultSuccess.textContent = view.route.success ? UI_TEXT.yes : UI_TEXT.no;
   elements.resultPeak.textContent = String(view.score.peak ?? "-");
   elements.resultTerminal.textContent = String(view.score.terminal_composite ?? "-");
   elements.resultActions.textContent = String(view.route.action_count);
@@ -1350,32 +1382,32 @@ function renderVerifiedResult(view) {
   renderResultDrilldown(view);
   const preferenceRows = Array.isArray(view.score.preference)
     ? view.score.preference.map((component) => ({
-      title: `Preference ${component.rule_id || "rule"}`,
-      detail: `${component.match_status || "unknown"} / ${component.applied_value ?? 0}`,
+      title: `${UI_TEXT.preference} ${component.rule_id || UI_TEXT.rule}`,
+      detail: `${component.match_status || UI_TEXT.unknown} / ${component.applied_value ?? 0}`,
     }))
     : [];
   const actionRows = view.route.actions.length
     ? view.route.actions.map((action) => ({
-      title: action.decision_kind || action.action_id || "Route action",
+      title: action.decision_kind || action.action_id || UI_TEXT.routeAction,
       detail: action.state_hash_after
         ? `state ${action.state_hash_after}`
-        : "committed Route event",
+        : UI_TEXT.committedRouteEvent,
     }))
     : [{
-      title: view.search_run.termination_reason || "Terminal result",
+      title: view.search_run.termination_reason || UI_TEXT.terminalResult,
       detail: view.search_run.best_observed
-        ? "Best observed; frontier exhaustion is not certified."
-        : "Frontier exhaustion certified by candidate accounting.",
+        ? UI_TEXT.bestObservedNotCertified
+        : UI_TEXT.frontierCertified,
     }];
   const candidateRows = Array.isArray(view.search_run.candidate_evidence?.candidates)
     ? view.search_run.candidate_evidence.candidates.slice(0, 8).map((candidate) => ({
-      title: `Candidate ${candidate.action_id || "action"}`,
-      detail: `${candidate.status || "unknown"} / depth ${candidate.depth ?? "-"}`,
+      title: `${UI_TEXT.candidate} ${candidate.action_id || "action"}`,
+      detail: `${candidate.status || UI_TEXT.unknown} / depth ${candidate.depth ?? "-"}`,
     }))
     : [];
   const rows = [...preferenceRows, ...actionRows, ...candidateRows];
   renderResultRows(rows);
-  elements.resultNoteTitle.textContent = "Committed artifact result";
+  elements.resultNoteTitle.textContent = UI_TEXT.committedArtifactResult;
   elements.resultNoteDetail.textContent = `${view.artifacts.route.schema_version} / ${view.artifact_set_id}`;
 }
 
@@ -1383,19 +1415,19 @@ function renderResultError(message) {
   clearReplayVerificationTimer();
   currentReplayJobId = null;
   currentResultView = null;
-  elements.resultEyebrow.textContent = "Result unavailable";
-  elements.resultRouteId.textContent = "not-loaded";
-  elements.resultSuccess.textContent = "Blocked";
+  elements.resultEyebrow.textContent = UI_TEXT.resultUnavailable;
+  elements.resultRouteId.textContent = UI_TEXT.notLoaded;
+  elements.resultSuccess.textContent = UI_TEXT.blocked;
   elements.resultPeak.textContent = "-";
   elements.resultTerminal.textContent = "-";
   elements.resultActions.textContent = "-";
-  setResultVerificationState("unavailable", false);
+  setResultVerificationState(UI_TEXT.unavailable, false);
   renderResultEvidence(null);
   elements.resultDrilldown.hidden = true;
   renderResultTable([], []);
-  renderResultRows([{ title: "Artifact verification failed", detail: message }]);
-  elements.resultNoteTitle.textContent = "Fail-closed result";
-  elements.resultNoteDetail.textContent = "The renderer did not substitute a fixture value.";
+  renderResultRows([{ title: UI_TEXT.artifactVerificationFailed, detail: message }]);
+  elements.resultNoteTitle.textContent = UI_TEXT.failClosedResult;
+  elements.resultNoteDetail.textContent = UI_TEXT.rendererDidNotSubstitute;
 }
 
 async function openResult() {
@@ -1410,7 +1442,7 @@ async function openResult() {
   if (response.ok) {
     renderVerifiedResult(response.result);
   } else {
-    renderResultError(response.diagnostics[0]?.message || "Committed artifacts could not be loaded.");
+    renderResultError(response.diagnostics[0]?.message || UI_TEXT.committedArtifactsUnavailable);
   }
   elements.resultDialog.showModal();
   replaceHash(`view=result&deck=${encodeURIComponent(selectedDeck.id)}`);
@@ -1420,15 +1452,15 @@ async function pollReplayVerification() {
   if (!currentReplayJobId) return;
   const response = await window.routeLabBridge.invoke("job.status", { job_id: currentReplayJobId });
   if (!response.ok) {
-    setResultVerificationState("status unavailable", Boolean(currentJobId));
-    showToast(response.diagnostics[0]?.message || "Replay verification status failed closed.");
+    setResultVerificationState(UI_TEXT.statusUnavailable, Boolean(currentJobId));
+    showToast(response.diagnostics[0]?.message || UI_TEXT.replayStatusFailed);
     return;
   }
   const state = response.result.job.state;
   if (state === "succeeded") {
     setResultVerificationState("verified", false);
-    elements.resultEyebrow.textContent = "Real job / replay verified";
-    showToast("Replay verification succeeded.");
+    elements.resultEyebrow.textContent = UI_TEXT.realJobReplayVerified;
+    showToast(UI_TEXT.replaySucceeded);
     return;
   }
   if (["cancelled", "failed", "quarantined"].includes(state)) {
@@ -1439,42 +1471,42 @@ async function pollReplayVerification() {
   setResultVerificationState(state, false);
   replayTimer = window.setTimeout(() => {
     pollReplayVerification().catch(() => {
-      setResultVerificationState("status unavailable", Boolean(currentJobId));
-      showToast("Replay verification polling failed closed.");
+      setResultVerificationState(UI_TEXT.statusUnavailable, Boolean(currentJobId));
+      showToast(UI_TEXT.replayPollingFailed);
     });
   }, 750);
 }
 
 async function enqueueReplayVerification() {
   if (!desktopBridgeAvailable() || !currentJobId) {
-    setResultVerificationState("preview only", false);
-    showToast("Replay verification requires a committed desktop job.");
+    setResultVerificationState(UI_TEXT.previewOnly, false);
+    showToast(UI_TEXT.replayRequiresCommittedJob);
     return;
   }
   clearReplayVerificationTimer();
-  setResultVerificationState("queueing", false);
+  setResultVerificationState(UI_TEXT.queueing, false);
   const response = await window.routeLabBridge.invoke("job.enqueue_replay_verification", {
     search_job_id: currentJobId,
     idempotency_key: `replay-verification-${currentJobId}`,
     priority: 5,
   });
   if (!response.ok) {
-    setResultVerificationState("unavailable", true);
-    showToast(response.diagnostics[0]?.message || "Replay verification enqueue failed closed.");
+    setResultVerificationState(UI_TEXT.unavailable, true);
+    showToast(response.diagnostics[0]?.message || UI_TEXT.replayEnqueueFailed);
     return;
   }
   currentReplayJobId = response.result.job.job_id;
   setResultVerificationState(response.result.source?.verification_state || response.result.job.state || "queued", false);
-  showToast("Replay verification queued.");
+  showToast(UI_TEXT.replayQueued);
   await pollReplayVerification();
 }
 
 function openCard(card) {
-  document.querySelector("#card-code").textContent = `Code ${card.code}`;
+  document.querySelector("#card-code").textContent = `${UI_TEXT.codePrefix} ${card.code}`;
   document.querySelector("#card-title").textContent = card.name;
   const metadata = document.querySelector("#card-metadata");
   metadata.replaceChildren();
-  for (const [label, value] of [["Type", card.type], ["Attribute", card.attribute], ["ATK / DEF", card.stats], ["Locale", "en"]]) {
+  for (const [label, value] of [[UI_TEXT.typeLabel, card.type], [UI_TEXT.attributeLabel, card.attribute], [UI_TEXT.atkDefLabel, card.stats], [UI_TEXT.localeLabel, UI_TEXT.localeValue]]) {
     const group = document.createElement("div");
     group.append(textElement("dt", label), textElement("dd", value));
     metadata.append(group);
@@ -1566,7 +1598,7 @@ document.querySelectorAll(".rail-item").forEach((button) => {
       document.querySelector("#workspace").focus({ preventScroll: true });
       return;
     }
-    showToast("Settings are connected by desktop bridge issue #244.");
+    showToast(UI_TEXT.settingsBridgeIssue);
   });
 });
 
@@ -1576,7 +1608,7 @@ document.querySelector("#cancel-search").addEventListener("click", closeSearch);
 document.querySelector("#run-preflight").addEventListener("click", () => {
   runPreflight().catch(() => {
     invalidatePreflight();
-    showToast("Scenario preflight failed closed.");
+    showToast(UI_TEXT.scenarioPreflightFailed);
   });
 });
 elements.searchForm.addEventListener("input", () => {
@@ -1591,8 +1623,8 @@ elements.searchForm.addEventListener("submit", (event) => {
   event.preventDefault();
   if (desktopBridgeAvailable()) {
     startDesktopJob().catch(() => {
-      elements.jobTitle.textContent = "Search failed";
-      elements.jobLog.textContent = "Desktop search dispatch failed closed.";
+      elements.jobTitle.textContent = UI_TEXT.searchFailed;
+      elements.jobLog.textContent = UI_TEXT.desktopSearchDispatchFailed;
     });
   } else {
     startSyntheticJob();
@@ -1609,23 +1641,23 @@ elements.openingHand.addEventListener("change", () => {
 });
 elements.cloneProfile.addEventListener("click", () => {
   clonePreferenceProfile().catch(() => {
-    elements.profileEditStatus.textContent = "Profile clone failed closed.";
+    elements.profileEditStatus.textContent = UI_TEXT.profileCloneFailed;
   });
 });
 
 elements.cancelJob.addEventListener("click", () => {
-  cancelJob().catch(() => showToast("Cancellation failed closed."));
+  cancelJob().catch(() => showToast(UI_TEXT.cancellationFailed));
 });
 elements.viewResult.addEventListener("click", () => {
   openResult().catch(() => {
-    renderResultError("Committed artifacts could not be loaded.");
+    renderResultError(UI_TEXT.committedArtifactsUnavailable);
     elements.resultDialog.showModal();
   });
 });
 elements.verifyResult.addEventListener("click", () => {
   enqueueReplayVerification().catch(() => {
-    setResultVerificationState("unavailable", Boolean(currentJobId));
-    showToast("Replay verification enqueue failed closed.");
+    setResultVerificationState(UI_TEXT.unavailable, Boolean(currentJobId));
+    showToast(UI_TEXT.replayEnqueueFailed);
   });
 });
 elements.resultTabRanking.addEventListener("click", () => {
@@ -1638,7 +1670,7 @@ elements.resultTabCandidates.addEventListener("click", () => {
 });
 elements.jobDialog.addEventListener("cancel", (event) => {
   event.preventDefault();
-  cancelJob().catch(() => showToast("Cancellation failed closed."));
+  cancelJob().catch(() => showToast(UI_TEXT.cancellationFailed));
 });
 elements.searchDialog.addEventListener("close", () => {
   if (!elements.jobDialog.open) replaceHash(`deck=${encodeURIComponent(selectedDeck.id)}`);
@@ -1667,12 +1699,12 @@ document.querySelector("#cancel-inline-deck").addEventListener("click", () => el
 elements.inlineDeckForm.addEventListener("submit", (event) => {
   event.preventDefault();
   registerInlineDeck().catch(() => {
-    setInlineDeckStatus("error", "Deck registration failed", "Desktop bridge registration failed closed.");
+    setInlineDeckStatus("error", UI_TEXT.deckRegistrationFailed, UI_TEXT.inlineDeckRequiresBridge);
   });
 });
 
 document.querySelector("#import-deck").addEventListener("click", () => {
-  importDesktopYdk().catch(() => showToast("Desktop YDK import failed closed."));
+  importDesktopYdk().catch(() => showToast(UI_TEXT.ydkImportFailed));
 });
 document.querySelector("#new-inline").addEventListener("click", () => openInlineDeckDialog());
 
@@ -1680,9 +1712,9 @@ document.documentElement.dataset.workflowVersion = WORKFLOW_VERSION;
 updateOpeningHandFields();
 initializeFromHash();
 window.addEventListener("routelabbridgeready", () => {
-  refreshDesktopCatalog().catch(() => showToast("Desktop catalog failed closed."));
-  refreshPreferenceProfiles().catch(() => showToast("Terminal preference catalog failed closed."));
+  refreshDesktopCatalog().catch(() => showToast(UI_TEXT.desktopCatalogFailed));
+  refreshPreferenceProfiles().catch(() => showToast(UI_TEXT.terminalProfileCatalogFailed));
   if (!elements.analyticsPane.hidden) analyticsController.refresh();
 });
-refreshPreferenceProfiles().catch(() => showToast("Terminal preference catalog failed closed."));
-refreshDesktopCatalog().catch(() => showToast("Desktop catalog failed closed."));
+refreshPreferenceProfiles().catch(() => showToast(UI_TEXT.terminalProfileCatalogFailed));
+refreshDesktopCatalog().catch(() => showToast(UI_TEXT.desktopCatalogFailed));
