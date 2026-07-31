@@ -1,5 +1,5 @@
 {
-  "evidence_id": "pytestprofile_64f0d76defe0dc6035746a57ed91c4864aed6b5842d7c6e9a40d7e7b1a9e5c32",
+  "evidence_id": "pytestprofile_687eca8dac6f871eb798d7c8f5a7021c2c81f2e9f0882993aed144640dc17c17",
   "package_version": "0.8.0",
   "profiles": {
     "evidence": {
@@ -207,7 +207,7 @@
       ]
     },
     "unit": {
-      "file_count": 58,
+      "file_count": 60,
       "files": [
         "tests/test_action_aggregation.py",
         "tests/test_action_models.py",
@@ -245,6 +245,7 @@
         "tests/test_project_license_approval.py",
         "tests/test_prototype_runtime.py",
         "tests/test_pytest_profile_plan.py",
+        "tests/test_redacted_support_bundle_release_gate.py",
         "tests/test_reporting.py",
         "tests/test_representative_golden.py",
         "tests/test_reproducible_build_release_gate.py",
@@ -255,6 +256,7 @@
         "tests/test_state_equivalence.py",
         "tests/test_state_identity.py",
         "tests/test_state_rules.py",
+        "tests/test_support_bundle.py",
         "tests/test_synthetic_test_cards.py",
         "tests/test_temporary_effect_evaluation.py",
         "tests/test_terminal_preference.py",
@@ -306,6 +308,7 @@
         "tests/test_project_license_approval.py",
         "tests/test_prototype_runtime.py",
         "tests/test_pytest_profile_plan.py",
+        "tests/test_redacted_support_bundle_release_gate.py",
         "tests/test_reporting.py",
         "tests/test_representative_golden.py",
         "tests/test_reproducible_build_release_gate.py",
@@ -316,6 +319,7 @@
         "tests/test_state_equivalence.py",
         "tests/test_state_identity.py",
         "tests/test_state_rules.py",
+        "tests/test_support_bundle.py",
         "tests/test_synthetic_test_cards.py",
         "tests/test_temporary_effect_evaluation.py",
         "tests/test_terminal_preference.py",
@@ -345,7 +349,7 @@
   },
   "schema_version": "pytest-profile-plan-v1",
   "source": {
-    "discovered_file_count": 140,
+    "discovered_file_count": 142,
     "repo_root_name": "ygo-effect-dsl"
   },
   "validation": {

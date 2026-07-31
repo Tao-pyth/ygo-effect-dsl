@@ -170,18 +170,17 @@
       "category": "support",
       "evidence": "docs/release/evidence/v1_0_0_redacted_support_bundle.json",
       "id": "redacted_support_bundle_verified",
-      "passed": false,
-      "reason": "missing_evidence",
+      "passed": true,
+      "reason": "verified",
       "required": true
     }
   ],
-  "evidence_id": "productiondistgate_33bfcf2329be7a9d723a82f6fcb14842b7e85ea500341d33f249a47ee213e51e",
+  "evidence_id": "productiondistgate_685394763e58fb98ad19299cd0abc1909fca6f8c13fa2c6190a36fd93bb1cad1",
   "issue": 359,
   "package_version": "0.8.0",
   "passed": false,
   "rejection_reasons": [
     "authenticode_signing_verified:evidence_not_passed",
-    "redacted_support_bundle_verified:missing_evidence",
     "root_project_license_approved:approval_not_recorded",
     "security_threat_model_approved:missing_evidence",
     "soak_crash_recovery_verified:missing_evidence",

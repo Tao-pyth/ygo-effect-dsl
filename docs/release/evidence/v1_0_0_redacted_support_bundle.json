@@ -1,0 +1,68 @@
+{
+  "checks": [
+    {
+      "evidence": "src/ygo_effect_dsl/support_bundle.py;src/ygo_effect_dsl/cli/cmd_support.py;src/ygo_effect_dsl/cli/main.py",
+      "id": "support_bundle_source_writes_manifest_diagnostics_and_redaction_report",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/support_bundle.py;tests/test_support_bundle.py",
+      "id": "support_bundle_uses_information_audit_and_private_canaries",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "docs/support/10_redacted_support_bundle.md",
+      "id": "support_bundle_policy_documented",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "tests/test_redacted_support_bundle_release_gate.py",
+      "id": "tests_cover_v1_redacted_support_bundle_gate",
+      "passed": true,
+      "reason": "verified"
+    }
+  ],
+  "evidence_id": "v1supportbundle_050e271eb03133698e8e3c80c5ceb440d8d769b07e1fe14468f4634bc075ceb6",
+  "issue": 360,
+  "matrix": [
+    {
+      "id": "cli_generates_local_bundle",
+      "raw_private_payloads_allowed": false,
+      "status": "verified"
+    },
+    {
+      "id": "manifest_and_schema_versions",
+      "raw_private_payloads_allowed": false,
+      "status": "verified"
+    },
+    {
+      "id": "redaction_report_and_canary_tests",
+      "raw_private_payloads_allowed": false,
+      "status": "verified"
+    },
+    {
+      "id": "size_limit_and_retention_policy",
+      "raw_private_payloads_allowed": false,
+      "status": "verified"
+    },
+    {
+      "id": "no_auto_upload_no_raw_payloads",
+      "raw_private_payloads_allowed": false,
+      "status": "verified"
+    }
+  ],
+  "package_version": "0.8.0",
+  "passed": true,
+  "policy": {
+    "automatic_upload": false,
+    "bundle_schema_version": "redacted-support-bundle-v1",
+    "manifest_schema_version": "redacted-support-bundle-manifest-v1",
+    "retention_days": 30,
+    "size_limit_bytes": 262144
+  },
+  "rejection_reasons": [],
+  "schema_version": "v1-redacted-support-bundle-v1"
+}

@@ -64,9 +64,11 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_v1_gated_release,
     cmd_v1_installer_packaging,
     cmd_v1_observability_redaction_retention,
+    cmd_v1_redacted_support_bundle,
     cmd_v1_upgrade_rollback,
     cmd_v1_webview2_runtime,
 )
+from ygo_effect_dsl.cli.cmd_support import cmd_support_bundle
 from ygo_effect_dsl.cli.cmd_transform import cmd_transform
 from ygo_effect_dsl.cli.cmd_validate import cmd_validate
 from ygo_effect_dsl.dict_loader import load_dictionary, validate_dictionary
@@ -75,6 +77,7 @@ from ygo_effect_dsl.normalize import normalize_card_texts
 from ygo_effect_dsl.pipeline.transform import load_dataset_from_args
 from ygo_effect_dsl.project_identity import PROJECT_IDENTITY
 from ygo_effect_dsl.route_dsl import load_route_document, validate_route_document
+from ygo_effect_dsl.support_bundle import DEFAULT_SUPPORT_BUNDLE_SIZE_LIMIT_BYTES
 from ygo_effect_dsl.test_profile_plan import (
     TEST_PROFILE_PHASE_ORDER,
     TEST_PROFILE_ORDER,
@@ -1262,6 +1265,23 @@ def main() -> int:
         func=cmd_v1_observability_redaction_retention
     )
 
+    v1_redacted_support_bundle = sub.add_parser(
+        "v1-redacted-support-bundle",
+        help="evaluate the v1.0.0 redacted local support bundle gate",
+    )
+    v1_redacted_support_bundle.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing support bundle source and evidence",
+    )
+    v1_redacted_support_bundle.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed v1 redacted support bundle evidence JSON path",
+    )
+    v1_redacted_support_bundle.set_defaults(func=cmd_v1_redacted_support_bundle)
+
     v1_installer_packaging = sub.add_parser(
         "v1-installer-packaging",
         help="evaluate the v1.0.0 Windows distribution package decision",
@@ -1532,6 +1552,30 @@ def main() -> int:
         "--external-root", help="override the external dependency root"
     )
     external_asset_setup_status.set_defaults(func=cmd_external_asset_setup_status)
+
+    support_bundle = sub.add_parser(
+        "support-bundle",
+        help="write a local redacted diagnostic support bundle directory",
+    )
+    support_bundle.add_argument("--out", required=True, help="bundle output directory")
+    support_bundle.add_argument("--external-root")
+    support_bundle.add_argument(
+        "--recent-error-json",
+        help="optional local JSON error context to redact into the bundle",
+    )
+    support_bundle.add_argument(
+        "--private-canary",
+        action="append",
+        default=[],
+        help="private value that must not appear in the public bundle",
+    )
+    support_bundle.add_argument(
+        "--size-limit-bytes",
+        type=int,
+        default=DEFAULT_SUPPORT_BUNDLE_SIZE_LIMIT_BYTES,
+        help="maximum total bytes for public bundle files",
+    )
+    support_bundle.set_defaults(func=cmd_support_bundle)
 
     p0 = sub.add_parser(
         "ingest", help="legacy: validate card-text dataset manifest + cards.jsonl"
