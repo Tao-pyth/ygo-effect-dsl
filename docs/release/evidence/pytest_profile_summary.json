@@ -1,15 +1,15 @@
 {
   "all_measurements_passed": true,
   "baseline_comparison_passed": true,
-  "evidence_id": "pytestprofilesummary_e794d2c585adee0d5e9fe853d60a3560b2c3926154a91d9e593822bfbc34e213",
+  "evidence_id": "pytestprofilesummary_6ef77096cf9e23a70efa087cd4dbca67e24b9d07e5dad40baf632948ebda0469",
   "included_measurement_count": 6,
   "measurement_ids": [
-    "pytestprofilemeasure_1e0cc0a96a8aafead2b8eaf5b7e8bf1227a2063fdca6a17529e59d79f5146783",
-    "pytestprofilemeasure_428c8a667eba789276f43bc46ecf62739fde2af7b903e9b6cdcc11eec17d38ef",
-    "pytestprofilemeasure_472aa74a46b707b7202a8a0d26e2c4dcb5b33a0662fb1ad386ef6e235ac1e598",
-    "pytestprofilemeasure_b804fd335dd5fabb7ca2cc52b2d43d3f2d3fbea757fb09b2469e4532c1e23c6d",
-    "pytestprofilemeasure_e1e17d74a2e969c1962930acde69827f90cd7f08c8235ed8adc8b973dec68be5",
-    "pytestprofilemeasure_ef03c47a19df964927a09ffb9b515509f0442fee85032fa577d24eb8a23f0fd8"
+    "pytestprofilemeasure_3d95fee2f31f527bd6e6dae5482a3c6fb07e417c2bf1f8b6825aa71678cdb0cd",
+    "pytestprofilemeasure_47deaab2a4a7d0dd1fc3e3854323fb11f1d7b1ce41473a859effd1763d030408",
+    "pytestprofilemeasure_5cd171ee87ddeb4b790e8849a41789092676677a077521a5f7b7e2df4d66b18c",
+    "pytestprofilemeasure_70571359bee4f751b3f6e5caad6429de8535c8b9fbbbc6c83d0e0083a5122ef2",
+    "pytestprofilemeasure_e57495a0447ecff153983b23b841d97b1286a8e5deeab9800c2bbb0da65743fc",
+    "pytestprofilemeasure_fa6c409cd65fab2aae9503a1d5b27e2a3ef5fa4aa217e003e686920e9d65b89a"
   ],
   "missing_profiles": [],
   "passed": true,
@@ -20,7 +20,7 @@
       "max_peak_rss_bytes": 136077312,
       "measurement_count": 1,
       "measurement_ids": [
-        "pytestprofilemeasure_e1e17d74a2e969c1962930acde69827f90cd7f08c8235ed8adc8b973dec68be5"
+        "pytestprofilemeasure_3d95fee2f31f527bd6e6dae5482a3c6fb07e417c2bf1f8b6825aa71678cdb0cd"
       ],
       "passed_count": 1,
       "pytest_passed_tests": {
@@ -52,7 +52,7 @@
       "max_peak_rss_bytes": 272154624,
       "measurement_count": 1,
       "measurement_ids": [
-        "pytestprofilemeasure_b804fd335dd5fabb7ca2cc52b2d43d3f2d3fbea757fb09b2469e4532c1e23c6d"
+        "pytestprofilemeasure_47deaab2a4a7d0dd1fc3e3854323fb11f1d7b1ce41473a859effd1763d030408"
       ],
       "passed_count": 1,
       "pytest_passed_tests": {
@@ -84,7 +84,7 @@
       "max_peak_rss_bytes": 60690432,
       "measurement_count": 1,
       "measurement_ids": [
-        "pytestprofilemeasure_428c8a667eba789276f43bc46ecf62739fde2af7b903e9b6cdcc11eec17d38ef"
+        "pytestprofilemeasure_70571359bee4f751b3f6e5caad6429de8535c8b9fbbbc6c83d0e0083a5122ef2"
       ],
       "passed_count": 1,
       "pytest_passed_tests": {
@@ -116,7 +116,7 @@
       "max_peak_rss_bytes": 100007936,
       "measurement_count": 1,
       "measurement_ids": [
-        "pytestprofilemeasure_472aa74a46b707b7202a8a0d26e2c4dcb5b33a0662fb1ad386ef6e235ac1e598"
+        "pytestprofilemeasure_fa6c409cd65fab2aae9503a1d5b27e2a3ef5fa4aa217e003e686920e9d65b89a"
       ],
       "passed_count": 1,
       "pytest_passed_tests": {
@@ -148,7 +148,7 @@
       "max_peak_rss_bytes": 61915136,
       "measurement_count": 1,
       "measurement_ids": [
-        "pytestprofilemeasure_ef03c47a19df964927a09ffb9b515509f0442fee85032fa577d24eb8a23f0fd8"
+        "pytestprofilemeasure_e57495a0447ecff153983b23b841d97b1286a8e5deeab9800c2bbb0da65743fc"
       ],
       "passed_count": 1,
       "pytest_passed_tests": {
@@ -180,7 +180,7 @@
       "max_peak_rss_bytes": 89538560,
       "measurement_count": 1,
       "measurement_ids": [
-        "pytestprofilemeasure_1e0cc0a96a8aafead2b8eaf5b7e8bf1227a2063fdca6a17529e59d79f5146783"
+        "pytestprofilemeasure_5cd171ee87ddeb4b790e8849a41789092676677a077521a5f7b7e2df4d66b18c"
       ],
       "passed_count": 1,
       "pytest_passed_tests": {
@@ -217,7 +217,7 @@
     "release"
   ],
   "reduction_comparison": {
-    "baseline_evidence_id": "pytestprofilesummary_426d0d0bb2dbb6261c81b88d50a443c941f89861f9bc3a24f55eece37f7a84fe",
+    "baseline_evidence_id": "pytestprofilesummary_6d98322668ee856d8d11c13aad3edeed3a3b1b05aa967fc37554e38f3acc04a5",
     "missing_baseline_profiles": [],
     "profile_reduction_passed": false,
     "profile_selection_comparison": {

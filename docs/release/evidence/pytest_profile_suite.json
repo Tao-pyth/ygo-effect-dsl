@@ -52,11 +52,11 @@
           "tests/test_v03a_contracts.py"
         ],
         "environment": {
-          "package_version": "0.5.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_22527fdf050dbd952382596a4a7e43a5d252202b76545e194bf4197bb6da4613",
+        "evidence_id": "pytestprofilemeasure_4a8f5e2d7d7ff3b5a3490f31ff387b9b916072f2d62b919dd7970fd130f71ba3",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -65,7 +65,7 @@
         "passed": true,
         "peak_rss_bytes": 86134784,
         "profile": "unit",
-        "profile_plan_id": "pytestprofile_2ea3ca34c1408e80e72de16572fbfa9140adf02f8e157f6438095f7f489ff18c",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -84,7 +84,7 @@
         "summary_tail": "........................................................................ [ 24%]\n........................................................................ [ 48%]\n........................................................................ [ 72%]\n........................................................................ [ 96%]\n...........                                                              [100%]\n299 passed in 93.75s (0:01:33)",
         "wall_seconds": 94.263589
       },
-      "measurement_id": "pytestprofilemeasure_22527fdf050dbd952382596a4a7e43a5d252202b76545e194bf4197bb6da4613",
+      "measurement_id": "pytestprofilemeasure_4a8f5e2d7d7ff3b5a3490f31ff387b9b916072f2d62b919dd7970fd130f71ba3",
       "phase": "baseline",
       "profile": "unit",
       "repeat_index": 1,
@@ -128,11 +128,11 @@
           "tests/test_storage_policy.py"
         ],
         "environment": {
-          "package_version": "0.5.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_6c25f5d68ba57f2b447a5b9c996557d8e1d674c46eea50f902a91c7d808bf7a7",
+        "evidence_id": "pytestprofilemeasure_1c0714cdcb565250d698e647586cf7de3da84fd2e3fa471dce96bdbaafa866dd",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -141,7 +141,7 @@
         "passed": true,
         "peak_rss_bytes": 264757248,
         "profile": "integration",
-        "profile_plan_id": "pytestprofile_2ea3ca34c1408e80e72de16572fbfa9140adf02f8e157f6438095f7f489ff18c",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -160,7 +160,7 @@
         "summary_tail": "........................................................................ [ 21%]\n........................................................................ [ 42%]\n........................................................................ [ 63%]\n........................................................................ [ 84%]\n......................................................                   [100%]\n342 passed in 28.10s",
         "wall_seconds": 28.652162
       },
-      "measurement_id": "pytestprofilemeasure_6c25f5d68ba57f2b447a5b9c996557d8e1d674c46eea50f902a91c7d808bf7a7",
+      "measurement_id": "pytestprofilemeasure_1c0714cdcb565250d698e647586cf7de3da84fd2e3fa471dce96bdbaafa866dd",
       "phase": "baseline",
       "profile": "integration",
       "repeat_index": 1,
@@ -205,11 +205,11 @@
           "tests/test_strategy_interruption_cross_validation.py"
         ],
         "environment": {
-          "package_version": "0.5.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_89c563f31b757ca7d045d940ef05626a451279b662bed65ffabc31518c440c83",
+        "evidence_id": "pytestprofilemeasure_452eaaab8634cab56aa9697af51e853f15a7a06f7bbd5c8f06472b4e9470a1d8",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -218,7 +218,7 @@
         "passed": true,
         "peak_rss_bytes": 96923648,
         "profile": "real_core",
-        "profile_plan_id": "pytestprofile_2ea3ca34c1408e80e72de16572fbfa9140adf02f8e157f6438095f7f489ff18c",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -237,7 +237,7 @@
         "summary_tail": "........................................................................ [ 34%]\n........................................................................ [ 69%]\n...............................................................          [100%]\n207 passed in 654.44s (0:10:54)",
         "wall_seconds": 654.905788
       },
-      "measurement_id": "pytestprofilemeasure_89c563f31b757ca7d045d940ef05626a451279b662bed65ffabc31518c440c83",
+      "measurement_id": "pytestprofilemeasure_452eaaab8634cab56aa9697af51e853f15a7a06f7bbd5c8f06472b4e9470a1d8",
       "phase": "baseline",
       "profile": "real_core",
       "repeat_index": 1,
@@ -261,11 +261,11 @@
           "tests/test_windows_desktop_shell_evidence.py"
         ],
         "environment": {
-          "package_version": "0.5.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_0d03495c4fe11f728e8f26593589338e3a2b85b6a104729de4188b564f55ad92",
+        "evidence_id": "pytestprofilemeasure_8b2250092a6c7d105987a4884744d6fc0268dfb59915095392247eab2400e694",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -274,7 +274,7 @@
         "passed": true,
         "peak_rss_bytes": 136548352,
         "profile": "evidence",
-        "profile_plan_id": "pytestprofile_2ea3ca34c1408e80e72de16572fbfa9140adf02f8e157f6438095f7f489ff18c",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -293,7 +293,7 @@
         "summary_tail": "...........................                                              [100%]\n27 passed in 6.57s",
         "wall_seconds": 7.10129
       },
-      "measurement_id": "pytestprofilemeasure_0d03495c4fe11f728e8f26593589338e3a2b85b6a104729de4188b564f55ad92",
+      "measurement_id": "pytestprofilemeasure_8b2250092a6c7d105987a4884744d6fc0268dfb59915095392247eab2400e694",
       "phase": "baseline",
       "profile": "evidence",
       "repeat_index": 1,
@@ -313,11 +313,11 @@
           "tests/test_self_hosted_workflow.py"
         ],
         "environment": {
-          "package_version": "0.5.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_45eb7872b43677d3a7c72a1b1cd76832c2f548fa47b7e985d1141fb784e11ff8",
+        "evidence_id": "pytestprofilemeasure_77eedeabdc59398ed452bab6cc2cf5e604c05a4d1e5ec823c718031d4e384294",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -326,7 +326,7 @@
         "passed": true,
         "peak_rss_bytes": 45027328,
         "profile": "packaging",
-        "profile_plan_id": "pytestprofile_2ea3ca34c1408e80e72de16572fbfa9140adf02f8e157f6438095f7f489ff18c",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -345,7 +345,7 @@
         "summary_tail": "...........                                                              [100%]\n11 passed in 2.46s",
         "wall_seconds": 2.923621
       },
-      "measurement_id": "pytestprofilemeasure_45eb7872b43677d3a7c72a1b1cd76832c2f548fa47b7e985d1141fb784e11ff8",
+      "measurement_id": "pytestprofilemeasure_77eedeabdc59398ed452bab6cc2cf5e604c05a4d1e5ec823c718031d4e384294",
       "phase": "baseline",
       "profile": "packaging",
       "repeat_index": 1,
@@ -365,11 +365,11 @@
           "tests/test_release_governance.py"
         ],
         "environment": {
-          "package_version": "0.5.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_082ab22bb992d0d803604ad352885f1a2ffa00ac8f1aa6f96b145a782c556d18",
+        "evidence_id": "pytestprofilemeasure_48f08d102f946742be71c8a79287bbb7e164ad542676379fc571f63575161716",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -378,7 +378,7 @@
         "passed": true,
         "peak_rss_bytes": 49950720,
         "profile": "release",
-        "profile_plan_id": "pytestprofile_2ea3ca34c1408e80e72de16572fbfa9140adf02f8e157f6438095f7f489ff18c",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -397,7 +397,7 @@
         "summary_tail": "...........................                                              [100%]\n27 passed in 4.17s",
         "wall_seconds": 4.850966
       },
-      "measurement_id": "pytestprofilemeasure_082ab22bb992d0d803604ad352885f1a2ffa00ac8f1aa6f96b145a782c556d18",
+      "measurement_id": "pytestprofilemeasure_48f08d102f946742be71c8a79287bbb7e164ad542676379fc571f63575161716",
       "phase": "baseline",
       "profile": "release",
       "repeat_index": 1,
@@ -454,11 +454,11 @@
           "tests/test_v03a_contracts.py"
         ],
         "environment": {
-          "package_version": "0.5.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_2106b492be276c68d80202b425a1fbc69c0be5251930932d4b2eeacd8bcb805f",
+        "evidence_id": "pytestprofilemeasure_9ab767388b662fded0e5441bd0bfcc4e2a158a907cbec24663bc3bd87ebaa8f9",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -467,7 +467,7 @@
         "passed": true,
         "peak_rss_bytes": 86233088,
         "profile": "unit",
-        "profile_plan_id": "pytestprofile_2ea3ca34c1408e80e72de16572fbfa9140adf02f8e157f6438095f7f489ff18c",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -486,7 +486,7 @@
         "summary_tail": "........................................................................ [ 24%]\n........................................................................ [ 48%]\n........................................................................ [ 72%]\n........................................................................ [ 96%]\n...........                                                              [100%]\n299 passed in 87.71s (0:01:27)",
         "wall_seconds": 88.204277
       },
-      "measurement_id": "pytestprofilemeasure_2106b492be276c68d80202b425a1fbc69c0be5251930932d4b2eeacd8bcb805f",
+      "measurement_id": "pytestprofilemeasure_9ab767388b662fded0e5441bd0bfcc4e2a158a907cbec24663bc3bd87ebaa8f9",
       "phase": "baseline",
       "profile": "unit",
       "repeat_index": 1,
@@ -530,11 +530,11 @@
           "tests/test_storage_policy.py"
         ],
         "environment": {
-          "package_version": "0.5.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_238832d36885a1d129d627fc41bdf2de7f5dc556b08888f6103d3c1964d30091",
+        "evidence_id": "pytestprofilemeasure_140e3f89812dca5db47b7817bca18e249baea83e8dafcf18f6a60ec00eb96b7e",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -543,7 +543,7 @@
         "passed": true,
         "peak_rss_bytes": 266215424,
         "profile": "integration",
-        "profile_plan_id": "pytestprofile_2ea3ca34c1408e80e72de16572fbfa9140adf02f8e157f6438095f7f489ff18c",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -562,7 +562,7 @@
         "summary_tail": "........................................................................ [ 21%]\n........................................................................ [ 42%]\n........................................................................ [ 63%]\n........................................................................ [ 84%]\n......................................................                   [100%]\n342 passed in 28.39s",
         "wall_seconds": 28.953639
       },
-      "measurement_id": "pytestprofilemeasure_238832d36885a1d129d627fc41bdf2de7f5dc556b08888f6103d3c1964d30091",
+      "measurement_id": "pytestprofilemeasure_140e3f89812dca5db47b7817bca18e249baea83e8dafcf18f6a60ec00eb96b7e",
       "phase": "baseline",
       "profile": "integration",
       "repeat_index": 1,
@@ -607,11 +607,11 @@
           "tests/test_strategy_interruption_cross_validation.py"
         ],
         "environment": {
-          "package_version": "0.5.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_e07e392ade93da279ee97f21e1e9ad20fb972536e3cc72e478045eb08115f8d5",
+        "evidence_id": "pytestprofilemeasure_c30ddbd14e119e38bad944e052c6572fde0caff5d577a66e8e3c03fb0d0db0a5",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -620,7 +620,7 @@
         "passed": true,
         "peak_rss_bytes": 97349632,
         "profile": "real_core",
-        "profile_plan_id": "pytestprofile_2ea3ca34c1408e80e72de16572fbfa9140adf02f8e157f6438095f7f489ff18c",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -639,7 +639,7 @@
         "summary_tail": "........................................................................ [ 34%]\n........................................................................ [ 69%]\n...............................................................          [100%]\n207 passed in 648.83s (0:10:48)",
         "wall_seconds": 649.292519
       },
-      "measurement_id": "pytestprofilemeasure_e07e392ade93da279ee97f21e1e9ad20fb972536e3cc72e478045eb08115f8d5",
+      "measurement_id": "pytestprofilemeasure_c30ddbd14e119e38bad944e052c6572fde0caff5d577a66e8e3c03fb0d0db0a5",
       "phase": "baseline",
       "profile": "real_core",
       "repeat_index": 1,
@@ -663,11 +663,11 @@
           "tests/test_windows_desktop_shell_evidence.py"
         ],
         "environment": {
-          "package_version": "0.5.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_62d9a732cccef84e0303c51c61268fcdb2d7259e63591967e8da0140bf798101",
+        "evidence_id": "pytestprofilemeasure_a8b1d6e3534a0bbe5ba18874a9e8a9566873ba8ac8a58ac8db7ee515e0490056",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -676,7 +676,7 @@
         "passed": true,
         "peak_rss_bytes": 136097792,
         "profile": "evidence",
-        "profile_plan_id": "pytestprofile_2ea3ca34c1408e80e72de16572fbfa9140adf02f8e157f6438095f7f489ff18c",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -695,7 +695,7 @@
         "summary_tail": "...........................                                              [100%]\n27 passed in 5.88s",
         "wall_seconds": 6.40076
       },
-      "measurement_id": "pytestprofilemeasure_62d9a732cccef84e0303c51c61268fcdb2d7259e63591967e8da0140bf798101",
+      "measurement_id": "pytestprofilemeasure_a8b1d6e3534a0bbe5ba18874a9e8a9566873ba8ac8a58ac8db7ee515e0490056",
       "phase": "baseline",
       "profile": "evidence",
       "repeat_index": 1,
@@ -715,11 +715,11 @@
           "tests/test_self_hosted_workflow.py"
         ],
         "environment": {
-          "package_version": "0.5.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_55644c9e647ecaa848f8a89dc6e3434a2b0f56ff80a7be53c0a27f746156741a",
+        "evidence_id": "pytestprofilemeasure_14e7d1b5a4d6647bf9c4b75c308a2523fc87e93bc8c6b1c512432bc30d94db0b",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -728,7 +728,7 @@
         "passed": true,
         "peak_rss_bytes": 45121536,
         "profile": "packaging",
-        "profile_plan_id": "pytestprofile_2ea3ca34c1408e80e72de16572fbfa9140adf02f8e157f6438095f7f489ff18c",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -747,7 +747,7 @@
         "summary_tail": "...........                                                              [100%]\n11 passed in 1.93s",
         "wall_seconds": 2.33905
       },
-      "measurement_id": "pytestprofilemeasure_55644c9e647ecaa848f8a89dc6e3434a2b0f56ff80a7be53c0a27f746156741a",
+      "measurement_id": "pytestprofilemeasure_14e7d1b5a4d6647bf9c4b75c308a2523fc87e93bc8c6b1c512432bc30d94db0b",
       "phase": "baseline",
       "profile": "packaging",
       "repeat_index": 1,
@@ -767,11 +767,11 @@
           "tests/test_release_governance.py"
         ],
         "environment": {
-          "package_version": "0.5.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_b008d8a31103bd8d90fc84baff09fe9a6a8e54fd5b4568d70a951f1dc98c354f",
+        "evidence_id": "pytestprofilemeasure_ae7c994ccac8355b3c62ced162b79b921271bc829dc5eb0984859bbdba3df4c1",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -780,7 +780,7 @@
         "passed": true,
         "peak_rss_bytes": 49537024,
         "profile": "release",
-        "profile_plan_id": "pytestprofile_2ea3ca34c1408e80e72de16572fbfa9140adf02f8e157f6438095f7f489ff18c",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -799,7 +799,7 @@
         "summary_tail": "...........................                                              [100%]\n27 passed in 1.32s",
         "wall_seconds": 1.751618
       },
-      "measurement_id": "pytestprofilemeasure_b008d8a31103bd8d90fc84baff09fe9a6a8e54fd5b4568d70a951f1dc98c354f",
+      "measurement_id": "pytestprofilemeasure_ae7c994ccac8355b3c62ced162b79b921271bc829dc5eb0984859bbdba3df4c1",
       "phase": "baseline",
       "profile": "release",
       "repeat_index": 1,
@@ -859,11 +859,11 @@
           "tests/test_v03a_contracts.py"
         ],
         "environment": {
-          "package_version": "0.7.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_2c9f884a47fc05fe37f6ad3701c5e6968e968cd69c1705ed48963786777092e5",
+        "evidence_id": "pytestprofilemeasure_a2cb835a622552ef4cc7e1fc56d8ac2bc09a83a733273ca468076bb13dc9b742",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -872,7 +872,7 @@
         "passed": true,
         "peak_rss_bytes": 89124864,
         "profile": "unit",
-        "profile_plan_id": "pytestprofile_5d23423a8e929abac24ae8b9e48afbb703a742381343f46aa56b0cfe7a9ea5c8",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -891,7 +891,7 @@
         "summary_tail": "........................................................................ [ 20%]\n........................................................................ [ 41%]\n........................................................................ [ 62%]\n...................................s........s.s..ssss................... [ 83%]\n.......................................................                  [100%]\n336 passed, 7 skipped in 99.39s (0:01:39)",
         "wall_seconds": 99.913086
       },
-      "measurement_id": "pytestprofilemeasure_2c9f884a47fc05fe37f6ad3701c5e6968e968cd69c1705ed48963786777092e5",
+      "measurement_id": "pytestprofilemeasure_a2cb835a622552ef4cc7e1fc56d8ac2bc09a83a733273ca468076bb13dc9b742",
       "phase": "current",
       "profile": "unit",
       "repeat_index": 1,
@@ -937,11 +937,11 @@
           "tests/test_storage_policy.py"
         ],
         "environment": {
-          "package_version": "0.7.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_2dabaa989a63d66c809af0221ba8dfa8b7ec698e0528a722a0727e816832016a",
+        "evidence_id": "pytestprofilemeasure_e454d592694929702fa9f77332c73dc9d4d3f16d88859e7c87e2d6b2691a8b21",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -950,7 +950,7 @@
         "passed": true,
         "peak_rss_bytes": 267923456,
         "profile": "integration",
-        "profile_plan_id": "pytestprofile_5d23423a8e929abac24ae8b9e48afbb703a742381343f46aa56b0cfe7a9ea5c8",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -969,7 +969,7 @@
         "summary_tail": "........................................................................ [ 17%]\n........................................................................ [ 34%]\n........................................................................ [ 51%]\n........................................................................ [ 69%]\n........................................................................ [ 86%]\n........................................................                 [100%]\n416 passed in 33.86s",
         "wall_seconds": 34.445193
       },
-      "measurement_id": "pytestprofilemeasure_2dabaa989a63d66c809af0221ba8dfa8b7ec698e0528a722a0727e816832016a",
+      "measurement_id": "pytestprofilemeasure_e454d592694929702fa9f77332c73dc9d4d3f16d88859e7c87e2d6b2691a8b21",
       "phase": "current",
       "profile": "integration",
       "repeat_index": 1,
@@ -1014,11 +1014,11 @@
           "tests/test_strategy_interruption_cross_validation.py"
         ],
         "environment": {
-          "package_version": "0.7.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_02f63d4067fbf48059eda1a3b2fbf56966a2b5a2def11367c44825cf00ca7f3f",
+        "evidence_id": "pytestprofilemeasure_c510e163cb29bc04b6e218028ea0fea25684d2671f6560171da7a79ebc0effc5",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -1027,7 +1027,7 @@
         "passed": true,
         "peak_rss_bytes": 100016128,
         "profile": "real_core",
-        "profile_plan_id": "pytestprofile_5d23423a8e929abac24ae8b9e48afbb703a742381343f46aa56b0cfe7a9ea5c8",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -1046,7 +1046,7 @@
         "summary_tail": "........................................................................ [ 34%]\n........................................................................ [ 69%]\n...............................................................          [100%]\n207 passed in 653.66s (0:10:53)",
         "wall_seconds": 654.145764
       },
-      "measurement_id": "pytestprofilemeasure_02f63d4067fbf48059eda1a3b2fbf56966a2b5a2def11367c44825cf00ca7f3f",
+      "measurement_id": "pytestprofilemeasure_c510e163cb29bc04b6e218028ea0fea25684d2671f6560171da7a79ebc0effc5",
       "phase": "current",
       "profile": "real_core",
       "repeat_index": 1,
@@ -1070,11 +1070,11 @@
           "tests/test_windows_desktop_shell_evidence.py"
         ],
         "environment": {
-          "package_version": "0.7.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_2a8942246fa944a09f8086b7b1420445a2595f466aa68bfe3f5195ef77c3b8d9",
+        "evidence_id": "pytestprofilemeasure_47271d52d04a429c21bc4794eaa3729b3ae25ead4a1903fad6eec00db9538d75",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -1083,7 +1083,7 @@
         "passed": true,
         "peak_rss_bytes": 136810496,
         "profile": "evidence",
-        "profile_plan_id": "pytestprofile_5d23423a8e929abac24ae8b9e48afbb703a742381343f46aa56b0cfe7a9ea5c8",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -1102,7 +1102,7 @@
         "summary_tail": "...........................                                              [100%]\n27 passed in 7.50s",
         "wall_seconds": 8.05989
       },
-      "measurement_id": "pytestprofilemeasure_2a8942246fa944a09f8086b7b1420445a2595f466aa68bfe3f5195ef77c3b8d9",
+      "measurement_id": "pytestprofilemeasure_47271d52d04a429c21bc4794eaa3729b3ae25ead4a1903fad6eec00db9538d75",
       "phase": "current",
       "profile": "evidence",
       "repeat_index": 1,
@@ -1122,11 +1122,11 @@
           "tests/test_self_hosted_workflow.py"
         ],
         "environment": {
-          "package_version": "0.7.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_e02573703c5acaf9315e70fcfebc8f699c1a72515d43ab285cd78219a76d4cf9",
+        "evidence_id": "pytestprofilemeasure_ad657028086f9deffe500ede7913d4f41fced7960fe97cf76a00f7220ff66203",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -1135,7 +1135,7 @@
         "passed": true,
         "peak_rss_bytes": 60235776,
         "profile": "packaging",
-        "profile_plan_id": "pytestprofile_5d23423a8e929abac24ae8b9e48afbb703a742381343f46aa56b0cfe7a9ea5c8",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -1154,7 +1154,7 @@
         "summary_tail": ".......................................................                  [100%]\n55 passed in 6.39s",
         "wall_seconds": 6.918519
       },
-      "measurement_id": "pytestprofilemeasure_e02573703c5acaf9315e70fcfebc8f699c1a72515d43ab285cd78219a76d4cf9",
+      "measurement_id": "pytestprofilemeasure_ad657028086f9deffe500ede7913d4f41fced7960fe97cf76a00f7220ff66203",
       "phase": "current",
       "profile": "packaging",
       "repeat_index": 1,
@@ -1175,11 +1175,11 @@
           "tests/test_release_governance.py"
         ],
         "environment": {
-          "package_version": "0.7.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_ae037004f9fd6a6e752870b43123ec159928c4ab2db0a18247b14d382c177e5e",
+        "evidence_id": "pytestprofilemeasure_cd9dab41a8989eaaffd18f4c1fea2a4ed7cd4420eca11953ed19b925945f1b02",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
@@ -1188,7 +1188,7 @@
         "passed": true,
         "peak_rss_bytes": 62058496,
         "profile": "release",
-        "profile_plan_id": "pytestprofile_5d23423a8e929abac24ae8b9e48afbb703a742381343f46aa56b0cfe7a9ea5c8",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -1207,7 +1207,7 @@
         "summary_tail": "........................................................................ [ 93%]\n.....                                                                    [100%]\n77 passed in 2.72s",
         "wall_seconds": 3.259462
       },
-      "measurement_id": "pytestprofilemeasure_ae037004f9fd6a6e752870b43123ec159928c4ab2db0a18247b14d382c177e5e",
+      "measurement_id": "pytestprofilemeasure_cd9dab41a8989eaaffd18f4c1fea2a4ed7cd4420eca11953ed19b925945f1b02",
       "phase": "current",
       "profile": "release",
       "repeat_index": 1,
@@ -1269,11 +1269,11 @@
           "tests/test_v03a_contracts.py"
         ],
         "environment": {
-          "package_version": "0.7.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_1e0cc0a96a8aafead2b8eaf5b7e8bf1227a2063fdca6a17529e59d79f5146783",
+        "evidence_id": "pytestprofilemeasure_5cd171ee87ddeb4b790e8849a41789092676677a077521a5f7b7e2df4d66b18c",
         "extra_pytest_args": [],
         "failure_rerun_command": [
           "C:\\Program Files\\Python313\\python.exe",
@@ -1332,7 +1332,7 @@
         "passed": true,
         "peak_rss_bytes": 89538560,
         "profile": "unit",
-        "profile_plan_id": "pytestprofile_5d23423a8e929abac24ae8b9e48afbb703a742381343f46aa56b0cfe7a9ea5c8",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -1351,7 +1351,7 @@
         "summary_tail": "",
         "wall_seconds": 101.801596
       },
-      "measurement_id": "pytestprofilemeasure_1e0cc0a96a8aafead2b8eaf5b7e8bf1227a2063fdca6a17529e59d79f5146783",
+      "measurement_id": "pytestprofilemeasure_5cd171ee87ddeb4b790e8849a41789092676677a077521a5f7b7e2df4d66b18c",
       "phase": "current",
       "profile": "unit",
       "repeat_index": 1,
@@ -1399,11 +1399,11 @@
           "tests/test_storage_policy.py"
         ],
         "environment": {
-          "package_version": "0.7.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_b804fd335dd5fabb7ca2cc52b2d43d3f2d3fbea757fb09b2469e4532c1e23c6d",
+        "evidence_id": "pytestprofilemeasure_47deaab2a4a7d0dd1fc3e3854323fb11f1d7b1ce41473a859effd1763d030408",
         "extra_pytest_args": [],
         "failure_rerun_command": [
           "C:\\Program Files\\Python313\\python.exe",
@@ -1448,7 +1448,7 @@
         "passed": true,
         "peak_rss_bytes": 272154624,
         "profile": "integration",
-        "profile_plan_id": "pytestprofile_5d23423a8e929abac24ae8b9e48afbb703a742381343f46aa56b0cfe7a9ea5c8",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -1467,7 +1467,7 @@
         "summary_tail": "",
         "wall_seconds": 32.065682
       },
-      "measurement_id": "pytestprofilemeasure_b804fd335dd5fabb7ca2cc52b2d43d3f2d3fbea757fb09b2469e4532c1e23c6d",
+      "measurement_id": "pytestprofilemeasure_47deaab2a4a7d0dd1fc3e3854323fb11f1d7b1ce41473a859effd1763d030408",
       "phase": "current",
       "profile": "integration",
       "repeat_index": 1,
@@ -1514,11 +1514,11 @@
           "tests/test_strategy_interruption_cross_validation.py"
         ],
         "environment": {
-          "package_version": "0.7.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_472aa74a46b707b7202a8a0d26e2c4dcb5b33a0662fb1ad386ef6e235ac1e598",
+        "evidence_id": "pytestprofilemeasure_fa6c409cd65fab2aae9503a1d5b27e2a3ef5fa4aa217e003e686920e9d65b89a",
         "extra_pytest_args": [],
         "failure_rerun_command": [
           "C:\\Program Files\\Python313\\python.exe",
@@ -1562,7 +1562,7 @@
         "passed": true,
         "peak_rss_bytes": 100007936,
         "profile": "real_core",
-        "profile_plan_id": "pytestprofile_5d23423a8e929abac24ae8b9e48afbb703a742381343f46aa56b0cfe7a9ea5c8",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -1581,7 +1581,7 @@
         "summary_tail": "",
         "wall_seconds": 720.30171
       },
-      "measurement_id": "pytestprofilemeasure_472aa74a46b707b7202a8a0d26e2c4dcb5b33a0662fb1ad386ef6e235ac1e598",
+      "measurement_id": "pytestprofilemeasure_fa6c409cd65fab2aae9503a1d5b27e2a3ef5fa4aa217e003e686920e9d65b89a",
       "phase": "current",
       "profile": "real_core",
       "repeat_index": 1,
@@ -1607,11 +1607,11 @@
           "tests/test_windows_desktop_shell_evidence.py"
         ],
         "environment": {
-          "package_version": "0.7.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_e1e17d74a2e969c1962930acde69827f90cd7f08c8235ed8adc8b973dec68be5",
+        "evidence_id": "pytestprofilemeasure_3d95fee2f31f527bd6e6dae5482a3c6fb07e417c2bf1f8b6825aa71678cdb0cd",
         "extra_pytest_args": [],
         "failure_rerun_command": [
           "C:\\Program Files\\Python313\\python.exe",
@@ -1631,7 +1631,7 @@
         "passed": true,
         "peak_rss_bytes": 136077312,
         "profile": "evidence",
-        "profile_plan_id": "pytestprofile_5d23423a8e929abac24ae8b9e48afbb703a742381343f46aa56b0cfe7a9ea5c8",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -1650,7 +1650,7 @@
         "summary_tail": "",
         "wall_seconds": 7.765409
       },
-      "measurement_id": "pytestprofilemeasure_e1e17d74a2e969c1962930acde69827f90cd7f08c8235ed8adc8b973dec68be5",
+      "measurement_id": "pytestprofilemeasure_3d95fee2f31f527bd6e6dae5482a3c6fb07e417c2bf1f8b6825aa71678cdb0cd",
       "phase": "current",
       "profile": "evidence",
       "repeat_index": 1,
@@ -1672,11 +1672,11 @@
           "tests/test_self_hosted_workflow.py"
         ],
         "environment": {
-          "package_version": "0.7.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_428c8a667eba789276f43bc46ecf62739fde2af7b903e9b6cdcc11eec17d38ef",
+        "evidence_id": "pytestprofilemeasure_70571359bee4f751b3f6e5caad6429de8535c8b9fbbbc6c83d0e0083a5122ef2",
         "extra_pytest_args": [],
         "failure_rerun_command": [
           "C:\\Program Files\\Python313\\python.exe",
@@ -1695,7 +1695,7 @@
         "passed": true,
         "peak_rss_bytes": 60690432,
         "profile": "packaging",
-        "profile_plan_id": "pytestprofile_5d23423a8e929abac24ae8b9e48afbb703a742381343f46aa56b0cfe7a9ea5c8",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -1714,7 +1714,7 @@
         "summary_tail": "",
         "wall_seconds": 5.802415
       },
-      "measurement_id": "pytestprofilemeasure_428c8a667eba789276f43bc46ecf62739fde2af7b903e9b6cdcc11eec17d38ef",
+      "measurement_id": "pytestprofilemeasure_70571359bee4f751b3f6e5caad6429de8535c8b9fbbbc6c83d0e0083a5122ef2",
       "phase": "current",
       "profile": "packaging",
       "repeat_index": 1,
@@ -1737,11 +1737,11 @@
           "tests/test_release_governance.py"
         ],
         "environment": {
-          "package_version": "0.7.0",
+          "package_version": "0.8.0",
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_ef03c47a19df964927a09ffb9b515509f0442fee85032fa577d24eb8a23f0fd8",
+        "evidence_id": "pytestprofilemeasure_e57495a0447ecff153983b23b841d97b1286a8e5deeab9800c2bbb0da65743fc",
         "extra_pytest_args": [],
         "failure_rerun_command": [
           "C:\\Program Files\\Python313\\python.exe",
@@ -1761,7 +1761,7 @@
         "passed": true,
         "peak_rss_bytes": 61915136,
         "profile": "release",
-        "profile_plan_id": "pytestprofile_5d23423a8e929abac24ae8b9e48afbb703a742381343f46aa56b0cfe7a9ea5c8",
+        "profile_plan_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
@@ -1780,7 +1780,7 @@
         "summary_tail": "",
         "wall_seconds": 2.543076
       },
-      "measurement_id": "pytestprofilemeasure_ef03c47a19df964927a09ffb9b515509f0442fee85032fa577d24eb8a23f0fd8",
+      "measurement_id": "pytestprofilemeasure_e57495a0447ecff153983b23b841d97b1286a8e5deeab9800c2bbb0da65743fc",
       "phase": "current",
       "profile": "release",
       "repeat_index": 1,
@@ -1808,39 +1808,38 @@
       "warm"
     ]
   },
-  "evidence_id": "pytestprofilesuite_004bc095fe4ff7d175b84f83e073746a6a0fc294221fb5701e8dcb63d17a6f00",
+  "evidence_id": "pytestprofilesuite_b16b0f4bd4fb20f9065734e930b9b3e7ce21eaa200a29b6e7b86f536eb8220ba",
   "included_measurement_count": 24,
   "measurement_ids": [
-    "pytestprofilemeasure_22527fdf050dbd952382596a4a7e43a5d252202b76545e194bf4197bb6da4613",
-    "pytestprofilemeasure_6c25f5d68ba57f2b447a5b9c996557d8e1d674c46eea50f902a91c7d808bf7a7",
-    "pytestprofilemeasure_89c563f31b757ca7d045d940ef05626a451279b662bed65ffabc31518c440c83",
-    "pytestprofilemeasure_0d03495c4fe11f728e8f26593589338e3a2b85b6a104729de4188b564f55ad92",
-    "pytestprofilemeasure_45eb7872b43677d3a7c72a1b1cd76832c2f548fa47b7e985d1141fb784e11ff8",
-    "pytestprofilemeasure_082ab22bb992d0d803604ad352885f1a2ffa00ac8f1aa6f96b145a782c556d18",
-    "pytestprofilemeasure_2106b492be276c68d80202b425a1fbc69c0be5251930932d4b2eeacd8bcb805f",
-    "pytestprofilemeasure_238832d36885a1d129d627fc41bdf2de7f5dc556b08888f6103d3c1964d30091",
-    "pytestprofilemeasure_e07e392ade93da279ee97f21e1e9ad20fb972536e3cc72e478045eb08115f8d5",
-    "pytestprofilemeasure_62d9a732cccef84e0303c51c61268fcdb2d7259e63591967e8da0140bf798101",
-    "pytestprofilemeasure_55644c9e647ecaa848f8a89dc6e3434a2b0f56ff80a7be53c0a27f746156741a",
-    "pytestprofilemeasure_b008d8a31103bd8d90fc84baff09fe9a6a8e54fd5b4568d70a951f1dc98c354f",
-    "pytestprofilemeasure_2c9f884a47fc05fe37f6ad3701c5e6968e968cd69c1705ed48963786777092e5",
-    "pytestprofilemeasure_2dabaa989a63d66c809af0221ba8dfa8b7ec698e0528a722a0727e816832016a",
-    "pytestprofilemeasure_02f63d4067fbf48059eda1a3b2fbf56966a2b5a2def11367c44825cf00ca7f3f",
-    "pytestprofilemeasure_2a8942246fa944a09f8086b7b1420445a2595f466aa68bfe3f5195ef77c3b8d9",
-    "pytestprofilemeasure_e02573703c5acaf9315e70fcfebc8f699c1a72515d43ab285cd78219a76d4cf9",
-    "pytestprofilemeasure_ae037004f9fd6a6e752870b43123ec159928c4ab2db0a18247b14d382c177e5e",
-    "pytestprofilemeasure_1e0cc0a96a8aafead2b8eaf5b7e8bf1227a2063fdca6a17529e59d79f5146783",
-    "pytestprofilemeasure_b804fd335dd5fabb7ca2cc52b2d43d3f2d3fbea757fb09b2469e4532c1e23c6d",
-    "pytestprofilemeasure_472aa74a46b707b7202a8a0d26e2c4dcb5b33a0662fb1ad386ef6e235ac1e598",
-    "pytestprofilemeasure_e1e17d74a2e969c1962930acde69827f90cd7f08c8235ed8adc8b973dec68be5",
-    "pytestprofilemeasure_428c8a667eba789276f43bc46ecf62739fde2af7b903e9b6cdcc11eec17d38ef",
-    "pytestprofilemeasure_ef03c47a19df964927a09ffb9b515509f0442fee85032fa577d24eb8a23f0fd8"
+    "pytestprofilemeasure_4a8f5e2d7d7ff3b5a3490f31ff387b9b916072f2d62b919dd7970fd130f71ba3",
+    "pytestprofilemeasure_1c0714cdcb565250d698e647586cf7de3da84fd2e3fa471dce96bdbaafa866dd",
+    "pytestprofilemeasure_452eaaab8634cab56aa9697af51e853f15a7a06f7bbd5c8f06472b4e9470a1d8",
+    "pytestprofilemeasure_8b2250092a6c7d105987a4884744d6fc0268dfb59915095392247eab2400e694",
+    "pytestprofilemeasure_77eedeabdc59398ed452bab6cc2cf5e604c05a4d1e5ec823c718031d4e384294",
+    "pytestprofilemeasure_48f08d102f946742be71c8a79287bbb7e164ad542676379fc571f63575161716",
+    "pytestprofilemeasure_9ab767388b662fded0e5441bd0bfcc4e2a158a907cbec24663bc3bd87ebaa8f9",
+    "pytestprofilemeasure_140e3f89812dca5db47b7817bca18e249baea83e8dafcf18f6a60ec00eb96b7e",
+    "pytestprofilemeasure_c30ddbd14e119e38bad944e052c6572fde0caff5d577a66e8e3c03fb0d0db0a5",
+    "pytestprofilemeasure_a8b1d6e3534a0bbe5ba18874a9e8a9566873ba8ac8a58ac8db7ee515e0490056",
+    "pytestprofilemeasure_14e7d1b5a4d6647bf9c4b75c308a2523fc87e93bc8c6b1c512432bc30d94db0b",
+    "pytestprofilemeasure_ae7c994ccac8355b3c62ced162b79b921271bc829dc5eb0984859bbdba3df4c1",
+    "pytestprofilemeasure_a2cb835a622552ef4cc7e1fc56d8ac2bc09a83a733273ca468076bb13dc9b742",
+    "pytestprofilemeasure_e454d592694929702fa9f77332c73dc9d4d3f16d88859e7c87e2d6b2691a8b21",
+    "pytestprofilemeasure_c510e163cb29bc04b6e218028ea0fea25684d2671f6560171da7a79ebc0effc5",
+    "pytestprofilemeasure_47271d52d04a429c21bc4794eaa3729b3ae25ead4a1903fad6eec00db9538d75",
+    "pytestprofilemeasure_ad657028086f9deffe500ede7913d4f41fced7960fe97cf76a00f7220ff66203",
+    "pytestprofilemeasure_cd9dab41a8989eaaffd18f4c1fea2a4ed7cd4420eca11953ed19b925945f1b02",
+    "pytestprofilemeasure_5cd171ee87ddeb4b790e8849a41789092676677a077521a5f7b7e2df4d66b18c",
+    "pytestprofilemeasure_47deaab2a4a7d0dd1fc3e3854323fb11f1d7b1ce41473a859effd1763d030408",
+    "pytestprofilemeasure_fa6c409cd65fab2aae9503a1d5b27e2a3ef5fa4aa217e003e686920e9d65b89a",
+    "pytestprofilemeasure_3d95fee2f31f527bd6e6dae5482a3c6fb07e417c2bf1f8b6825aa71678cdb0cd",
+    "pytestprofilemeasure_70571359bee4f751b3f6e5caad6429de8535c8b9fbbbc6c83d0e0083a5122ef2",
+    "pytestprofilemeasure_e57495a0447ecff153983b23b841d97b1286a8e5deeab9800c2bbb0da65743fc"
   ],
-  "package_version": "0.7.0",
+  "package_version": "0.8.0",
   "passed": true,
   "profile_plan_ids": [
-    "pytestprofile_2ea3ca34c1408e80e72de16572fbfa9140adf02f8e157f6438095f7f489ff18c",
-    "pytestprofile_5d23423a8e929abac24ae8b9e48afbb703a742381343f46aa56b0cfe7a9ea5c8"
+    "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95"
   ],
   "required_phases": [
     "baseline",

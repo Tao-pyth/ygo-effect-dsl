@@ -25,6 +25,11 @@ from ygo_effect_dsl.engine.search.strategy import (
 from ygo_effect_dsl.spikes.desktop_frontend_evidence import (
     DESKTOP_FRONTEND_EVIDENCE_SCHEMA_VERSION,
 )
+from ygo_effect_dsl.spikes.japanese_i18n_release_gate import (
+    JAPANESE_I18N_RELEASE_GATE_SCHEMA_VERSION,
+    build_japanese_i18n_release_gate,
+    validate_japanese_i18n_release_gate,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_ROOT = REPO_ROOT / "docs" / "ui" / "evidence"
@@ -281,6 +286,26 @@ def test_release_facing_0_8_docs_reject_mojibake() -> None:
     assert all(marker not in combined for marker in _mojibake_markers())
     assert not _has_halfwidth_katakana(combined)
     assert "japanese-i18n-release-gate-v1" in combined
+
+
+def test_japanese_i18n_release_gate_passes_current_sources() -> None:
+    evidence = build_japanese_i18n_release_gate(REPO_ROOT)
+    validated = validate_japanese_i18n_release_gate(evidence)
+
+    assert validated["schema_version"] == JAPANESE_I18N_RELEASE_GATE_SCHEMA_VERSION
+    assert validated["passed"] is True
+    assert validated["rejection_reasons"] == []
+    assert [check["check_id"] for check in validated["checks"]] == [
+        "desktop-html-lang-ja",
+        "desktop-static-japanese-copy",
+        "dynamic-copy-catalogs",
+        "fixture-copy-japanese",
+        "analytics-copy-japanese",
+        "desktop-static-no-mojibake",
+        "release-docs-no-mojibake",
+        "scope-non-goals-explicit",
+        "changelog-release-entry",
+    ]
 
 
 def test_frontend_has_no_network_or_direct_python_bridge_path() -> None:
