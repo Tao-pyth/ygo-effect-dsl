@@ -416,6 +416,14 @@ def test_default_ci_verifies_release_readiness_status_freshness() -> None:
     )
 
 
+def test_release_evidence_json_uses_lf_for_content_addressed_hashes() -> None:
+    attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+
+    assert "docs/release/evidence/*.json text eol=lf" in attributes
+    for path in sorted(RELEASE_EVIDENCE.glob("*.json")):
+        assert b"\r\n" not in path.read_bytes(), path
+
+
 def test_readme_regenerates_readiness_after_stage_gates() -> None:
     raw = (ROOT / "README.md").read_text(encoding="utf-8")
 

@@ -1,2 +1,3 @@
 docs/storage/evidence/analytics_export_v1/* binary
 docs/storage/evidence/analytics_scale_samples.parquet binary
+docs/release/evidence/*.json text eol=lf
