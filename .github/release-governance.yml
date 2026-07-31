@@ -17,19 +17,19 @@ version_labels:
   - version: 0.5.1
     label: version:0.5.1
     milestone: v0.5.1
-    release_state: active
+    release_state: released
   - version: 0.6.0
     label: version:0.6.0
     milestone: v0.6.0
-    release_state: planned
+    release_state: released
   - version: 0.7.0
     label: version:0.7.0
     milestone: v0.7.0
-    release_state: planned
+    release_state: released
   - version: 0.8.0
     label: version:0.8.0
     milestone: v0.8.0
-    release_state: planned
+    release_state: active
   - version: 1.0.0
     label: version:1.0.0
     milestone: v1.0.0
@@ -52,7 +52,7 @@ legacy_ranges:
     version: 0.3.0
 overrides:
   "91": 1.0.0
-  "108": 0.5.1
-  "110": 0.5.1
+  "108": 1.0.0
+  "110": 1.0.0
   "117": 1.0.0
   "212": 0.3.0

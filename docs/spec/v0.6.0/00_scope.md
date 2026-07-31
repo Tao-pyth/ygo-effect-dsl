@@ -18,9 +18,14 @@ After audit, `release-self-hosted-evidence-adopt --adopt-parallel-search` is the
 
 `release-readiness-status-v1` also treats `0.6.0` as ready only when `parallel_search_gate.json` passes and the adopted self-hosted audit/verification proves the copied parallel-search branch. The current committed readiness status passes with `0.5.1`, `0.6.0`, and `0.7.0` in `ready_versions`. This aggregate status is intentionally stricter than reading the gate file alone.
 
-Status: Planned; parent [#258](https://github.com/Tao-pyth/ygo-effect-dsl/issues/258)
+Status: Released; parent [#258](https://github.com/Tao-pyth/ygo-effect-dsl/issues/258)
 
-Last updated: 2026-07-16
+Last updated: 2026-07-31
+
+Release note: `0.6.0` is now a released source milestone. The `v0.6.0`
+milestone is closed, all v0.6.0 work items are closed, and
+`release-readiness-status-v1` records `0.6.0` as ready through adopted
+self-hosted parallel-search evidence.
 
 ## Objective
 

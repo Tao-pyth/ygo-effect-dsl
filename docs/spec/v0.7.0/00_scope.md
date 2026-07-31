@@ -20,9 +20,14 @@ Terminal preference score hydration is also revalidated from the committed Route
 
 `release-readiness-status-v1` treats `0.7.0` as ready only when `research_dashboard_gate.json` passes and the adopted self-hosted audit/verification proves the copied research-dashboard branch. The current committed readiness status passes with `0.5.1`, `0.6.0`, and `0.7.0` in `ready_versions`. This keeps static dashboard checks from being mistaken for the required real-core dashboard qualification.
 
-Status: Source release evidence ready; parent [#276](https://github.com/Tao-pyth/ygo-effect-dsl/issues/276)
+Status: Released; parent [#276](https://github.com/Tao-pyth/ygo-effect-dsl/issues/276)
 
-Last updated: 2026-07-16
+Last updated: 2026-07-31
+
+Release note: `0.7.0` is now the current package/CLI source release. The
+`v0.7.0` milestone is closed, all v0.7.0 work items are closed, and
+`release-readiness-status-v1` records `0.7.0` as ready through adopted
+research-dashboard qualification evidence.
 
 ## Objective
 

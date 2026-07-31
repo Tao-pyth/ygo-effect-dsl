@@ -1,8 +1,13 @@
 # Package 0.5.1 Scope: Verification Efficiency Maintenance
 
-Status: Active; parent [#236](https://github.com/Tao-pyth/ygo-effect-dsl/issues/236)
+Status: Released; parent [#236](https://github.com/Tao-pyth/ygo-effect-dsl/issues/236)
 
-Last updated: 2026-07-17
+Last updated: 2026-07-31
+
+Release note: `0.5.1` is now a released source milestone. `#236` and `#237`
+are closed. `#108` and `#110` remain intentionally open and were retargeted to
+`1.0.0` because they are calibration/research quality gates, not required
+maintenance-release completion criteria.
 
 ## Objective
 
@@ -36,7 +41,7 @@ package `0.5.1`は、`0.5.0`の利用者向けsemantic、保存contract、releas
 
 `pytest-profile-release-gate-v1`は、plan、suite、summaryを束ねる最終判定evidenceである。`python -m ygo_effect_dsl test-profile-gate --plan docs/release/evidence/pytest_profile_plan.json --suite docs/release/evidence/pytest_profile_suite.json --summary docs/release/evidence/pytest_profile_summary.json --out docs/release/evidence/pytest_profile_gate.json`で再生成できる。gateはsuite欠落、summary失敗、suiteに含まれないsummary measurement、`--collect-only` cell、real_core skipped testを拒否する。persisted gateはsuite/summary measurement IDs、suite profile plan IDs、cell rejection witnessを保存し、validatorが`rejection_reasons`と`passed`を再導出する。現在のgateはsuite coverage、summary、profile selection comparisonを満たし、`passed=true`である。
 
-`release-readiness-status-v1`は、`0.5.1`のprofile gateと`0.6.0`/`0.7.0`のrelease gate/self-hosted adoptionを同じrelease evidence directoryから再検証する統合監査evidenceである。`python -m ygo_effect_dsl release-readiness-status --evidence-dir docs/release/evidence --out docs/release/evidence/release_readiness_status.json`で再生成できる。validatorはstage別gate witnessと、`0.6.0`/`0.7.0`ではadopted self-hosted verification witnessから`ready`を再導出し、矛盾するpersisted statusを拒否する。readerは任意のevidence directory照合で現在のgate/adoptionからstatusを再構築し、保存済みstatusの`evidence_id`と一致しなければstaleとして拒否できる。`python -m ygo_effect_dsl release-readiness-verify --evidence-dir docs/release/evidence --status docs/release/evidence/release_readiness_status.json`は保存済みstatusを再生成せずに現在directoryと照合し、stageがincompleteでもstatusが最新なら成功する。final release checkでは`--require-passed`を付け、statusが最新でも`0.6.0`または`0.7.0`がincompleteならnon-zeroにする。任意の`--expected-commit`と`--expected-run-id`が指定された場合は、採用済みbranchのself-hosted audit identityも再検証するため、partial adoption状態でも古いrunner evidenceを見逃さない。`--require-passed`成功時は0.6/0.7両branchの採用済みidentityを必ず確認する。現在のstatusは`ready_versions=["0.5.1"]`、`incomplete_versions=["0.6.0","0.7.0"]`を記録し、後続stageを外部self-hosted証跡なしに完了扱いしない。
+`release-readiness-status-v1`は、`0.5.1`のprofile gateと`0.6.0`/`0.7.0`のrelease gate/self-hosted adoptionを同じrelease evidence directoryから再検証する統合監査evidenceである。`python -m ygo_effect_dsl release-readiness-status --evidence-dir docs/release/evidence --out docs/release/evidence/release_readiness_status.json`で再生成できる。validatorはstage別gate witnessと、`0.6.0`/`0.7.0`ではadopted self-hosted verification witnessから`ready`を再導出し、矛盾するpersisted statusを拒否する。readerは任意のevidence directory照合で現在のgate/adoptionからstatusを再構築し、保存済みstatusの`evidence_id`と一致しなければstaleとして拒否できる。`python -m ygo_effect_dsl release-readiness-verify --evidence-dir docs/release/evidence --status docs/release/evidence/release_readiness_status.json`は保存済みstatusを再生成せずに現在directoryと照合し、stageがincompleteでもstatusが最新なら成功する。final release checkでは`--require-passed`を付け、statusが最新でも`0.6.0`または`0.7.0`がincompleteならnon-zeroにする。任意の`--expected-commit`と`--expected-run-id`が指定された場合は、採用済みbranchのself-hosted audit identityも再検証するため、partial adoption状態でも古いrunner evidenceを見逃さない。`--require-passed`成功時は0.6/0.7両branchの採用済みidentityを必ず確認する。現在のstatusは`ready_versions=["0.5.1","0.6.0","0.7.0"]`、`incomplete_versions=[]`を記録し、後続stageを外部self-hosted証跡なしに完了扱いしない。
 
 `test-profile-run`と`test-profile-suite`は`--suppress-success-output`を持つ。成功時はpytest terminal reporterを無効化し、JUnit XMLからpytest countを復元する。失敗時は通常terminal reporterで再実行し、first divergenceを失わない。profile測定environmentはmeasurement evidenceに記録される。現在のsummaryはsuite由来の`current/warm`全profile測定と`baseline/warm`全profile測定を比較する。profile欠落とbaseline欠落はなく、stdout/stderr削減targetは満たす。per-profile wall time削減targetは満たさないが、baseline全profile合計に対するcurrent release profile選択はwall/stdout/stderr targetを満たし、`full_regression_substitute=false`として記録する。これはfull regressionの代替ではなく、PR/release profile選択による削減範囲の固定である。
 

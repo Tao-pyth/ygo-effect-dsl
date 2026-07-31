@@ -1,6 +1,6 @@
 {
   "contract_version": "analytics-export-contract-v1",
-  "evidence_id": "analyticsexportevidence_310ca4866aabcbdbed5cddd3dd4c7399ab5446b51fd9355bc505d009e67c51d0",
+  "evidence_id": "analyticsexportevidence_cc64813efd3c9f317f1c6440daf54b888c2b66823c97c9b1798a3d988322c6b4",
   "formats": {
     "csv": {
       "data": {
@@ -8,30 +8,30 @@
         "filename": "analytics.csv",
         "sha256": "b2b04e6de55ad3bfb933d6de3334bc9c70048c329790b6b1d02c420b11d50427"
       },
-      "export_id": "analyticsexport_f2f09ae9d3343d81f5ad481492e054685fe81b705c6d45c864e416f6df5c2f0e",
+      "export_id": "analyticsexport_aff45d90c8d286ccf9fe95e0c58dae4b3c5466070f9ed8bd08d428f68f0ef47e",
       "manifest": {
         "bytes": 1828,
         "filename": "manifest-csv.json",
-        "sha256": "16211bfdca9dd8f8c6abd19919700fdc9c65803853821b489c5fbc110e594d42"
+        "sha256": "db21fd5d4058feb1a4e359202a00e01cf8f2813a15314d2cf1fff6b4ff776947"
       },
       "row_count": 2,
-      "semantic_digest": "exportsemantic_6deba779d67fbfe5ea772e05d532c313885098700915c855b6646a3effd770fd",
+      "semantic_digest": "exportsemantic_d2cb339deec860b781188adb6d8a0ec29855e9a86d0e45a89a402fb37c8ba829",
       "surface_byte_parity": true
     },
     "json": {
       "data": {
         "bytes": 1324,
         "filename": "analytics.json",
-        "sha256": "626f962830309f4dfc3f81122ae6ee4a03631e1550b3e826966216fecac563a3"
+        "sha256": "717730e17018fb0bd8fb97aa5d7a93ec5313f670ac269817733d4045597aa3dd"
       },
-      "export_id": "analyticsexport_1e3c1e714b28e55b502590a1cbad9eddc41b59f596f05f9a7263f1a586f73e14",
+      "export_id": "analyticsexport_7698ebc7df4822d879e3f396f9630abe1af6d57f6b118b8b1a7b31d813e2fab8",
       "manifest": {
         "bytes": 1832,
         "filename": "manifest-json.json",
-        "sha256": "28e05b9d5d2ba2b057501cb35e21366ee839e92193f32502831bd634c35b077a"
+        "sha256": "a86ff4c3a020cbf7f720fa606730f11b7ce79a68860cad0a6bcc6575e703b7ba"
       },
       "row_count": 2,
-      "semantic_digest": "exportsemantic_6deba779d67fbfe5ea772e05d532c313885098700915c855b6646a3effd770fd",
+      "semantic_digest": "exportsemantic_d2cb339deec860b781188adb6d8a0ec29855e9a86d0e45a89a402fb37c8ba829",
       "surface_byte_parity": true
     },
     "parquet": {
@@ -40,18 +40,18 @@
         "filename": "analytics.parquet",
         "sha256": "06160ef9c0d37bde0bec9536b7dd91ff4e36d5b871a5ee28a0a45b769d735b7b"
       },
-      "export_id": "analyticsexport_69695b082b755e903ee7ce36d59213b82c6bcd01bfeeb18f209d35c9a92f5889",
+      "export_id": "analyticsexport_9504bbb4771f8313a2ecf3763884cb6df308dbc644a5c9bd57ffdd000804d358",
       "manifest": {
         "bytes": 1845,
         "filename": "manifest-parquet.json",
-        "sha256": "d22725a86c10219462ba6a2ed3a2b080f9aa1cc2eec2e00d07d37f803397b526"
+        "sha256": "ae6ab8a9057e719f067347842ce833e790a6543e1421bb86e7e8aaa89c158e9e"
       },
       "row_count": 2,
-      "semantic_digest": "exportsemantic_6deba779d67fbfe5ea772e05d532c313885098700915c855b6646a3effd770fd",
+      "semantic_digest": "exportsemantic_d2cb339deec860b781188adb6d8a0ec29855e9a86d0e45a89a402fb37c8ba829",
       "surface_byte_parity": true
     }
   },
-  "package_version": "0.5.0",
+  "package_version": "0.7.0",
   "safety": {
     "csv_formula_leading_character_exposed": false,
     "desktop_renderer_authors_bytes": false,
@@ -60,7 +60,7 @@
   "schema_version": "analytics-export-evidence-v1",
   "source": {
     "query_fingerprint": "analyticsquery_2217440eee66b5aec998c47eb6f8fdd5a4ece38d399144fcf43555fc29f964b4",
-    "snapshot_id": "analyticssnapshot_49db46720f31ca3e0d829ce32d5c393e19fa7910c0cbea4b29e0d5afdcaf4f83",
+    "snapshot_id": "analyticssnapshot_36d3430e8789de9ef37abb6e177c635c398ece0d7145fe689b280f7a12fbf040",
     "source_ids": [
       "corpusmanifest_export_fixture"
     ]

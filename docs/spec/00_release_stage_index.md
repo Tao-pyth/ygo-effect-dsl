@@ -1,14 +1,14 @@
 # Release Stage Index: 0.3.0 to 1.0.0
 
-Status: Package `0.5.0` released; `0.5.1`, `0.6.0`, and `0.7.0` source release evidence ready; `0.8.0` and `1.0.0` planned
+Status: Package `0.7.0` released; `0.8.0` active; `1.0.0` planned
 
-Last updated: 2026-07-28
+Last updated: 2026-07-31
 
 ## Purpose
 
-本書は package `0.3.0` から `1.0.0` までの stage、依存関係、責任境界、親 Issue を一つの索引にする。現行の package/CLI version は `0.5.0` であり、正本は `ygo_effect_dsl.version.__version__` である。`0.4.0` は実装 stage として完了したが独立 tag を作らず、累積 `0.5.0` へ収録した。
+本書は package `0.3.0` から `1.0.0` までの stage、依存関係、責任境界、親 Issue を一つの索引にする。現行の package/CLI version は `0.7.0` であり、正本は `ygo_effect_dsl.version.__version__` である。`0.5.1`、`0.6.0`、`0.7.0` は release readiness evidence と GitHub milestone 状態を根拠に、順に released とする。
 
-`0.5.1`、`0.6.0`、`0.7.0` は source release evidence が ready である。ただし package/tag としての現行 release は `0.5.0` のまま維持する。`0.8.0` は日本人想定ユーザー向けの desktop UI/i18n 品質 stage、`1.0.0` は production/distribution gate である。
+`0.8.0` は日本人想定ユーザー向けの desktop UI/i18n 品質 stage、`1.0.0` は production/distribution gate である。
 
 ## Stage dependency
 
@@ -25,12 +25,12 @@ Last updated: 2026-07-28
 
 | Stage | Parent | Input | Main responsibility | Exit condition |
 |---|---|---|---|---|
-| `0.3.0` | [#131](https://github.com/Tao-pyth/ygo-effect-dsl/issues/131) | Random Search, real-core frontier, asset lock | real-core/EDOPro Lua qualification | clean bootstrap, real deck qualification, fail-close behavior |
-| `0.4.0` | [#132](https://github.com/Tao-pyth/ygo-effect-dsl/issues/132) | `0.3.0` qualified core baseline | Beam/MCTS, PlayerView, interruptions, multiple turns | strategy determinism, private information safety, Route lineage |
-| `0.5.0` | [#133](https://github.com/Tao-pyth/ygo-effect-dsl/issues/133) | `0.4.0` implementation evidence | corpus, jobs, query/comparison, desktop UI | package `0.5.0` source tag and desktop analytics milestone |
-| `0.5.1` | [#236](https://github.com/Tao-pyth/ygo-effect-dsl/issues/236) | released `0.5.0` plus verification profile | test profile, fixture consolidation, quieter evidence | source release evidence ready without weakening regression coverage |
-| `0.6.0` | [#258](https://github.com/Tao-pyth/ygo-effect-dsl/issues/258) | serial SearchExecutor and `0.5.1` verification profile | bounded process pool and parallel strategy execution | source release evidence ready with semantic determinism and timing witnesses |
-| `0.7.0` | [#276](https://github.com/Tao-pyth/ygo-effect-dsl/issues/276) | bounded Search and desktop artifact publication | real result hydration, terminal preferences, Route randomness, Replay verification, Top-K/coverage | source release evidence ready with truthful committed artifacts |
+| `0.3.0` | [#131](https://github.com/Tao-pyth/ygo-effect-dsl/issues/131) | Random Search, real-core frontier, asset lock | real-core/EDOPro Lua qualification | released source milestone |
+| `0.4.0` | [#132](https://github.com/Tao-pyth/ygo-effect-dsl/issues/132) | `0.3.0` qualified core baseline | Beam/MCTS, PlayerView, interruptions, multiple turns | superseded implementation stage included in `0.5.0` |
+| `0.5.0` | [#133](https://github.com/Tao-pyth/ygo-effect-dsl/issues/133) | `0.4.0` implementation evidence | corpus, jobs, query/comparison, desktop UI | released source milestone |
+| `0.5.1` | [#236](https://github.com/Tao-pyth/ygo-effect-dsl/issues/236) | released `0.5.0` plus verification profile | test profile, fixture consolidation, quieter evidence | released source milestone without weakening regression coverage |
+| `0.6.0` | [#258](https://github.com/Tao-pyth/ygo-effect-dsl/issues/258) | serial SearchExecutor and `0.5.1` verification profile | bounded process pool and parallel strategy execution | released source milestone with semantic determinism and timing witnesses |
+| `0.7.0` | [#276](https://github.com/Tao-pyth/ygo-effect-dsl/issues/276) | bounded Search and desktop artifact publication | real result hydration, terminal preferences, Route randomness, Replay verification, Top-K/coverage | released source milestone with truthful committed artifacts |
 | `0.8.0` | TBD | `0.7.0` research dashboard | Japanese-centered UI/i18n quality, `lang="ja"`, mojibake removal | default desktop UI is Japanese, visible text is centralized, and tests reject mojibake |
 | `1.0.0` | [#134](https://github.com/Tao-pyth/ygo-effect-dsl/issues/134) | qualified runtime, analytics, and localized desktop UI | stable compatibility, license, distribution, security, operations | auditable supported distribution and operations readiness |
 

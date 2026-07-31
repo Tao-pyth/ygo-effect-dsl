@@ -32,13 +32,13 @@ def test_release_governance_has_unique_label_and_milestone_pairs() -> None:
     assert policy.versions["0.3.0"].release_state == "released"
     assert policy.versions["0.4.0"].release_state == "superseded"
     assert policy.versions["0.5.0"].release_state == "released"
-    assert policy.versions["0.5.1"].release_state == "active"
+    assert policy.versions["0.5.1"].release_state == "released"
     assert policy.versions["0.5.1"].milestone == "v0.5.1"
-    assert policy.versions["0.6.0"].release_state == "planned"
+    assert policy.versions["0.6.0"].release_state == "released"
     assert policy.versions["0.6.0"].milestone == "v0.6.0"
-    assert policy.versions["0.7.0"].release_state == "planned"
+    assert policy.versions["0.7.0"].release_state == "released"
     assert policy.versions["0.7.0"].milestone == "v0.7.0"
-    assert policy.versions["0.8.0"].release_state == "planned"
+    assert policy.versions["0.8.0"].release_state == "active"
     assert policy.versions["0.8.0"].milestone == "v0.8.0"
 
 
@@ -49,7 +49,7 @@ def test_title_version_precedes_legacy_range_and_override() -> None:
     ranged = IssueSnapshot(120, "legacy search", (), None)
 
     assert target_version(explicit, policy) == "0.5.0"
-    assert target_version(overridden, policy) == "0.5.1"
+    assert target_version(overridden, policy) == "1.0.0"
     assert target_version(ranged, policy) == "0.3.0"
 
 
@@ -85,6 +85,7 @@ def test_audit_accepts_exact_target_and_exempts_prebaseline_history() -> None:
             "[v0.5.1][test] portfolio",
             ("validation", "version:0.5.1"),
             "v0.5.1",
+            "closed",
         ),
         policy,
     )
