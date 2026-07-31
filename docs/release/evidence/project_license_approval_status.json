@@ -1,0 +1,36 @@
+{
+  "approval_state": "missing",
+  "blocking_issues": [91, 169],
+  "distribution_policy": {
+    "legal_review_required": true,
+    "policy_id": "prototype-local-only-v1",
+    "project_release_status": "blocked"
+  },
+  "evidence_refs": [
+    "docs/legal/10_distribution_policy.md",
+    "docs/legal/20_project_license_approval.md",
+    "src/ygo_effect_dsl/resources/distribution-policy-v1.json",
+    "tests/test_project_license_approval.py",
+    "tests/test_distribution_policy.py"
+  ],
+  "package_metadata": {
+    "license_classifiers": [],
+    "license_expression": "NOASSERTION",
+    "license_files": []
+  },
+  "project_license": {
+    "license_file": null,
+    "spdx": "NOASSERTION"
+  },
+  "public_distribution": "blocked",
+  "required_before_approval": [
+    "owner-approved root project license identifier and LICENSE text",
+    "pyproject.toml license metadata, license files, and classifiers",
+    "NOTICE obligations for source, docs, examples, and generated artifacts",
+    "AGPL compatibility and corresponding-source plan for any bundled ocgcore or CardScripts payload",
+    "explicit BabelCDB redistribution license or written permission",
+    "SBOM, third-party notices, artifact allowlist, and release-audit evidence",
+    "legal review link or approval record for the intended public or commercial distribution"
+  ],
+  "schema_version": "project-license-approval-status-v1"
+}

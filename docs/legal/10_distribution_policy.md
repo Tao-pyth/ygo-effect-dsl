@@ -1,6 +1,6 @@
 # License and distribution policy v1
 
-This document is an engineering release gate, not legal advice. It records the most conservative decision supported by the pinned upstream materials as of 2026-07-13. The machine-readable source of truth is `src/ygo_effect_dsl/resources/distribution-policy-v1.json`.
+This document is an engineering release gate, not legal advice. It records the most conservative decision supported by the pinned upstream materials as of 2026-07-13. The machine-readable source of truth is `src/ygo_effect_dsl/resources/distribution-policy-v1.json`. Root project license approval is tracked separately in [`20_project_license_approval.md`](20_project_license_approval.md).
 
 ## Current decision
 
