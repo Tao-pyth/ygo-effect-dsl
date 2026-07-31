@@ -68,6 +68,9 @@ from ygo_effect_dsl.spikes.production_distribution_release_gate import (
 from ygo_effect_dsl.spikes.reproducible_build_release_gate import (
     write_v1_build_provenance,
 )
+from ygo_effect_dsl.spikes.upgrade_rollback_release_gate import (
+    write_v1_upgrade_rollback,
+)
 from ygo_effect_dsl.spikes.windows_installer_packaging import (
     write_v1_installer_packaging,
 )
@@ -798,6 +801,21 @@ def cmd_v1_build_provenance(args: argparse.Namespace) -> int:
     return 0 if evidence["passed"] else 1
 
 
+def cmd_v1_upgrade_rollback(args: argparse.Namespace) -> int:
+    evidence = write_v1_upgrade_rollback(
+        args.repo_root,
+        output_path=args.out,
+    )
+    status = "passed" if evidence["passed"] else "failed"
+    print(
+        "v1-upgrade-rollback: "
+        f"{status} evidence_id={evidence['evidence_id']} "
+        f"rejections={','.join(evidence['rejection_reasons']) or '-'} "
+        f"out={args.out}"
+    )
+    return 0 if evidence["passed"] else 1
+
+
 def cmd_v1_installer_packaging(args: argparse.Namespace) -> int:
     evidence = write_v1_installer_packaging(
         args.repo_root,
@@ -930,5 +948,6 @@ __all__ = [
     "cmd_v1_desktop_settings",
     "cmd_v1_external_asset_setup",
     "cmd_v1_installer_packaging",
+    "cmd_v1_upgrade_rollback",
     "cmd_v1_webview2_runtime",
 ]

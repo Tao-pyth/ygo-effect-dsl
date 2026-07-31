@@ -1,0 +1,82 @@
+{
+  "checks": [
+    {
+      "evidence": "docs/adr/0022_v1_upgrade_rollback.md",
+      "id": "upgrade_rollback_matrix_documented",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "packaging/windows-portable/README.txt",
+      "id": "portable_package_has_manual_upgrade_and_rollback",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": ".github/workflows/test.yml;.github/workflows/build-windows-exe.yml",
+      "id": "ci_smokes_clean_wheel_and_windows_executable_without_editable_install",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/runtime_imports.py;tests/test_runtime_imports.py;src/ygo_effect_dsl/desktop/lifecycle.py",
+      "id": "parent_worker_subprocess_import_source_consistency_tested",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "docs/release/evidence/v1_0_0_asset_allowlist.json;packaging/windows-portable/README.txt",
+      "id": "external_assets_remain_owned_cache_not_bundled",
+      "passed": true,
+      "reason": "verified"
+    }
+  ],
+  "evidence_id": "v1upgraderollback_b16724f92a042132a9e55408ddea1bc39187cb11206cd58887fe1637408b950c",
+  "issue": 172,
+  "matrix": [
+    {
+      "id": "clean_install",
+      "rollback_requires_backup": false,
+      "status": "verified"
+    },
+    {
+      "id": "0.5_to_1.0_upgrade",
+      "rollback_requires_backup": true,
+      "status": "verified"
+    },
+    {
+      "id": "1.0_patch_upgrade",
+      "rollback_requires_backup": false,
+      "status": "verified"
+    },
+    {
+      "id": "rollback",
+      "rollback_requires_backup": true,
+      "status": "verified"
+    },
+    {
+      "id": "uninstall_reinstall",
+      "rollback_requires_backup": false,
+      "status": "verified"
+    },
+    {
+      "id": "offline_runtime",
+      "rollback_requires_backup": false,
+      "status": "verified"
+    }
+  ],
+  "package_version": "0.8.0",
+  "passed": true,
+  "rejection_reasons": [],
+  "release_policy": {
+    "automatic_update": false,
+    "editable_install_dependency": false,
+    "external_assets_bundled": false,
+    "irreversible_migration_requires": [
+      "pre-migration backup",
+      "explicit confirmation"
+    ],
+    "upgrade_channel": "manual"
+  },
+  "schema_version": "v1-upgrade-rollback-v1"
+}

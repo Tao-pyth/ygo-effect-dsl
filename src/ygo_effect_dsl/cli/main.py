@@ -61,6 +61,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_v1_desktop_settings,
     cmd_v1_external_asset_setup,
     cmd_v1_installer_packaging,
+    cmd_v1_upgrade_rollback,
     cmd_v1_webview2_runtime,
 )
 from ygo_effect_dsl.cli.cmd_transform import cmd_transform
@@ -1187,6 +1188,23 @@ def main() -> int:
         help="content-addressed v1 build provenance evidence JSON path",
     )
     v1_build_provenance.set_defaults(func=cmd_v1_build_provenance)
+
+    v1_upgrade_rollback = sub.add_parser(
+        "v1-upgrade-rollback",
+        help="evaluate the v1.0.0 upgrade and rollback qualification gate",
+    )
+    v1_upgrade_rollback.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing upgrade and rollback policy evidence",
+    )
+    v1_upgrade_rollback.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed v1 upgrade and rollback evidence JSON path",
+    )
+    v1_upgrade_rollback.set_defaults(func=cmd_v1_upgrade_rollback)
 
     v1_installer_packaging = sub.add_parser(
         "v1-installer-packaging",

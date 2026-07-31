@@ -1338,6 +1338,7 @@
           "tests/test_terminal_preference.py",
           "tests/test_terminal_preference_catalog.py",
           "tests/test_transform_v0.py",
+          "tests/test_upgrade_rollback_release_gate.py",
           "tests/test_v03a_contracts.py",
           "tests/test_v1_legal_artifacts.py",
           "tests/test_v1_support_matrix.py",
@@ -1350,7 +1351,7 @@
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_c398160d4d4ffb93ad60938445a0ba5e25d1031c2e84a784b93ce881b1f3b0fc",
+        "evidence_id": "pytestprofilemeasure_a8833a70761467dd6c742c2fc05d3be7c9520cc2e4efd05bc29d985a865b2945",
         "extra_pytest_args": [],
         "failure_rerun_command": [
           "C:\\Program Files\\Python313\\python.exe",
@@ -1405,6 +1406,7 @@
           "tests/test_terminal_preference.py",
           "tests/test_terminal_preference_catalog.py",
           "tests/test_transform_v0.py",
+          "tests/test_upgrade_rollback_release_gate.py",
           "tests/test_v03a_contracts.py",
           "tests/test_v1_legal_artifacts.py",
           "tests/test_v1_support_matrix.py",
@@ -1416,13 +1418,13 @@
           "YGO_EFFECT_DSL_PYTEST_PROFILE_MEASUREMENT": "1"
         },
         "passed": true,
-        "peak_rss_bytes": 88391680,
+        "peak_rss_bytes": 91480064,
         "profile": "unit",
-        "profile_plan_id": "pytestprofile_03e4b1d8f9b5c80b173ddf2f109fdab085d3e220a8fd8338d6c4e82b7f228348",
+        "profile_plan_id": "pytestprofile_4935951a96e41bcb35950435131c8bb4ec10d1ac83cc5fbb3ffb4edd176c8602",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
-          "passed": 376,
+          "passed": 380,
           "skipped": 7,
           "xfailed": 0,
           "xpassed": 0
@@ -1435,9 +1437,9 @@
         "stdout_bytes": 0,
         "success_output_policy": "terminal-reporter-disabled",
         "summary_tail": "",
-        "wall_seconds": 181.022154
+        "wall_seconds": 154.219672
       },
-      "measurement_id": "pytestprofilemeasure_c398160d4d4ffb93ad60938445a0ba5e25d1031c2e84a784b93ce881b1f3b0fc",
+      "measurement_id": "pytestprofilemeasure_a8833a70761467dd6c742c2fc05d3be7c9520cc2e4efd05bc29d985a865b2945",
       "phase": "current",
       "profile": "unit",
       "repeat_index": 1,
@@ -1894,7 +1896,7 @@
       "warm"
     ]
   },
-  "evidence_id": "pytestprofilesuite_0a0fff59cd236c9b250ce3d332a91b48c3d5990b4399a3c693f61bf8e3175f79",
+  "evidence_id": "pytestprofilesuite_6733ee6307d41dd0dac86c1e4de32377b51de79e12655d5f84e355babe8e2cd7",
   "included_measurement_count": 24,
   "measurement_ids": [
     "pytestprofilemeasure_4a8f5e2d7d7ff3b5a3490f31ff387b9b916072f2d62b919dd7970fd130f71ba3",
@@ -1915,7 +1917,7 @@
     "pytestprofilemeasure_47271d52d04a429c21bc4794eaa3729b3ae25ead4a1903fad6eec00db9538d75",
     "pytestprofilemeasure_ad657028086f9deffe500ede7913d4f41fced7960fe97cf76a00f7220ff66203",
     "pytestprofilemeasure_cd9dab41a8989eaaffd18f4c1fea2a4ed7cd4420eca11953ed19b925945f1b02",
-    "pytestprofilemeasure_c398160d4d4ffb93ad60938445a0ba5e25d1031c2e84a784b93ce881b1f3b0fc",
+    "pytestprofilemeasure_a8833a70761467dd6c742c2fc05d3be7c9520cc2e4efd05bc29d985a865b2945",
     "pytestprofilemeasure_47deaab2a4a7d0dd1fc3e3854323fb11f1d7b1ce41473a859effd1763d030408",
     "pytestprofilemeasure_fa6c409cd65fab2aae9503a1d5b27e2a3ef5fa4aa217e003e686920e9d65b89a",
     "pytestprofilemeasure_3d95fee2f31f527bd6e6dae5482a3c6fb07e417c2bf1f8b6825aa71678cdb0cd",
@@ -1925,8 +1927,8 @@
   "package_version": "0.8.0",
   "passed": true,
   "profile_plan_ids": [
-    "pytestprofile_03e4b1d8f9b5c80b173ddf2f109fdab085d3e220a8fd8338d6c4e82b7f228348",
     "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
+    "pytestprofile_4935951a96e41bcb35950435131c8bb4ec10d1ac83cc5fbb3ffb4edd176c8602",
     "pytestprofile_497e65845d6062c4c921a7ccfbf66f7cb38a49faadc901bd491b9595620beaa0"
   ],
   "required_phases": [

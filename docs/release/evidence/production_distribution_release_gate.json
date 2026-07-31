@@ -71,6 +71,14 @@
       "required": true
     },
     {
+      "category": "upgrade",
+      "evidence": "docs/release/evidence/v1_0_0_upgrade_rollback.json",
+      "id": "upgrade_rollback_verified",
+      "passed": true,
+      "reason": "verified",
+      "required": true
+    },
+    {
       "category": "installer",
       "evidence": "docs/release/evidence/v1_0_0_installer_packaging.json",
       "id": "installer_packaging_verified",
@@ -143,7 +151,7 @@
       "required": true
     }
   ],
-  "evidence_id": "productiondistgate_56c44fd2effaacf7fbdb0da698860e7487b5c111fdd336a00bec6802adc41f4e",
+  "evidence_id": "productiondistgate_dd05ed406ccca52e7ca1fd66b52395ddc66b37176574be97eb1b6abfb6bf91f4",
   "issue": 359,
   "package_version": "0.8.0",
   "passed": false,

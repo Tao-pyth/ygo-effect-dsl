@@ -33,6 +33,7 @@ def test_current_production_distribution_gate_fails_closed_until_v1_evidence_exi
     assert checks["release_artifact_composition_references_exist"]["passed"] is True
     assert checks["windows_gui_executable_workflow_smoke"]["passed"] is True
     assert checks["build_provenance_checksums_verified"]["passed"] is True
+    assert checks["upgrade_rollback_verified"]["passed"] is True
     assert checks["installer_packaging_verified"]["passed"] is True
     assert checks["webview2_runtime_failure_ux_verified"]["passed"] is True
     assert checks["root_project_license_approved"]["reason"] == "approval_not_recorded"
@@ -142,6 +143,10 @@ def test_production_distribution_gate_rejects_placeholder_pass_values(
     _write_json(
         evidence_dir / "v1_0_0_build_provenance.json",
         {"passed": True, "schema_version": "v1-build-provenance-v1"},
+    )
+    _write_json(
+        evidence_dir / "v1_0_0_upgrade_rollback.json",
+        {"passed": True, "schema_version": "v1-upgrade-rollback-v1"},
     )
 
     evidence = evaluate_production_distribution_release_gate(tmp_path)

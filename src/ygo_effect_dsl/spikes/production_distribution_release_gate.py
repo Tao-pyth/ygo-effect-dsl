@@ -265,6 +265,14 @@ def evaluate_production_distribution_release_gate(
         ),
         _missing_or_invalid_json_check(
             root,
+            check_id="upgrade_rollback_verified",
+            category="upgrade",
+            evidence=_evidence_ref(evidence_path, "v1_0_0_upgrade_rollback.json"),
+            schema_version="v1-upgrade-rollback-v1",
+            require_passed=True,
+        ),
+        _missing_or_invalid_json_check(
+            root,
             check_id="installer_packaging_verified",
             category="installer",
             evidence=_evidence_ref(evidence_path, "v1_0_0_installer_packaging.json"),
