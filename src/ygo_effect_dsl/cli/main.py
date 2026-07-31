@@ -55,6 +55,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_release_self_hosted_evidence_audit,
     cmd_release_self_hosted_evidence_verify_adopted,
     cmd_strategy_interruption_qualify,
+    cmd_v1_authenticode_signing,
     cmd_v1_installer_packaging,
 )
 from ygo_effect_dsl.cli.cmd_transform import cmd_transform
@@ -1181,6 +1182,23 @@ def main() -> int:
         help="content-addressed v1 installer packaging evidence JSON path",
     )
     v1_installer_packaging.set_defaults(func=cmd_v1_installer_packaging)
+
+    v1_authenticode_signing = sub.add_parser(
+        "v1-authenticode-signing",
+        help="evaluate the v1.0.0 Windows Authenticode signing gate",
+    )
+    v1_authenticode_signing.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing signing docs and workflows",
+    )
+    v1_authenticode_signing.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed v1 Authenticode signing evidence JSON path",
+    )
+    v1_authenticode_signing.set_defaults(func=cmd_v1_authenticode_signing)
 
     lua_load_qualify = sub.add_parser(
         "ocgcore-lua-qualify",

@@ -1,0 +1,51 @@
+{
+  "artifact_scope": [
+    "dist/ygo-effect-dsl.exe",
+    "dist/ygo-effect-dsl-desktop.exe",
+    "ygo-effect-dsl-win64-portable.zip"
+  ],
+  "checks": [
+    {
+      "evidence": "docs/adr/0018_v1_authenticode_signing.md",
+      "id": "signing_policy_documented",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": ".github/workflows/build-windows-exe.yml",
+      "id": "unsigned_artifact_rejection_recorded_in_ci",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "docs/release/evidence/v1_0_0_authenticode_signed_artifacts.json",
+      "id": "signed_artifacts_verified",
+      "passed": false,
+      "reason": "missing_signed_artifact_evidence"
+    }
+  ],
+  "credential_policy": {
+    "repository_storage": "forbidden",
+    "runtime_artifact_storage": "forbidden",
+    "standard_ci_log_storage": "forbidden",
+    "storage": "github_actions_secrets_or_external_signing_service"
+  },
+  "evidence_id": "v1authenticode_7d81c6d84865b95ee24308185d2d662a12dd707038a1f2823d842233f7b3de08",
+  "issue": 356,
+  "package_version": "0.8.0",
+  "passed": false,
+  "rejection_reasons": [
+    "signed_artifacts_verified:missing_signed_artifact_evidence"
+  ],
+  "release_state": "blocked_until_signed_artifact_evidence_exists",
+  "schema_version": "v1-authenticode-signing-v1",
+  "signer_identity_policy": {
+    "certificate_thumbprint_required": true,
+    "extended_key_usage": "code_signing",
+    "subject_must_match_release_approval": true
+  },
+  "timestamp_policy": {
+    "rfc3161_timestamp_required": true,
+    "timestamp_server_must_be_release_approved": true
+  }
+}

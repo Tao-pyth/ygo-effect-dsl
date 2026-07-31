@@ -92,6 +92,23 @@ jobs:
           .\dist\ygo-effect-dsl-desktop.exe --preflight-only --diagnostics-out desktop-preflight.json
           .\dist\ygo-effect-dsl-desktop.exe --bridge-smoke-out desktop-bridge-smoke.json
 
+      - name: Verify unsigned Authenticode artifacts are not release eligible
+        shell: pwsh
+        run: |
+          $results = foreach ($artifact in @("dist\ygo-effect-dsl.exe", "dist\ygo-effect-dsl-desktop.exe")) {
+            $signature = Get-AuthenticodeSignature $artifact
+            if ($signature.Status -eq "Valid") {
+              throw "Unsigned CI path unexpectedly produced a valid Authenticode signature for $artifact"
+            }
+            [PSCustomObject]@{
+              artifact = $artifact
+              release_eligible = $false
+              rejection = "unsigned_or_untrusted_signature"
+              signature_status = [string]$signature.Status
+            }
+          }
+          $results | ConvertTo-Json -Depth 4 | Set-Content -Encoding UTF8 unsigned-authenticode-verification.json
+
       - name: Build portable Windows package
         run: |
           New-Item -ItemType Directory -Force package\ygo-effect-dsl-win64
@@ -120,6 +137,7 @@ jobs:
             ygo-effect-dsl-win64-portable.zip
             desktop-preflight.json
             desktop-bridge-smoke.json
+            unsigned-authenticode-verification.json
             package-desktop-preflight.json
             package-desktop-bridge-smoke.json
           if-no-files-found: error

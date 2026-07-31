@@ -75,7 +75,7 @@
       "evidence": "docs/release/evidence/v1_0_0_authenticode_signing.json",
       "id": "authenticode_signing_verified",
       "passed": false,
-      "reason": "missing_evidence",
+      "reason": "evidence_not_passed",
       "required": true
     },
     {
@@ -127,12 +127,12 @@
       "required": true
     }
   ],
-  "evidence_id": "productiondistgate_e1b2b930bfc6ea929404e2d856368642c069c54395ee5e2e39f8e69e82d48fa8",
+  "evidence_id": "productiondistgate_d6186a7b77edcfe4296c1b0934148e9b2e0ff9cbd2b1947e344073a81589a27c",
   "issue": 359,
   "package_version": "0.8.0",
   "passed": false,
   "rejection_reasons": [
-    "authenticode_signing_verified:missing_evidence",
+    "authenticode_signing_verified:evidence_not_passed",
     "external_asset_setup_verified:missing_evidence",
     "redacted_support_bundle_verified:missing_evidence",
     "root_project_license_approved:approval_not_recorded",

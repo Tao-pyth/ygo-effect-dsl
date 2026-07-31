@@ -1,5 +1,5 @@
 {
-  "evidence_id": "pytestprofile_a8e29b1ff47a64d208cb00dfaf1467aec67441314614f3c046181e5e623ab07d",
+  "evidence_id": "pytestprofile_a74d2aaa9216f5a25598a35c4bec0883dd923ba967c8c6e2f591f11a418edf08",
   "package_version": "0.8.0",
   "profiles": {
     "evidence": {
@@ -205,7 +205,7 @@
       ]
     },
     "unit": {
-      "file_count": 50,
+      "file_count": 51,
       "files": [
         "tests/test_action_aggregation.py",
         "tests/test_action_models.py",
@@ -256,6 +256,7 @@
         "tests/test_v03a_contracts.py",
         "tests/test_v1_legal_artifacts.py",
         "tests/test_v1_support_matrix.py",
+        "tests/test_windows_authenticode_signing.py",
         "tests/test_windows_installer_packaging.py"
       ],
       "pytest_args": [
@@ -309,6 +310,7 @@
         "tests/test_v03a_contracts.py",
         "tests/test_v1_legal_artifacts.py",
         "tests/test_v1_support_matrix.py",
+        "tests/test_windows_authenticode_signing.py",
         "tests/test_windows_installer_packaging.py"
       ]
     }
@@ -327,7 +329,7 @@
   },
   "schema_version": "pytest-profile-plan-v1",
   "source": {
-    "discovered_file_count": 131,
+    "discovered_file_count": 132,
     "repo_root_name": "ygo-effect-dsl"
   },
   "validation": {

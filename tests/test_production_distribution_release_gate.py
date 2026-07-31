@@ -37,7 +37,7 @@ def test_current_production_distribution_gate_fails_closed_until_v1_evidence_exi
     assert checks["support_matrix_supported_rows_verified"]["reason"] == (
         "supported_rows_not_verified"
     )
-    assert checks["authenticode_signing_verified"]["reason"] == "missing_evidence"
+    assert checks["authenticode_signing_verified"]["reason"] == "evidence_not_passed"
     assert any(
         reason.startswith("authenticode_signing_verified:")
         for reason in evidence["rejection_reasons"]
