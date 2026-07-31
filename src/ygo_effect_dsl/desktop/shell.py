@@ -12,6 +12,7 @@ from types import ModuleType
 from typing import Any, BinaryIO, Mapping
 
 from ygo_effect_dsl.desktop import desktop_frontend_entrypoint
+from ygo_effect_dsl.desktop import desktop_workflow_contract_document
 from ygo_effect_dsl.desktop.bridge import DesktopBridge
 from ygo_effect_dsl.desktop.lifecycle import DesktopWorkerSupervisor
 from ygo_effect_dsl.desktop.service import DesktopApplicationService
@@ -22,9 +23,11 @@ from ygo_effect_dsl.presentation import (
     LocalizedCardPresentationProvider,
 )
 from ygo_effect_dsl.storage.export import AnalyticsExportSupervisor
+from ygo_effect_dsl.version import __version__
 
 PYWEBVIEW_REQUIREMENT = "6.2.1"
 DESKTOP_STARTUP_DIAGNOSTIC_VERSION = "desktop-startup-diagnostic-v1"
+DESKTOP_EXECUTABLE_PREFLIGHT_VERSION = "desktop-executable-preflight-v1"
 MINIMUM_WINDOW_SIZE = (960, 700)
 DEFAULT_WINDOW_SIZE = (1440, 900)
 
@@ -336,15 +339,62 @@ def start_desktop(
             ) from shutdown_failures[0]
 
 
+def build_desktop_preflight_diagnostic(runtime: WebView2Installation) -> dict[str, Any]:
+    entrypoint = desktop_frontend_entrypoint()
+    workflow = desktop_workflow_contract_document()
+    return {
+        "frontend": {
+            "entrypoint": entrypoint.name,
+            "exists": entrypoint.is_file(),
+            "workflow_version": workflow["schema_version"],
+        },
+        "package_version": __version__,
+        "pywebview_required_version": PYWEBVIEW_REQUIREMENT,
+        "runtime": runtime.to_dict(),
+        "schema_version": DESKTOP_EXECUTABLE_PREFLIGHT_VERSION,
+        "startup_diagnostic_schema_version": DESKTOP_STARTUP_DIAGNOSTIC_VERSION,
+        "status": "passed",
+    }
+
+
+def _write_json(path: Path | None, document: Mapping[str, Any]) -> None:
+    text = json.dumps(document, ensure_ascii=False, sort_keys=True) + "\n"
+    if path is None:
+        print(text, end="")
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8", newline="\n")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="launch the RouteLab Windows desktop MVP"
     )
+    parser.add_argument("--version", action="store_true")
     parser.add_argument("--data-root", type=Path)
     parser.add_argument("--external-root", type=Path)
+    parser.add_argument("--preflight-only", action="store_true")
+    parser.add_argument("--diagnostics-out", type=Path)
+    parser.add_argument("--bridge-smoke-out", type=Path)
     args = parser.parse_args(argv)
+    if args.version:
+        print(__version__)
+        return 0
     try:
-        preflight_desktop_runtime()
+        runtime = preflight_desktop_runtime()
+        if args.bridge_smoke_out is not None:
+            from ygo_effect_dsl.spikes.desktop_bridge_smoke import (
+                collect_desktop_bridge_smoke,
+            )
+
+            _write_json(args.bridge_smoke_out, collect_desktop_bridge_smoke())
+            return 0
+        if args.preflight_only:
+            _write_json(
+                args.diagnostics_out,
+                build_desktop_preflight_diagnostic(runtime),
+            )
+            return 0
         data_root = args.data_root or default_desktop_data_root()
         with SingleInstanceLock(data_root / "desktop.lock"):
             start_desktop(data_root=data_root, external_root=args.external_root)
@@ -356,6 +406,7 @@ def main(argv: list[str] | None = None) -> int:
 
 __all__ = [
     "DEFAULT_WINDOW_SIZE",
+    "DESKTOP_EXECUTABLE_PREFLIGHT_VERSION",
     "DESKTOP_STARTUP_DIAGNOSTIC_VERSION",
     "MINIMUM_WINDOW_SIZE",
     "PYWEBVIEW_REQUIREMENT",
@@ -363,6 +414,7 @@ __all__ = [
     "NativeYdkPicker",
     "SingleInstanceLock",
     "WebView2Installation",
+    "build_desktop_preflight_diagnostic",
     "default_desktop_data_root",
     "find_webview2_installations",
     "main",

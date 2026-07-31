@@ -127,5 +127,14 @@ def test_windows_executable_build_has_no_external_asset_input() -> None:
         '--add-data "src/ygo_effect_dsl/resources;ygo_effect_dsl/resources"'
         in workflow
     )
+    assert "--name ygo-effect-dsl-desktop" in workflow
+    assert "--windowed" in workflow
+    assert (
+        '--add-data "src/ygo_effect_dsl/desktop/static;ygo_effect_dsl/desktop/static"'
+        in workflow
+    )
+    assert ".\\dist\\ygo-effect-dsl-desktop.exe --version" in workflow
+    assert "--preflight-only --diagnostics-out desktop-preflight.json" in workflow
+    assert "--bridge-smoke-out desktop-bridge-smoke.json" in workflow
     assert "--add-binary" not in workflow
     assert "YGO_EFFECT_DSL_EXTERNAL_ROOT" not in workflow

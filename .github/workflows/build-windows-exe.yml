@@ -20,7 +20,7 @@ jobs:
       - name: Install package and build dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e ".[analytics]"
+          python -m pip install -e ".[analytics,desktop]"
           python -m pip install pytest pyinstaller
 
       - name: Run pytest
@@ -32,7 +32,7 @@ jobs:
           import ygo_effect_dsl;
           assert version('ygo-effect-dsl') == ygo_effect_dsl.__version__"
 
-      - name: Build executable
+      - name: Build CLI executable
         run: >
           python -m PyInstaller
           --noconfirm
@@ -44,13 +44,30 @@ jobs:
           --hidden-import ygo_effect_dsl.resources
           src/ygo_effect_dsl/__main__.py
 
-      - name: Verify executable exists
+      - name: Build desktop GUI executable
+        run: >
+          python -m PyInstaller
+          --noconfirm
+          --clean
+          --onefile
+          --windowed
+          --name ygo-effect-dsl-desktop
+          --add-data "src/ygo_effect_dsl/resources;ygo_effect_dsl/resources"
+          --add-data "src/ygo_effect_dsl/desktop/static;ygo_effect_dsl/desktop/static"
+          --hidden-import ygo_effect_dsl.resources
+          --hidden-import webview.platforms.edgechromium
+          src/ygo_effect_dsl/desktop/shell.py
+
+      - name: Verify executable artifacts exist
         run: |
           if (!(Test-Path "dist/ygo-effect-dsl.exe")) {
             throw "dist/ygo-effect-dsl.exe was not created"
           }
+          if (!(Test-Path "dist/ygo-effect-dsl-desktop.exe")) {
+            throw "dist/ygo-effect-dsl-desktop.exe was not created"
+          }
 
-      - name: Smoke test packaged executable
+      - name: Smoke test packaged CLI executable
         run: |
           .\dist\ygo-effect-dsl.exe --version
           .\dist\ygo-effect-dsl.exe ingest --dataset examples/sample_dataset
@@ -61,9 +78,19 @@ jobs:
           .\dist\ygo-effect-dsl.exe experiment-search --help
           .\dist\ygo-effect-dsl.exe job-inspect --help
 
-      - name: Upload executable artifact
+      - name: Smoke test packaged desktop executable
+        run: |
+          .\dist\ygo-effect-dsl-desktop.exe --version
+          .\dist\ygo-effect-dsl-desktop.exe --preflight-only --diagnostics-out desktop-preflight.json
+          .\dist\ygo-effect-dsl-desktop.exe --bridge-smoke-out desktop-bridge-smoke.json
+
+      - name: Upload executable artifacts
         uses: actions/upload-artifact@v7
         with:
           name: ygo-effect-dsl-win64
-          path: dist/ygo-effect-dsl.exe
+          path: |
+            dist/ygo-effect-dsl.exe
+            dist/ygo-effect-dsl-desktop.exe
+            desktop-preflight.json
+            desktop-bridge-smoke.json
           if-no-files-found: error

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -10,13 +11,18 @@ from ygo_effect_dsl.desktop.bridge import DESKTOP_BRIDGE_CONTRACT_VERSION, Deskt
 from ygo_effect_dsl.desktop import shell as shell_module
 from ygo_effect_dsl.desktop.shell import (
     DEFAULT_WINDOW_SIZE,
+    DESKTOP_EXECUTABLE_PREFLIGHT_VERSION,
     MINIMUM_WINDOW_SIZE,
     DesktopStartupError,
     SingleInstanceLock,
+    WebView2Installation,
+    build_desktop_preflight_diagnostic,
     find_webview2_installations,
+    main,
     preflight_desktop_runtime,
     start_desktop,
 )
+from ygo_effect_dsl.version import __version__
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -30,6 +36,13 @@ def test_desktop_dependency_and_entrypoint_are_optional() -> None:
     assert '"pywebview==6.2.1"' in desktop_section
     assert 'ygo-effect-dsl = "ygo_effect_dsl.cli.main:main"' in pyproject
     assert 'ygo-effect-dsl-desktop = "ygo_effect_dsl.desktop.shell:main"' in pyproject
+
+
+def test_desktop_entrypoint_reports_version_without_runtime_preflight(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    assert main(["--version"]) == 0
+    assert capsys.readouterr().out.strip() == __version__
 
 
 def _runtime(tmp_path: Path, version: str = "150.0.4078.65") -> dict[str, str]:
@@ -79,6 +92,26 @@ def test_webview2_probe_uses_numeric_version_order(tmp_path: Path) -> None:
 
     assert [item.version for item in installations] == ["99.0.0.1", "150.0.0.1"]
     assert selected.version == "150.0.0.1"
+
+
+def test_desktop_preflight_only_writes_packaged_diagnostics(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runtime = WebView2Installation(
+        version="150.0.4078.65",
+        executable=tmp_path / "msedgewebview2.exe",
+    )
+    output = tmp_path / "diagnostics.json"
+    monkeypatch.setattr(shell_module, "preflight_desktop_runtime", lambda: runtime)
+
+    assert main(["--preflight-only", "--diagnostics-out", str(output)]) == 0
+    document = json.loads(output.read_text(encoding="utf-8"))
+
+    assert document == build_desktop_preflight_diagnostic(runtime)
+    assert document["schema_version"] == DESKTOP_EXECUTABLE_PREFLIGHT_VERSION
+    assert document["package_version"] == __version__
+    assert document["frontend"]["workflow_version"] == "desktop-workflow-v1"
 
 
 def test_single_instance_lock_releases_for_next_launch(tmp_path: Path) -> None:
