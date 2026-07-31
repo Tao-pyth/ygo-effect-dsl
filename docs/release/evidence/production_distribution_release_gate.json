@@ -95,6 +95,14 @@
       "required": true
     },
     {
+      "category": "operations",
+      "evidence": "docs/release/evidence/v1_0_0_observability_redaction_retention.json",
+      "id": "observability_redaction_retention_verified",
+      "passed": true,
+      "reason": "verified",
+      "required": true
+    },
+    {
       "category": "installer",
       "evidence": "docs/release/evidence/v1_0_0_installer_packaging.json",
       "id": "installer_packaging_verified",
@@ -167,7 +175,7 @@
       "required": true
     }
   ],
-  "evidence_id": "productiondistgate_5b42ea13069b82b719b25cf6f220eef00deacd5ab4d22689227f9cdfb9e5ed62",
+  "evidence_id": "productiondistgate_33bfcf2329be7a9d723a82f6fcb14842b7e85ea500341d33f249a47ee213e51e",
   "issue": 359,
   "package_version": "0.8.0",
   "passed": false,

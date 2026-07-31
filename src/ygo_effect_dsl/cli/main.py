@@ -63,6 +63,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_v1_external_asset_setup,
     cmd_v1_gated_release,
     cmd_v1_installer_packaging,
+    cmd_v1_observability_redaction_retention,
     cmd_v1_upgrade_rollback,
     cmd_v1_webview2_runtime,
 )
@@ -1241,6 +1242,25 @@ def main() -> int:
         help="content-addressed v1 compatibility policy evidence JSON path",
     )
     v1_compatibility_policy.set_defaults(func=cmd_v1_compatibility_policy)
+
+    v1_observability_redaction_retention = sub.add_parser(
+        "v1-observability-redaction-retention",
+        help="evaluate the v1.0.0 observability, redaction, and retention policy",
+    )
+    v1_observability_redaction_retention.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing observability and redaction policy evidence",
+    )
+    v1_observability_redaction_retention.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed v1 observability/redaction evidence JSON path",
+    )
+    v1_observability_redaction_retention.set_defaults(
+        func=cmd_v1_observability_redaction_retention
+    )
 
     v1_installer_packaging = sub.add_parser(
         "v1-installer-packaging",

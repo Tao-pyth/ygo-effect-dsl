@@ -1,10 +1,10 @@
 {
   "all_measurements_passed": true,
   "baseline_comparison_passed": true,
-  "evidence_id": "pytestprofilesummary_cd11517d253f954c8cf01ef54296069a4dd8332ab6354a1ec1f51064c568994d",
+  "evidence_id": "pytestprofilesummary_394ede986cfb32c7449fb9c8d1d67581e5acac3a50dc5c95c466dd5ab6d27d66",
   "included_measurement_count": 6,
   "measurement_ids": [
-    "pytestprofilemeasure_34438af543c208e270d88ed5fbad655fa97a0e762abeb6bfba6ee3b141401337",
+    "pytestprofilemeasure_103ac7d590bd136ef65baaeb85c1086894288d3c268b8d29e5ef283506d1a57a",
     "pytestprofilemeasure_3d95fee2f31f527bd6e6dae5482a3c6fb07e417c2bf1f8b6825aa71678cdb0cd",
     "pytestprofilemeasure_47deaab2a4a7d0dd1fc3e3854323fb11f1d7b1ce41473a859effd1763d030408",
     "pytestprofilemeasure_70571359bee4f751b3f6e5caad6429de8535c8b9fbbbc6c83d0e0083a5122ef2",
@@ -177,16 +177,16 @@
     },
     "unit": {
       "failed_count": 0,
-      "max_peak_rss_bytes": 91549696,
+      "max_peak_rss_bytes": 90361856,
       "measurement_count": 1,
       "measurement_ids": [
-        "pytestprofilemeasure_34438af543c208e270d88ed5fbad655fa97a0e762abeb6bfba6ee3b141401337"
+        "pytestprofilemeasure_103ac7d590bd136ef65baaeb85c1086894288d3c268b8d29e5ef283506d1a57a"
       ],
       "passed_count": 1,
       "pytest_passed_tests": {
-        "max": 393,
-        "median": 393,
-        "min": 393
+        "max": 398,
+        "median": 398,
+        "min": 398
       },
       "rss_measurements": {
         "process_peak_working_set": 1
@@ -202,9 +202,9 @@
         "min": 0
       },
       "wall_seconds": {
-        "max": 219.824442,
-        "median": 219.824442,
-        "min": 219.824442
+        "max": 221.055697,
+        "median": 221.055697,
+        "min": 221.055697
       }
     }
   },
@@ -289,12 +289,12 @@
       },
       "unit": {
         "baseline_pytest_passed_count": 299,
-        "current_pytest_passed_count": 393,
+        "current_pytest_passed_count": 398,
         "passed": false,
-        "pytest_passed_count_delta": 94,
+        "pytest_passed_count_delta": 99,
         "stderr_bytes_median_ratio": 0.0,
         "stdout_bytes_median_ratio": 0.0,
-        "wall_seconds_median_ratio": 2.49222,
+        "wall_seconds_median_ratio": 2.506179,
         "workload_count_changed": true
       }
     },

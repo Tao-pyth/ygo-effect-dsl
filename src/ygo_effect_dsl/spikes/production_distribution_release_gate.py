@@ -289,6 +289,17 @@ def evaluate_production_distribution_release_gate(
         ),
         _missing_or_invalid_json_check(
             root,
+            check_id="observability_redaction_retention_verified",
+            category="operations",
+            evidence=_evidence_ref(
+                evidence_path,
+                "v1_0_0_observability_redaction_retention.json",
+            ),
+            schema_version="v1-observability-redaction-retention-v1",
+            require_passed=True,
+        ),
+        _missing_or_invalid_json_check(
+            root,
             check_id="installer_packaging_verified",
             category="installer",
             evidence=_evidence_ref(evidence_path, "v1_0_0_installer_packaging.json"),

@@ -1,0 +1,90 @@
+{
+  "checks": [
+    {
+      "evidence": "docs/adr/0025_v1_observability_redaction_retention.md",
+      "id": "observability_redaction_retention_policy_documented",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/engine/information/artifact_audit.py;tests/test_information_artifact_audit.py",
+      "id": "information_access_audit_blocks_private_canaries_and_side_channels",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/cli/cmd_experiment.py;tests/test_player_view_cli.py;tests/test_player_view_replay.py",
+      "id": "player_view_publication_blocks_leaks_and_writes_safe_failures",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/engine/failures.py;src/ygo_effect_dsl/prototype/frontier.py;docs/bridge/60_failure_policy.md",
+      "id": "worker_crash_diagnostics_are_digest_or_code_based",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "docs/adr/0025_v1_observability_redaction_retention.md;src/ygo_effect_dsl/storage/policy.py",
+      "id": "retention_policy_separates_private_local_and_committed_evidence",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "tests/test_observability_redaction_retention_release_gate.py",
+      "id": "tests_cover_v1_observability_redaction_retention_gate",
+      "passed": true,
+      "reason": "verified"
+    }
+  ],
+  "evidence_id": "v1obsredactretention_34ed81a74df605d8754c07e6cf1a652aa41985118eee82ecb80f0c58d053e4ea",
+  "issue": 175,
+  "matrix": [
+    {
+      "id": "structured_observability_records",
+      "raw_payload_retained_by_default": false,
+      "status": "verified"
+    },
+    {
+      "id": "player_view_redaction_boundary",
+      "raw_payload_retained_by_default": false,
+      "status": "verified"
+    },
+    {
+      "id": "private_canary_leak_tests",
+      "raw_payload_retained_by_default": false,
+      "status": "verified"
+    },
+    {
+      "id": "raw_hidden_payload_default_off",
+      "raw_payload_retained_by_default": false,
+      "status": "verified"
+    },
+    {
+      "id": "worker_crash_safe_failure_report",
+      "raw_payload_retained_by_default": false,
+      "status": "verified"
+    },
+    {
+      "id": "retention_and_deletion_policy",
+      "raw_payload_retained_by_default": false,
+      "status": "verified"
+    }
+  ],
+  "package_version": "0.8.0",
+  "passed": true,
+  "policy": {
+    "crash_dumps_default": "disabled",
+    "public_failure_report": "safe_code_only",
+    "redaction_gate": "information-access-audit-v2",
+    "retention_private_support_days": 30,
+    "structured_observability_requires": [
+      "correlation_id",
+      "diagnostic_code",
+      "cli_exit_category",
+      "schema_or_contract_version"
+    ]
+  },
+  "rejection_reasons": [],
+  "schema_version": "v1-observability-redaction-retention-v1"
+}

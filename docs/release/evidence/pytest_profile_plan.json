@@ -1,5 +1,5 @@
 {
-  "evidence_id": "pytestprofile_55583bbd967e82025978193cb73cc21b7e673af178b51de8f5f69b0868922832",
+  "evidence_id": "pytestprofile_64f0d76defe0dc6035746a57ed91c4864aed6b5842d7c6e9a40d7e7b1a9e5c32",
   "package_version": "0.8.0",
   "profiles": {
     "evidence": {
@@ -207,7 +207,7 @@
       ]
     },
     "unit": {
-      "file_count": 57,
+      "file_count": 58,
       "files": [
         "tests/test_action_aggregation.py",
         "tests/test_action_models.py",
@@ -237,6 +237,7 @@
         "tests/test_io_atomic.py",
         "tests/test_multi_interruption_composition.py",
         "tests/test_multi_turn_lifecycle.py",
+        "tests/test_observability_redaction_retention_release_gate.py",
         "tests/test_peak_durability.py",
         "tests/test_pipeline_smoke.py",
         "tests/test_prefix_cache.py",
@@ -297,6 +298,7 @@
         "tests/test_io_atomic.py",
         "tests/test_multi_interruption_composition.py",
         "tests/test_multi_turn_lifecycle.py",
+        "tests/test_observability_redaction_retention_release_gate.py",
         "tests/test_peak_durability.py",
         "tests/test_pipeline_smoke.py",
         "tests/test_prefix_cache.py",
@@ -343,7 +345,7 @@
   },
   "schema_version": "pytest-profile-plan-v1",
   "source": {
-    "discovered_file_count": 139,
+    "discovered_file_count": 140,
     "repo_root_name": "ygo-effect-dsl"
   },
   "validation": {
