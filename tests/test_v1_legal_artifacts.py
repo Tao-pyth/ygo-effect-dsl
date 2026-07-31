@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import json
-import tomllib
+import re
 from pathlib import Path
 
 from ygo_effect_dsl.external.licensing import load_distribution_policy
 from ygo_effect_dsl.external.ocgcore import load_ocgcore_asset_lock, load_ocgcore_lock
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover - covered by Python 3.10 CI
+    tomllib = None
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -16,9 +21,63 @@ def _json(name: str) -> dict:
     return json.loads((EVIDENCE / name).read_text(encoding="utf-8"))
 
 
+def _section(text: str, name: str) -> str:
+    marker = f"[{name}]"
+    _, _, after = text.partition(marker)
+    assert after, f"missing pyproject.toml section: {name}"
+    return after.split("\n[", 1)[0]
+
+
+def _quoted_values(source: str) -> list[str]:
+    return re.findall(r'"([^"]+)"', source)
+
+
+def _array_value(section: str, key: str) -> list[str]:
+    match = re.search(
+        rf"^{re.escape(key)}\s*=\s*\[(.*?)\]",
+        section,
+        re.MULTILINE | re.DOTALL,
+    )
+    assert match, f"missing pyproject.toml array: {key}"
+    return _quoted_values(match.group(1))
+
+
+def _project_name(section: str) -> str:
+    match = re.search(r'^name\s*=\s*"([^"]+)"', section, re.MULTILINE)
+    assert match, "missing pyproject.toml project name"
+    return match.group(1)
+
+
+def _load_pyproject_release_surface() -> dict:
+    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    if tomllib is not None:
+        return tomllib.loads(text)
+
+    project = _section(text, "project")
+    optional_dependencies = _section(text, "project.optional-dependencies")
+    groups = {
+        name: _quoted_values(values)
+        for name, values in re.findall(
+            r"^([A-Za-z0-9_-]+)\s*=\s*\[(.*?)\]",
+            optional_dependencies,
+            re.MULTILINE | re.DOTALL,
+        )
+    }
+    return {
+        "project": {
+            "name": _project_name(project),
+            "dependencies": _array_value(project, "dependencies"),
+            "optional-dependencies": groups,
+        },
+        "build-system": {
+            "requires": _array_value(_section(text, "build-system"), "requires"),
+        },
+    }
+
+
 def test_v1_sbom_matches_pyproject_dependency_surface() -> None:
     sbom = _json("v1_0_0_sbom.json")
-    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    pyproject = _load_pyproject_release_surface()
     project = pyproject["project"]
 
     requirements = {component.get("requirement") for component in sbom["components"]}
