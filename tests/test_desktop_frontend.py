@@ -302,7 +302,8 @@ def test_desktop_frontend_uses_japanese_copy_and_rejects_mojibake() -> None:
     assert "Recovery probe" not in combined
 
 
-def test_release_facing_0_8_docs_reject_mojibake() -> None:
+def test_release_facing_0_8_and_1_0_docs_reject_mojibake() -> None:
+    v1_spec_root = REPO_ROOT / "docs" / "spec" / "v1.0.0"
     release_docs = [
         REPO_ROOT / "README.md",
         REPO_ROOT / "CHANGELOG.md",
@@ -310,6 +311,9 @@ def test_release_facing_0_8_docs_reject_mojibake() -> None:
         REPO_ROOT / "docs" / "release" / "00_versioning.md",
         REPO_ROOT / "docs" / "spec" / "00_release_stage_index.md",
         REPO_ROOT / "docs" / "spec" / "v0.8.0" / "00_scope.md",
+        v1_spec_root / "00_scope.md",
+        v1_spec_root / "10_production_distribution_contracts.md",
+        v1_spec_root / "20_work_breakdown_and_acceptance.md",
     ]
     combined = "\n".join(path.read_text(encoding="utf-8") for path in release_docs)
 

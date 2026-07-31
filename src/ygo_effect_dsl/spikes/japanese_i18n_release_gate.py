@@ -24,6 +24,9 @@ RELEASE_FACING_DOCS = (
     Path("docs/release/00_versioning.md"),
     Path("docs/spec/00_release_stage_index.md"),
     Path("docs/spec/v0.8.0/00_scope.md"),
+    Path("docs/spec/v1.0.0/00_scope.md"),
+    Path("docs/spec/v1.0.0/10_production_distribution_contracts.md"),
+    Path("docs/spec/v1.0.0/20_work_breakdown_and_acceptance.md"),
 )
 
 
