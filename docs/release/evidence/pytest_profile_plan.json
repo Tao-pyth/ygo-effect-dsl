@@ -1,5 +1,5 @@
 {
-  "evidence_id": "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
+  "evidence_id": "pytestprofile_0850f1b4f403fa569d642c728a0b94a2dbfdf585e706d23bf22793a15ede2be4",
   "package_version": "0.8.0",
   "profiles": {
     "evidence": {
@@ -205,7 +205,7 @@
       ]
     },
     "unit": {
-      "file_count": 45,
+      "file_count": 48,
       "files": [
         "tests/test_action_aggregation.py",
         "tests/test_action_models.py",
@@ -235,6 +235,7 @@
         "tests/test_peak_durability.py",
         "tests/test_pipeline_smoke.py",
         "tests/test_prefix_cache.py",
+        "tests/test_project_license_approval.py",
         "tests/test_prototype_runtime.py",
         "tests/test_pytest_profile_plan.py",
         "tests/test_reporting.py",
@@ -251,7 +252,9 @@
         "tests/test_terminal_preference.py",
         "tests/test_terminal_preference_catalog.py",
         "tests/test_transform_v0.py",
-        "tests/test_v03a_contracts.py"
+        "tests/test_v03a_contracts.py",
+        "tests/test_v1_legal_artifacts.py",
+        "tests/test_v1_support_matrix.py"
       ],
       "pytest_args": [
         "-q",
@@ -283,6 +286,7 @@
         "tests/test_peak_durability.py",
         "tests/test_pipeline_smoke.py",
         "tests/test_prefix_cache.py",
+        "tests/test_project_license_approval.py",
         "tests/test_prototype_runtime.py",
         "tests/test_pytest_profile_plan.py",
         "tests/test_reporting.py",
@@ -299,7 +303,9 @@
         "tests/test_terminal_preference.py",
         "tests/test_terminal_preference_catalog.py",
         "tests/test_transform_v0.py",
-        "tests/test_v03a_contracts.py"
+        "tests/test_v03a_contracts.py",
+        "tests/test_v1_legal_artifacts.py",
+        "tests/test_v1_support_matrix.py"
       ]
     }
   },
@@ -317,7 +323,7 @@
   },
   "schema_version": "pytest-profile-plan-v1",
   "source": {
-    "discovered_file_count": 126,
+    "discovered_file_count": 129,
     "repo_root_name": "ygo-effect-dsl"
   },
   "validation": {

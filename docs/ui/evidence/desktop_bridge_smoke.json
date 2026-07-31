@@ -4,7 +4,7 @@
     "diagnostics": [],
     "method": "analytics.query",
     "ok": true,
-    "request_id": "renderer-3",
+    "request_id": "renderer-4",
     "result": {
       "matched_rows": 0,
       "next_cursor": null,
@@ -16,21 +16,21 @@
     },
     "schema_version": "desktop-bridge-response-v1"
   },
-  "elapsed_seconds": 2.160333,
-  "evidence_id": "desktopbridgesmoke_760509ebd219bff3ce0660d2a7e6d46395156c4eb1dbc92aec02671b20255207",
+  "elapsed_seconds": 2.06456,
+  "evidence_id": "desktopbridgesmoke_dc7de131e1e87d7e92b707ad333101f2b4297047714e6a76399e5251b5a021f2",
   "export_response": {
     "details": {},
     "diagnostics": [],
     "method": "analytics.export.enqueue",
     "ok": true,
-    "request_id": "renderer-4",
+    "request_id": "renderer-5",
     "result": {
       "export_request_id": "analyticsexportrequest_6318864689d53c57b8922e894363a16cb296efffb3bb24aca2be01d7d94e2dfa",
       "job": {
         "artifact_set_id": null,
         "attempt": 0,
         "attempt_deadline_at": null,
-        "created_at": "2026-07-15T20:26:32.427981Z",
+        "created_at": "2026-07-31T09:22:07.875899Z",
         "deadline_at": null,
         "error_code": null,
         "error_message": null,
@@ -77,7 +77,7 @@
           "schema_version": "job-spec-v2"
         },
         "state": "queued",
-        "updated_at": "2026-07-15T20:26:32.427981Z"
+        "updated_at": "2026-07-31T09:22:07.875899Z"
       }
     },
     "schema_version": "desktop-bridge-response-v1"
@@ -92,7 +92,7 @@
   },
   "frontend": {
     "entrypoint": "index.html",
-    "sha256": "3f44816c7db5e37709c60836c034a42cabbf4b7340691448665225f2a8110542",
+    "sha256": "97433b6dbfd27f2b2e966bd31a5816926c38fd46b0de8d91df803b5b7be3b4d7",
     "workflow_version": "desktop-workflow-v1"
   },
   "limitations": [
@@ -106,7 +106,7 @@
     "diagnostics": [],
     "method": "system.describe",
     "ok": true,
-    "request_id": "renderer-2",
+    "request_id": "renderer-3",
     "result": {
       "capabilities": {
         "analytics_export": true,
@@ -118,17 +118,22 @@
         "analytics_query": true,
         "card_presentation": false,
         "comparison": false,
+        "deck_card_options": false,
+        "deck_metadata": true,
+        "deck_terminal_profiles": true,
         "export_worker_health": "unknown",
         "native_ydk_import": false,
         "search_job_queue": true,
+        "terminal_preference_profiles": true,
+        "verified_result_view": true,
         "worker_execution": "external_worker_required",
         "worker_health": "unknown"
       },
-      "package_version": "0.3.0",
+      "package_version": "0.8.0",
       "schema_version": "desktop-application-service-v1"
     },
     "schema_version": "desktop-bridge-response-v1"
   },
   "schema_version": "desktop-bridge-smoke-v1",
-  "webview2_version": "150.0.4078.65"
+  "webview2_version": "150.0.4078.105"
 }
