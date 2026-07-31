@@ -1,0 +1,51 @@
+{
+  "artifact_scope": ["wheel", "sdist", "windows_executable", "installer"],
+  "components": [
+    {
+      "id": "pkg:ygo-effect-dsl",
+      "license": "NOASSERTION",
+      "name": "ygo-effect-dsl",
+      "relationship": "root_project",
+      "source": "repository",
+      "version": "dynamic"
+    },
+    {
+      "id": "pkg:pypi/PyYAML",
+      "license": "NOASSERTION",
+      "name": "PyYAML",
+      "relationship": "runtime_dependency",
+      "requirement": "PyYAML>=6.0"
+    },
+    {
+      "id": "pkg:pypi/pyarrow",
+      "license": "NOASSERTION",
+      "name": "pyarrow",
+      "relationship": "optional_analytics_dependency",
+      "requirement": "pyarrow==25.0.0"
+    },
+    {
+      "id": "pkg:pypi/pywebview",
+      "license": "NOASSERTION",
+      "name": "pywebview",
+      "relationship": "optional_desktop_dependency",
+      "requirement": "pywebview==6.2.1"
+    },
+    {
+      "id": "pkg:pypi/setuptools",
+      "license": "NOASSERTION",
+      "name": "setuptools",
+      "relationship": "build_backend_dependency",
+      "requirement": "setuptools>=68"
+    }
+  ],
+  "external_local_only_components": [
+    "ocgcore",
+    "card_scripts",
+    "card_database",
+    "lua",
+    "premake"
+  ],
+  "issue": 170,
+  "schema_version": "v1-sbom-v1",
+  "third_party_payload_policy": "external_local_only_components_are_not_release_payloads"
+}

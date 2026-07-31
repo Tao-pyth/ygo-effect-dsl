@@ -61,6 +61,8 @@ def test_wheel_and_sdist_audit_preserve_fail_closed_policy(tmp_path: Path) -> No
     "name",
     [
         "fixture/ocgcore.dll",
+        "fixture/native_module.pyd",
+        "fixture/libnative.so",
         "fixture/cards.cdb",
         "fixture/CardScripts/c100.lua",
         "fixture/premake5.exe",
@@ -73,6 +75,16 @@ def test_release_audit_rejects_third_party_payload_candidates(
     _wheel(wheel, extra_name=name)
 
     with pytest.raises(ReleaseArtifactAuditError, match="payload candidates"):
+        audit_release_artifact(wheel)
+
+
+def test_release_audit_rejects_oversized_members_without_allowlist(tmp_path: Path) -> None:
+    wheel = tmp_path / "fixture.whl"
+    with zipfile.ZipFile(wheel, mode="w") as archive:
+        archive.writestr(POLICY_PATH, POLICY)
+        archive.writestr("fixture/large-generated.json", b"x" * (10 * 1024 * 1024 + 1))
+
+    with pytest.raises(ReleaseArtifactAuditError, match="oversized release members"):
         audit_release_artifact(wheel)
 
 

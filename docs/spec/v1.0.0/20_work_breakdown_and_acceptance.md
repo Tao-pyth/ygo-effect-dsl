@@ -10,7 +10,7 @@ Last updated: 2026-07-14
 |---|---|---|---|
 | 1 | [#168](https://github.com/Tao-pyth/ygo-effect-dsl/issues/168) | platform/compatibility matrix | [support matrix](30_support_matrix.md)、[`v1_0_0_support_matrix.json`](../../release/evidence/v1_0_0_support_matrix.json)、clean environment matrix、old artifact replay |
 | 2 | [#91](https://github.com/Tao-pyth/ygo-effect-dsl/issues/91), [#169](https://github.com/Tao-pyth/ygo-effect-dsl/issues/169) | license decision/package metadata | approval record、LICENSE/NOTICE/metadata parity |
-| 3 | [#170](https://github.com/Tao-pyth/ygo-effect-dsl/issues/170) | SBOM/notices/asset allowlist | artifact inventory、unknown binary rejection |
+| 3 | [#170](https://github.com/Tao-pyth/ygo-effect-dsl/issues/170) | SBOM/notices/asset allowlist | [SBOM/notices/asset allowlist](../../legal/30_sbom_notices_asset_allowlist.md)、artifact inventory、unknown binary rejection |
 | 4 | [#171](https://github.com/Tao-pyth/ygo-effect-dsl/issues/171) | reproducible build/checksum/provenance | independent build comparison、attestation |
 | 5 | [#172](https://github.com/Tao-pyth/ygo-effect-dsl/issues/172) | wheel/sdist/executable upgrade/rollback | clean venv/machine、migration/rollback matrix |
 | 6 | [#173](https://github.com/Tao-pyth/ygo-effect-dsl/issues/173) | signed/gated GitHub Release | dry-run、approval、yank/rollback、action pinning |

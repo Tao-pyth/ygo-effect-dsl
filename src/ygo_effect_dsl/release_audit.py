@@ -12,8 +12,19 @@ from typing import Any, Iterable
 
 RELEASE_ARTIFACT_AUDIT_SCHEMA_VERSION = "release-artifact-audit-v1"
 POLICY_SUFFIX = "ygo_effect_dsl/resources/distribution-policy-v1.json"
-FORBIDDEN_SUFFIXES = {".cdb", ".dll", ".exe", ".lua"}
+FORBIDDEN_SUFFIXES = {
+    ".bin",
+    ".cdb",
+    ".dat",
+    ".dll",
+    ".dylib",
+    ".exe",
+    ".lua",
+    ".pyd",
+    ".so",
+}
 FORBIDDEN_PATH_PARTS = {"babelcdb", "cardscripts", "ygopro-core"}
+MAX_RELEASE_MEMBER_BYTES = 10 * 1024 * 1024
 
 
 class ReleaseArtifactAuditError(ValueError):
@@ -28,21 +39,33 @@ def _normalized_member(name: str) -> PurePosixPath:
     return normalized
 
 
-def _validate_members(names: Iterable[str]) -> tuple[str, ...]:
-    normalized = tuple(str(_normalized_member(name)) for name in names)
+def _validate_member_records(records: Iterable[tuple[str, int]]) -> tuple[str, ...]:
+    normalized = tuple((str(_normalized_member(name)), size) for name, size in records)
     forbidden: list[str] = []
-    for name in normalized:
+    oversized: list[str] = []
+    for name, size in normalized:
         path = PurePosixPath(name)
         lowered_parts = {part.lower() for part in path.parts}
         if path.suffix.lower() in FORBIDDEN_SUFFIXES:
             forbidden.append(name)
         elif lowered_parts & FORBIDDEN_PATH_PARTS:
             forbidden.append(name)
+        if size > MAX_RELEASE_MEMBER_BYTES:
+            oversized.append(f"{name} ({size} bytes)")
     if forbidden:
         raise ReleaseArtifactAuditError(
             "third-party payload candidates found: " + ", ".join(sorted(forbidden))
         )
-    return normalized
+    if oversized:
+        raise ReleaseArtifactAuditError(
+            "oversized release members require explicit allowlist: "
+            + ", ".join(sorted(oversized))
+        )
+    return tuple(name for name, _ in normalized)
+
+
+def _validate_members(names: Iterable[str]) -> tuple[str, ...]:
+    return _validate_member_records((name, 0) for name in names)
 
 
 def _validate_policy(raw: bytes, *, artifact: Path) -> str:
@@ -86,10 +109,12 @@ def audit_release_artifact(path: str | Path) -> dict[str, Any]:
                     f"{artifact.name} contains symbolic links: "
                     + ", ".join(sorted(links))
                 )
-            file_names = tuple(
-                item.filename for item in archive.infolist() if not item.is_dir()
+            file_records = tuple(
+                (item.filename, item.file_size)
+                for item in archive.infolist()
+                if not item.is_dir()
             )
-            members = _validate_members(file_names)
+            members = _validate_member_records(file_records)
             policy_members = [name for name in members if name.endswith(POLICY_SUFFIX)]
             if len(policy_members) != 1:
                 raise ReleaseArtifactAuditError(
@@ -111,7 +136,7 @@ def audit_release_artifact(path: str | Path) -> dict[str, Any]:
                     + ", ".join(sorted(special))
                 )
             regular = tuple(item for item in archive_members if item.isfile())
-            members = _validate_members(item.name for item in regular)
+            members = _validate_member_records((item.name, item.size) for item in regular)
             policy_members = [name for name in members if name.endswith(POLICY_SUFFIX)]
             if len(policy_members) != 1:
                 raise ReleaseArtifactAuditError(

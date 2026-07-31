@@ -1,0 +1,38 @@
+{
+  "artifacts": [
+    {
+      "artifact_kind": "wheel",
+      "asset_allowlist": "docs/release/evidence/v1_0_0_asset_allowlist.json",
+      "notice": "docs/release/evidence/v1_0_0_third_party_notices.md",
+      "release_audit_required": true,
+      "sbom": "docs/release/evidence/v1_0_0_sbom.json",
+      "third_party_payload_policy": "none_allowed"
+    },
+    {
+      "artifact_kind": "sdist",
+      "asset_allowlist": "docs/release/evidence/v1_0_0_asset_allowlist.json",
+      "notice": "docs/release/evidence/v1_0_0_third_party_notices.md",
+      "release_audit_required": true,
+      "sbom": "docs/release/evidence/v1_0_0_sbom.json",
+      "third_party_payload_policy": "none_allowed"
+    },
+    {
+      "artifact_kind": "windows_executable",
+      "asset_allowlist": "docs/release/evidence/v1_0_0_asset_allowlist.json",
+      "notice": "docs/release/evidence/v1_0_0_third_party_notices.md",
+      "release_audit_required": true,
+      "sbom": "docs/release/evidence/v1_0_0_sbom.json",
+      "third_party_payload_policy": "none_allowed"
+    },
+    {
+      "artifact_kind": "installer",
+      "asset_allowlist": "docs/release/evidence/v1_0_0_asset_allowlist.json",
+      "notice": "docs/release/evidence/v1_0_0_third_party_notices.md",
+      "release_audit_required": true,
+      "sbom": "docs/release/evidence/v1_0_0_sbom.json",
+      "third_party_payload_policy": "none_allowed"
+    }
+  ],
+  "issue": 170,
+  "schema_version": "v1-release-artifact-composition-v1"
+}

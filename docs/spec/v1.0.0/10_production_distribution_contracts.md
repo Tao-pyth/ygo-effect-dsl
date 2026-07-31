@@ -28,6 +28,8 @@ Frozen target matrixは[1.0.0 support matrix](30_support_matrix.md)を正本と�
 - unknown binary、large DB、Lua tree、DLLのartifact混入をCIで拒否する。
 - SBOMとthird-party noticeをrelease artifactごとに生成する。
 
+v1.0.0のSBOM、third-party notice、asset allowlist、artifact composition evidenceは[legal evidence index](../../legal/30_sbom_notices_asset_allowlist.md)を正本とする。
+
 license判断は技術的推測で代替せず、必要な法務承認記録へlinkする。
 
 ## Reproducible build and provenance
