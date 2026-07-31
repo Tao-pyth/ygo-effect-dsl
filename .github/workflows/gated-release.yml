@@ -1,6 +1,9 @@
 name: Gated GitHub Release
 
 on:
+  push:
+    branches:
+      - codex/v1.0.0-production-distribution
   workflow_dispatch:
     inputs:
       release_version:
@@ -49,7 +52,7 @@ jobs:
           --out gated-release-policy.json
 
       - name: Verify production distribution gate before public publish
-        if: ${{ inputs.dry_run != 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run != 'true' }}
         run: >
           python -m ygo_effect_dsl production-distribution-gate
           --repo-root .
@@ -88,12 +91,12 @@ jobs:
               raise SystemExit("release version is missing from CHANGELOG.md")
           PY
         env:
-          DRY_RUN: ${{ inputs.dry_run }}
-          EXPECTED_TAG: ${{ inputs.expected_tag }}
-          RELEASE_VERSION: ${{ inputs.release_version }}
+          DRY_RUN: ${{ github.event_name != 'workflow_dispatch' || inputs.dry_run }}
+          EXPECTED_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_tag || 'v1.0.0-dry-run' }}
+          RELEASE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.release_version || '1.0.0-dry-run' }}
 
       - name: Verify signed release tag
-        if: ${{ inputs.dry_run != 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run != 'true' }}
         run: git tag -v "${{ inputs.expected_tag }}"
 
       - name: Build release artifacts for gated release
@@ -109,7 +112,7 @@ jobs:
             dist-gated-release/*.whl dist-gated-release/*.tar.gz
 
       - name: Publish GitHub Release
-        if: ${{ inputs.dry_run != 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run != 'true' }}
         run: >
           gh release create "${{ inputs.expected_tag }}"
           dist-gated-release/*
