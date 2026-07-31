@@ -24,6 +24,27 @@ SUPPORTED_EXPERIMENT_SCHEMA_VERSIONS = {
     INFORMATION_POLICY_EXPERIMENT_SCHEMA_VERSION,
     EXPERIMENT_SCHEMA_VERSION,
 }
+EXPERIMENT_TOP_LEVEL_FIELDS = {
+    "deck",
+    "durability_evaluate_at",
+    "evaluate_at",
+    "evaluator",
+    "experiment_id",
+    "information_mode",
+    "information_policy",
+    "interruption",
+    "objective",
+    "player",
+    "prototype",
+    "replay",
+    "runner",
+    "scenario",
+    "schema_version",
+    "search",
+    "success_predicate",
+    "terminal_preference_profile",
+    "turn_limit",
+}
 INFORMATION_MODES = {
     "complete_information",
     "player_view",
@@ -469,6 +490,14 @@ def validate_experiment(value: Any) -> tuple[ExperimentValidationIssue, ...]:
     if not isinstance(value, Mapping):
         return (
             ExperimentValidationIssue("$", "expected_mapping", "must be a mapping"),
+        )
+    for field in sorted(set(value) - EXPERIMENT_TOP_LEVEL_FIELDS):
+        issues.append(
+            ExperimentValidationIssue(
+                f"$.{field}",
+                "unknown_experiment_field",
+                "is not allowed in this Experiment schema contract",
+            )
         )
     schema_version = value.get("schema_version")
     if schema_version not in SUPPORTED_EXPERIMENT_SCHEMA_VERSIONS:

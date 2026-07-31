@@ -89,6 +89,9 @@ from ygo_effect_dsl.spikes.external_asset_setup_release_gate import (
 from ygo_effect_dsl.spikes.gated_release_workflow_gate import (
     write_v1_gated_release,
 )
+from ygo_effect_dsl.spikes.compatibility_policy_release_gate import (
+    write_v1_compatibility_policy,
+)
 
 
 def _profile_inputs(values: list[str]) -> dict[str, str]:
@@ -834,6 +837,21 @@ def cmd_v1_gated_release(args: argparse.Namespace) -> int:
     return 0 if evidence["passed"] else 1
 
 
+def cmd_v1_compatibility_policy(args: argparse.Namespace) -> int:
+    evidence = write_v1_compatibility_policy(
+        args.repo_root,
+        output_path=args.out,
+    )
+    status = "passed" if evidence["passed"] else "failed"
+    print(
+        "v1-compatibility-policy: "
+        f"{status} evidence_id={evidence['evidence_id']} "
+        f"rejections={','.join(evidence['rejection_reasons']) or '-'} "
+        f"out={args.out}"
+    )
+    return 0 if evidence["passed"] else 1
+
+
 def cmd_v1_installer_packaging(args: argparse.Namespace) -> int:
     evidence = write_v1_installer_packaging(
         args.repo_root,
@@ -953,6 +971,7 @@ __all__ = [
     "cmd_production_distribution_gate",
     "cmd_v1_authenticode_signing",
     "cmd_v1_build_provenance",
+    "cmd_v1_compatibility_policy",
     "cmd_real_deck_qualify",
     "cmd_research_dashboard_qualification",
     "cmd_research_dashboard_qualification_bundle",

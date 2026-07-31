@@ -87,6 +87,14 @@
       "required": true
     },
     {
+      "category": "compatibility",
+      "evidence": "docs/release/evidence/v1_0_0_compatibility_policy.json",
+      "id": "compatibility_policy_verified",
+      "passed": true,
+      "reason": "verified",
+      "required": true
+    },
+    {
       "category": "installer",
       "evidence": "docs/release/evidence/v1_0_0_installer_packaging.json",
       "id": "installer_packaging_verified",
@@ -159,7 +167,7 @@
       "required": true
     }
   ],
-  "evidence_id": "productiondistgate_1b3ccef36fe365d7148761287d2ac2910563cff33d62b65a300f48221386685d",
+  "evidence_id": "productiondistgate_5b42ea13069b82b719b25cf6f220eef00deacd5ab4d22689227f9cdfb9e5ed62",
   "issue": 359,
   "package_version": "0.8.0",
   "passed": false,

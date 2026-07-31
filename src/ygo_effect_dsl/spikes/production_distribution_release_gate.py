@@ -281,6 +281,14 @@ def evaluate_production_distribution_release_gate(
         ),
         _missing_or_invalid_json_check(
             root,
+            check_id="compatibility_policy_verified",
+            category="compatibility",
+            evidence=_evidence_ref(evidence_path, "v1_0_0_compatibility_policy.json"),
+            schema_version="v1-compatibility-policy-v1",
+            require_passed=True,
+        ),
+        _missing_or_invalid_json_check(
+            root,
             check_id="installer_packaging_verified",
             category="installer",
             evidence=_evidence_ref(evidence_path, "v1_0_0_installer_packaging.json"),

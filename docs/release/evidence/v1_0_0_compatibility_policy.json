@@ -1,0 +1,96 @@
+{
+  "checks": [
+    {
+      "evidence": "docs/adr/0024_v1_compatibility_policy.md",
+      "id": "schema_cli_api_artifact_compatibility_policy_documented",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/experiment/schema.py;src/ygo_effect_dsl/experiment/resolution.py;tests/test_experiment_schema.py",
+      "id": "experiment_legacy_current_and_future_schema_boundaries_tested",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/route_dsl/validator.py;src/ygo_effect_dsl/experiment/resolution.py;tests/test_route_dsl.py",
+      "id": "route_replay_version_mismatch_fails_closed",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "docs/bridge/50_compatibility_matrix.md",
+      "id": "bridge_and_replay_unknown_messages_fail_closed",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/cli/main.py;src/ygo_effect_dsl/cli/cmd_qualification.py",
+      "id": "migration_and_compatibility_gate_cli_exposed",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "tests/test_compatibility_policy_release_gate.py",
+      "id": "tests_cover_v1_compatibility_policy_gate",
+      "passed": true,
+      "reason": "verified"
+    }
+  ],
+  "evidence_id": "v1compatpolicy_24f126e7ef25ac57890d07fecaf37f8b7ee533ef73e92450cc1871e59745fc49",
+  "issue": 174,
+  "matrix": [
+    {
+      "id": "experiment_0_3a_backward_read_explicit_migration",
+      "requires_explicit_migration": true,
+      "status": "verified"
+    },
+    {
+      "id": "experiment_0_3b_executable_compatibility",
+      "requires_explicit_migration": false,
+      "status": "verified"
+    },
+    {
+      "id": "experiment_0_4_current",
+      "requires_explicit_migration": false,
+      "status": "verified"
+    },
+    {
+      "id": "route_replay_strict_version",
+      "requires_explicit_migration": false,
+      "status": "verified"
+    },
+    {
+      "id": "forward_schema_rejection",
+      "requires_explicit_migration": false,
+      "status": "verified"
+    },
+    {
+      "id": "unknown_field_enum_rejection",
+      "requires_explicit_migration": false,
+      "status": "verified"
+    },
+    {
+      "id": "diagnostic_code_policy",
+      "requires_explicit_migration": false,
+      "status": "verified"
+    }
+  ],
+  "package_version": "0.8.0",
+  "passed": true,
+  "policy": {
+    "backward_read": [
+      "Experiment 0.3a explicit migration input"
+    ],
+    "current_execution": [
+      "Experiment 0.3b",
+      "Experiment 0.4"
+    ],
+    "forward_rejection": true,
+    "migration_command": "experiment-migrate",
+    "no_silent_migration": true,
+    "semver_scope": "package and CLI distribution only"
+  },
+  "rejection_reasons": [],
+  "schema_version": "v1-compatibility-policy-v1"
+}

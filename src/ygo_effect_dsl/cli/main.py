@@ -58,6 +58,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_strategy_interruption_qualify,
     cmd_v1_authenticode_signing,
     cmd_v1_build_provenance,
+    cmd_v1_compatibility_policy,
     cmd_v1_desktop_settings,
     cmd_v1_external_asset_setup,
     cmd_v1_gated_release,
@@ -1223,6 +1224,23 @@ def main() -> int:
         help="content-addressed v1 gated release evidence JSON path",
     )
     v1_gated_release.set_defaults(func=cmd_v1_gated_release)
+
+    v1_compatibility_policy = sub.add_parser(
+        "v1-compatibility-policy",
+        help="evaluate the v1.0.0 schema, CLI, API, and artifact compatibility policy",
+    )
+    v1_compatibility_policy.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing compatibility policy evidence",
+    )
+    v1_compatibility_policy.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed v1 compatibility policy evidence JSON path",
+    )
+    v1_compatibility_policy.set_defaults(func=cmd_v1_compatibility_policy)
 
     v1_installer_packaging = sub.add_parser(
         "v1-installer-packaging",
