@@ -48,13 +48,69 @@ jobs:
 
       - name: Build and audit wheel and sdist
         run: |
-          python -m build
-          python -m ygo_effect_dsl.release_audit dist/*.whl dist/*.tar.gz > release-artifact-audit.json
+          export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
+          python -m venv .build-env-primary
+          python -m venv .build-env-independent
+          .build-env-primary/bin/python -m pip install --upgrade pip build
+          .build-env-independent/bin/python -m pip install --upgrade pip build
+          .build-env-primary/bin/python -m build --outdir dist-primary
+          .build-env-independent/bin/python -m build --outdir dist-independent
+          python -m ygo_effect_dsl.spikes.build_provenance_manifest \
+            --repo-root . \
+            --build-kind wheel-sdist-ubuntu \
+            --source-date-epoch "$SOURCE_DATE_EPOCH" \
+            --out build-provenance-ubuntu.json \
+            --checksum-out release-checksums.json \
+            dist-primary/*.whl dist-primary/*.tar.gz \
+            dist-independent/*.whl dist-independent/*.tar.gz
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          def sha256(path: Path) -> str:
+              digest = hashlib.sha256()
+              with path.open("rb") as stream:
+                  for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                      digest.update(chunk)
+              return digest.hexdigest()
+
+          primary = {path.name: sha256(path) for path in Path("dist-primary").iterdir()}
+          independent = {
+              path.name: sha256(path) for path in Path("dist-independent").iterdir()
+          }
+          rows = []
+          for name in sorted(primary.keys() | independent.keys()):
+              rows.append(
+                  {
+                      "artifact_name": name,
+                      "primary_sha256": primary.get(name),
+                      "independent_sha256": independent.get(name),
+                      "matching": primary.get(name) == independent.get(name),
+                      "field_level_difference_explanation": None
+                      if primary.get(name) == independent.get(name)
+                      else "requires_release_manager_attestation_before_publication",
+                  }
+              )
+          Path("reproducible-build-comparison.json").write_text(
+              json.dumps(
+                  {
+                      "artifacts": rows,
+                      "schema_version": "reproducible-build-comparison-v1",
+                  },
+                  indent=2,
+                  sort_keys=True,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          PY
+          python -m ygo_effect_dsl.release_audit dist-primary/*.whl dist-primary/*.tar.gz > release-artifact-audit.json
 
       - name: Smoke test wheel in a clean virtual environment
         run: |
           python -m venv .release-venv
-          .release-venv/bin/python -m pip install dist/*.whl
+          .release-venv/bin/python -m pip install dist-primary/*.whl
           .release-venv/bin/python -m ygo_effect_dsl --version
           .release-venv/bin/python -m ygo_effect_dsl experiment-search --help
           .release-venv/bin/python -m ygo_effect_dsl job-inspect --help

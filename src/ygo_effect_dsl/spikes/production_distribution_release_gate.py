@@ -257,6 +257,14 @@ def evaluate_production_distribution_release_gate(
         _windows_executable_workflow_check(root),
         _missing_or_invalid_json_check(
             root,
+            check_id="build_provenance_checksums_verified",
+            category="build",
+            evidence=_evidence_ref(evidence_path, "v1_0_0_build_provenance.json"),
+            schema_version="v1-build-provenance-v1",
+            require_passed=True,
+        ),
+        _missing_or_invalid_json_check(
+            root,
             check_id="installer_packaging_verified",
             category="installer",
             evidence=_evidence_ref(evidence_path, "v1_0_0_installer_packaging.json"),

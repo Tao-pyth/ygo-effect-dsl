@@ -1,0 +1,56 @@
+{
+  "checks": [
+    {
+      "evidence": "docs/adr/0021_v1_build_provenance.md",
+      "id": "fixed_build_environment_documented",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": ".github/workflows/test.yml;.github/workflows/build-windows-exe.yml",
+      "id": "ci_generates_checksums_and_provenance",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "docs/release/evidence/v1_0_0_release_artifact_composition.json",
+      "id": "artifact_composition_covers_release_artifacts",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/spikes/build_provenance_manifest.py",
+      "id": "manifest_writer_records_artifact_hashes_and_source",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "tests/test_reproducible_build_release_gate.py",
+      "id": "tests_cover_reproducible_build_gate",
+      "passed": true,
+      "reason": "verified"
+    }
+  ],
+  "evidence_id": "v1buildprov_a8f172497d6c0d44faf7e01e1357293e037fbd26eeb226802ac5c721f39d6077",
+  "issue": 171,
+  "package_version": "0.8.0",
+  "passed": true,
+  "rejection_reasons": [],
+  "release_policy": {
+    "artifact_kinds": [
+      "wheel",
+      "sdist",
+      "windows_executable",
+      "portable_zip"
+    ],
+    "checksum_publication": "sha256-json",
+    "independent_environment_requirement": "Ubuntu wheel/sdist builds are produced twice in CI; Windows exe/portable artifacts require provenance and release-time attestation before publication.",
+    "non_reproducible_difference_policy": "hash differences must be analyzed and explained at field level",
+    "source_traceability": [
+      "source commit",
+      "source tree",
+      "SOURCE_DATE_EPOCH"
+    ]
+  },
+  "schema_version": "v1-build-provenance-v1"
+}

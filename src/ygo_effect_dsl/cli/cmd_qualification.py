@@ -65,6 +65,9 @@ from ygo_effect_dsl.spikes.release_readiness_status import (
 from ygo_effect_dsl.spikes.production_distribution_release_gate import (
     write_production_distribution_release_gate,
 )
+from ygo_effect_dsl.spikes.reproducible_build_release_gate import (
+    write_v1_build_provenance,
+)
 from ygo_effect_dsl.spikes.windows_installer_packaging import (
     write_v1_installer_packaging,
 )
@@ -780,6 +783,21 @@ def cmd_production_distribution_gate(args: argparse.Namespace) -> int:
     return 1
 
 
+def cmd_v1_build_provenance(args: argparse.Namespace) -> int:
+    evidence = write_v1_build_provenance(
+        args.repo_root,
+        output_path=args.out,
+    )
+    status = "passed" if evidence["passed"] else "failed"
+    print(
+        "v1-build-provenance: "
+        f"{status} evidence_id={evidence['evidence_id']} "
+        f"rejections={','.join(evidence['rejection_reasons']) or '-'} "
+        f"out={args.out}"
+    )
+    return 0 if evidence["passed"] else 1
+
+
 def cmd_v1_installer_packaging(args: argparse.Namespace) -> int:
     evidence = write_v1_installer_packaging(
         args.repo_root,
@@ -898,6 +916,7 @@ __all__ = [
     "cmd_parallel_search_records",
     "cmd_production_distribution_gate",
     "cmd_v1_authenticode_signing",
+    "cmd_v1_build_provenance",
     "cmd_real_deck_qualify",
     "cmd_research_dashboard_qualification",
     "cmd_research_dashboard_qualification_bundle",

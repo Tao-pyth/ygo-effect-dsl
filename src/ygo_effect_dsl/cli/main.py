@@ -57,6 +57,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_release_self_hosted_evidence_verify_adopted,
     cmd_strategy_interruption_qualify,
     cmd_v1_authenticode_signing,
+    cmd_v1_build_provenance,
     cmd_v1_desktop_settings,
     cmd_v1_external_asset_setup,
     cmd_v1_installer_packaging,
@@ -1169,6 +1170,23 @@ def main() -> int:
         help="write failed gate evidence but return zero for CI dry-runs",
     )
     production_distribution_gate.set_defaults(func=cmd_production_distribution_gate)
+
+    v1_build_provenance = sub.add_parser(
+        "v1-build-provenance",
+        help="evaluate the v1.0.0 build provenance and checksum gate",
+    )
+    v1_build_provenance.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing build provenance policy and workflows",
+    )
+    v1_build_provenance.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed v1 build provenance evidence JSON path",
+    )
+    v1_build_provenance.set_defaults(func=cmd_v1_build_provenance)
 
     v1_installer_packaging = sub.add_parser(
         "v1-installer-packaging",

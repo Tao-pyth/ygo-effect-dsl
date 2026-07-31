@@ -119,6 +119,37 @@ jobs:
           Copy-Item docs/legal/10_distribution_policy.md package\ygo-effect-dsl-win64\DISTRIBUTION_POLICY.md
           Compress-Archive -Path package\ygo-effect-dsl-win64 -DestinationPath ygo-effect-dsl-win64-portable.zip -Force
 
+      - name: Generate Windows checksum and provenance
+        shell: pwsh
+        run: |
+          $env:SOURCE_DATE_EPOCH = git log -1 --format=%ct
+          python -m ygo_effect_dsl.spikes.build_provenance_manifest `
+            --repo-root . `
+            --build-kind windows-exe-portable `
+            --source-date-epoch $env:SOURCE_DATE_EPOCH `
+            --out build-provenance-windows.json `
+            --checksum-out windows-checksums.json `
+            dist\ygo-effect-dsl.exe `
+            dist\ygo-effect-dsl-desktop.exe `
+            ygo-effect-dsl-win64-portable.zip
+          ConvertTo-Json -Depth 4 @{
+            schema_version = "reproducible-build-comparison-v1"
+            artifacts = @(
+              @{
+                artifact_name = "ygo-effect-dsl.exe"
+                field_level_difference_explanation = "independent_windows_attestation_required_before_publication"
+              },
+              @{
+                artifact_name = "ygo-effect-dsl-desktop.exe"
+                field_level_difference_explanation = "independent_windows_attestation_required_before_publication"
+              },
+              @{
+                artifact_name = "ygo-effect-dsl-win64-portable.zip"
+                field_level_difference_explanation = "independent_windows_attestation_required_before_publication"
+              }
+            )
+          } | Set-Content -Encoding UTF8 reproducible-build-comparison.json
+
       - name: Smoke test portable Windows package
         run: |
           Expand-Archive ygo-effect-dsl-win64-portable.zip -DestinationPath package_smoke -Force
@@ -135,6 +166,9 @@ jobs:
             dist/ygo-effect-dsl.exe
             dist/ygo-effect-dsl-desktop.exe
             ygo-effect-dsl-win64-portable.zip
+            build-provenance-windows.json
+            windows-checksums.json
+            reproducible-build-comparison.json
             desktop-preflight.json
             desktop-bridge-smoke.json
             unsigned-authenticode-verification.json
