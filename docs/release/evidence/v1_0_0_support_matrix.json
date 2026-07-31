@@ -1,0 +1,196 @@
+{
+  "default_policy": {
+    "classification": "unsupported",
+    "reason": "Combinations not listed in this matrix are not part of the 1.0.0 stable claim."
+  },
+  "issue": 168,
+  "matrix": [
+    {
+      "category": "os_architecture",
+      "evidence_refs": ["issues/354", "issues/355", "issues/356", "issues/357"],
+      "evidence_state": "pending_issue",
+      "id": "windows-11-x64-desktop",
+      "support_level": "supported",
+      "user_claim": "Primary 1.0.0 Windows desktop target."
+    },
+    {
+      "category": "os_architecture",
+      "evidence_refs": ["docs/spec/v1.0.0/30_support_matrix.md"],
+      "evidence_state": "rejected",
+      "id": "non-windows-or-non-x64-desktop",
+      "reason": "The locked native core and desktop packaging target are Windows x64 only.",
+      "support_level": "unsupported",
+      "user_claim": "No macOS, Linux, Windows ARM64 native, or 32-bit desktop package support in 1.0.0."
+    },
+    {
+      "category": "filesystem",
+      "evidence_refs": ["issues/172", "issues/176"],
+      "evidence_state": "pending_issue",
+      "id": "local-ntfs-user-data",
+      "support_level": "supported",
+      "user_claim": "Install, cache, corpus, backup, and rollback paths use a local NTFS data root."
+    },
+    {
+      "category": "filesystem",
+      "evidence_refs": ["issues/177"],
+      "evidence_state": "rejected",
+      "id": "network-sync-or-symlinked-data-root",
+      "reason": "Rollback, path traversal, and corruption semantics are not qualified for remote or rewritten roots.",
+      "support_level": "unsupported",
+      "user_claim": "Network shares, symlink escapes, and cloud-sync controlled roots are not stable targets."
+    },
+    {
+      "category": "locale_ui",
+      "evidence_refs": ["docs/release/evidence/japanese_i18n_gate.json", "tests/test_desktop_frontend.py"],
+      "evidence_state": "verified",
+      "id": "ja-jp-utf8-desktop-ui",
+      "support_level": "supported",
+      "user_claim": "Japanese UTF-8 desktop UI and release-facing documents are the primary 1.0.0 language target."
+    },
+    {
+      "category": "locale_ui",
+      "evidence_refs": ["docs/spec/v0.8.0/00_scope.md"],
+      "evidence_state": "rejected",
+      "id": "english-or-runtime-locale-switch-ui",
+      "reason": "Multi-locale UI switching is outside the completed localization scope.",
+      "support_level": "unsupported",
+      "user_claim": "No English or runtime locale-switch stable UI claim."
+    },
+    {
+      "category": "python_runtime",
+      "evidence_refs": ["pyproject.toml", "issues/172"],
+      "evidence_state": "pending_issue",
+      "id": "cpython-313-x64",
+      "support_level": "supported",
+      "user_claim": "Primary source and wheel validation runtime."
+    },
+    {
+      "category": "python_runtime",
+      "evidence_refs": ["pyproject.toml", "issues/172"],
+      "evidence_state": "pending_issue",
+      "id": "cpython-310-312-x64",
+      "support_level": "maintenance",
+      "user_claim": "Compatibility smoke target because the package metadata currently allows Python >=3.10."
+    },
+    {
+      "category": "python_runtime",
+      "evidence_refs": ["docs/spec/v1.0.0/30_support_matrix.md"],
+      "evidence_state": "rejected",
+      "id": "pypy-32bit-python-or-future-python",
+      "reason": "No compatibility evidence exists for PyPy, 32-bit Python, or Python versions above the qualified range.",
+      "support_level": "unsupported",
+      "user_claim": "Explicit reject unless a later issue qualifies the runtime."
+    },
+    {
+      "category": "core_assets",
+      "evidence_refs": [
+        "src/ygo_effect_dsl/resources/ocgcore-v11.0-win-x64.lock.json",
+        "src/ygo_effect_dsl/resources/ocgcore-assets-202504.lock.json",
+        "tests/test_ocgcore_bootstrap.py",
+        "issues/358"
+      ],
+      "evidence_state": "pending_issue",
+      "id": "ocgcore-api-11-user-acquired-assets",
+      "support_level": "supported",
+      "user_claim": "Only the locked ocgcore API 11.0 Windows x64 runtime and exact external asset lock are stable."
+    },
+    {
+      "category": "core_assets",
+      "evidence_refs": ["tests/test_ocgcore_bootstrap.py"],
+      "evidence_state": "rejected",
+      "id": "unknown-core-or-asset-lock",
+      "reason": "Bootstrap and asset verification fail closed on API, architecture, size, or SHA-256 mismatch.",
+      "support_level": "unsupported",
+      "user_claim": "Unknown DLL, CDB, Lua tree, or mismatched API is rejected before stable use."
+    },
+    {
+      "category": "core_assets",
+      "evidence_refs": ["issues/91", "issues/169", "issues/170"],
+      "evidence_state": "rejected",
+      "id": "bundled-third-party-card-assets",
+      "reason": "License and redistribution approval are not complete.",
+      "support_level": "unsupported",
+      "user_claim": "No third-party core, CDB, CardScripts, card image, or card text assets may be bundled."
+    },
+    {
+      "category": "schema_artifact",
+      "evidence_refs": ["docs/release/evidence/research_dashboard_gate.json", "issues/174"],
+      "evidence_state": "pending_issue",
+      "id": "current-experiment-route-replay-search-artifacts",
+      "support_level": "supported",
+      "user_claim": "Current Experiment, Scenario, Route, Replay, Search, PlayerView, and analytics artifacts are read, validated, and replayed according to their schema."
+    },
+    {
+      "category": "schema_artifact",
+      "evidence_refs": ["issues/172", "issues/174"],
+      "evidence_state": "pending_issue",
+      "id": "old-route-replay-source-milestone-artifacts",
+      "support_level": "maintenance",
+      "user_claim": "Old source milestone artifacts are read, replayed, migrated, or explicitly rejected according to version policy."
+    },
+    {
+      "category": "schema_artifact",
+      "evidence_refs": ["docs/00_project_charter.md"],
+      "evidence_state": "rejected",
+      "id": "legacy-card-text-artifact-pipeline",
+      "reason": "Legacy card-text artifacts are not Route DSL input and are not a card rules engine.",
+      "support_level": "unsupported",
+      "user_claim": "No stable compatibility claim for the old card-text transformation pipeline."
+    },
+    {
+      "category": "cli_api",
+      "evidence_refs": [
+        "pyproject.toml",
+        "src/ygo_effect_dsl/resources/desktop-bridge-v1.json",
+        "issues/354",
+        "issues/359"
+      ],
+      "evidence_state": "pending_issue",
+      "id": "documented-cli-and-private-pywebview-bridge",
+      "support_level": "supported",
+      "user_claim": "Documented CLI commands and the private pywebview invoke bridge are the only stable user-facing interface."
+    },
+    {
+      "category": "cli_api",
+      "evidence_refs": ["src/ygo_effect_dsl/resources/desktop-bridge-v1.json"],
+      "evidence_state": "rejected",
+      "id": "public-rest-or-debug-bridge-api",
+      "reason": "The desktop bridge contract disables local REST and arbitrary public Python methods.",
+      "support_level": "unsupported",
+      "user_claim": "No public REST API, arbitrary bridge method, or debug-only call support."
+    },
+    {
+      "category": "install_upgrade_rollback",
+      "evidence_refs": ["issues/354", "issues/355", "issues/356", "issues/357", "issues/358"],
+      "evidence_state": "pending_issue",
+      "id": "clean-install-windows-x64",
+      "support_level": "supported",
+      "user_claim": "Clean install of the Windows x64 desktop package is the primary distribution path."
+    },
+    {
+      "category": "install_upgrade_rollback",
+      "evidence_refs": ["issues/172", "issues/176"],
+      "evidence_state": "pending_issue",
+      "id": "upgrade-rollback-uninstall-reinstall",
+      "support_level": "supported",
+      "user_claim": "Upgrade, rollback, uninstall, and reinstall must preserve or explicitly restore user data."
+    },
+    {
+      "category": "install_upgrade_rollback",
+      "evidence_refs": ["issues/172", "issues/174"],
+      "evidence_state": "rejected",
+      "id": "arbitrary-downgrade-or-silent-migration",
+      "reason": "Unknown required versions and irreversible migrations must not be silently accepted.",
+      "support_level": "unsupported",
+      "user_claim": "Reject unknown new data in old binaries unless an explicit migration or restore path exists."
+    }
+  ],
+  "schema_version": "v1-support-matrix-v1",
+  "status_vocabulary": ["supported", "maintenance", "experimental", "unsupported"],
+  "support_window": {
+    "active": "Until 1.1.0 is released or 12 months after 1.0.0, whichever is later.",
+    "security_only": "6 months after active support ends.",
+    "release_notes_requirement": "Publish concrete calendar dates in the final 1.0.0 release notes."
+  },
+  "test_links": ["tests/test_v1_support_matrix.py"]
+}

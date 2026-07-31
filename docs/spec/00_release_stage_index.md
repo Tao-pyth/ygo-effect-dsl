@@ -82,4 +82,5 @@ Last updated: 2026-07-31
 - [1.0.0 scope](v1.0.0/00_scope.md)
 - [1.0.0 production contracts](v1.0.0/10_production_distribution_contracts.md)
 - [1.0.0 work breakdown and acceptance](v1.0.0/20_work_breakdown_and_acceptance.md)
+- [1.0.0 support matrix](v1.0.0/30_support_matrix.md)
 - [Validation register](00_validation_register.md)

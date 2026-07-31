@@ -314,6 +314,7 @@ def test_release_facing_0_8_and_1_0_docs_reject_mojibake() -> None:
         v1_spec_root / "00_scope.md",
         v1_spec_root / "10_production_distribution_contracts.md",
         v1_spec_root / "20_work_breakdown_and_acceptance.md",
+        v1_spec_root / "30_support_matrix.md",
     ]
     combined = "\n".join(path.read_text(encoding="utf-8") for path in release_docs)
 

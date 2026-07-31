@@ -17,6 +17,8 @@ stable matrixは次をsupported、maintenance、experimental、unsupportedへ分
 
 matrixにない組合せを暗黙supportedにしない。旧Experiment/Route/Replayはread、replay、migrate、rejectのどれかをversionごとに明示する。
 
+Frozen target matrixは[1.0.0 support matrix](30_support_matrix.md)を正本とし、機械検証用 evidence は[`docs/release/evidence/v1_0_0_support_matrix.json`](../../release/evidence/v1_0_0_support_matrix.json)に置く。最終release gateは、matrixの`supported` rowに対応evidenceがない場合、または`unsupported` rowがstable UI/docsで使用可能に見える場合に失敗する。
+
 ## License and asset boundary
 
 - repository source、documentation、example、generated artifactのroot license範囲を確定する。

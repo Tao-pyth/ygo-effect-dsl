@@ -8,7 +8,7 @@ Last updated: 2026-07-14
 
 | Order | Issue | Deliverable | Acceptance evidence |
 |---|---|---|---|
-| 1 | [#168](https://github.com/Tao-pyth/ygo-effect-dsl/issues/168) | platform/compatibility matrix | clean environment matrix、old artifact replay |
+| 1 | [#168](https://github.com/Tao-pyth/ygo-effect-dsl/issues/168) | platform/compatibility matrix | [support matrix](30_support_matrix.md)、[`v1_0_0_support_matrix.json`](../../release/evidence/v1_0_0_support_matrix.json)、clean environment matrix、old artifact replay |
 | 2 | [#91](https://github.com/Tao-pyth/ygo-effect-dsl/issues/91), [#169](https://github.com/Tao-pyth/ygo-effect-dsl/issues/169) | license decision/package metadata | approval record、LICENSE/NOTICE/metadata parity |
 | 3 | [#170](https://github.com/Tao-pyth/ygo-effect-dsl/issues/170) | SBOM/notices/asset allowlist | artifact inventory、unknown binary rejection |
 | 4 | [#171](https://github.com/Tao-pyth/ygo-effect-dsl/issues/171) | reproducible build/checksum/provenance | independent build comparison、attestation |

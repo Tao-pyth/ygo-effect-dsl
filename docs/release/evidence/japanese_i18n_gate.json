@@ -73,7 +73,8 @@
           "docs/spec/v0.8.0/00_scope.md",
           "docs/spec/v1.0.0/00_scope.md",
           "docs/spec/v1.0.0/10_production_distribution_contracts.md",
-          "docs/spec/v1.0.0/20_work_breakdown_and_acceptance.md"
+          "docs/spec/v1.0.0/20_work_breakdown_and_acceptance.md",
+          "docs/spec/v1.0.0/30_support_matrix.md"
         ],
         "hits": []
       },
@@ -94,7 +95,7 @@
       "passed": true
     }
   ],
-  "evidence_id": "japanesei18ngate_684c51a5fb8812d30a1e6135ef1e05e0d811d4eb987d95e84e6c67a1535afba7",
+  "evidence_id": "japanesei18ngate_dd65cc6c45b17feaa97c1167787f57292818ec1b58dd1127ebec3fee5ad39556",
   "passed": true,
   "rejection_reasons": [],
   "schema_version": "japanese-i18n-release-gate-v1"
