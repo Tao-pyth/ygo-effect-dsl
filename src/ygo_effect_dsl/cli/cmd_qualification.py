@@ -98,6 +98,9 @@ from ygo_effect_dsl.spikes.observability_redaction_retention_release_gate import
 from ygo_effect_dsl.spikes.redacted_support_bundle_release_gate import (
     write_v1_redacted_support_bundle,
 )
+from ygo_effect_dsl.spikes.docs_support_guides_release_gate import (
+    write_v1_docs_support_guides,
+)
 
 
 def _profile_inputs(values: list[str]) -> dict[str, str]:
@@ -888,6 +891,21 @@ def cmd_v1_redacted_support_bundle(args: argparse.Namespace) -> int:
     return 0 if evidence["passed"] else 1
 
 
+def cmd_v1_docs_support_guides(args: argparse.Namespace) -> int:
+    evidence = write_v1_docs_support_guides(
+        args.repo_root,
+        output_path=args.out,
+    )
+    status = "passed" if evidence["passed"] else "failed"
+    print(
+        "v1-docs-support-guides: "
+        f"{status} evidence_id={evidence['evidence_id']} "
+        f"rejections={','.join(evidence['rejection_reasons']) or '-'} "
+        f"out={args.out}"
+    )
+    return 0 if evidence["passed"] else 1
+
+
 def cmd_v1_installer_packaging(args: argparse.Namespace) -> int:
     evidence = write_v1_installer_packaging(
         args.repo_root,
@@ -1008,6 +1026,7 @@ __all__ = [
     "cmd_v1_authenticode_signing",
     "cmd_v1_build_provenance",
     "cmd_v1_compatibility_policy",
+    "cmd_v1_docs_support_guides",
     "cmd_v1_observability_redaction_retention",
     "cmd_v1_redacted_support_bundle",
     "cmd_real_deck_qualify",

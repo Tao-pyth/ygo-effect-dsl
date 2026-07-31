@@ -40,6 +40,7 @@ def test_current_production_distribution_gate_fails_closed_until_v1_evidence_exi
     assert checks["installer_packaging_verified"]["passed"] is True
     assert checks["webview2_runtime_failure_ux_verified"]["passed"] is True
     assert checks["redacted_support_bundle_verified"]["passed"] is True
+    assert checks["stable_docs_and_support_guides_published"]["passed"] is True
     assert checks["root_project_license_approved"]["reason"] == "approval_not_recorded"
     assert checks["support_matrix_supported_rows_verified"]["reason"] == (
         "supported_rows_not_verified"
@@ -170,6 +171,10 @@ def test_production_distribution_gate_rejects_placeholder_pass_values(
     _write_json(
         evidence_dir / "v1_0_0_redacted_support_bundle.json",
         {"passed": True, "schema_version": "v1-redacted-support-bundle-v1"},
+    )
+    _write_json(
+        evidence_dir / "v1_0_0_docs_support_guides.json",
+        {"passed": True, "schema_version": "v1-docs-support-guides-v1"},
     )
 
     evidence = evaluate_production_distribution_release_gate(tmp_path)

@@ -60,6 +60,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_v1_build_provenance,
     cmd_v1_compatibility_policy,
     cmd_v1_desktop_settings,
+    cmd_v1_docs_support_guides,
     cmd_v1_external_asset_setup,
     cmd_v1_gated_release,
     cmd_v1_installer_packaging,
@@ -1281,6 +1282,23 @@ def main() -> int:
         help="content-addressed v1 redacted support bundle evidence JSON path",
     )
     v1_redacted_support_bundle.set_defaults(func=cmd_v1_redacted_support_bundle)
+
+    v1_docs_support_guides = sub.add_parser(
+        "v1-docs-support-guides",
+        help="evaluate the v1.0.0 docs and support guide publication gate",
+    )
+    v1_docs_support_guides.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing support guides and release runbooks",
+    )
+    v1_docs_support_guides.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed v1 docs/support guides evidence JSON path",
+    )
+    v1_docs_support_guides.set_defaults(func=cmd_v1_docs_support_guides)
 
     v1_installer_packaging = sub.add_parser(
         "v1-installer-packaging",

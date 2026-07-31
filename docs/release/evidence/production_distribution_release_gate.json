@@ -162,8 +162,8 @@
       "category": "docs",
       "evidence": "docs/release/evidence/v1_0_0_docs_support_guides.json",
       "id": "stable_docs_and_support_guides_published",
-      "passed": false,
-      "reason": "missing_evidence",
+      "passed": true,
+      "reason": "verified",
       "required": true
     },
     {
@@ -175,7 +175,7 @@
       "required": true
     }
   ],
-  "evidence_id": "productiondistgate_685394763e58fb98ad19299cd0abc1909fca6f8c13fa2c6190a36fd93bb1cad1",
+  "evidence_id": "productiondistgate_ebfd8750ccaf948b089e0f525828e73c069766cc70d6cee91d180103032470ab",
   "issue": 359,
   "package_version": "0.8.0",
   "passed": false,
@@ -184,7 +184,6 @@
     "root_project_license_approved:approval_not_recorded",
     "security_threat_model_approved:missing_evidence",
     "soak_crash_recovery_verified:missing_evidence",
-    "stable_docs_and_support_guides_published:missing_evidence",
     "support_matrix_supported_rows_verified:supported_rows_not_verified"
   ],
   "schema_version": "production-distribution-release-gate-v1"
