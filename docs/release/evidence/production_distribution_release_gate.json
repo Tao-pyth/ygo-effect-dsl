@@ -146,8 +146,8 @@
       "category": "security",
       "evidence": "docs/release/evidence/v1_0_0_security_threat_model.json",
       "id": "security_threat_model_approved",
-      "passed": false,
-      "reason": "missing_evidence",
+      "passed": true,
+      "reason": "verified",
       "required": true
     },
     {
@@ -175,14 +175,13 @@
       "required": true
     }
   ],
-  "evidence_id": "productiondistgate_ebfd8750ccaf948b089e0f525828e73c069766cc70d6cee91d180103032470ab",
+  "evidence_id": "productiondistgate_19536a75ead5daa46d2dacb28b269ba6b612450476e68f0083c91671adca1801",
   "issue": 359,
   "package_version": "0.8.0",
   "passed": false,
   "rejection_reasons": [
     "authenticode_signing_verified:evidence_not_passed",
     "root_project_license_approved:approval_not_recorded",
-    "security_threat_model_approved:missing_evidence",
     "soak_crash_recovery_verified:missing_evidence",
     "support_matrix_supported_rows_verified:supported_rows_not_verified"
   ],

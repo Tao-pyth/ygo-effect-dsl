@@ -1,0 +1,103 @@
+{
+  "checks": [
+    {
+      "evidence": "docs/security/10_v1_threat_model_dependency_policy.md",
+      "id": "v1_threat_model_documents_required_boundaries",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "tests/test_ocgcore_lifecycle.py;tests/test_ocgcore_lua_qualification.py;tests/test_ocgcore_isolation_spike.py;tests/test_release_audit.py;tests/test_job_recovery.py;src/ygo_effect_dsl/storage/jobs.py",
+      "id": "negative_security_tests_cover_paths_resources_and_native_payloads",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/engine/bridge/ocgcore/types.py;src/ygo_effect_dsl/engine/bridge/ocgcore/providers.py;docs/bridge/20_ocgcore_lifecycle.md;docs/ocgcore/evidence/lua_load_qualification.json",
+      "id": "unsafe_lua_and_arbitrary_script_roots_remain_disabled",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "pyproject.toml;.github/workflows;docs/adr/0023_v1_gated_release.md;docs/release/evidence/v1_0_0_gated_release.json",
+      "id": "dependency_update_and_github_actions_supply_chain_policy_current",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "tests/test_security_threat_model_release_gate.py",
+      "id": "tests_cover_v1_security_threat_model_gate",
+      "passed": true,
+      "reason": "verified"
+    }
+  ],
+  "evidence_id": "v1securitythreat_f04edc0f4bdff51d06a0b313e5ed1c823464ffad4f434580e889b2f1fe257ea1",
+  "issue": 177,
+  "package_version": "0.8.0",
+  "passed": true,
+  "policy": {
+    "arbitrary_script_root_default": false,
+    "critical_high_unmitigated_release_blocker": true,
+    "dependency_update_cadence": "before_each_release_and_monthly_security_review",
+    "emergency_patch_scope": "narrow_dependency_action_asset_or_workflow_fix",
+    "unsafe_lua_default": false
+  },
+  "rejection_reasons": [],
+  "schema_version": "v1-security-threat-model-v1",
+  "threat_rows": [
+    {
+      "id": "untrusted_ydk_yaml_input",
+      "release_blocker_if_unmitigated": false,
+      "residual_risk": "low",
+      "status": "mitigated"
+    },
+    {
+      "id": "lua_script_path",
+      "release_blocker_if_unmitigated": true,
+      "residual_risk": "low",
+      "status": "mitigated"
+    },
+    {
+      "id": "unsafe_lua_library_option",
+      "release_blocker_if_unmitigated": true,
+      "residual_risk": "low",
+      "status": "mitigated"
+    },
+    {
+      "id": "sqlite_cdb",
+      "release_blocker_if_unmitigated": false,
+      "residual_risk": "medium",
+      "status": "mitigated"
+    },
+    {
+      "id": "native_dll",
+      "release_blocker_if_unmitigated": true,
+      "residual_risk": "medium",
+      "status": "mitigated"
+    },
+    {
+      "id": "worker_ipc",
+      "release_blocker_if_unmitigated": true,
+      "residual_risk": "low",
+      "status": "mitigated"
+    },
+    {
+      "id": "artifact_import_export",
+      "release_blocker_if_unmitigated": false,
+      "residual_risk": "low",
+      "status": "mitigated"
+    },
+    {
+      "id": "desktop_bridge",
+      "release_blocker_if_unmitigated": false,
+      "residual_risk": "low",
+      "status": "mitigated"
+    },
+    {
+      "id": "github_actions_supply_chain",
+      "release_blocker_if_unmitigated": true,
+      "residual_risk": "medium",
+      "status": "mitigated"
+    }
+  ]
+}

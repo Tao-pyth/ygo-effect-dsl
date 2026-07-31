@@ -1333,6 +1333,7 @@
           "tests/test_resource_consumption.py",
           "tests/test_scenario_preflight.py",
           "tests/test_score_breakdown.py",
+          "tests/test_security_threat_model_release_gate.py",
           "tests/test_state_equivalence.py",
           "tests/test_state_identity.py",
           "tests/test_state_rules.py",
@@ -1355,20 +1356,20 @@
           "platform": "Windows-11-10.0.26200-SP0",
           "python_version": "3.13.7"
         },
-        "evidence_id": "pytestprofilemeasure_ae64eaa264878974a0f539a3d9b2a42c1405bde9c873b2b185f2425877645d0c",
+        "evidence_id": "pytestprofilemeasure_0800f5d2afa67dad01b94390ebec1ff77e1fe7b9d48a2136b8031669813d75e0",
         "extra_pytest_args": [],
         "failure_rerun_command": null,
         "measurement_environment": {
           "YGO_EFFECT_DSL_PYTEST_PROFILE_MEASUREMENT": "1"
         },
         "passed": true,
-        "peak_rss_bytes": 92762112,
+        "peak_rss_bytes": 92819456,
         "profile": "unit",
-        "profile_plan_id": "pytestprofile_beaefd2663326ba4435aa9f99401dfc4273b917733583d41b334209fc6f60483",
+        "profile_plan_id": "pytestprofile_ef3984d15a5886bb258fea9014bd96af0286dcc99767344ca1bac0a6dc8bf2c3",
         "pytest_counts": {
           "errors": 0,
           "failed": 0,
-          "passed": 409,
+          "passed": 413,
           "skipped": 7,
           "xfailed": 0,
           "xpassed": 0
@@ -1380,10 +1381,10 @@
         "stderr_bytes": 0,
         "stdout_bytes": 523,
         "success_output_policy": "pytest-quiet",
-        "summary_tail": "........................................................................ [ 17%]\n........................................................................ [ 34%]\n........................................................................ [ 51%]\n........................................................................ [ 69%]\n....s........s.s..ssss.................................................. [ 86%]\n........................................................                 [100%]\n409 passed, 7 skipped in 205.29s (0:03:25)",
-        "wall_seconds": 206.412594
+        "summary_tail": "........................................................................ [ 17%]\n........................................................................ [ 34%]\n........................................................................ [ 51%]\n........................................................................ [ 68%]\n....s........s.s..ssss.................................................. [ 85%]\n............................................................             [100%]\n413 passed, 7 skipped in 202.35s (0:03:22)",
+        "wall_seconds": 203.463894
       },
-      "measurement_id": "pytestprofilemeasure_ae64eaa264878974a0f539a3d9b2a42c1405bde9c873b2b185f2425877645d0c",
+      "measurement_id": "pytestprofilemeasure_0800f5d2afa67dad01b94390ebec1ff77e1fe7b9d48a2136b8031669813d75e0",
       "phase": "current",
       "profile": "unit",
       "repeat_index": 1,
@@ -1840,7 +1841,7 @@
       "warm"
     ]
   },
-  "evidence_id": "pytestprofilesuite_6f18341805754b74d32d6d87f2c0594ce8f2bdfd1f962ac845a7956eed6c72b0",
+  "evidence_id": "pytestprofilesuite_8853be7eb2b084c6a57b87ab1308fd8b009989514f143b122742a5e5ea6c9293",
   "included_measurement_count": 24,
   "measurement_ids": [
     "pytestprofilemeasure_4a8f5e2d7d7ff3b5a3490f31ff387b9b916072f2d62b919dd7970fd130f71ba3",
@@ -1861,7 +1862,7 @@
     "pytestprofilemeasure_47271d52d04a429c21bc4794eaa3729b3ae25ead4a1903fad6eec00db9538d75",
     "pytestprofilemeasure_ad657028086f9deffe500ede7913d4f41fced7960fe97cf76a00f7220ff66203",
     "pytestprofilemeasure_cd9dab41a8989eaaffd18f4c1fea2a4ed7cd4420eca11953ed19b925945f1b02",
-    "pytestprofilemeasure_ae64eaa264878974a0f539a3d9b2a42c1405bde9c873b2b185f2425877645d0c",
+    "pytestprofilemeasure_0800f5d2afa67dad01b94390ebec1ff77e1fe7b9d48a2136b8031669813d75e0",
     "pytestprofilemeasure_47deaab2a4a7d0dd1fc3e3854323fb11f1d7b1ce41473a859effd1763d030408",
     "pytestprofilemeasure_fa6c409cd65fab2aae9503a1d5b27e2a3ef5fa4aa217e003e686920e9d65b89a",
     "pytestprofilemeasure_3d95fee2f31f527bd6e6dae5482a3c6fb07e417c2bf1f8b6825aa71678cdb0cd",
@@ -1873,7 +1874,7 @@
   "profile_plan_ids": [
     "pytestprofile_1e746b126b6fb03158955c0c24dc56fd7ede3865ad343560f149afe92484af95",
     "pytestprofile_497e65845d6062c4c921a7ccfbf66f7cb38a49faadc901bd491b9595620beaa0",
-    "pytestprofile_beaefd2663326ba4435aa9f99401dfc4273b917733583d41b334209fc6f60483"
+    "pytestprofile_ef3984d15a5886bb258fea9014bd96af0286dcc99767344ca1bac0a6dc8bf2c3"
   ],
   "required_phases": [
     "baseline",

@@ -66,6 +66,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_v1_installer_packaging,
     cmd_v1_observability_redaction_retention,
     cmd_v1_redacted_support_bundle,
+    cmd_v1_security_threat_model,
     cmd_v1_upgrade_rollback,
     cmd_v1_webview2_runtime,
 )
@@ -1299,6 +1300,23 @@ def main() -> int:
         help="content-addressed v1 docs/support guides evidence JSON path",
     )
     v1_docs_support_guides.set_defaults(func=cmd_v1_docs_support_guides)
+
+    v1_security_threat_model = sub.add_parser(
+        "v1-security-threat-model",
+        help="evaluate the v1.0.0 threat model and dependency-update policy",
+    )
+    v1_security_threat_model.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing security policy evidence",
+    )
+    v1_security_threat_model.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed v1 security threat model evidence JSON path",
+    )
+    v1_security_threat_model.set_defaults(func=cmd_v1_security_threat_model)
 
     v1_installer_packaging = sub.add_parser(
         "v1-installer-packaging",
