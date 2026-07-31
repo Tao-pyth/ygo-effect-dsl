@@ -93,6 +93,10 @@ RACE_LABELS = {
     0x2000000: "Illusion",
 }
 
+_KNOWN_TYPE_BITS = sum(TYPE_LABELS)
+_KNOWN_RACE_BITS = sum(RACE_LABELS)
+_KNOWN_ATTRIBUTE_BITS = sum(ATTRIBUTE_LABELS)
+
 _AVAILABILITY = {
     "available",
     "missing_text",
@@ -161,6 +165,11 @@ def _positive_code(value: Any, name: str = "card_code") -> int:
 
 def _labels(value: int, table: Mapping[int, str]) -> tuple[str, ...]:
     return tuple(label for bit, label in table.items() if value & bit)
+
+
+def _unknown_bits(value: int, known_bits: int) -> int | None:
+    unknown = value & ~known_bits
+    return unknown or None
 
 
 def _split_setcodes(value: int) -> tuple[int, ...]:
@@ -260,6 +269,9 @@ class CardMetadataPresentation:
     race_labels: tuple[str, ...]
     attribute_bits: int
     attribute_labels: tuple[str, ...]
+    unknown_type_bits: int | None = None
+    unknown_race_bits: int | None = None
+    unknown_attribute_bits: int | None = None
     schema_version: str = CARD_METADATA_PRESENTATION_VERSION
 
     def __post_init__(self) -> None:
@@ -274,6 +286,16 @@ class CardMetadataPresentation:
             value = getattr(self, name)
             if not isinstance(value, int) or isinstance(value, bool):
                 raise ValueError(f"metadata.{name} must be an integer")
+        for name in (
+            "unknown_type_bits",
+            "unknown_race_bits",
+            "unknown_attribute_bits",
+        ):
+            value = getattr(self, name)
+            if value is not None and (
+                not isinstance(value, int) or isinstance(value, bool) or value <= 0
+            ):
+                raise ValueError(f"metadata.{name} must be a positive integer or null")
         for name in (
             "attack",
             "defense",
@@ -334,6 +356,12 @@ class CardMetadataPresentation:
             race_labels=_labels(int(race_bits), RACE_LABELS),
             attribute_bits=int(attribute_bits),
             attribute_labels=_labels(int(attribute_bits), ATTRIBUTE_LABELS),
+            unknown_type_bits=_unknown_bits(int(type_bits), _KNOWN_TYPE_BITS),
+            unknown_race_bits=_unknown_bits(int(race_bits), _KNOWN_RACE_BITS),
+            unknown_attribute_bits=_unknown_bits(
+                int(attribute_bits),
+                _KNOWN_ATTRIBUTE_BITS,
+            ),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -355,6 +383,9 @@ class CardMetadataPresentation:
             "setcodes": list(self.setcodes),
             "type_bits": self.type_bits,
             "type_labels": list(self.type_labels),
+            "unknown_attribute_bits": self.unknown_attribute_bits,
+            "unknown_race_bits": self.unknown_race_bits,
+            "unknown_type_bits": self.unknown_type_bits,
         }
 
 
@@ -701,6 +732,31 @@ class LocalizedCardPresentationProvider:
             auxiliary_texts=auxiliary,
         )
 
+    @staticmethod
+    def _metadata_diagnostics(
+        metadata: CardMetadataPresentation,
+    ) -> tuple[PresentationDiagnostic, ...]:
+        diagnostics: list[PresentationDiagnostic] = []
+        for field, value in (
+            ("type_bits", metadata.unknown_type_bits),
+            ("race_bits", metadata.unknown_race_bits),
+            ("attribute_bits", metadata.unknown_attribute_bits),
+        ):
+            if value is None:
+                continue
+            diagnostics.append(
+                PresentationDiagnostic(
+                    code=f"unknown_{field}",
+                    severity="warning",
+                    message=(
+                        "Card presentation metadata contains label bits without "
+                        f"a qualified display label: 0x{value:x}."
+                    ),
+                    field=f"metadata.{field}",
+                )
+            )
+        return tuple(diagnostics)
+
     def get_card(self, query: CardPresentationQuery) -> CardPresentation:
         if not isinstance(query, CardPresentationQuery):
             raise ValueError("query must be CardPresentationQuery")
@@ -787,7 +843,7 @@ class LocalizedCardPresentationProvider:
             if metadata_fallback is None:
                 metadata_fallback = (locale, source, row)
             if row.has_text:
-                diagnostics: tuple[PresentationDiagnostic, ...] = ()
+                diagnostics = self._metadata_diagnostics(row.metadata)
                 locale_status = "exact"
                 if locale != query.requested_locale:
                     locale_status = "fallback"
@@ -801,6 +857,7 @@ class LocalizedCardPresentationProvider:
                             ),
                             field="requested_locale",
                         ),
+                        *diagnostics,
                     )
                 return CardPresentation(
                     card_code=code,
@@ -838,6 +895,7 @@ class LocalizedCardPresentationProvider:
                             "Card metadata exists but presentation text is missing."
                         ),
                     ),
+                    *self._metadata_diagnostics(row.metadata),
                 ),
             )
         source = by_locale[configured_order[0]]

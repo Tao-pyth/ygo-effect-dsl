@@ -35,6 +35,8 @@ def _database(
     include_text_schema: bool = True,
     type_bits: int = 0x1 | 0x20 | 0x1000000,
     defense: int = 1200,
+    race_bits: int = 0x2000,
+    attribute_bits: int = 0x10,
 ) -> Path:
     with sqlite3.connect(path) as connection:
         connection.execute(
@@ -60,8 +62,8 @@ def _database(
                 1800,
                 defense,
                 packed_level,
-                0x2000,
-                0x10,
+                race_bits,
+                attribute_bits,
                 0,
             ),
         )
@@ -120,6 +122,9 @@ def test_available_presentation_preserves_text_and_decodes_metadata(
     assert "Pendulum" in card.metadata.type_labels
     assert card.metadata.race_labels == ("Dragon",)
     assert card.metadata.attribute_labels == ("Light",)
+    assert card.metadata.unknown_type_bits is None
+    assert card.metadata.unknown_race_bits is None
+    assert card.metadata.unknown_attribute_bits is None
     assert card.source == source
     assert card.to_dict()["presentation_id"] == card.presentation_id
 
@@ -184,6 +189,67 @@ def test_spell_does_not_expose_monster_stats_or_pendulum_scales(
     assert card.metadata.link_rating is None
     assert card.metadata.left_scale is None
     assert card.metadata.right_scale is None
+
+
+def test_unknown_label_bits_remain_visible_with_structured_diagnostics(
+    tmp_path: Path,
+) -> None:
+    source = _source(
+        _database(
+            tmp_path / "unknown-bits.cdb",
+            type_bits=0x1 | 0x20 | 0x80000000,
+            race_bits=0x2000 | 0x4000000,
+            attribute_bits=0x10 | 0x80,
+        )
+    )
+
+    with LocalizedCardPresentationProvider((source,)) as provider:
+        card = provider.get_card(
+            CardPresentationQuery(10000, "en", fallback_locales=())
+        )
+
+    assert card.metadata is not None
+    assert card.metadata.type_bits == 0x1 | 0x20 | 0x80000000
+    assert card.metadata.race_bits == 0x2000 | 0x4000000
+    assert card.metadata.attribute_bits == 0x10 | 0x80
+    assert card.metadata.unknown_type_bits == 0x80000000
+    assert card.metadata.unknown_race_bits == 0x4000000
+    assert card.metadata.unknown_attribute_bits == 0x80
+    assert card.metadata.type_labels == ("Monster", "Effect")
+    assert card.metadata.race_labels == ("Dragon",)
+    assert card.metadata.attribute_labels == ("Light",)
+    assert [item.to_dict() for item in card.diagnostics] == [
+        {
+            "code": "unknown_type_bits",
+            "field": "metadata.type_bits",
+            "message": (
+                "Card presentation metadata contains label bits without a "
+                "qualified display label: 0x80000000."
+            ),
+            "schema_version": "presentation-diagnostic-v1",
+            "severity": "warning",
+        },
+        {
+            "code": "unknown_race_bits",
+            "field": "metadata.race_bits",
+            "message": (
+                "Card presentation metadata contains label bits without a "
+                "qualified display label: 0x4000000."
+            ),
+            "schema_version": "presentation-diagnostic-v1",
+            "severity": "warning",
+        },
+        {
+            "code": "unknown_attribute_bits",
+            "field": "metadata.attribute_bits",
+            "message": (
+                "Card presentation metadata contains label bits without a "
+                "qualified display label: 0x80."
+            ),
+            "schema_version": "presentation-diagnostic-v1",
+            "severity": "warning",
+        },
+    ]
 
 
 def test_explicit_locale_fallback_is_visible(tmp_path: Path) -> None:

@@ -40,7 +40,10 @@
     "race_bits",
     "race_labels",
     "attribute_bits",
-    "attribute_labels"
+    "attribute_labels",
+    "unknown_type_bits",
+    "unknown_race_bits",
+    "unknown_attribute_bits"
   ],
   "provider_version": "sqlite-card-presentation-provider-v1",
   "schema_version": "card-presentation-v1",
