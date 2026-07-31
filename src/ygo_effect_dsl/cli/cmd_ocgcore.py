@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 
+from ygo_effect_dsl.external.asset_setup import describe_external_asset_setup
 from ygo_effect_dsl.external.ocgcore import (
     bootstrap_ocgcore,
     bootstrap_ocgcore_assets,
@@ -64,3 +65,9 @@ def cmd_ocgcore_assets_verify(args: argparse.Namespace) -> int:
         f"repositories={len(result['repositories'])}"
     )
     return 0
+
+
+def cmd_external_asset_setup_status(args: argparse.Namespace) -> int:
+    result = describe_external_asset_setup(external_root=args.external_root)
+    print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
+    return 0 if result["ready"] else 1

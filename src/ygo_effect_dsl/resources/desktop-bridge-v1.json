@@ -163,6 +163,11 @@
     "system.describe": {
       "payload_fields": [],
       "worker_start_allowed": false
+    },
+    "system.external_asset_status": {
+      "payload_fields": [],
+      "source": "verified_external_asset_setup_status",
+      "worker_start_allowed": false
     }
   },
   "request": {

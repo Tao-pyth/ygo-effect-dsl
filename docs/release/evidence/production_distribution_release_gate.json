@@ -90,8 +90,8 @@
       "category": "assets",
       "evidence": "docs/release/evidence/v1_0_0_external_asset_setup.json",
       "id": "external_asset_setup_verified",
-      "passed": false,
-      "reason": "missing_evidence",
+      "passed": true,
+      "reason": "verified",
       "required": true
     },
     {
@@ -127,13 +127,12 @@
       "required": true
     }
   ],
-  "evidence_id": "productiondistgate_f9fe4012007c6a26b1fe70d64c407839fdd542d7a4950ff3451ebbbef6a73fbf",
+  "evidence_id": "productiondistgate_82adb21cfad78a00b66f812a224062b5c7eb1e948ef94f354638d93350725552",
   "issue": 359,
   "package_version": "0.8.0",
   "passed": false,
   "rejection_reasons": [
     "authenticode_signing_verified:evidence_not_passed",
-    "external_asset_setup_verified:missing_evidence",
     "redacted_support_bundle_verified:missing_evidence",
     "root_project_license_approved:approval_not_recorded",
     "security_threat_model_approved:missing_evidence",

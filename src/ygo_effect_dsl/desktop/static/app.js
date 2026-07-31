@@ -70,6 +70,8 @@ const UI_TEXT = Object.freeze({
   runningPreflight: "事前検証中",
   composingScenario: "シナリオを構成し、ローカル資産を検証しています。",
   localAssetValidationFailed: "ローカル資産検証はfail-closeしました。",
+  externalAssetSetupRequired: "外部資産セットアップが必要",
+  externalAssetSetupReady: "外部資産検証済み",
   scenarioPreflightFailed: "シナリオの事前検証はfail-closeしました。",
   terminalProfileCatalogFailed: "終端評価プロファイルカタログはfail-closeしました。",
   desktopSearchDispatchFailed: "デスクトップ探索のdispatchはfail-closeしました。",
@@ -504,6 +506,16 @@ function markDesktopEnvironment() {
   elements.catalogSourceLabel.textContent = UI_TEXT.localDeckCatalog;
 }
 
+async function refreshExternalAssetStatus() {
+  if (!desktopBridgeAvailable()) return;
+  const response = await window.routeLabBridge.invoke("system.external_asset_status", {});
+  if (!response.ok) return;
+  const status = response.result;
+  elements.environmentCode.textContent = status.ready
+    ? UI_TEXT.externalAssetSetupReady
+    : UI_TEXT.externalAssetSetupRequired;
+}
+
 function bridgeDeck(record) {
   const metadata = record.metadata || {};
   return {
@@ -540,6 +552,7 @@ function bridgeDeck(record) {
 async function refreshDesktopCatalog() {
   if (!desktopBridgeAvailable()) return;
   markDesktopEnvironment();
+  await refreshExternalAssetStatus();
   const selectedId = selectedDeck?.id || "";
   const response = await window.routeLabBridge.invoke("deck.catalog", {});
   if (!response.ok) {

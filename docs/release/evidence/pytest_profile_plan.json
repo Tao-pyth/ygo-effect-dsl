@@ -1,5 +1,5 @@
 {
-  "evidence_id": "pytestprofile_2298060c9c61a56b9f801bb449fce767dbf218caab04b3eba58cd0aaaadbfa81",
+  "evidence_id": "pytestprofile_006750a712fabebf746f3b194b5c61a2984476e91e099bde5b7a280eda8a8b3b",
   "package_version": "0.8.0",
   "profiles": {
     "evidence": {
@@ -205,7 +205,7 @@
       ]
     },
     "unit": {
-      "file_count": 52,
+      "file_count": 53,
       "files": [
         "tests/test_action_aggregation.py",
         "tests/test_action_models.py",
@@ -221,6 +221,7 @@
         "tests/test_card_presentation.py",
         "tests/test_corpus_manifest.py",
         "tests/test_evaluator_api.py",
+        "tests/test_external_asset_setup.py",
         "tests/test_failure_policy.py",
         "tests/test_information_access.py",
         "tests/test_information_artifact_audit.py",
@@ -276,6 +277,7 @@
         "tests/test_card_presentation.py",
         "tests/test_corpus_manifest.py",
         "tests/test_evaluator_api.py",
+        "tests/test_external_asset_setup.py",
         "tests/test_failure_policy.py",
         "tests/test_information_access.py",
         "tests/test_information_artifact_audit.py",
@@ -331,7 +333,7 @@
   },
   "schema_version": "pytest-profile-plan-v1",
   "source": {
-    "discovered_file_count": 133,
+    "discovered_file_count": 134,
     "repo_root_name": "ygo-effect-dsl"
   },
   "validation": {

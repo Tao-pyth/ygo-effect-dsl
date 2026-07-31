@@ -23,6 +23,7 @@ from ygo_effect_dsl.cli.cmd_experiment import (
 )
 from ygo_effect_dsl.cli.cmd_jobs import cmd_job_inspect
 from ygo_effect_dsl.cli.cmd_ocgcore import (
+    cmd_external_asset_setup_status,
     cmd_ocgcore_assets_bootstrap,
     cmd_ocgcore_assets_verify,
     cmd_ocgcore_bootstrap,
@@ -56,6 +57,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_release_self_hosted_evidence_verify_adopted,
     cmd_strategy_interruption_qualify,
     cmd_v1_authenticode_signing,
+    cmd_v1_external_asset_setup,
     cmd_v1_installer_packaging,
     cmd_v1_webview2_runtime,
 )
@@ -1218,6 +1220,23 @@ def main() -> int:
     )
     v1_webview2_runtime.set_defaults(func=cmd_v1_webview2_runtime)
 
+    v1_external_asset_setup = sub.add_parser(
+        "v1-external-asset-setup",
+        help="evaluate the v1.0.0 first-run external asset setup gate",
+    )
+    v1_external_asset_setup.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing asset setup docs and workflows",
+    )
+    v1_external_asset_setup.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed v1 external asset setup evidence JSON path",
+    )
+    v1_external_asset_setup.set_defaults(func=cmd_v1_external_asset_setup)
+
     lua_load_qualify = sub.add_parser(
         "ocgcore-lua-qualify",
         help="qualify the pinned official CardScripts corpus through real ocgcore",
@@ -1394,6 +1413,15 @@ def main() -> int:
         "--external-root", help="override the external dependency root"
     )
     ocgcore_assets_verify.set_defaults(func=cmd_ocgcore_assets_verify)
+
+    external_asset_setup_status = sub.add_parser(
+        "external-asset-setup-status",
+        help="report first-run external asset setup readiness and guidance",
+    )
+    external_asset_setup_status.add_argument(
+        "--external-root", help="override the external dependency root"
+    )
+    external_asset_setup_status.set_defaults(func=cmd_external_asset_setup_status)
 
     p0 = sub.add_parser(
         "ingest", help="legacy: validate card-text dataset manifest + cards.jsonl"

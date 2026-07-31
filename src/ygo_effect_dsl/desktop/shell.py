@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 import sys
 from types import ModuleType
-from typing import Any, BinaryIO, Mapping
+from typing import Any, BinaryIO, Callable, Mapping
 
 from ygo_effect_dsl.desktop import desktop_frontend_entrypoint
 from ygo_effect_dsl.desktop import desktop_workflow_contract_document
@@ -318,6 +318,7 @@ def start_desktop(
     data_root: str | Path,
     external_root: str | Path | None = None,
     webview_module: ModuleType | None = None,
+    external_asset_status: Callable[..., Mapping[str, Any]] | None = None,
     supervisor_factory: type[DesktopWorkerSupervisor] = DesktopWorkerSupervisor,
     export_supervisor_factory: type[
         AnalyticsExportSupervisor
@@ -340,6 +341,9 @@ def start_desktop(
     export_supervisor: AnalyticsExportSupervisor | None = None
     picker = NativeYdkPicker(webview)
     card_provider = build_desktop_card_provider(external_root=external_root)
+    service_kwargs: dict[str, Any] = {}
+    if external_asset_status is not None:
+        service_kwargs["external_asset_status"] = external_asset_status
     service = DesktopApplicationService(
         data_root,
         external_root=external_root,
@@ -350,6 +354,7 @@ def start_desktop(
         export_worker_health=lambda: (
             export_supervisor.health if export_supervisor is not None else "stopped"
         ),
+        **service_kwargs,
     )
     export_supervisor = export_supervisor_factory(service.analytics_export_worker)
     bridge = DesktopBridge(service.handlers())

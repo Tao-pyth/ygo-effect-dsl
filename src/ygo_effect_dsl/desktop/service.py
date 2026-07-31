@@ -31,6 +31,7 @@ from ygo_effect_dsl.engine.information import InformationAccessPolicy
 from ygo_effect_dsl.engine.search import strategy_from_experiment
 from ygo_effect_dsl.experiment.schema import assert_valid_experiment
 from ygo_effect_dsl.experiment.scenario import parse_ydk, preflight_scenario
+from ygo_effect_dsl.external.asset_setup import describe_external_asset_setup
 from ygo_effect_dsl.presentation import CardPresentationQuery
 from ygo_effect_dsl.presentation.cards import CARD_PRESENTATION_QUERY_VERSION
 from ygo_effect_dsl.storage.export import (
@@ -1000,6 +1001,9 @@ class DesktopApplicationService:
         comparison_handler: (
             Callable[[Mapping[str, Any]], Mapping[str, Any]] | None
         ) = None,
+        external_asset_status: Callable[..., Mapping[str, Any]] = (
+            describe_external_asset_setup
+        ),
         preflight: Callable[..., Any] = preflight_scenario,
         worker_execution: str = "external_worker_required",
         worker_health: Callable[[], str] | None = None,
@@ -1026,6 +1030,7 @@ class DesktopApplicationService:
         self.ydk_picker = ydk_picker
         self.card_provider = card_provider
         self.comparison_handler = comparison_handler
+        self.external_asset_status = external_asset_status
         self.preflight = preflight
         if worker_execution not in {
             "desktop-supervisor-v1",
@@ -1078,10 +1083,15 @@ class DesktopApplicationService:
             "scenario.compose_search": self.scenario_compose_search,
             "scenario.preflight": self.scenario_preflight,
             "system.describe": self.system_describe,
+            "system.external_asset_status": self.system_external_asset_status,
         }
 
     def system_describe(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         _exact(payload, set(), "system.describe")
+        external_assets = self._external_asset_status()
+        dependent_features = external_assets["dependent_features"]
+        card_assets_ready = dependent_features["card_names"] == "enabled"
+        search_assets_ready = dependent_features["search_jobs"] == "enabled"
         return {
             "capabilities": {
                 "analytics_query": True,
@@ -1089,14 +1099,18 @@ class DesktopApplicationService:
                 "analytics_export_formats": [
                     item.value for item in AnalyticsExportFormat
                 ],
-                "card_presentation": self.card_provider is not None,
-                "deck_card_options": self.card_provider is not None,
+                "card_presentation": (
+                    self.card_provider is not None and card_assets_ready
+                ),
+                "deck_card_options": (
+                    self.card_provider is not None and card_assets_ready
+                ),
                 "deck_metadata": True,
                 "deck_terminal_profiles": True,
                 "comparison": self.comparison_handler is not None,
                 "native_ydk_import": self.ydk_picker is not None,
                 "terminal_preference_profiles": True,
-                "search_job_queue": True,
+                "search_job_queue": search_assets_ready,
                 "verified_result_view": True,
                 "worker_execution": self.worker_execution,
                 "worker_health": (
@@ -1110,9 +1124,19 @@ class DesktopApplicationService:
                     else "unknown"
                 ),
             },
+            "external_assets": external_assets,
             "package_version": __version__,
             "schema_version": DESKTOP_SERVICE_VERSION,
         }
+
+    def system_external_asset_status(
+        self, payload: Mapping[str, Any]
+    ) -> Mapping[str, Any]:
+        _exact(payload, set(), "system.external_asset_status")
+        return self._external_asset_status()
+
+    def _external_asset_status(self) -> Mapping[str, Any]:
+        return self.external_asset_status(external_root=self.external_root)
 
     def deck_catalog_list(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         _exact(payload, set(), "deck.catalog")
@@ -1470,6 +1494,7 @@ class DesktopApplicationService:
             raise DesktopServiceError(
                 "card_presentation_source_unavailable",
                 "no verified Japanese card-presentation source is configured",
+                details={"external_assets": self._external_asset_status()},
             )
         counts = Counter((*deck.main, *deck.extra, *deck.side))
         items: list[dict[str, Any]] = []
@@ -2753,6 +2778,7 @@ class DesktopApplicationService:
             raise DesktopServiceError(
                 "card_presentation_source_unavailable",
                 "no verified local card-presentation source is configured",
+                details={"external_assets": self._external_asset_status()},
             )
         query = payload["query"]
         if not isinstance(query, Mapping):

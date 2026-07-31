@@ -29,6 +29,7 @@
     "scenario.compose_search",
     "scenario.preflight",
     "system.describe",
+    "system.external_asset_status",
   ]);
   let sequence = 0;
   let ready = Boolean(window.pywebview && window.pywebview.api);

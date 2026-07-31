@@ -219,9 +219,25 @@ def test_start_desktop_uses_packaged_frontend_and_single_bridge_method(
             self.health = "stopped"
             captured["export_supervisor_stopped"] = True
 
+    blocked_external_assets = {
+        "asset_lock_id": "asset-lock",
+        "checks": [],
+        "core_lock_id": "core-lock",
+        "dependent_features": {
+            "card_names": "blocked",
+            "deck_card_options": "blocked",
+            "search_jobs": "blocked",
+        },
+        "external_root": str(tmp_path / "external"),
+        "guidance": {"commands": ["python -m ygo_effect_dsl ocgcore-assets-verify"]},
+        "ready": False,
+        "schema_version": "external-asset-setup-status-v1",
+    }
+
     start_desktop(
         data_root=tmp_path,
         webview_module=webview,
+        external_asset_status=lambda *, external_root=None: blocked_external_assets,
         supervisor_factory=Supervisor,  # type: ignore[arg-type]
         export_supervisor_factory=ExportSupervisor,  # type: ignore[arg-type]
     )
@@ -239,8 +255,9 @@ def test_start_desktop_uses_packaged_frontend_and_single_bridge_method(
             "version": DESKTOP_BRIDGE_CONTRACT_VERSION,
         }
     )
-    assert description["result"]["capabilities"]["card_presentation"] is True
-    assert description["result"]["capabilities"]["deck_card_options"] is True
+    assert description["result"]["capabilities"]["card_presentation"] is False
+    assert description["result"]["capabilities"]["deck_card_options"] is False
+    assert description["result"]["external_assets"] == blocked_external_assets
     assert captured["start"] == {
         "debug": False,
         "gui": "edgechromium",

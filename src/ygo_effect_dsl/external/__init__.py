@@ -14,6 +14,10 @@ from ygo_effect_dsl.external.ocgcore import (
     resolve_ocgcore_runtime,
     verify_ocgcore,
 )
+from ygo_effect_dsl.external.asset_setup import (
+    describe_external_asset_setup,
+    external_asset_setup_guidance,
+)
 
 __all__ = [
     "DistributionPolicyError",
@@ -22,6 +26,8 @@ __all__ = [
     "bootstrap_ocgcore",
     "default_external_root",
     "doctor_ocgcore",
+    "describe_external_asset_setup",
+    "external_asset_setup_guidance",
     "load_ocgcore_lock",
     "load_distribution_policy",
     "resolve_ocgcore_runtime",

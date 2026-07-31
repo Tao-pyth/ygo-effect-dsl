@@ -1,0 +1,68 @@
+{
+  "checks": [
+    {
+      "evidence": "docs/adr/0020_v1_external_asset_setup.md",
+      "id": "first_run_policy_documented",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/external/asset_setup.py",
+      "id": "cli_status_reports_setup_guidance",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "src/ygo_effect_dsl/desktop/service.py",
+      "id": "desktop_diagnostics_block_dependent_features",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "tests/test_external_asset_setup.py",
+      "id": "tests_cover_missing_and_invalid_assets",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "docs/release/evidence/v1_0_0_asset_allowlist.json",
+      "id": "release_artifacts_do_not_bundle_external_assets",
+      "passed": true,
+      "reason": "verified"
+    }
+  ],
+  "dependent_features": {
+    "card_names": "blocked_until_card_assets_verified",
+    "deck_card_options": "blocked_until_card_assets_verified",
+    "search_jobs": "blocked_until_core_and_card_assets_verified"
+  },
+  "evidence_id": "v1externalassetsetup_7a1a73e637aa5da0dbc8c75a97558cd6cb964d622cfc74ead4674f948c96a917",
+  "guidance": {
+    "commands": [
+      "python -m ygo_effect_dsl ocgcore-doctor",
+      "python -m ygo_effect_dsl ocgcore-bootstrap",
+      "python -m ygo_effect_dsl ocgcore-assets-bootstrap",
+      "python -m ygo_effect_dsl ocgcore-verify",
+      "python -m ygo_effect_dsl ocgcore-assets-verify"
+    ],
+    "offline_verification_commands": [
+      "python -m ygo_effect_dsl ocgcore-bootstrap --offline",
+      "python -m ygo_effect_dsl ocgcore-assets-bootstrap --offline",
+      "python -m ygo_effect_dsl ocgcore-verify",
+      "python -m ygo_effect_dsl ocgcore-assets-verify"
+    ],
+    "policy": {
+      "bundle_in_release_artifacts": false,
+      "runtime_network_access": false,
+      "scrape_card_data": false,
+      "silent_download_at_runtime": false,
+      "system_wide_install": false
+    },
+    "summary": "Use a user-owned external asset cache, verify pinned commits and SHA-256 hashes, and keep ocgcore/CardScripts/BabelCDB out of release artifacts."
+  },
+  "issue": 358,
+  "package_version": "0.8.0",
+  "passed": true,
+  "rejection_reasons": [],
+  "schema_version": "v1-external-asset-setup-v1"
+}
