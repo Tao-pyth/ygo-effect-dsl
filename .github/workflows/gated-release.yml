@@ -1,0 +1,129 @@
+name: Gated GitHub Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: Release version or dry-run version.
+        required: true
+        default: 1.0.0-dry-run
+      expected_tag:
+        description: Expected signed tag, for example v1.0.0.
+        required: true
+        default: v1.0.0-dry-run
+      dry_run:
+        description: Do not publish a public GitHub Release.
+        required: true
+        default: "true"
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release-preflight:
+    runs-on: ubuntu-latest
+    environment: v1-production-release
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+
+      - name: Install package and release dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[analytics]"
+          python -m pip install build
+
+      - name: Verify gated release policy evidence
+        run: >
+          python -m ygo_effect_dsl v1-gated-release
+          --repo-root .
+          --out gated-release-policy.json
+
+      - name: Verify production distribution gate before public publish
+        if: ${{ inputs.dry_run != 'true' }}
+        run: >
+          python -m ygo_effect_dsl production-distribution-gate
+          --repo-root .
+          --evidence-dir docs/release/evidence
+          --out production-distribution-gate-release.json
+
+      - name: Verify version, changelog, tag, provenance, and checksums
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          release_version = os.environ["RELEASE_VERSION"]
+          expected_tag = os.environ["EXPECTED_TAG"]
+          dry_run = os.environ["DRY_RUN"] == "true"
+          pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
+          changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+          required = {
+              "release_version": release_version,
+              "expected_tag": expected_tag,
+              "dry_run": dry_run,
+              "version_in_changelog": release_version in changelog or dry_run,
+              "dynamic_version_source": "ygo_effect_dsl.version.__version__" in pyproject,
+              "build_provenance": Path("docs/release/evidence/v1_0_0_build_provenance.json").is_file(),
+              "release_checksums": "release-checksums.json",
+              "windows_checksums": "windows-checksums.json",
+              "schema_version": "gated-release-preflight-v1",
+          }
+          Path("gated-release-preflight.json").write_text(
+              json.dumps(required, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          if not dry_run and not required["version_in_changelog"]:
+              raise SystemExit("release version is missing from CHANGELOG.md")
+          PY
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          EXPECTED_TAG: ${{ inputs.expected_tag }}
+          RELEASE_VERSION: ${{ inputs.release_version }}
+
+      - name: Verify signed release tag
+        if: ${{ inputs.dry_run != 'true' }}
+        run: git tag -v "${{ inputs.expected_tag }}"
+
+      - name: Build release artifacts for gated release
+        run: |
+          export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
+          python -m build --outdir dist-gated-release
+          python -m ygo_effect_dsl.spikes.build_provenance_manifest \
+            --repo-root . \
+            --build-kind gated-release \
+            --source-date-epoch "$SOURCE_DATE_EPOCH" \
+            --out build-provenance-dry-run.json \
+            --checksum-out release-checksums.json \
+            dist-gated-release/*.whl dist-gated-release/*.tar.gz
+
+      - name: Publish GitHub Release
+        if: ${{ inputs.dry_run != 'true' }}
+        run: >
+          gh release create "${{ inputs.expected_tag }}"
+          dist-gated-release/*
+          --draft
+          --verify-tag
+          --notes-file CHANGELOG.md
+
+      - name: Upload dry-run release evidence
+        uses: actions/upload-artifact@v7
+        with:
+          name: gated-release-dry-run
+          path: |
+            gated-release-policy.json
+            gated-release-preflight.json
+            build-provenance-dry-run.json
+            release-checksums.json
+          if-no-files-found: warn

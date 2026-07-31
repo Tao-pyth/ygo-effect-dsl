@@ -273,6 +273,14 @@ def evaluate_production_distribution_release_gate(
         ),
         _missing_or_invalid_json_check(
             root,
+            check_id="gated_github_release_workflow_verified",
+            category="release",
+            evidence=_evidence_ref(evidence_path, "v1_0_0_gated_release.json"),
+            schema_version="v1-gated-release-v1",
+            require_passed=True,
+        ),
+        _missing_or_invalid_json_check(
+            root,
             check_id="installer_packaging_verified",
             category="installer",
             evidence=_evidence_ref(evidence_path, "v1_0_0_installer_packaging.json"),

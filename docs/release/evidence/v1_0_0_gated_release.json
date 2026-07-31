@@ -1,0 +1,52 @@
+{
+  "checks": [
+    {
+      "evidence": "docs/adr/0023_v1_gated_release.md",
+      "id": "signed_tag_and_release_policy_documented",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": ".github/workflows/gated-release.yml",
+      "id": "gated_release_workflow_blocks_public_publish_until_gates_pass",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "docs/release/40_failed_publish_yank_rollback.md",
+      "id": "failed_publish_yank_and_rollback_runbook_exists",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": ".github/workflows",
+      "id": "github_actions_runtime_and_pinning_policy_current",
+      "passed": true,
+      "reason": "verified"
+    },
+    {
+      "evidence": "tests/test_gated_release_workflow.py",
+      "id": "tests_cover_gated_release_workflow",
+      "passed": true,
+      "reason": "verified"
+    }
+  ],
+  "evidence_id": "v1gatedrelease_003d867f58f6fdc440e836855021056e0ce37d6481af9a1c6e7d1d057919e5e2",
+  "issue": 173,
+  "package_version": "0.8.0",
+  "passed": true,
+  "rejection_reasons": [],
+  "release_policy": {
+    "default_public_publish": false,
+    "dry_run_version": "1.0.0-dry-run",
+    "manual_approval_environment": "v1-production-release",
+    "public_publish_requires": [
+      "#91",
+      "production-distribution-release-gate-v1 passed",
+      "signed tag verified",
+      "draft GitHub Release first"
+    ],
+    "signing_policy": "signed git tag or approved organization equivalent"
+  },
+  "schema_version": "v1-gated-release-v1"
+}

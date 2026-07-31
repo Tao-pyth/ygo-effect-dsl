@@ -60,6 +60,7 @@ from ygo_effect_dsl.cli.cmd_qualification import (
     cmd_v1_build_provenance,
     cmd_v1_desktop_settings,
     cmd_v1_external_asset_setup,
+    cmd_v1_gated_release,
     cmd_v1_installer_packaging,
     cmd_v1_upgrade_rollback,
     cmd_v1_webview2_runtime,
@@ -1205,6 +1206,23 @@ def main() -> int:
         help="content-addressed v1 upgrade and rollback evidence JSON path",
     )
     v1_upgrade_rollback.set_defaults(func=cmd_v1_upgrade_rollback)
+
+    v1_gated_release = sub.add_parser(
+        "v1-gated-release",
+        help="evaluate the v1.0.0 gated GitHub Release workflow",
+    )
+    v1_gated_release.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="checkout root containing release workflow policy evidence",
+    )
+    v1_gated_release.add_argument(
+        "--out",
+        required=True,
+        help="content-addressed v1 gated release evidence JSON path",
+    )
+    v1_gated_release.set_defaults(func=cmd_v1_gated_release)
 
     v1_installer_packaging = sub.add_parser(
         "v1-installer-packaging",

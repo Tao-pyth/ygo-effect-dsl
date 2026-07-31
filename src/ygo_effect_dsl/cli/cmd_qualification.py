@@ -86,6 +86,9 @@ from ygo_effect_dsl.spikes.desktop_settings_release_gate import (
 from ygo_effect_dsl.spikes.external_asset_setup_release_gate import (
     write_v1_external_asset_setup,
 )
+from ygo_effect_dsl.spikes.gated_release_workflow_gate import (
+    write_v1_gated_release,
+)
 
 
 def _profile_inputs(values: list[str]) -> dict[str, str]:
@@ -816,6 +819,21 @@ def cmd_v1_upgrade_rollback(args: argparse.Namespace) -> int:
     return 0 if evidence["passed"] else 1
 
 
+def cmd_v1_gated_release(args: argparse.Namespace) -> int:
+    evidence = write_v1_gated_release(
+        args.repo_root,
+        output_path=args.out,
+    )
+    status = "passed" if evidence["passed"] else "failed"
+    print(
+        "v1-gated-release: "
+        f"{status} evidence_id={evidence['evidence_id']} "
+        f"rejections={','.join(evidence['rejection_reasons']) or '-'} "
+        f"out={args.out}"
+    )
+    return 0 if evidence["passed"] else 1
+
+
 def cmd_v1_installer_packaging(args: argparse.Namespace) -> int:
     evidence = write_v1_installer_packaging(
         args.repo_root,
@@ -947,6 +965,7 @@ __all__ = [
     "cmd_strategy_interruption_qualify",
     "cmd_v1_desktop_settings",
     "cmd_v1_external_asset_setup",
+    "cmd_v1_gated_release",
     "cmd_v1_installer_packaging",
     "cmd_v1_upgrade_rollback",
     "cmd_v1_webview2_runtime",

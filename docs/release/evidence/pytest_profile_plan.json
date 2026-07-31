@@ -1,5 +1,5 @@
 {
-  "evidence_id": "pytestprofile_4935951a96e41bcb35950435131c8bb4ec10d1ac83cc5fbb3ffb4edd176c8602",
+  "evidence_id": "pytestprofile_1072556b0e9f397b8bc1fb512236f64ca33021e57ecb2d5ef8d9a7a88dd5bbe2",
   "package_version": "0.8.0",
   "profiles": {
     "evidence": {
@@ -207,7 +207,7 @@
       ]
     },
     "unit": {
-      "file_count": 55,
+      "file_count": 56,
       "files": [
         "tests/test_action_aggregation.py",
         "tests/test_action_models.py",
@@ -225,6 +225,7 @@
         "tests/test_evaluator_api.py",
         "tests/test_external_asset_setup.py",
         "tests/test_failure_policy.py",
+        "tests/test_gated_release_workflow.py",
         "tests/test_information_access.py",
         "tests/test_information_artifact_audit.py",
         "tests/test_interruption_adapter.py",
@@ -283,6 +284,7 @@
         "tests/test_evaluator_api.py",
         "tests/test_external_asset_setup.py",
         "tests/test_failure_policy.py",
+        "tests/test_gated_release_workflow.py",
         "tests/test_information_access.py",
         "tests/test_information_artifact_audit.py",
         "tests/test_interruption_adapter.py",
@@ -339,7 +341,7 @@
   },
   "schema_version": "pytest-profile-plan-v1",
   "source": {
-    "discovered_file_count": 137,
+    "discovered_file_count": 138,
     "repo_root_name": "ygo-effect-dsl"
   },
   "validation": {
