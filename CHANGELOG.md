@@ -10,6 +10,7 @@ All notable package changes are documented here. Package versions follow Semanti
 - [v1.0.0] Added sanitized card presentation label-map drift evidence that compares every supported type, race, and attribute label bit against pinned CardScripts `constant.lua` while keeping unsupported upstream-only bits fail-closed.
 - [v1.0.0] Added sanitized non-English card presentation source qualification evidence for the pinned BabelCDB provenance, `NOASSERTION` license status, and user-cache-only redistribution boundary.
 - [v1.0.0] Added pinned real-core damage-step interruption evidence and registered `damage_step` as a fixture-scoped taxonomy category while keeping the default runtime policy fail-closed.
+- [v1.0.0] Added pinned real-core simultaneous-trigger evidence for same-player trigger candidate ordering and selected occurrence replay while keeping the default runtime policy fail-closed.
 
 - [v0.9.0] Added deck-scoped terminal evaluation profile management for the desktop UI, including the `[P] プロファイル` page, deck-card selection, archive deletion, and `deck.profile.*` bridge contracts.
 - [v0.9.0] Added desktop deck metadata management for display names and tags without changing `deck_id`, `deck_sha256`, existing jobs, or evidence.

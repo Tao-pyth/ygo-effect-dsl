@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import json
 from pathlib import Path
 from typing import Any
 
 import pytest
 
+from ygo_effect_dsl.engine.canonical import stable_digest
 from ygo_effect_dsl.engine.interruption import build_interruption_comparison
 from ygo_effect_dsl.experiment import load_experiment_document
 from ygo_effect_dsl.external.ocgcore import (
@@ -16,6 +18,9 @@ from ygo_effect_dsl.external.ocgcore import (
 from ygo_effect_dsl.prototype import build_real_core_route
 from ygo_effect_dsl.prototype.real_core import _resolve_interruption_plans
 from ygo_effect_dsl.route_dsl import validate_route_document
+from ygo_effect_dsl.spikes.interruption_simultaneous_trigger_evidence import (
+    build_interruption_simultaneous_trigger_evidence,
+)
 
 
 EXPERIMENTS = Path(__file__).parents[1] / "examples" / "experiments"
@@ -23,6 +28,13 @@ SEQUENCE_EXPERIMENTS = {
     name: EXPERIMENTS / f"real_core_interruption_sequence_{name}.yaml"
     for name in ("control", "stage1", "stage2")
 }
+SIMULTANEOUS_TRIGGER_EVIDENCE_PATH = (
+    Path(__file__).parents[1]
+    / "docs"
+    / "interruption"
+    / "evidence"
+    / "real_core_simultaneous_trigger.json"
+)
 
 
 @pytest.fixture(scope="module")
@@ -128,3 +140,44 @@ def test_two_interruption_route_identity_is_deterministic(
 
     assert replayed["route_id"] == sequence_routes["stage2"]["route_id"]
     assert replayed["replay"] == sequence_routes["stage2"]["replay"]
+
+
+def test_simultaneous_trigger_evidence_is_fixture_scoped_and_canonical() -> None:
+    try:
+        verify_ocgcore()
+        verify_ocgcore_assets()
+    except (OcgcoreBootstrapError, OSError) as exc:
+        pytest.skip(f"pinned local ocgcore runtime/assets are unavailable: {exc}")
+    evidence = json.loads(
+        SIMULTANEOUS_TRIGGER_EVIDENCE_PATH.read_text(encoding="utf-8")
+    )
+    identity = {
+        key: value for key, value in evidence.items() if key != "evidence_id"
+    }
+
+    assert evidence["schema_version"] == (
+        "real-core-simultaneous-trigger-evidence-v1"
+    )
+    assert evidence["evidence_id"] == stable_digest(
+        identity, prefix="simtrigev_"
+    )
+    assert evidence["category"] == {
+        "default_runtime_policy": "fail_closed",
+        "ordering_authority": "ocgcore_decision_request_candidate_order",
+        "registered_fixture_category": "simultaneous_trigger",
+        "scope": "pinned_real_core_fixture_only",
+    }
+    assert all(evidence["verification"].values())
+    assert evidence["routes"]["control"]["candidate_order"][:2] == [
+        {"candidate_id": "chain:0", "card_code": 91800273, "kind": "effect"},
+        {"candidate_id": "chain:1", "card_code": 10045474, "kind": "effect"},
+    ]
+    assert evidence["taxonomy"]["registered"]["supported"] is True
+    assert evidence["taxonomy"]["candidate_missing"]["status"] == "path_failure"
+    assert evidence["taxonomy"]["unregistered"]["status"] == (
+        "unsupported_category"
+    )
+    assert (
+        build_interruption_simultaneous_trigger_evidence()["evidence_id"]
+        == evidence["evidence_id"]
+    )

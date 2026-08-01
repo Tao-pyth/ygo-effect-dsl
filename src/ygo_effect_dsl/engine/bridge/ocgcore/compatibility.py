@@ -247,9 +247,12 @@ OPERATION_COMPATIBILITY = (
     ),
     CompatibilityCase(
         "simultaneous_trigger",
-        "unsupported",
-        (),
-        "No decoder/replay fixture exists; interruption taxonomy fails closed pending #208.",
+        "real_core",
+        (
+            "docs/interruption/evidence/real_core_simultaneous_trigger.json",
+            "tests/test_real_core_interruption_sequence.py",
+        ),
+        "A pinned fixture exposes two same-player trigger candidates in core candidate order; default taxonomy remains fail-closed unless explicitly registered.",
     ),
     CompatibilityCase(
         "continuous_replacement_effect",

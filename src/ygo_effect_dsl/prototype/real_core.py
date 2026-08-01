@@ -155,6 +155,9 @@ INTERRUPTION_EFFECT_NEGATION_SCENARIO_ID = (
 INTERRUPTION_SEQUENCE_SCENARIO_ID = "real_core_interruption_sequence_v1"
 INTERRUPTION_TIMING_SCENARIO_ID = "real_core_interruption_missed_timing_v1"
 INTERRUPTION_DAMAGE_STEP_SCENARIO_ID = "real_core_interruption_damage_step_v1"
+INTERRUPTION_SIMULTANEOUS_TRIGGER_SCENARIO_ID = (
+    "real_core_interruption_simultaneous_trigger_v1"
+)
 TARGET_LOSS_SCENARIO_ID = "real_core_action_aggregation_target_loss_v1"
 EFFECT_VEILER_CODE = 97268402
 RECOVERY_PRIMARY_CODE = 14558127
@@ -193,6 +196,9 @@ INTERRUPTION_EFFECT_NEGATION_FIXTURE_ID = "interruption_effect_negation_v1"
 INTERRUPTION_SEQUENCE_FIXTURE_ID = "interruption_sequence_v1"
 INTERRUPTION_TIMING_FIXTURE_ID = "interruption_missed_timing_v1"
 INTERRUPTION_DAMAGE_STEP_FIXTURE_ID = "interruption_damage_step_v1"
+INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID = (
+    "interruption_simultaneous_trigger_v1"
+)
 TARGET_LOSS_FIXTURE_ID = "action_aggregation_target_loss_v1"
 TERMINAL_FIXTURE_CARD_CODE = 2511
 TERMINAL_LP_ZERO_FIXTURE_ID = "terminal_lp_zero_v1"
@@ -614,6 +620,42 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
     local c=e:GetHandler()
     if chk==0 then return c:IsAbleToGraveAsCost() end
     Duel.SendtoGrave(c,REASON_COST)
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+end
+"""
+INTERRUPTION_SIMULTANEOUS_TRIGGER_A_FIXTURE_SCRIPT = """local s,id=GetID()
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetDescription(70)
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+    e1:SetCode(EVENT_SUMMON_SUCCESS)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetCountLimit(1,id)
+    e1:SetCondition(s.condition)
+    e1:SetOperation(s.operation)
+    c:RegisterEffect(e1)
+end
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.GetTurnPlayer()==tp
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+end
+"""
+INTERRUPTION_SIMULTANEOUS_TRIGGER_B_FIXTURE_SCRIPT = """local s,id=GetID()
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetDescription(71)
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+    e1:SetCode(EVENT_SUMMON_SUCCESS)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetCountLimit(1,id)
+    e1:SetCondition(s.condition)
+    e1:SetOperation(s.operation)
+    c:RegisterEffect(e1)
+end
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.GetTurnPlayer()==tp
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
@@ -1135,6 +1177,7 @@ def _fixture_script_id(experiment: Mapping[str, Any]) -> str | None:
         INTERRUPTION_SEQUENCE_FIXTURE_ID,
         INTERRUPTION_TIMING_FIXTURE_ID,
         INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
+        INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID,
         TARGET_LOSS_FIXTURE_ID,
         *TERMINAL_FIXTURE_IDS,
     }:
@@ -1210,6 +1253,16 @@ def _fixture_scripts(fixture_script_id: str | None) -> dict[int, bytes]:
                 INTERRUPTION_DAMAGE_STEP_HAND_FIXTURE_SCRIPT
             ),
             INTERRUPTION_SUPPORT_CODE: INTERRUPTION_BLANK_FIXTURE_SCRIPT,
+        }
+    elif fixture_script_id == INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID:
+        source_by_code = {
+            INTERRUPTION_PRIMARY_CODE: INTERRUPTION_BLANK_FIXTURE_SCRIPT,
+            INTERRUPTION_SUPPORT_CODE: (
+                INTERRUPTION_SIMULTANEOUS_TRIGGER_A_FIXTURE_SCRIPT
+            ),
+            INTERRUPTION_FIELD_CODE: (
+                INTERRUPTION_SIMULTANEOUS_TRIGGER_B_FIXTURE_SCRIPT
+            ),
         }
     elif fixture_script_id == TARGET_LOSS_FIXTURE_ID:
         source_by_code = {
@@ -1368,6 +1421,8 @@ def _scenario_id(fixture_script_id: str | None) -> str:
         return INTERRUPTION_TIMING_SCENARIO_ID
     if fixture_script_id == INTERRUPTION_DAMAGE_STEP_FIXTURE_ID:
         return INTERRUPTION_DAMAGE_STEP_SCENARIO_ID
+    if fixture_script_id == INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID:
+        return INTERRUPTION_SIMULTANEOUS_TRIGGER_SCENARIO_ID
     if fixture_script_id == TARGET_LOSS_FIXTURE_ID:
         return TARGET_LOSS_SCENARIO_ID
     return REAL_CORE_SCENARIO_ID
@@ -1392,6 +1447,11 @@ def _fixed_hands(
         return {
             "0": [INTERRUPTION_PRIMARY_CODE],
             "1": [INTERRUPTION_TARGETLESS_HAND_CODE],
+        }
+    if fixture_script_id == INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID:
+        return {
+            "0": [INTERRUPTION_PRIMARY_CODE],
+            "1": [],
         }
     if fixture_script_id in {
         INTERRUPTION_MATRIX_FIXTURE_ID,
@@ -1446,6 +1506,23 @@ def _fixture_initial_field(
                 "location": LOCATION_MZONE,
                 "position": POSITION_FACEUP_ATTACK,
                 "sequence": 0,
+            },
+        ]
+    if fixture_script_id == INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID:
+        return [
+            {
+                "code": INTERRUPTION_SUPPORT_CODE,
+                "controller": 0,
+                "location": LOCATION_MZONE,
+                "position": POSITION_FACEUP_ATTACK,
+                "sequence": 0,
+            },
+            {
+                "code": INTERRUPTION_FIELD_CODE,
+                "controller": 0,
+                "location": LOCATION_MZONE,
+                "position": POSITION_FACEUP_ATTACK,
+                "sequence": 1,
             },
         ]
     if fixture_script_id not in {
@@ -1526,6 +1603,9 @@ def _resolved_real_experiment(
         INTERRUPTION_SEQUENCE_FIXTURE_ID: "interruption_sequence_fixture",
         INTERRUPTION_TIMING_FIXTURE_ID: "interruption_missed_timing_fixture",
         INTERRUPTION_DAMAGE_STEP_FIXTURE_ID: "interruption_damage_step_fixture",
+        INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID: (
+            "interruption_simultaneous_trigger_fixture"
+        ),
         TARGET_LOSS_FIXTURE_ID: "action_aggregation_target_loss_fixture",
     }.get(fixture_script_id, "effect_veiler_two_player_fixture")
     if resolved["deck"] != {"id": expected_deck_id, "source": "fixed"}:
@@ -1556,6 +1636,7 @@ def _resolved_real_experiment(
             INTERRUPTION_SEQUENCE_FIXTURE_ID,
             INTERRUPTION_TIMING_FIXTURE_ID,
             INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
+            INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID,
             TARGET_LOSS_FIXTURE_ID,
         }
         and resolved["interruption"].get("mode") != "none"
@@ -1803,6 +1884,7 @@ def _selected_candidate(
         if fixture_script_id in {
             RECOVERY_ATTRIBUTION_FIXTURE_ID,
             *GENERIC_INTERRUPTION_FIXTURE_IDS,
+            INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID,
         }:
             if not request.candidates:
                 raise ValueError("real-core fixture exposed no available zone")
@@ -1986,6 +2068,21 @@ def _selected_candidate(
         if card_candidate is None:
             raise ValueError("damage-step fixture exposed no battle target candidate")
         return (card_candidate,), "damage_step_battle_target"
+    elif (
+        request.request_type == "sort_chain"
+        and fixture_script_id == INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID
+    ):
+        keep_order = next(
+            (
+                candidate
+                for candidate in request.candidates
+                if candidate.candidate_id == "control:keep_order"
+            ),
+            None,
+        )
+        if keep_order is None:
+            raise ValueError("simultaneous-trigger fixture exposed no keep-order candidate")
+        return (keep_order,), "simultaneous_trigger_keep_order"
     elif (
         request.request_type == "select_card"
         and fixture_script_id == ACTIVATION_ROLLBACK_FIXTURE_ID
@@ -3005,6 +3102,7 @@ def _build_real_core_temporary_observation(
         INTERRUPTION_SEQUENCE_FIXTURE_ID,
         INTERRUPTION_TIMING_FIXTURE_ID,
         INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
+        INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID,
     }:
         return None
     if (
@@ -3575,6 +3673,7 @@ def run_real_core_worker(
                             RECOVERY_ATTRIBUTION_FIXTURE_ID,
                             *GENERIC_INTERRUPTION_FIXTURE_IDS,
                             INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
+                            INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID,
                         }
                         else None
                     ),
@@ -3584,6 +3683,7 @@ def run_real_core_worker(
                         in {
                             *GENERIC_INTERRUPTION_FIXTURE_IDS,
                             INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
+                            INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID,
                         }
                         else None
                     ),
@@ -4273,6 +4373,7 @@ def run_real_core_worker(
     if fixture_script_id in {
         *GENERIC_INTERRUPTION_FIXTURE_IDS,
         INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
+        INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID,
     }:
         presentation["interruption_validation_evidence"] = (
             derive_ocgcore_interruption_validation(replay)
@@ -4795,6 +4896,7 @@ def verify_real_core_route(
                 RECOVERY_ATTRIBUTION_FIXTURE_ID,
                 *GENERIC_INTERRUPTION_FIXTURE_IDS,
                 INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
+                INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID,
             }
             else None
         ),
@@ -4804,6 +4906,7 @@ def verify_real_core_route(
             in {
                 *GENERIC_INTERRUPTION_FIXTURE_IDS,
                 INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
+                INTERRUPTION_SIMULTANEOUS_TRIGGER_FIXTURE_ID,
             }
             else None
         ),

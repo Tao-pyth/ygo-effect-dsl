@@ -33,10 +33,13 @@
       "follow_up_issue": 207
     },
     "simultaneous_trigger": {
-      "status": "fail_close_pending_fixture",
+      "status": "verified_fixture_category",
       "default": false,
-      "production_claim": "prohibited",
+      "production_claim": "pinned_fixture_scope_only",
       "priority": 2,
+      "evidence": [
+        "simtrigev_1a942b839964d646199f27ef79b8ef9fd63e3fcf70b2c73ef87000bb36a97854"
+      ],
       "follow_up_issue": 208
     },
     "mandatory_trigger": {

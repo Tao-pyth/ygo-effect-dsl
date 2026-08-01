@@ -28,8 +28,17 @@ def test_bundled_interruption_taxonomy_fails_closed_for_unverified_categories() 
         ],
         "follow_up_issue": 207,
     }
+    assert document["validation_categories"]["simultaneous_trigger"] == {
+        "status": "verified_fixture_category",
+        "default": False,
+        "production_claim": "pinned_fixture_scope_only",
+        "priority": 2,
+        "evidence": [
+            "simtrigev_1a942b839964d646199f27ef79b8ef9fd63e3fcf70b2c73ef87000bb36a97854"
+        ],
+        "follow_up_issue": 208,
+    }
     pending = {
-        "simultaneous_trigger": (2, 208),
         "mandatory_trigger": (3, 209),
         "segoc": (4, 210),
     }
@@ -55,6 +64,7 @@ def test_bundled_interruption_taxonomy_fails_closed_for_unverified_categories() 
     runtime_policy = InterruptionValidationPolicy().to_dict()
     assert set(runtime_policy["fail_close_categories"]) == {
         "damage_step",
+        "simultaneous_trigger",
         *pending,
     }
     assert runtime_policy["verified_fixture_categories"] == ["standard"]

@@ -1,0 +1,300 @@
+{
+  "category": {
+    "default_runtime_policy": "fail_closed",
+    "ordering_authority": "ocgcore_decision_request_candidate_order",
+    "registered_fixture_category": "simultaneous_trigger",
+    "scope": "pinned_real_core_fixture_only"
+  },
+  "evidence_id": "simtrigev_1a942b839964d646199f27ef79b8ef9fd63e3fcf70b2c73ef87000bb36a97854",
+  "routes": {
+    "control": {
+      "candidate_order": [
+        {
+          "candidate_id": "chain:0",
+          "card_code": 91800273,
+          "kind": "effect"
+        },
+        {
+          "candidate_id": "chain:1",
+          "card_code": 10045474,
+          "kind": "effect"
+        },
+        {
+          "candidate_id": "control:pass",
+          "card_code": null,
+          "kind": "pass"
+        }
+      ],
+      "event_count": 9,
+      "final_state_hash": "state_abfd9b2ec145a4e4d8a3dae4775b555eb3d012c9e40cef7eed7bf88bda1d2730",
+      "interruption_validation_evidence_id": "intvalidation_cfc508caf477284aa5da6aeb38f711e29fb70c14b86b481bdefa4f09b51ec74a",
+      "replay_id": "replay_065dc1f6e4609d17442188ee9caa843a46a4507dc622d763a3efe99a17c7ef70",
+      "route_id": "route_f20adef90edfc570d838c224df7e299a7d57e866ca36bfaaecc849fa51fd0084",
+      "selected_action": {
+        "action_id": "act_50426299954bd051eaa2e9db28c4645753a967ba88b2300186197d85ba7fe758",
+        "effect_ref": null,
+        "kind": "PASS",
+        "player": 0,
+        "request_signature": "req_74fd8bb69e6ac2296b41a4af12e4c93f17f0627d16424370d57eac8c8a6e945d",
+        "schema_version": "0.3a",
+        "selections": [
+          {
+            "candidate_id": "control:pass",
+            "card_ref": null,
+            "effect_ref": null,
+            "order": null,
+            "payload_ref": "candidate.payload",
+            "value": null
+          }
+        ],
+        "source": null
+      },
+      "state_hash_before": "state_290cd68687ea390dbdcfd975f2947ef4fc0b17c79681d5c897d82f81feb65d91",
+      "terminal_board": {
+        "checkpoint_step": 8,
+        "evaluation": {
+          "field_count": 3,
+          "hand_count": 0
+        },
+        "evaluation_result": {
+          "evaluator_config_hash": "evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254",
+          "evaluator_id": "real_core_board_count",
+          "evaluator_version": "1",
+          "explanations": [],
+          "schema_version": "evaluation-result-v1",
+          "score_breakdown": {
+            "breakdown_id": "score_0af067fb053055e8d957a4b16485aff2f7d0419a0c39fe35b69c3468f92e2847",
+            "missing_metrics": [],
+            "schema_version": "score-breakdown-v1",
+            "terms": [
+              {
+                "contribution": 30,
+                "metric": "field_count",
+                "raw_value": 3,
+                "resolution": "observed",
+                "resolved_value": 3,
+                "weight": 10
+              },
+              {
+                "contribution": 0,
+                "metric": "hand_count",
+                "raw_value": 0,
+                "resolution": "observed",
+                "resolved_value": 0,
+                "weight": 1
+              }
+            ],
+            "total_score": 30
+          },
+          "total_score": 30,
+          "vector": {
+            "field_count": 3,
+            "hand_count": 0
+          }
+        },
+        "phase": "main1",
+        "score": 30,
+        "state_hash": "state_abfd9b2ec145a4e4d8a3dae4775b555eb3d012c9e40cef7eed7bf88bda1d2730",
+        "stop_reason": "core_end_turn_available",
+        "success": true,
+        "turn": 2
+      },
+      "trigger_step": 4
+    },
+    "select_first": {
+      "candidate_order": [
+        {
+          "candidate_id": "chain:0",
+          "card_code": 91800273,
+          "kind": "effect"
+        },
+        {
+          "candidate_id": "chain:1",
+          "card_code": 10045474,
+          "kind": "effect"
+        },
+        {
+          "candidate_id": "control:pass",
+          "card_code": null,
+          "kind": "pass"
+        }
+      ],
+      "event_count": 12,
+      "final_state_hash": "state_abfd9b2ec145a4e4d8a3dae4775b555eb3d012c9e40cef7eed7bf88bda1d2730",
+      "interruption_validation_evidence_id": "intvalidation_af5b71210fb20fb2a61aeff6e8f3036860a1f5cb06fdd7b0ad8e9fbbe70251c1",
+      "replay_id": "replay_67a859fe2b178d23308102565a9b3b8ff646fc8c0be127db6025112d3fe5f23c",
+      "route_id": "route_ea859859dfc5e14e358680e9593927c2d77fb40a02f8dde483538045ffb562ac",
+      "selected_action": {
+        "action_id": "act_664b65510480aab955065bbd6f5f4d9c8064d5fe9a6d4bb3da88db34f80d19aa",
+        "effect_ref": null,
+        "kind": "ACTIVATE_EFFECT",
+        "player": 0,
+        "request_signature": "req_74fd8bb69e6ac2296b41a4af12e4c93f17f0627d16424370d57eac8c8a6e945d",
+        "schema_version": "0.3a",
+        "selections": [
+          {
+            "candidate_id": "chain:0",
+            "card_ref": {
+              "controller": 0,
+              "instance_id": null,
+              "location": "monster_zone",
+              "owner": 0,
+              "public_card_id": 91800273,
+              "sequence": 0
+            },
+            "effect_ref": null,
+            "order": null,
+            "payload_ref": "candidate.payload",
+            "value": null
+          }
+        ],
+        "source": {
+          "controller": 0,
+          "instance_id": null,
+          "location": "monster_zone",
+          "owner": 0,
+          "public_card_id": 91800273,
+          "sequence": 0
+        }
+      },
+      "state_hash_before": "state_290cd68687ea390dbdcfd975f2947ef4fc0b17c79681d5c897d82f81feb65d91",
+      "terminal_board": {
+        "checkpoint_step": 11,
+        "evaluation": {
+          "field_count": 3,
+          "hand_count": 0
+        },
+        "evaluation_result": {
+          "evaluator_config_hash": "evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254",
+          "evaluator_id": "real_core_board_count",
+          "evaluator_version": "1",
+          "explanations": [],
+          "schema_version": "evaluation-result-v1",
+          "score_breakdown": {
+            "breakdown_id": "score_0af067fb053055e8d957a4b16485aff2f7d0419a0c39fe35b69c3468f92e2847",
+            "missing_metrics": [],
+            "schema_version": "score-breakdown-v1",
+            "terms": [
+              {
+                "contribution": 30,
+                "metric": "field_count",
+                "raw_value": 3,
+                "resolution": "observed",
+                "resolved_value": 3,
+                "weight": 10
+              },
+              {
+                "contribution": 0,
+                "metric": "hand_count",
+                "raw_value": 0,
+                "resolution": "observed",
+                "resolved_value": 0,
+                "weight": 1
+              }
+            ],
+            "total_score": 30
+          },
+          "total_score": 30,
+          "vector": {
+            "field_count": 3,
+            "hand_count": 0
+          }
+        },
+        "phase": "main1",
+        "score": 30,
+        "state_hash": "state_abfd9b2ec145a4e4d8a3dae4775b555eb3d012c9e40cef7eed7bf88bda1d2730",
+        "stop_reason": "core_end_turn_available",
+        "success": true,
+        "turn": 2
+      },
+      "trigger_step": 4
+    }
+  },
+  "schema_version": "real-core-simultaneous-trigger-evidence-v1",
+  "taxonomy": {
+    "ambiguous_shape": {
+      "candidates": [],
+      "diagnostics": [
+        {
+          "candidate_ids": [
+            "chain:0"
+          ],
+          "code": "ambiguous_candidate_identity",
+          "message": "candidate IDs must be unique",
+          "path": "$.request.candidates"
+        }
+      ],
+      "request_id": "real_core_interruption_simultaneous_trigger_v1:4",
+      "schema_version": "interruption-support-taxonomy-v1",
+      "source_card_code": 91800273,
+      "status": "configuration_failure",
+      "supported": false
+    },
+    "candidate_missing": {
+      "candidates": [],
+      "diagnostics": [
+        {
+          "candidate_ids": [
+            "chain:missing"
+          ],
+          "code": "candidate_disappeared",
+          "message": "expected core candidate is absent from this request",
+          "path": "$.request.candidates"
+        }
+      ],
+      "request_id": "real_core_interruption_simultaneous_trigger_v1:4",
+      "schema_version": "interruption-support-taxonomy-v1",
+      "source_card_code": 91800273,
+      "status": "path_failure",
+      "supported": false
+    },
+    "registered": {
+      "candidates": [
+        {
+          "activation": true,
+          "candidate_id": "chain:0",
+          "cost": false,
+          "option": false,
+          "schema_version": "interruption-support-taxonomy-v1",
+          "source_card_code": 91800273,
+          "source_zone": "field",
+          "target": "not_applicable",
+          "validation_categories": [
+            "simultaneous_trigger"
+          ]
+        }
+      ],
+      "diagnostics": [],
+      "request_id": "real_core_interruption_simultaneous_trigger_v1:4",
+      "schema_version": "interruption-support-taxonomy-v1",
+      "source_card_code": 91800273,
+      "status": "supported",
+      "supported": true
+    },
+    "unregistered": {
+      "candidates": [],
+      "diagnostics": [
+        {
+          "candidate_ids": [],
+          "code": "unverified_fixture_category",
+          "message": "fixture validation is not registered for ['simultaneous_trigger']",
+          "path": "$.validation_categories"
+        }
+      ],
+      "request_id": "real_core_interruption_simultaneous_trigger_v1:4",
+      "schema_version": "interruption-support-taxonomy-v1",
+      "source_card_code": 91800273,
+      "status": "unsupported_category",
+      "supported": false
+    }
+  },
+  "verification": {
+    "candidate_disappearance_fails_closed": true,
+    "candidate_order_exposed_by_core": true,
+    "fresh_real_core_selected_replay_two_repetitions": true,
+    "routes_validate": true,
+    "selected_occurrence_replayed": true,
+    "simultaneous_taxonomy_registered_fixture_only": true,
+    "unsupported_or_ambiguous_candidate_shapes_fail_closed": true
+  }
+}

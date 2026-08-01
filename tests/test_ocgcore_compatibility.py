@@ -42,8 +42,11 @@ def test_issue_54_operation_categories_are_classified_without_overclaiming() -> 
     assert cases["normal_summon"].status == "real_core"
     assert cases["chain"].status == "real_core"
     assert cases["search"].status == "unsupported"
-    assert cases["simultaneous_trigger"].status == "unsupported"
-    assert "#208" in cases["simultaneous_trigger"].notes
+    assert cases["simultaneous_trigger"].status == "real_core"
+    assert (
+        "docs/interruption/evidence/real_core_simultaneous_trigger.json"
+        in cases["simultaneous_trigger"].evidence
+    )
     assert cases["special_summon_method"].status == "unsupported"
 
 

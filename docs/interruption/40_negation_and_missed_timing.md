@@ -15,6 +15,7 @@ Last updated: 2026-08-01
 | targeted multi-link | `route_969e43cf278d9451a8a421a12eddaf40632bee7f22f294546c21b642af2f5d61` | 2 targets and `MSG_CHAIN_DISABLED` |
 | missed timing | `route_bdfc3b2c63822fd00988dc80a93db97b68753a56a4072c59dab073292c3bba0b` | `MSG_MISSED_EFFECT` |
 | damage step | `route_19268ac39676f885d9fdb6016d5ddf7edfad880cc1d7031e64dfa51f480ae4e1` | hand `chain:0` exposed during battle damage processing |
+| simultaneous trigger | `route_f20adef90edfc570d838c224df7e299a7d57e866ca36bfaaecc849fa51fd0084` / `route_ea859859dfc5e14e358680e9593927c2d77fb40a02f8dde483538045ffb562ac` | same-player `chain:0`, `chain:1` trigger candidate order and selected `chain:0` occurrence |
 
 ## Boundaries
 
@@ -24,20 +25,22 @@ missed timing は core の `MSG_MISSED_EFFECT` と、直後の pass-only `select
 
 damage step は `real_core_interruption_damage_step.yaml` の固定 fixture だけを対象にする。Lua fixture は `EFFECT_FLAG_DAMAGE_STEP + EFFECT_FLAG_DAMAGE_CAL` と `PHASE_DAMAGE / PHASE_DAMAGE_CAL` 条件を持ち、証跡は core が step 16 の `select_chain` に手札 `14558127` の `chain:0` を出したこと、Action が source を保持したこと、cost move が墓地へ発生したことに限定する。Python 側では効果テキスト、合法性、timing を推測しない。
 
+simultaneous trigger は `real_core_interruption_simultaneous_trigger.yaml` と `real_core_interruption_simultaneous_trigger_select_first.yaml` の固定 fixture だけを対象にする。通常召喚後、core が同一 player の `select_chain` に `91800273` の `chain:0` と `10045474` の `chain:1` をこの順序で出すことを証跡にする。Python 側で trigger priority、SEGOC、ordering rule を実装せず、DecisionRequest の candidate order と選択 Action の fresh replay 一致だけを記録する。
+
 ## Validator and evidence
 
 `ocgcore-interruption-validation-v1` は Replay から chain lifecycle、move reason、missed-effect payload、chain/effect request、Action occurrence、State hash 遷移を再計算する。Route validator は `presentation.interruption_validation_evidence` の保存値と再計算値を比較し、改ざんを `ocgcore_interruption_validation_evidence_mismatch` として拒否する。
 
-negation/missed timing 証跡は `docs/interruption/evidence/real_core_negation_timing.json`、evidence ID は `negtimeev_d27be785a4917eeae926d25ba1254580abb58e186cb9af21739364b9fb1b24c3` である。damage step 証跡は `docs/interruption/evidence/real_core_damage_step.json`、evidence ID は `damagestepev_3158b0ba058fbd5763a95656db85f71f98e1fc28c395dfa180a3d58fa5d02a16` である。damage step evidence は fresh real-core replay 2 回の route/replay 一致、分類器の登録済み fixture 限定 support、未登録 category と曖昧 candidate shape の fail-close を検査する。
+negation/missed timing 証跡は `docs/interruption/evidence/real_core_negation_timing.json`、evidence ID は `negtimeev_d27be785a4917eeae926d25ba1254580abb58e186cb9af21739364b9fb1b24c3` である。damage step 証跡は `docs/interruption/evidence/real_core_damage_step.json`、evidence ID は `damagestepev_3158b0ba058fbd5763a95656db85f71f98e1fc28c395dfa180a3d58fa5d02a16` である。simultaneous trigger 証跡は `docs/interruption/evidence/real_core_simultaneous_trigger.json`、evidence ID は `simtrigev_1a942b839964d646199f27ef79b8ef9fd63e3fcf70b2c73ef87000bb36a97854` である。damage step と simultaneous trigger evidence は fresh real-core replay 2 回の route/replay 一致、分類器の登録済み fixture 限定 support、未登録 category と曖昧 candidate shape の fail-close を検査する。
 
 ## Production claim limit
 
-production claim は固定 fixture、固定 core/API、固定 script hash、観測済み message/payload に限定する。`standard` は固定 fixture scope で検証済み、`damage_step` は pinned fixture scope で検証済みだが default false のままである。`damage_step` は明示的に validation policy へ登録した検証専用経路だけが通り、一般的な damage step 裁定を保証しない。
+production claim は固定 fixture、固定 core/API、固定 script hash、観測済み message/payload に限定する。`standard` は固定 fixture scope で検証済み、`damage_step` と `simultaneous_trigger` は pinned fixture scope で検証済みだが default false のままである。これらは明示的に validation policy へ登録した検証専用経路だけが通り、一般的な damage step 裁定や SEGOC/order 裁定を保証しない。
 
 | Priority | Category | Current policy | Follow-up |
 |---|---|---|---|
 | 1 | damage step | verified pinned fixture; default fail-close | [#207](https://github.com/Tao-pyth/ygo-effect-dsl/issues/207) |
-| 2 | simultaneous trigger ordering | fail-close | [#208](https://github.com/Tao-pyth/ygo-effect-dsl/issues/208) |
+| 2 | simultaneous trigger ordering | verified pinned fixture; default fail-close | [#208](https://github.com/Tao-pyth/ygo-effect-dsl/issues/208) |
 | 3 | mandatory trigger | fail-close | [#209](https://github.com/Tao-pyth/ygo-effect-dsl/issues/209) |
 | 4 | SEGOC | fail-close | [#210](https://github.com/Tao-pyth/ygo-effect-dsl/issues/210) |
 

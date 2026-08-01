@@ -1,0 +1,73 @@
+schema_version: "0.3b"
+experiment_id: prototype_interruption_simultaneous_trigger_select_first
+objective: real_core_simultaneous_trigger_ordering
+deck: {id: interruption_simultaneous_trigger_fixture, source: fixed}
+player: {starting_player: 0, perspective: 0}
+turn_limit: 2
+information_mode: complete_information
+information_policy:
+  schema_version: information-policy-v1
+  policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+  deck_order: known
+  opening_hand: fixed
+  sampling_reference: null
+evaluate_at: legal_stop
+durability_evaluate_at: opponent_main1_after_end_phase_and_turn_start_processing
+success_predicate:
+  id: real_core_min_monster_count
+  version: "1"
+  config: {player: 0, zone: monster_zone, min_count: 1}
+evaluator:
+  id: real_core_board_count
+  version: "1"
+  config:
+    hand_weight: 1
+    missing_value_policy: error
+    monster_weight: 10
+    temporary_value_policy: exclude_expired_or_unverified_v1
+search:
+  strategy: scripted_real_core
+  budget: {max_nodes: 48}
+  parameters: {}
+interruption:
+  mode: scripted
+  definitions:
+    - id: simultaneous_trigger_first_v1
+      interruption_type: simultaneous_trigger
+      source_player: 0
+      source_zone: field
+      source_card_code: 91800273
+      validation_categories: [simultaneous_trigger]
+      verified_fixture_categories: [simultaneous_trigger]
+      base_route_id: route_f20adef90edfc570d838c224df7e299a7d57e866ca36bfaaecc849fa51fd0084
+      target:
+        action_id: act_50426299954bd051eaa2e9db28c4645753a967ba88b2300186197d85ba7fe758
+        action_occurrence_id: aocc_9f887d262bdffd6c92bb47e17e33b466b4076124928db2ef19ea426a7ed60019
+        chain_index: 0
+        effect_ref: null
+        player: 0
+        request_signature: req_74fd8bb69e6ac2296b41a4af12e4c93f17f0627d16424370d57eac8c8a6e945d
+        schema_version: interruption-target-v1
+        source: null
+        state_hash_before: state_290cd68687ea390dbdcfd975f2947ef4fc0b17c79681d5c897d82f81feb65d91
+        step: 4
+        target_id: inttarget_e5dd92d09ab1c8d1a5e03f99b5351692bb84ab9a12a93f0257c1a7d0e840351d
+        turn: 1
+        turn_action_index: 4
+      candidate_policy:
+        schema_version: core-interruption-candidate-policy-v1
+        activation:
+          schema_version: core-interruption-step-v1
+          role: activation
+          request_type: select_chain
+          player: 0
+          selection_count: 1
+          selector:
+            kind: effect
+            card_ref: {controller: 0, location: 4, public_card_id: 91800273}
+        responses: []
+replay: {strict_versions: true}
+runner:
+  adapter: real_core_prototype
+  fixture_script_id: interruption_simultaneous_trigger_v1
+  scenario_id: real_core_interruption_simultaneous_trigger_v1
