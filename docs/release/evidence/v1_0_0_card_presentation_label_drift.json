@@ -1,0 +1,564 @@
+{
+  "constant_source": {
+    "filename": "constant.lua",
+    "sha256": "9fbd72bcd67fc9b2f987598d876e6cbc335bf48c7d968a68d1de7b91221af9e4",
+    "size": 40032
+  },
+  "diagnostics": [],
+  "evidence_id": "cardpresentationlabeldrift_06a9bf29efbd68a06bf7898636c9fa951b587a3dc56acf6badf5f0426613cc3e",
+  "passed": true,
+  "schema_version": "card-presentation-label-drift-v1",
+  "source": {
+    "asset_lock_id": "ocgcore-assets-202504-v1",
+    "license_status": "AGPL-3.0-or-later",
+    "repository": "https://github.com/ProjectIgnis/CardScripts.git",
+    "source_commit": "c8e9c0bcd026a5ccc303bbc73881b8f86f818657",
+    "source_tree": "8796d294eaea50ca58ccd8560bb0511923dcc364"
+  },
+  "supported_label_bits": [
+    {
+      "bit": 1,
+      "category": "attribute",
+      "label": "Earth",
+      "status": "matched",
+      "upstream_symbol": "ATTRIBUTE_EARTH",
+      "upstream_value": 1
+    },
+    {
+      "bit": 2,
+      "category": "attribute",
+      "label": "Water",
+      "status": "matched",
+      "upstream_symbol": "ATTRIBUTE_WATER",
+      "upstream_value": 2
+    },
+    {
+      "bit": 4,
+      "category": "attribute",
+      "label": "Fire",
+      "status": "matched",
+      "upstream_symbol": "ATTRIBUTE_FIRE",
+      "upstream_value": 4
+    },
+    {
+      "bit": 8,
+      "category": "attribute",
+      "label": "Wind",
+      "status": "matched",
+      "upstream_symbol": "ATTRIBUTE_WIND",
+      "upstream_value": 8
+    },
+    {
+      "bit": 16,
+      "category": "attribute",
+      "label": "Light",
+      "status": "matched",
+      "upstream_symbol": "ATTRIBUTE_LIGHT",
+      "upstream_value": 16
+    },
+    {
+      "bit": 32,
+      "category": "attribute",
+      "label": "Dark",
+      "status": "matched",
+      "upstream_symbol": "ATTRIBUTE_DARK",
+      "upstream_value": 32
+    },
+    {
+      "bit": 64,
+      "category": "attribute",
+      "label": "Divine",
+      "status": "matched",
+      "upstream_symbol": "ATTRIBUTE_DIVINE",
+      "upstream_value": 64
+    },
+    {
+      "bit": 1,
+      "category": "race",
+      "label": "Warrior",
+      "status": "matched",
+      "upstream_symbol": "RACE_WARRIOR",
+      "upstream_value": 1
+    },
+    {
+      "bit": 2,
+      "category": "race",
+      "label": "Spellcaster",
+      "status": "matched",
+      "upstream_symbol": "RACE_SPELLCASTER",
+      "upstream_value": 2
+    },
+    {
+      "bit": 4,
+      "category": "race",
+      "label": "Fairy",
+      "status": "matched",
+      "upstream_symbol": "RACE_FAIRY",
+      "upstream_value": 4
+    },
+    {
+      "bit": 8,
+      "category": "race",
+      "label": "Fiend",
+      "status": "matched",
+      "upstream_symbol": "RACE_FIEND",
+      "upstream_value": 8
+    },
+    {
+      "bit": 16,
+      "category": "race",
+      "label": "Zombie",
+      "status": "matched",
+      "upstream_symbol": "RACE_ZOMBIE",
+      "upstream_value": 16
+    },
+    {
+      "bit": 32,
+      "category": "race",
+      "label": "Machine",
+      "status": "matched",
+      "upstream_symbol": "RACE_MACHINE",
+      "upstream_value": 32
+    },
+    {
+      "bit": 64,
+      "category": "race",
+      "label": "Aqua",
+      "status": "matched",
+      "upstream_symbol": "RACE_AQUA",
+      "upstream_value": 64
+    },
+    {
+      "bit": 128,
+      "category": "race",
+      "label": "Pyro",
+      "status": "matched",
+      "upstream_symbol": "RACE_PYRO",
+      "upstream_value": 128
+    },
+    {
+      "bit": 256,
+      "category": "race",
+      "label": "Rock",
+      "status": "matched",
+      "upstream_symbol": "RACE_ROCK",
+      "upstream_value": 256
+    },
+    {
+      "bit": 512,
+      "category": "race",
+      "label": "Winged Beast",
+      "status": "matched",
+      "upstream_symbol": "RACE_WINGEDBEAST",
+      "upstream_value": 512
+    },
+    {
+      "bit": 1024,
+      "category": "race",
+      "label": "Plant",
+      "status": "matched",
+      "upstream_symbol": "RACE_PLANT",
+      "upstream_value": 1024
+    },
+    {
+      "bit": 2048,
+      "category": "race",
+      "label": "Insect",
+      "status": "matched",
+      "upstream_symbol": "RACE_INSECT",
+      "upstream_value": 2048
+    },
+    {
+      "bit": 4096,
+      "category": "race",
+      "label": "Thunder",
+      "status": "matched",
+      "upstream_symbol": "RACE_THUNDER",
+      "upstream_value": 4096
+    },
+    {
+      "bit": 8192,
+      "category": "race",
+      "label": "Dragon",
+      "status": "matched",
+      "upstream_symbol": "RACE_DRAGON",
+      "upstream_value": 8192
+    },
+    {
+      "bit": 16384,
+      "category": "race",
+      "label": "Beast",
+      "status": "matched",
+      "upstream_symbol": "RACE_BEAST",
+      "upstream_value": 16384
+    },
+    {
+      "bit": 32768,
+      "category": "race",
+      "label": "Beast-Warrior",
+      "status": "matched",
+      "upstream_symbol": "RACE_BEASTWARRIOR",
+      "upstream_value": 32768
+    },
+    {
+      "bit": 65536,
+      "category": "race",
+      "label": "Dinosaur",
+      "status": "matched",
+      "upstream_symbol": "RACE_DINOSAUR",
+      "upstream_value": 65536
+    },
+    {
+      "bit": 131072,
+      "category": "race",
+      "label": "Fish",
+      "status": "matched",
+      "upstream_symbol": "RACE_FISH",
+      "upstream_value": 131072
+    },
+    {
+      "bit": 262144,
+      "category": "race",
+      "label": "Sea Serpent",
+      "status": "matched",
+      "upstream_symbol": "RACE_SEASERPENT",
+      "upstream_value": 262144
+    },
+    {
+      "bit": 524288,
+      "category": "race",
+      "label": "Reptile",
+      "status": "matched",
+      "upstream_symbol": "RACE_REPTILE",
+      "upstream_value": 524288
+    },
+    {
+      "bit": 1048576,
+      "category": "race",
+      "label": "Psychic",
+      "status": "matched",
+      "upstream_symbol": "RACE_PSYCHIC",
+      "upstream_value": 1048576
+    },
+    {
+      "bit": 2097152,
+      "category": "race",
+      "label": "Divine-Beast",
+      "status": "matched",
+      "upstream_symbol": "RACE_DIVINE",
+      "upstream_value": 2097152
+    },
+    {
+      "bit": 4194304,
+      "category": "race",
+      "label": "Creator-God",
+      "status": "matched",
+      "upstream_symbol": "RACE_CREATORGOD",
+      "upstream_value": 4194304
+    },
+    {
+      "bit": 8388608,
+      "category": "race",
+      "label": "Wyrm",
+      "status": "matched",
+      "upstream_symbol": "RACE_WYRM",
+      "upstream_value": 8388608
+    },
+    {
+      "bit": 16777216,
+      "category": "race",
+      "label": "Cyberse",
+      "status": "matched",
+      "upstream_symbol": "RACE_CYBERSE",
+      "upstream_value": 16777216
+    },
+    {
+      "bit": 33554432,
+      "category": "race",
+      "label": "Illusion",
+      "status": "matched",
+      "upstream_symbol": "RACE_ILLUSION",
+      "upstream_value": 33554432
+    },
+    {
+      "bit": 1,
+      "category": "type",
+      "label": "Monster",
+      "status": "matched",
+      "upstream_symbol": "TYPE_MONSTER",
+      "upstream_value": 1
+    },
+    {
+      "bit": 2,
+      "category": "type",
+      "label": "Spell",
+      "status": "matched",
+      "upstream_symbol": "TYPE_SPELL",
+      "upstream_value": 2
+    },
+    {
+      "bit": 4,
+      "category": "type",
+      "label": "Trap",
+      "status": "matched",
+      "upstream_symbol": "TYPE_TRAP",
+      "upstream_value": 4
+    },
+    {
+      "bit": 16,
+      "category": "type",
+      "label": "Normal",
+      "status": "matched",
+      "upstream_symbol": "TYPE_NORMAL",
+      "upstream_value": 16
+    },
+    {
+      "bit": 32,
+      "category": "type",
+      "label": "Effect",
+      "status": "matched",
+      "upstream_symbol": "TYPE_EFFECT",
+      "upstream_value": 32
+    },
+    {
+      "bit": 64,
+      "category": "type",
+      "label": "Fusion",
+      "status": "matched",
+      "upstream_symbol": "TYPE_FUSION",
+      "upstream_value": 64
+    },
+    {
+      "bit": 128,
+      "category": "type",
+      "label": "Ritual",
+      "status": "matched",
+      "upstream_symbol": "TYPE_RITUAL",
+      "upstream_value": 128
+    },
+    {
+      "bit": 256,
+      "category": "type",
+      "label": "Trap Monster",
+      "status": "matched",
+      "upstream_symbol": "TYPE_TRAPMONSTER",
+      "upstream_value": 256
+    },
+    {
+      "bit": 512,
+      "category": "type",
+      "label": "Spirit",
+      "status": "matched",
+      "upstream_symbol": "TYPE_SPIRIT",
+      "upstream_value": 512
+    },
+    {
+      "bit": 1024,
+      "category": "type",
+      "label": "Union",
+      "status": "matched",
+      "upstream_symbol": "TYPE_UNION",
+      "upstream_value": 1024
+    },
+    {
+      "bit": 2048,
+      "category": "type",
+      "label": "Gemini",
+      "status": "matched",
+      "upstream_symbol": "TYPE_GEMINI",
+      "upstream_value": 2048
+    },
+    {
+      "bit": 4096,
+      "category": "type",
+      "label": "Tuner",
+      "status": "matched",
+      "upstream_symbol": "TYPE_TUNER",
+      "upstream_value": 4096
+    },
+    {
+      "bit": 8192,
+      "category": "type",
+      "label": "Synchro",
+      "status": "matched",
+      "upstream_symbol": "TYPE_SYNCHRO",
+      "upstream_value": 8192
+    },
+    {
+      "bit": 16384,
+      "category": "type",
+      "label": "Token",
+      "status": "matched",
+      "upstream_symbol": "TYPE_TOKEN",
+      "upstream_value": 16384
+    },
+    {
+      "bit": 65536,
+      "category": "type",
+      "label": "Quick-Play",
+      "status": "matched",
+      "upstream_symbol": "TYPE_QUICKPLAY",
+      "upstream_value": 65536
+    },
+    {
+      "bit": 131072,
+      "category": "type",
+      "label": "Continuous",
+      "status": "matched",
+      "upstream_symbol": "TYPE_CONTINUOUS",
+      "upstream_value": 131072
+    },
+    {
+      "bit": 262144,
+      "category": "type",
+      "label": "Equip",
+      "status": "matched",
+      "upstream_symbol": "TYPE_EQUIP",
+      "upstream_value": 262144
+    },
+    {
+      "bit": 524288,
+      "category": "type",
+      "label": "Field",
+      "status": "matched",
+      "upstream_symbol": "TYPE_FIELD",
+      "upstream_value": 524288
+    },
+    {
+      "bit": 1048576,
+      "category": "type",
+      "label": "Counter",
+      "status": "matched",
+      "upstream_symbol": "TYPE_COUNTER",
+      "upstream_value": 1048576
+    },
+    {
+      "bit": 2097152,
+      "category": "type",
+      "label": "Flip",
+      "status": "matched",
+      "upstream_symbol": "TYPE_FLIP",
+      "upstream_value": 2097152
+    },
+    {
+      "bit": 4194304,
+      "category": "type",
+      "label": "Toon",
+      "status": "matched",
+      "upstream_symbol": "TYPE_TOON",
+      "upstream_value": 4194304
+    },
+    {
+      "bit": 8388608,
+      "category": "type",
+      "label": "Xyz",
+      "status": "matched",
+      "upstream_symbol": "TYPE_XYZ",
+      "upstream_value": 8388608
+    },
+    {
+      "bit": 16777216,
+      "category": "type",
+      "label": "Pendulum",
+      "status": "matched",
+      "upstream_symbol": "TYPE_PENDULUM",
+      "upstream_value": 16777216
+    },
+    {
+      "bit": 33554432,
+      "category": "type",
+      "label": "Special Summon",
+      "status": "matched",
+      "upstream_symbol": "TYPE_SPSUMMON",
+      "upstream_value": 33554432
+    },
+    {
+      "bit": 67108864,
+      "category": "type",
+      "label": "Link",
+      "status": "matched",
+      "upstream_symbol": "TYPE_LINK",
+      "upstream_value": 67108864
+    }
+  ],
+  "unsupported_upstream_bits": [
+    {
+      "bit": 67108864,
+      "category": "race",
+      "status": "unsupported_presentation_label",
+      "upstream_symbol": "RACE_CYBORG"
+    },
+    {
+      "bit": 134217728,
+      "category": "race",
+      "status": "unsupported_presentation_label",
+      "upstream_symbol": "RACE_MAGICALKNIGHT"
+    },
+    {
+      "bit": 268435456,
+      "category": "race",
+      "status": "unsupported_presentation_label",
+      "upstream_symbol": "RACE_HIGHDRAGON"
+    },
+    {
+      "bit": 536870912,
+      "category": "race",
+      "status": "unsupported_presentation_label",
+      "upstream_symbol": "RACE_OMEGAPSYCHIC"
+    },
+    {
+      "bit": 1073741824,
+      "category": "race",
+      "status": "unsupported_presentation_label",
+      "upstream_symbol": "RACE_CELESTIALWARRIOR"
+    },
+    {
+      "bit": 2147483648,
+      "category": "race",
+      "status": "unsupported_presentation_label",
+      "upstream_symbol": "RACE_GALAXY"
+    },
+    {
+      "bit": 4611686018427387904,
+      "category": "race",
+      "status": "unsupported_presentation_label",
+      "upstream_symbol": "RACE_YOKAI"
+    },
+    {
+      "bit": 32768,
+      "category": "type",
+      "status": "unsupported_presentation_label",
+      "upstream_symbol": "TYPE_MAXIMUM"
+    },
+    {
+      "bit": 134217728,
+      "category": "type",
+      "status": "unsupported_presentation_label",
+      "upstream_symbol": "TYPE_SKILL"
+    },
+    {
+      "bit": 268435456,
+      "category": "type",
+      "status": "unsupported_presentation_label",
+      "upstream_symbol": "TYPE_ACTION"
+    },
+    {
+      "bit": 536870912,
+      "category": "type",
+      "status": "unsupported_presentation_label",
+      "upstream_symbol": "TYPE_PLUS"
+    },
+    {
+      "bit": 1073741824,
+      "category": "type",
+      "status": "unsupported_presentation_label",
+      "upstream_symbol": "TYPE_MINUS"
+    },
+    {
+      "bit": 2147483648,
+      "category": "type",
+      "status": "unsupported_presentation_label",
+      "upstream_symbol": "TYPE_ARMOR"
+    }
+  ]
+}
