@@ -8,6 +8,7 @@ All notable package changes are documented here. Package versions follow Semanti
 
 - [v1.0.0] Added card presentation unknown label-bit diagnostics so unqualified type, race, or attribute bits remain visible in metadata instead of being silently dropped from display labels.
 - [v1.0.0] Added sanitized card presentation label-map drift evidence that compares every supported type, race, and attribute label bit against pinned CardScripts `constant.lua` while keeping unsupported upstream-only bits fail-closed.
+- [v1.0.0] Added sanitized non-English card presentation source qualification evidence for the pinned BabelCDB provenance, `NOASSERTION` license status, and user-cache-only redistribution boundary.
 
 - [v0.9.0] Added deck-scoped terminal evaluation profile management for the desktop UI, including the `[P] プロファイル` page, deck-card selection, archive deletion, and `deck.profile.*` bridge contracts.
 - [v0.9.0] Added desktop deck metadata management for display names and tags without changing `deck_id`, `deck_sha256`, existing jobs, or evidence.

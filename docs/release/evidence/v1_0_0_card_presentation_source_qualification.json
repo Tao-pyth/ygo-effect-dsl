@@ -1,0 +1,117 @@
+{
+  "asset_lock": {
+    "lock_id": "ocgcore-assets-202504-v1",
+    "sha256": "ae77a39df7002fdb86c898c091c7b98a670f9c133f7288bc1d175a43eba8176f"
+  },
+  "checks": [
+    {
+      "check_id": "pinned-database-file-matches-lock",
+      "evidence": {
+        "expected": {
+          "filename": "cards.cdb",
+          "sha256": "c49a077285e1d999f32056cb65303b75e311e859b4486c48f41772a193069225",
+          "size": 6930432
+        },
+        "observed": {
+          "filename": "cards.cdb",
+          "sha256": "c49a077285e1d999f32056cb65303b75e311e859b4486c48f41772a193069225",
+          "size": 6930432
+        }
+      },
+      "passed": true
+    },
+    {
+      "check_id": "source-provenance-is-pinned",
+      "evidence": {
+        "commit": "f89c9a4be9a5f193e29b788e3cf880563f4f79b4",
+        "ref": "20250419",
+        "repository": "https://github.com/ProjectIgnis/BabelCDB.git",
+        "tree": "2468d312ab6e7bdbc403f3764ee24f9062f61335"
+      },
+      "passed": true
+    },
+    {
+      "check_id": "locale-is-operator-declared",
+      "evidence": {
+        "locale": "ja",
+        "source_locale_declaration": "operator_declared",
+        "text_locale_inference": "forbidden"
+      },
+      "passed": true
+    },
+    {
+      "check_id": "license-status-is-recorded",
+      "evidence": {
+        "asset_lock_license": "NOASSERTION",
+        "distribution_policy_license": "NOASSERTION"
+      },
+      "passed": true
+    },
+    {
+      "check_id": "redistribution-is-blocked-until-approval",
+      "evidence": {
+        "commercial_bundle_status": "blocked",
+        "include_in_release": false,
+        "review_requirements": [
+          "obtain an explicit license or written redistribution permission",
+          "record attribution requirements",
+          "complete legal review"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "check_id": "external-cache-only",
+      "evidence": {
+        "external_files_location": "user_cache_only",
+        "implicit_download": false,
+        "runtime_network_access": false
+      },
+      "passed": true
+    },
+    {
+      "check_id": "presentation-authority-is-display-only",
+      "evidence": {
+        "authority": {
+          "effect_interpretation": "forbidden",
+          "legality_or_timing": "ocgcore_only",
+          "provider": "read_only_presentation",
+          "search_input": false
+        }
+      },
+      "passed": true
+    },
+    {
+      "check_id": "evidence-is-sanitized",
+      "evidence": {
+        "card_text_embedded": false,
+        "database_rows_embedded": false,
+        "local_paths_embedded": false
+      },
+      "passed": true
+    }
+  ],
+  "distribution_boundary": {
+    "card_database_release_payload_allowed": false,
+    "redistribution_status": "blocked_no_license_grant_recorded",
+    "tracked_by_issue": 91
+  },
+  "evidence_id": "cardpresentationsourcequal_2f69e32ea4a70113bf2c011fead26f7d8fc1d296b08f2dc73cf70f8ed33e0ad1",
+  "passed": true,
+  "qualified_source": {
+    "artifact_id": "card_database",
+    "commit": "f89c9a4be9a5f193e29b788e3cf880563f4f79b4",
+    "file": {
+      "filename": "cards.cdb",
+      "sha256": "c49a077285e1d999f32056cb65303b75e311e859b4486c48f41772a193069225",
+      "size": 6930432
+    },
+    "license_status": "NOASSERTION",
+    "locale": "ja",
+    "ref": "20250419",
+    "repository": "https://github.com/ProjectIgnis/BabelCDB.git",
+    "source_tree": "2468d312ab6e7bdbc403f3764ee24f9062f61335"
+  },
+  "rejection_reasons": [],
+  "schema_version": "card-presentation-source-qualification-v1"
+}

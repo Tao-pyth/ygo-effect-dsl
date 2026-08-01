@@ -27,6 +27,9 @@ from ygo_effect_dsl.spikes.card_presentation_label_drift import (
     _SUPPORTED_TABLES,
     build_label_map_drift_evidence,
 )
+from ygo_effect_dsl.spikes.card_presentation_source_qualification import (
+    CARD_PRESENTATION_SOURCE_QUALIFICATION_SCHEMA_VERSION,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -582,3 +585,47 @@ def test_committed_v1_label_drift_evidence_is_content_addressed() -> None:
         row["status"] == "unsupported_presentation_label"
         for row in evidence["unsupported_upstream_bits"]
     )
+
+
+def test_committed_v1_source_qualification_evidence_is_sanitized() -> None:
+    path = REPO_ROOT / "docs" / "release" / "evidence" / (
+        "v1_0_0_card_presentation_source_qualification.json"
+    )
+    evidence = json.loads(path.read_text(encoding="utf-8"))
+    identity = {key: value for key, value in evidence.items() if key != "evidence_id"}
+
+    assert evidence["evidence_id"] == stable_digest(
+        identity,
+        prefix="cardpresentationsourcequal_",
+    )
+    assert (
+        evidence["schema_version"]
+        == CARD_PRESENTATION_SOURCE_QUALIFICATION_SCHEMA_VERSION
+    )
+    assert evidence["passed"] is True
+    assert evidence["qualified_source"] == {
+        "artifact_id": "card_database",
+        "commit": "f89c9a4be9a5f193e29b788e3cf880563f4f79b4",
+        "file": {
+            "filename": "cards.cdb",
+            "sha256": (
+                "c49a077285e1d999f32056cb65303b75e311e859b4486c48f41772a193069225"
+            ),
+            "size": 6930432,
+        },
+        "license_status": "NOASSERTION",
+        "locale": "ja",
+        "ref": "20250419",
+        "repository": "https://github.com/ProjectIgnis/BabelCDB.git",
+        "source_tree": "2468d312ab6e7bdbc403f3764ee24f9062f61335",
+    }
+    assert evidence["distribution_boundary"] == {
+        "card_database_release_payload_allowed": False,
+        "redistribution_status": "blocked_no_license_grant_recorded",
+        "tracked_by_issue": 91,
+    }
+    assert evidence["rejection_reasons"] == []
+    serialized = json.dumps(evidence, ensure_ascii=False)
+    assert "database_path" not in serialized
+    assert ":\\\\" not in serialized
+    assert "/Users/" not in serialized
