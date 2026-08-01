@@ -26,6 +26,9 @@ from ygo_effect_dsl.prototype import (
     invoke_real_core_worker_process,
 )
 from ygo_effect_dsl.route_dsl import validate_route_document
+from ygo_effect_dsl.spikes.interruption_damage_step_evidence import (
+    build_interruption_damage_step_evidence,
+)
 
 
 EXPERIMENTS = Path(__file__).parents[1] / "examples" / "experiments"
@@ -35,6 +38,13 @@ EVIDENCE_PATH = (
     / "interruption"
     / "evidence"
     / "real_core_negation_timing.json"
+)
+DAMAGE_STEP_EVIDENCE_PATH = (
+    Path(__file__).parents[1]
+    / "docs"
+    / "interruption"
+    / "evidence"
+    / "real_core_damage_step.json"
 )
 EXPERIMENT_PATHS = {
     "activation_negation": (
@@ -53,6 +63,7 @@ EXPERIMENT_PATHS = {
         EXPERIMENTS
         / "real_core_interruption_missed_timing_path_failure.yaml"
     ),
+    "damage_step": EXPERIMENTS / "real_core_interruption_damage_step.yaml",
 }
 
 
@@ -250,6 +261,43 @@ def test_negation_timing_evidence_document_is_canonical(
     )
     for name, route in routes.items():
         assert evidence["routes"][name]["route_id"] == route["route_id"]
+
+
+def test_damage_step_evidence_is_fixture_scoped_and_canonical() -> None:
+    try:
+        verify_ocgcore()
+        verify_ocgcore_assets()
+    except (OcgcoreBootstrapError, OSError) as exc:
+        pytest.skip(f"pinned local ocgcore runtime/assets are unavailable: {exc}")
+    evidence = json.loads(DAMAGE_STEP_EVIDENCE_PATH.read_text(encoding="utf-8"))
+    identity = {
+        key: value for key, value in evidence.items() if key != "evidence_id"
+    }
+
+    assert evidence["schema_version"] == "real-core-damage-step-evidence-v1"
+    assert evidence["evidence_id"] == stable_digest(
+        identity, prefix="damagestepev_"
+    )
+    assert evidence["category"] == {
+        "default_runtime_policy": "fail_closed",
+        "registered_fixture_category": "damage_step",
+        "scope": "pinned_real_core_fixture_only",
+        "timing_authority": (
+            "fixture_lua_condition_and_ocgcore_decision_request"
+        ),
+    }
+    assert all(evidence["verification"].values())
+    assert evidence["taxonomy"]["registered"]["supported"] is True
+    assert evidence["taxonomy"]["unregistered"]["status"] == (
+        "unsupported_category"
+    )
+    assert evidence["taxonomy"]["ambiguous_shape"]["status"] == (
+        "configuration_failure"
+    )
+    assert (
+        build_interruption_damage_step_evidence()["evidence_id"]
+        == evidence["evidence_id"]
+    )
 
 
 def test_missed_trigger_request_becomes_deterministic_path_failure() -> None:

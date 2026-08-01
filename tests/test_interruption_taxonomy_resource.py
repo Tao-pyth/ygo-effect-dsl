@@ -18,8 +18,17 @@ def test_bundled_interruption_taxonomy_fails_closed_for_unverified_categories() 
     assert document["validation_categories"]["standard"]["production_claim"] == (
         "fixed_fixture_scope_only"
     )
+    assert document["validation_categories"]["damage_step"] == {
+        "status": "verified_fixture_category",
+        "default": False,
+        "production_claim": "pinned_fixture_scope_only",
+        "priority": 1,
+        "evidence": [
+            "damagestepev_3158b0ba058fbd5763a95656db85f71f98e1fc28c395dfa180a3d58fa5d02a16"
+        ],
+        "follow_up_issue": 207,
+    }
     pending = {
-        "damage_step": (1, 207),
         "simultaneous_trigger": (2, 208),
         "mandatory_trigger": (3, 209),
         "segoc": (4, 210),
@@ -44,5 +53,8 @@ def test_bundled_interruption_taxonomy_fails_closed_for_unverified_categories() 
         "unsupported_category"
     )
     runtime_policy = InterruptionValidationPolicy().to_dict()
-    assert set(runtime_policy["fail_close_categories"]) == set(pending)
+    assert set(runtime_policy["fail_close_categories"]) == {
+        "damage_step",
+        *pending,
+    }
     assert runtime_policy["verified_fixture_categories"] == ["standard"]

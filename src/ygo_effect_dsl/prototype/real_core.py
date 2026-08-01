@@ -154,6 +154,7 @@ INTERRUPTION_EFFECT_NEGATION_SCENARIO_ID = (
 )
 INTERRUPTION_SEQUENCE_SCENARIO_ID = "real_core_interruption_sequence_v1"
 INTERRUPTION_TIMING_SCENARIO_ID = "real_core_interruption_missed_timing_v1"
+INTERRUPTION_DAMAGE_STEP_SCENARIO_ID = "real_core_interruption_damage_step_v1"
 TARGET_LOSS_SCENARIO_ID = "real_core_action_aggregation_target_loss_v1"
 EFFECT_VEILER_CODE = 97268402
 RECOVERY_PRIMARY_CODE = 14558127
@@ -191,6 +192,7 @@ INTERRUPTION_MATRIX_FIXTURE_ID = "interruption_candidate_matrix_v1"
 INTERRUPTION_EFFECT_NEGATION_FIXTURE_ID = "interruption_effect_negation_v1"
 INTERRUPTION_SEQUENCE_FIXTURE_ID = "interruption_sequence_v1"
 INTERRUPTION_TIMING_FIXTURE_ID = "interruption_missed_timing_v1"
+INTERRUPTION_DAMAGE_STEP_FIXTURE_ID = "interruption_damage_step_v1"
 TARGET_LOSS_FIXTURE_ID = "action_aggregation_target_loss_v1"
 TERMINAL_FIXTURE_CARD_CODE = 2511
 TERMINAL_LP_ZERO_FIXTURE_ID = "terminal_lp_zero_v1"
@@ -587,6 +589,33 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstMatchingCard(
         s.filter,tp,0,LOCATION_MZONE,nil)
     if tc then Duel.SendtoGrave(tc,REASON_EFFECT) end
+end
+"""
+INTERRUPTION_DAMAGE_STEP_HAND_FIXTURE_SCRIPT = """local s,id=GetID()
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetDescription(70)
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
+    e1:SetCode(EVENT_FREE_CHAIN)
+    e1:SetRange(LOCATION_HAND)
+    e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+    e1:SetHintTiming(TIMING_DAMAGE_STEP,TIMING_DAMAGE_STEP)
+    e1:SetCountLimit(1,id)
+    e1:SetCondition(s.condition)
+    e1:SetCost(s.cost)
+    e1:SetOperation(s.operation)
+    c:RegisterEffect(e1)
+end
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+    local ph=Duel.GetCurrentPhase()
+    return ph==PHASE_DAMAGE or ph==PHASE_DAMAGE_CAL
+end
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    local c=e:GetHandler()
+    if chk==0 then return c:IsAbleToGraveAsCost() end
+    Duel.SendtoGrave(c,REASON_COST)
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 """
 TARGET_LOSS_PRIMARY_FIXTURE_SCRIPT = f"""local s,id=GetID()
@@ -1105,6 +1134,7 @@ def _fixture_script_id(experiment: Mapping[str, Any]) -> str | None:
         INTERRUPTION_EFFECT_NEGATION_FIXTURE_ID,
         INTERRUPTION_SEQUENCE_FIXTURE_ID,
         INTERRUPTION_TIMING_FIXTURE_ID,
+        INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
         TARGET_LOSS_FIXTURE_ID,
         *TERMINAL_FIXTURE_IDS,
     }:
@@ -1172,6 +1202,14 @@ def _fixture_scripts(fixture_script_id: str | None) -> dict[int, bytes]:
                 INTERRUPTION_MISSED_TRIGGER_FIXTURE_SCRIPT
             ),
             INTERRUPTION_FIELD_CODE: INTERRUPTION_TIMING_FIELD_FIXTURE_SCRIPT,
+        }
+    elif fixture_script_id == INTERRUPTION_DAMAGE_STEP_FIXTURE_ID:
+        source_by_code = {
+            INTERRUPTION_PRIMARY_CODE: INTERRUPTION_BLANK_FIXTURE_SCRIPT,
+            INTERRUPTION_TARGETLESS_HAND_CODE: (
+                INTERRUPTION_DAMAGE_STEP_HAND_FIXTURE_SCRIPT
+            ),
+            INTERRUPTION_SUPPORT_CODE: INTERRUPTION_BLANK_FIXTURE_SCRIPT,
         }
     elif fixture_script_id == TARGET_LOSS_FIXTURE_ID:
         source_by_code = {
@@ -1328,6 +1366,8 @@ def _scenario_id(fixture_script_id: str | None) -> str:
         return INTERRUPTION_SEQUENCE_SCENARIO_ID
     if fixture_script_id == INTERRUPTION_TIMING_FIXTURE_ID:
         return INTERRUPTION_TIMING_SCENARIO_ID
+    if fixture_script_id == INTERRUPTION_DAMAGE_STEP_FIXTURE_ID:
+        return INTERRUPTION_DAMAGE_STEP_SCENARIO_ID
     if fixture_script_id == TARGET_LOSS_FIXTURE_ID:
         return TARGET_LOSS_SCENARIO_ID
     return REAL_CORE_SCENARIO_ID
@@ -1347,6 +1387,11 @@ def _fixed_hands(
         return {
             "0": [INTERRUPTION_PRIMARY_CODE],
             "1": [],
+        }
+    if fixture_script_id == INTERRUPTION_DAMAGE_STEP_FIXTURE_ID:
+        return {
+            "0": [INTERRUPTION_PRIMARY_CODE],
+            "1": [INTERRUPTION_TARGETLESS_HAND_CODE],
         }
     if fixture_script_id in {
         INTERRUPTION_MATRIX_FIXTURE_ID,
@@ -1389,6 +1434,16 @@ def _fixture_initial_field(
                 "code": INTERRUPTION_FIELD_CODE,
                 "controller": 1,
                 "location": LOCATION_SZONE,
+                "position": POSITION_FACEUP_ATTACK,
+                "sequence": 0,
+            },
+        ]
+    if fixture_script_id == INTERRUPTION_DAMAGE_STEP_FIXTURE_ID:
+        return [
+            {
+                "code": INTERRUPTION_SUPPORT_CODE,
+                "controller": 1,
+                "location": LOCATION_MZONE,
                 "position": POSITION_FACEUP_ATTACK,
                 "sequence": 0,
             },
@@ -1470,6 +1525,7 @@ def _resolved_real_experiment(
         ),
         INTERRUPTION_SEQUENCE_FIXTURE_ID: "interruption_sequence_fixture",
         INTERRUPTION_TIMING_FIXTURE_ID: "interruption_missed_timing_fixture",
+        INTERRUPTION_DAMAGE_STEP_FIXTURE_ID: "interruption_damage_step_fixture",
         TARGET_LOSS_FIXTURE_ID: "action_aggregation_target_loss_fixture",
     }.get(fixture_script_id, "effect_veiler_two_player_fixture")
     if resolved["deck"] != {"id": expected_deck_id, "source": "fixed"}:
@@ -1499,6 +1555,7 @@ def _resolved_real_experiment(
             INTERRUPTION_EFFECT_NEGATION_FIXTURE_ID,
             INTERRUPTION_SEQUENCE_FIXTURE_ID,
             INTERRUPTION_TIMING_FIXTURE_ID,
+            INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
             TARGET_LOSS_FIXTURE_ID,
         }
         and resolved["interruption"].get("mode") != "none"
@@ -1701,7 +1758,47 @@ def _selected_candidate(
                     "interruption matrix fixture exposed no primary summon candidate"
                 )
             return (primary_candidate,), None
+        if (
+            fixture_script_id == INTERRUPTION_DAMAGE_STEP_FIXTURE_ID
+            and summoned
+        ):
+            for candidate_id in (
+                "control:enter_battle_phase",
+                "control:end_turn",
+            ):
+                candidate = next(
+                    (
+                        item
+                        for item in request.candidates
+                        if item.candidate_id == candidate_id
+                    ),
+                    None,
+                )
+                if candidate is not None:
+                    return (candidate,), None
         candidate_id = "control:end_turn" if summoned else "normal_summon:0"
+    elif (
+        request.request_type == "select_battle_command"
+        and fixture_script_id == INTERRUPTION_DAMAGE_STEP_FIXTURE_ID
+    ):
+        for candidate in request.candidates:
+            if candidate.candidate_id.startswith("attack:"):
+                return (candidate,), None
+        for candidate_id in (
+            "control:enter_main_phase_2",
+            "control:end_turn",
+        ):
+            candidate = next(
+                (
+                    item
+                    for item in request.candidates
+                    if item.candidate_id == candidate_id
+                ),
+                None,
+            )
+            if candidate is not None:
+                return (candidate,), None
+        raise ValueError("damage-step fixture exposed no battle command candidate")
     elif request.request_type == "select_place":
         if fixture_script_id in {
             RECOVERY_ATTRIBUTION_FIXTURE_ID,
@@ -1874,6 +1971,21 @@ def _selected_candidate(
             if effect_candidate is not None:
                 return (effect_candidate,), "aggregation_activation"
         candidate_id = "control:pass"
+    elif (
+        request.request_type == "select_card"
+        and fixture_script_id == INTERRUPTION_DAMAGE_STEP_FIXTURE_ID
+    ):
+        card_candidate = next(
+            (
+                candidate
+                for candidate in request.candidates
+                if isinstance(candidate.card_ref, Mapping)
+            ),
+            None,
+        )
+        if card_candidate is None:
+            raise ValueError("damage-step fixture exposed no battle target candidate")
+        return (card_candidate,), "damage_step_battle_target"
     elif (
         request.request_type == "select_card"
         and fixture_script_id == ACTIVATION_ROLLBACK_FIXTURE_ID
@@ -2892,6 +3004,7 @@ def _build_real_core_temporary_observation(
         INTERRUPTION_EFFECT_NEGATION_FIXTURE_ID,
         INTERRUPTION_SEQUENCE_FIXTURE_ID,
         INTERRUPTION_TIMING_FIXTURE_ID,
+        INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
     }:
         return None
     if (
@@ -3461,12 +3574,17 @@ def run_real_core_worker(
                         in {
                             RECOVERY_ATTRIBUTION_FIXTURE_ID,
                             *GENERIC_INTERRUPTION_FIXTURE_IDS,
+                            INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
                         }
                         else None
                     ),
                     initial_field=(
                         initial_field
-                        if fixture_script_id in GENERIC_INTERRUPTION_FIXTURE_IDS
+                        if fixture_script_id
+                        in {
+                            *GENERIC_INTERRUPTION_FIXTURE_IDS,
+                            INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
+                        }
                         else None
                     ),
                     fixture_script=fixture_script_metadata,
@@ -3558,7 +3676,32 @@ def run_real_core_worker(
                                     "temporary legal stop has no replay checkpoint"
                                 )
                             temporary_checkpoint_step = len(events) - 1
-                        elif current_turn >= 2 and current_phase == "main1":
+                            if (
+                                fixture_script_id == INTERRUPTION_DAMAGE_STEP_FIXTURE_ID
+                                and interruption_executions
+                                and all(
+                                    execution.activated
+                                    and execution.response_index
+                                    == len(
+                                        execution.plan.candidate_policy.responses
+                                    )
+                                    for execution in interruption_executions
+                                )
+                            ):
+                                final_request_signature = request.request_signature
+                                break
+                        elif (
+                            current_turn >= 2
+                            and current_phase == "main1"
+                            and not (
+                                fixture_script_id
+                                == INTERRUPTION_DAMAGE_STEP_FIXTURE_ID
+                                and not any(
+                                    event.action.kind == ActionKind.ATTACK
+                                    for event in events
+                                )
+                            )
+                        ):
                             final_request_signature = request.request_signature
                             break
                     if prefix_mode:
@@ -4127,7 +4270,10 @@ def run_real_core_worker(
         presentation["card_instance_provenance"] = (
             card_instance_tracker.provenance_document()
         )
-    if fixture_script_id in GENERIC_INTERRUPTION_FIXTURE_IDS:
+    if fixture_script_id in {
+        *GENERIC_INTERRUPTION_FIXTURE_IDS,
+        INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
+    }:
         presentation["interruption_validation_evidence"] = (
             derive_ocgcore_interruption_validation(replay)
         )
@@ -4648,12 +4794,17 @@ def verify_real_core_route(
             in {
                 RECOVERY_ATTRIBUTION_FIXTURE_ID,
                 *GENERIC_INTERRUPTION_FIXTURE_IDS,
+                INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
             }
             else None
         ),
         initial_field=(
             initial_field
-            if fixture_script_id in GENERIC_INTERRUPTION_FIXTURE_IDS
+            if fixture_script_id
+            in {
+                *GENERIC_INTERRUPTION_FIXTURE_IDS,
+                INTERRUPTION_DAMAGE_STEP_FIXTURE_ID,
+            }
             else None
         ),
         fixture_script=fixture_script_metadata,

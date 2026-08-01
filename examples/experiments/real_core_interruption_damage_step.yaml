@@ -1,0 +1,73 @@
+schema_version: "0.3b"
+experiment_id: prototype_interruption_damage_step
+objective: real_core_damage_step_activation_window
+deck: {id: interruption_damage_step_fixture, source: fixed}
+player: {starting_player: 0, perspective: 0}
+turn_limit: 3
+information_mode: complete_information
+information_policy:
+  schema_version: information-policy-v1
+  policy_id: infopol_1ffe07f0b963680db9c1d244984182a43254ea997f9356ec84659278e5d28c27
+  deck_order: known
+  opening_hand: fixed
+  sampling_reference: null
+evaluate_at: legal_stop
+durability_evaluate_at: opponent_main1_after_end_phase_and_turn_start_processing
+success_predicate:
+  id: real_core_min_monster_count
+  version: "1"
+  config: {player: 0, zone: monster_zone, min_count: 1}
+evaluator:
+  id: real_core_board_count
+  version: "1"
+  config:
+    hand_weight: 1
+    missing_value_policy: error
+    monster_weight: 10
+    temporary_value_policy: exclude_expired_or_unverified_v1
+search:
+  strategy: scripted_real_core
+  budget: {max_nodes: 96}
+  parameters: {}
+interruption:
+  mode: scripted
+  definitions:
+    - id: damage_step_hand_v1
+      interruption_type: damage_step_hand
+      source_player: 1
+      source_zone: hand
+      source_card_code: 14558127
+      validation_categories: [damage_step]
+      verified_fixture_categories: [damage_step]
+      base_route_id: route_484b4f55e93e5a5d96fe459af677961392a1565d33ea36b4860d2ae01bb5678d
+      target:
+        action_id: act_2b23c2418ecd2e4a951718027924754f1d31557988dba1dfd859f6435136a0e6
+        action_occurrence_id: aocc_d1b7e642c79931e76ec3b45bb8e0de3cd4a60c035157f109bea4abc6039b65d5
+        chain_index: 0
+        effect_ref: null
+        player: 1
+        request_signature: req_1deb910ac9ad6033b92d487fe1c3827b448d9483ced2f308ecbe23a6f88b0aad
+        schema_version: interruption-target-v1
+        source: null
+        state_hash_before: state_f1a9b781e12b1a3e67391d91163a99ab21150dcebb37e25f3d288e9290ec2a99
+        step: 16
+        target_id: inttarget_d885bbae401cf73292324df8d00f673d6a2fdefe616ae3f0a8eb7ee46877eab2
+        turn: 2
+        turn_action_index: 8
+      candidate_policy:
+        schema_version: core-interruption-candidate-policy-v1
+        activation:
+          schema_version: core-interruption-step-v1
+          role: activation
+          request_type: select_chain
+          player: 1
+          selection_count: 1
+          selector:
+            kind: effect
+            card_ref: {controller: 1, location: 2, public_card_id: 14558127}
+        responses: []
+replay: {strict_versions: true}
+runner:
+  adapter: real_core_prototype
+  fixture_script_id: interruption_damage_step_v1
+  scenario_id: real_core_interruption_damage_step_v1

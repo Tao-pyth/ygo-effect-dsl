@@ -1,0 +1,156 @@
+{
+  "category": {
+    "default_runtime_policy": "fail_closed",
+    "registered_fixture_category": "damage_step",
+    "scope": "pinned_real_core_fixture_only",
+    "timing_authority": "fixture_lua_condition_and_ocgcore_decision_request"
+  },
+  "evidence_id": "damagestepev_3158b0ba058fbd5763a95656db85f71f98e1fc28c395dfa180a3d58fa5d02a16",
+  "route": {
+    "activation": {
+      "action_id": "act_a701c6f283e40b55a6a4bf1e75aff9e9245aa8f6885190a5a1af5bc2b4bcf225",
+      "action_occurrence_id": "aocc_06bb21f0c8a7ccb64f4fdd095e5172a4964cc612eaaf03fc489de32be29dd6db",
+      "candidate_ids": [
+        "chain:0",
+        "control:pass"
+      ],
+      "player": 1,
+      "request_signature": "req_1deb910ac9ad6033b92d487fe1c3827b448d9483ced2f308ecbe23a6f88b0aad",
+      "source": {
+        "controller": 1,
+        "instance_id": null,
+        "location": "hand",
+        "owner": 1,
+        "public_card_id": 14558127,
+        "sequence": 0
+      },
+      "state_hash_before": "state_f1a9b781e12b1a3e67391d91163a99ab21150dcebb37e25f3d288e9290ec2a99",
+      "step": 16,
+      "turn": 2,
+      "turn_action_index": 8
+    },
+    "event_count": 33,
+    "final_state_hash": "state_dcd072486e6029355b1cd1fe2171c91bbdf43c1ade087c5c5648fa2262eede75",
+    "interruption_validation_evidence_id": "intvalidation_f8954b94132a9257f5ff4e42272f8666706ff2abd349d0277aaf2b993f7de29e",
+    "replay_id": "replay_3fb64e731b8a1f95f1e27cafd4e3c41be5e0fb576bd3ce1929f2bb17e63246d3",
+    "route_id": "route_19268ac39676f885d9fdb6016d5ddf7edfad880cc1d7031e64dfa51f480ae4e1",
+    "terminal_board": {
+      "checkpoint_step": 32,
+      "evaluation": {
+        "field_count": 0,
+        "hand_count": 0
+      },
+      "evaluation_result": {
+        "evaluator_config_hash": "evalcfg_c3cd3c080af7dd185562ed13bba8173b03c1c211f34d42ba4e5d954bba158254",
+        "evaluator_id": "real_core_board_count",
+        "evaluator_version": "1",
+        "explanations": [],
+        "schema_version": "evaluation-result-v1",
+        "score_breakdown": {
+          "breakdown_id": "score_35cf04fae3299d99f524327138089e2f9fff82411a59d3eeb766a26796459d18",
+          "missing_metrics": [],
+          "schema_version": "score-breakdown-v1",
+          "terms": [
+            {
+              "contribution": 0,
+              "metric": "field_count",
+              "raw_value": 0,
+              "resolution": "observed",
+              "resolved_value": 0,
+              "weight": 10
+            },
+            {
+              "contribution": 0,
+              "metric": "hand_count",
+              "raw_value": 0,
+              "resolution": "observed",
+              "resolved_value": 0,
+              "weight": 1
+            }
+          ],
+          "total_score": 0
+        },
+        "total_score": 0,
+        "vector": {
+          "field_count": 0,
+          "hand_count": 0
+        }
+      },
+      "phase": "main1",
+      "score": 0,
+      "state_hash": "state_dcd072486e6029355b1cd1fe2171c91bbdf43c1ade087c5c5648fa2262eede75",
+      "stop_reason": "core_end_turn_available",
+      "success": false,
+      "turn": 3
+    }
+  },
+  "schema_version": "real-core-damage-step-evidence-v1",
+  "taxonomy": {
+    "ambiguous_shape": {
+      "candidates": [],
+      "diagnostics": [
+        {
+          "candidate_ids": [
+            "chain:0"
+          ],
+          "code": "ambiguous_candidate_identity",
+          "message": "candidate IDs must be unique",
+          "path": "$.request.candidates"
+        }
+      ],
+      "request_id": "real_core_interruption_damage_step_v1:16",
+      "schema_version": "interruption-support-taxonomy-v1",
+      "source_card_code": 14558127,
+      "status": "configuration_failure",
+      "supported": false
+    },
+    "registered": {
+      "candidates": [
+        {
+          "activation": true,
+          "candidate_id": "chain:0",
+          "cost": false,
+          "option": false,
+          "schema_version": "interruption-support-taxonomy-v1",
+          "source_card_code": 14558127,
+          "source_zone": "hand",
+          "target": "not_applicable",
+          "validation_categories": [
+            "damage_step"
+          ]
+        }
+      ],
+      "diagnostics": [],
+      "request_id": "real_core_interruption_damage_step_v1:16",
+      "schema_version": "interruption-support-taxonomy-v1",
+      "source_card_code": 14558127,
+      "status": "supported",
+      "supported": true
+    },
+    "unregistered": {
+      "candidates": [],
+      "diagnostics": [
+        {
+          "candidate_ids": [],
+          "code": "unverified_fixture_category",
+          "message": "fixture validation is not registered for ['damage_step']",
+          "path": "$.validation_categories"
+        }
+      ],
+      "request_id": "real_core_interruption_damage_step_v1:16",
+      "schema_version": "interruption-support-taxonomy-v1",
+      "source_card_code": 14558127,
+      "status": "unsupported_category",
+      "supported": false
+    }
+  },
+  "verification": {
+    "activation_candidate_exposed_by_core": true,
+    "activation_cost_moves_source_to_graveyard": true,
+    "damage_step_taxonomy_registered_fixture_only": true,
+    "fresh_real_core_replay_two_repetitions": true,
+    "no_python_effect_or_timing_inference": true,
+    "routes_validate": true,
+    "unsupported_or_ambiguous_candidate_shapes_fail_closed": true
+  }
+}

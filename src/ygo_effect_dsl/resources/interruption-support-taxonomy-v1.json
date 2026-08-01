@@ -23,10 +23,13 @@
       ]
     },
     "damage_step": {
-      "status": "fail_close_pending_fixture",
+      "status": "verified_fixture_category",
       "default": false,
-      "production_claim": "prohibited",
+      "production_claim": "pinned_fixture_scope_only",
       "priority": 1,
+      "evidence": [
+        "damagestepev_3158b0ba058fbd5763a95656db85f71f98e1fc28c395dfa180a3d58fa5d02a16"
+      ],
       "follow_up_issue": 207
     },
     "simultaneous_trigger": {
